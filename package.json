@@ -15,6 +15,7 @@
     "cross-spawn": "4.0.2",
     "css-loader": "0.26.0",
     "detect-port": "1.0.1",
+    "dotenv": "2.0.0",
     "eslint": "3.8.1",
     "eslint-config-react-app": "^0.5.0",
     "eslint-loader": "1.6.0",
@@ -43,7 +44,7 @@
     "truffle-solidity-loader": "^0.1.4",
     "url-loader": "0.5.7",
     "webpack": "1.14.0",
-    "webpack-dev-server": "^3.2.1",
+    "webpack-dev-server": "1.16.2",
     "webpack-manifest-plugin": "1.1.0",
     "whatwg-fetch": "1.0.0"
   },

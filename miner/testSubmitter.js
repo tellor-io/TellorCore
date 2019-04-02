@@ -25,24 +25,14 @@ console.log('My Solution',solution);
 
 let myContract = new web3.eth.Contract(abi,address);
 let data = myContract.methods.proofOfWork(solution,apiId,value).encodeABI();
-// let rawTx = {
-//     "nonce" = nonce,
-//     "to": address,
-//     gasLimit: web3.utils.toHex(6000000),
-//     "value": "0x00",
-//     "from":account,
-//     "data": data,
-// }
-// const tx = new Tx(rawTx)
-// tx.sign(privateKey)
-// let serializedTx = "0x" + tx.serialize().toString('hex');
 
+//web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.requestData(api,0,0).encodeABI()});
 
-  web3.eth.getTransactionCount(account, function (err, nonce) {
+web3.eth.getTransactionCount(account, function (err, nonce) {
      var tx = new Tx({
       nonce: nonce,
       gasPrice: web3.utils.toHex(web3.utils.toWei('20', 'gwei')),
-      gasLimit: 1000000,
+      gasLimit: 2000000,
       to: address,
       value: 0,
       data: data,

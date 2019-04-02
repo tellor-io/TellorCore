@@ -79,13 +79,13 @@ def getAPIvalue(_api):
 
 def masterMiner():
 	miners_started = 0
-	challenge,apiId,difficulty,apiString = getVariables();
+	challenge,apiId,difficulty,apiString,granularity = getVariables();
 	while True:
 		nonce = mine(str(challenge),public_keys[miners_started],difficulty);
 		print('n',nonce);
 		if(nonce > 0):
 			print ("You guessed the hash!");
-			value = max(0,getAPIvalue(apiString) - miners_started*10); #account 2 should always be winner
+			value = max(0,(getAPIvalue(apiString) - miners_started*10) * granularity); #account 2 should always be winner
 			arg_string =""+ str(nonce) + " "+ str(apiId) +" " + str(value)+" "+str(contract_address)+" "+str(public_keys[miners_started])+" "+str(private_keys[miners_started])
 			print(arg_string)
 			#success = execute_js('testSubmitter.js',arg_string)
@@ -96,7 +96,7 @@ def masterMiner():
 				v = False;
 				while(v == False):
 					time.sleep(2);
-					_challenge,_apiId,_difficulty,_apiString = getVariables();
+					_challenge,_apiId,_difficulty,_apiString,_granularity= getVariables();
 					if challenge == _challenge:
 						v = False
 						time.sleep(10);
@@ -106,6 +106,7 @@ def masterMiner():
 						apiId = _apiId;
 						difficulty = _difficulty;
 						apiString = _apiString;
+						granularity = _granularity;
 				miners_started = 0;
 		else:
 			challenge,apiId,difficulty,apiString = getVariables(); 
@@ -118,6 +119,7 @@ def getVariables():
 	r = requests.post(node_url, data=json.dumps(payload));
 	val = jsonParser(r);
 	val = val['result'];
+	print(val);
 	_challenge = val[:66]
 	val = val[66:]
 	_apiId = int(val[:64],16)
@@ -125,11 +127,14 @@ def getVariables():
 	_difficulty = int(val[:64],16);
 	val =val[64:]
 	val =val[64:]
+	print(val[:64]);
+	_granularity = int(val[:64],16);
+	val =val[64:]
 	val =val[64:]
 	val = val[:-16]
 	_apiString =  str(binascii.unhexlify(val.strip()))
-	print('String',_challenge,_apiId,_difficulty,_apiString)
-	return _challenge,_apiId,_difficulty,_apiString
+	print('String',_challenge,_apiId,_difficulty,_apiString,_granularity)
+	return _challenge,_apiId,_difficulty,_apiString,_granularity
 
 def jsonParser(_info):
 	my_json = _info.content

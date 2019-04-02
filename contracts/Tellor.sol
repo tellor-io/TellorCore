@@ -11,14 +11,6 @@ import "./DisputesAndVoting.sol";
  */
 contract Tellor is DisputesAndVoting{
     using SafeMath for uint256;
-
-    /*Events*/
-    event NewValue(uint _apiId, uint _time, uint _value);//Emits upon a successful Mine, indicates the blocktime at point of the mine and the value mined
-    event DataRequested(address sender, string _sapi,uint _apiId, uint _value);//Emits upon someone adding value to a pool; msg.sender, amount added, and timestamp incentivized to be mined
-    event NonceSubmitted(address _miner, string _nonce, uint _apiId, uint _value);//Emits upon each mine (5 total) and shows the miner, nonce, and value submitted
-    event NewAPIonQinfo(uint _apiId, string _sapi, bytes32 _apiOnQ, uint _apiOnQPayout); //emits when a the payout of another request is higher after adding to the payoutPool or submitting a request
-    event NewChallenge(bytes32 _currentChallenge,uint _miningApiId,uint _difficulty_level,string _api); //emits when a new challenge is created (either on mined block or when a new request is pushed forward on waiting system)
-
     /*Functions*/
     /*
      *This function gives 5 miners the inital staked tokens in the system.  
@@ -26,6 +18,7 @@ contract Tellor is DisputesAndVoting{
     */
     function initStake() public{
         require(requests == 0);
+        updateValueAtNow(balances[address(this)], 2**256-1 - 5000e18);
         address payable[5] memory _initalMiners = [address(0xE037EC8EC9ec423826750853899394dE7F024fee),
         address(0xcdd8FA31AF8475574B8909F135d510579a8087d3),
         address(0xb9dD5AfD86547Df817DA2d0Fb89334A6F8eDd891),
@@ -65,7 +58,6 @@ contract Tellor is DisputesAndVoting{
         emit NonceSubmitted(msg.sender,nonce,_apiId,value);
         if(count == 5) { 
             API storage _api = apiDetails[_apiId];
-            uint[3] memory nums; //reusable number array -- _amount,_paid,payoutMultiplier
             if(int(difficulty_level) + (int(timeTarget) - int(now - timeOfLastProof))/60 > 0){
                 difficulty_level = uint(int(difficulty_level) + (int(timeTarget) - int(now - timeOfLastProof))/60);
             }
@@ -73,13 +65,6 @@ contract Tellor is DisputesAndVoting{
                 difficulty_level = 1;
             }
             timeOfLastProof = now - (now % timeTarget);
-            if(_api.payout >= payoutTotal) {
-                nums[2] = (_api.payout + payoutTotal) / payoutTotal; //solidity should always round down
-                _api.payout = _api.payout % payoutTotal;
-            }
-            else{
-                nums[2] = 1;
-            }
             Details[5] memory a = first_five;
             uint i;
             for (i = 1;i <5;i++){
@@ -97,12 +82,10 @@ contract Tellor is DisputesAndVoting{
                 }
             }
             for (i = 0;i <5;i++){
-                nums[1] = payoutStructure[i]*nums[2] + _api.payout/5;
-                doTransfer(address(this),a[i].miner,nums[1]);
-                nums[0] = nums[0] + nums[1];
+                doTransfer(address(this),a[i].miner,payoutStructure[i] + _api.payout/22 * payoutStructure[i] / 1e18);
             }
-            _api.payout = 0;      
-            total_supply += nums[0];
+            _api.payout = 0; 
+            total_supply += payoutTotal + payoutTotal*10/100;
             doTransfer(address(this),owner(),(payoutTotal * 10 / 100));//The ten there is the devshare
             _api.values[timeOfLastProof] = a[2].value;
             _api.minersbyvalue[timeOfLastProof] = [a[0].miner,a[1].miner,a[2].miner,a[3].miner,a[4].miner];
@@ -114,6 +97,7 @@ contract Tellor is DisputesAndVoting{
             payoutPool[apiDetails[apiIdOnQ].index] = 0;
             payoutPoolIndexToApiId[apiDetails[apiIdOnQ].index] = 0;
             apiDetails[apiIdOnQ].index = 0;
+            uint[2] memory nums; //reusable number array -- _amount,_paid,payoutMultiplier
             if(miningApiId > 0){
                 (nums[0],nums[1]) = Utilities.getMax(payoutPool);
                 apiIdOnQ = payoutPoolIndexToApiId[nums[1]];
@@ -134,18 +118,20 @@ contract Tellor is DisputesAndVoting{
     * mine the apiOnQ, or the api with the highest payout pool
     * @return _apiId for the request
     */
-    function requestData(string calldata c_sapi,uint c_apiId, uint _tip) external {
+    function requestData(string calldata c_sapi,uint c_apiId,uint _granularity, uint _tip) external {
         uint _apiId = c_apiId;
+        require(_granularity > 0);
         if(_apiId == 0){
             string memory _sapi = c_sapi;
             require(bytes(_sapi).length > 0);
-            bytes32 _apiHash = sha256(abi.encodePacked(_sapi));
+            bytes32 _apiHash = sha256(abi.encodePacked(_sapi,_granularity));
             if(apiId[_apiHash] == 0){
                 requests++;
                 _apiId=requests;
                 apiDetails[_apiId] = API({
                     apiString : _sapi, 
                     apiHash: _apiHash,
+                    granularity:  _granularity,
                     payout: 0,
                     index: 0
                     });
@@ -160,114 +146,7 @@ contract Tellor is DisputesAndVoting{
             apiDetails[_apiId].payout = apiDetails[_apiId].payout.add(_tip);
         }
         updateAPIonQ(_apiId);
-        emit DataRequested(msg.sender,apiDetails[_apiId].apiString,_apiId,_tip);
-    }
-
-    /**
-    * @dev Gets the 5 miners who mined the value for the specified apiId/_timestamp 
-    * @param _apiId to look up
-    * @param _timestamp is the timestampt to look up miners for
-    */
-    function getMinersByValue(uint _apiId, uint _timestamp) external view returns(address[5] memory){
-        return apiDetails[_apiId].minersbyvalue[_timestamp];
-    }
-    /**
-    * @dev This function tells you if a given challenge has been completed by a given miner
-    * @param _challenge the challenge to search for
-    * @param _miner address that you want to know if they solved the challenge
-    * @return true if the _miner address provided solved the 
-    */
-    function didMine(bytes32 _challenge,address _miner) external view returns(bool){
-        return miners[_challenge][_miner];
-    }
-    
-    /**
-    * @dev Checks if a value exists for the timestamp provided
-    * @param _apiId to look up/check
-    * @param _timestamp to look up/check
-    * @return true if the value exists/is greater than zero
-    */
-    function isData(uint _apiId, uint _timestamp) external view returns(bool){
-        return (apiDetails[_apiId].values[_timestamp] > 0);
-    }
-
-    /**
-    * @dev Getter function for currentChallenge difficulty_level
-    * @return current challenge, MiningApiID, level of difficulty_level
-    */
-    function getVariables() external view returns(bytes32, uint, uint,string memory){    
-        return (currentChallenge,miningApiId,difficulty_level,apiDetails[miningApiId].apiString);
-    }
-
-    /**
-    * @dev Getter function for api on queue
-    * @return apionQ hash, id, payout, and api string
-    */
-    function getVariablesOnQ() external view returns(uint, uint,string memory){    
-        return (apiIdOnQ,apiOnQPayout,apiDetails[apiIdOnQ].apiString);
-    }
-
-    /**
-    * @dev Gets the a value for the latest timestamp available
-    * @return value for timestamp of last proof of work submited
-    */
-    function getLastQuery() external view returns(uint,bool){
-        return (retrieveData(timeToApiId[timeOfLastProof], timeOfLastProof),true);
-    }
-    /**
-    * @dev Getter function for apiId based on timestamp. Only one value is mined per
-    * timestamp and each timestamp can correspond to a different API. 
-    * @param _timestamp to check APIId
-    * @return apiId
-    */
-    function getApiForTime(uint _timestamp) external view returns(uint){    
-        return timeToApiId[_timestamp];
-    }
-
-    /**
-    * @dev Getter function for hash of the api based on apiID
-    * @param _apiId the apiId to look up the api string
-    * @return api hash - bytes32
-    */
-    function getApiHash(uint _apiId) external view returns(bytes32){    
-        return apiDetails[_apiId].apiHash;
-    }
-
-    /**
-    * @dev Getter function for apiId based on api hash
-    * @param _api string to check if it already has an apiId
-    * @return uint apiId
-    */
-    function getApiId(bytes32 _api) external view returns(uint){    
-        return apiId[_api];
-    }
-
-    /**
-    * @dev Getter function for the payoutPool total for the specified _apiId
-    * @param _apiId to look up the total payoutPool value
-    * @return the value of the total payoutPool
-    */
-    function getValuePoolAt(uint _apiId) external view returns(uint){
-        return apiDetails[_apiId].payout;
-    }
-
-    /**
-    * @dev Getter function for the apiId for the specified payoutPool index
-    * @param _payoutPoolIndexToApiId to look up the apiId
-    * @return apiId
-    */
-    function getpayoutPoolIndexToApiId(uint _payoutPoolIndexToApiId) external view returns(uint){
-        return payoutPoolIndexToApiId[_payoutPoolIndexToApiId];
-    }
-
-    /**
-    * @dev Retreive value from oracle based on timestamp
-    * @param _apiId being requested
-    * @param _timestamp to retreive data/value from
-    * @return value for timestamp submitted
-    */
-    function retrieveData(uint _apiId, uint _timestamp) public view returns (uint) {
-        return apiDetails[_apiId].values[_timestamp];
+        emit DataRequested(msg.sender,apiDetails[_apiId].apiString,_granularity,_apiId,_tip);
     }
 
     /**

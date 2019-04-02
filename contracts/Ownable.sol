@@ -1,10 +1,10 @@
 pragma solidity ^0.5.0;
 
-contract Ownable{
+import "./TellorData.sol";
+
+contract Ownable is TellorData{
     /*Variables*/
-    address payable public _owner;//Tellor Owner address
     /*Event*/
-    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
     /**
      * @dev The Ownable constructor sets the original `owner` of the contract to the sender
      * account.
@@ -20,11 +20,5 @@ contract Ownable{
         require(msg.sender == owner());
         emit OwnershipTransferred(_owner, newOwner);
         _owner = newOwner;
-    }
-    /**
-     * @return the address of the owner.
-    */
-    function owner() public view returns (address) {
-        return _owner;
     }
 }

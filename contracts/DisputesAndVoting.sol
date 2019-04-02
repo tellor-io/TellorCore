@@ -11,11 +11,6 @@ import "./TokenAndStaking.sol";
 */
 contract DisputesAndVoting is TokenAndStaking {
     
-    /*Events*/
-    event NewDispute(uint _DisputeID, uint _apiId, uint _timestamp);//emitted when a new dispute is initialized
-    event Voted(uint _disputeID, bool _position, address _voter);//emitted when a new vote happens
-    event DisputeVoteTallied(uint _disputeID, int _result,address _reportedMiner,address _reportingParty, bool _active);//emitted upon dispute tally
-    event NewTellorAddress(address _newTellor); //emmited when a proposed fork is voted true
     /*****************Disputes and Voting Functions***************/
     /**
     * @dev Helps initialize a dispute by assigning it a disputeId 
@@ -28,10 +23,14 @@ contract DisputesAndVoting is TokenAndStaking {
         API storage _api = apiDetails[_apiId];
         require(block.number- _api.minedBlockNum[_timestamp]<= 144);
         require(_api.minedBlockNum[_timestamp] > 0);
+        address[5] memory _miners = _api.minersbyvalue[_timestamp];
+        bytes32 _hash = keccak256(abi.encodePacked(_miners[2],_apiId));
+        require(disputeHashToId[_hash] == 0);
         doTransfer(msg.sender,address(this), disputeFee);
         uint disputeId = disputesIds.length + 1;
-        address[5] memory _miners = _api.minersbyvalue[_timestamp];
+        disputeHashToId[_hash] = disputeId;
         disputes[disputeId] = Dispute({
+            hash:_hash,
             isPropFork: false,
             reportedMiner: _miners[2], 
             reportingParty: msg.sender,
@@ -57,9 +56,13 @@ contract DisputesAndVoting is TokenAndStaking {
     * @param _propNewTellorAddress address for new proposed Tellor
     */
     function propFork(address _propNewTellorAddress) external {
-        doTransfer(msg.sender,address(this), 10000e18);//This is the fork fee
+        bytes32 _hash = keccak256(abi.encodePacked(_propNewTellorAddress));
+        require(disputeHashToId[_hash] == 0);
+        doTransfer(msg.sender,address(this), disputeFee);//This is the fork fee
         uint disputeId = disputesIds.length + 1;
+        disputeHashToId[_hash] = disputeId;
         disputes[disputeId] = Dispute({
+            hash: _hash,
             isPropFork: true,
             reportedMiner: msg.sender, 
             reportingParty: msg.sender,
@@ -113,11 +116,12 @@ contract DisputesAndVoting is TokenAndStaking {
         require(now > disp.minExecutionDate); //Uncomment for production-commented out for testing 
         if (disp.isPropFork== false){
         StakeInfo storage stakes = staker[disp.reportedMiner];  
-            if (disp.tally != 0 ) { 
+            if (disp.tally > 0 ) { 
                 stakes.current_state = 0;
                 stakes.startDate = now -(now % 86400);
                 stakers--;
                 doTransfer(disp.reportedMiner,disp.reportingParty, stakeAmt);
+                transfer(disp.reportingParty, disputeFee);
                 disp.disputeVotePassed = true;
                 _api.values[disp.timestamp] = 0;
             } else {
@@ -128,92 +132,9 @@ contract DisputesAndVoting is TokenAndStaking {
             }
         emit DisputeVoteTallied(_disputeId,disp.tally,disp.reportedMiner,disp.reportingParty,disp.disputeVotePassed); 
         } else {
-            uint minQuorum = (total_supply * 75 / 100);
-            require(disp.quorum > minQuorum);
+            require(disp.quorum >  (total_supply * 50 / 100));
+            tellorContract = propForkAddress[_disputeId];
             emit NewTellorAddress(propForkAddress[_disputeId]);
         }
     }
-
-    /**
-    * @dev Get Dispute information
-    * @param _disputeId is the dispute id to check the outcome of
-    * @return uint of the API id being disputed
-    * @return uint of the timestamp being disputed
-    * @return uint disputed value
-    * @return bool of whether or not vote passed (false until vote is over)
-    */
-    function getDisputeInfo(uint _disputeId) view external returns(uint, uint, uint,bool) {
-        Dispute storage disp = disputes[_disputeId];
-        return(disp.apiId, disp.timestamp, disp.value, disp.disputeVotePassed);
-    }
-
-    /**
-    * @dev Gets length of array containing all disputeIds
-    * @return number of disputes through system
-    */
-    function countDisputes() view external returns(uint) {
-        return disputesIds.length;
-    }
-
-    /**
-    * @dev getter function to get all disputessIds
-    * @return uint array of all disputeIds;
-    */
-    function getDisputesIds() view external returns (uint[] memory){
-        return disputesIds;
-    }
-
-    /**
-    * @dev Gets blocknumber for mined timestamp 
-    * @param _apiId to look up
-    * @param _timestamp is the timestamp to look up blocknumber
-    * @return uint of the blocknumber which the dispute was mined
-    */
-    function getMinedBlockNum(uint _apiId, uint _timestamp) external view returns(uint){
-        return apiDetails[_apiId].minedBlockNum[_timestamp];
-    }
-
-    /**
-    * @dev Gets the API struct variables that are not mappings
-    * @param _apiId to look up
-    * @return string of api to query
-    * @return bytes32 hash of string
-    * @return uint of index in PayoutPool array
-    * @return uint of current payout for this api
-    */
-    function getApiVars(uint _apiId) external view returns(string memory, bytes32, uint, uint) {
-        API storage _api = apiDetails[_apiId]; 
-        return (_api.apiString, _api.apiHash, _api.index,_api.payout);
-    }
-
-    /**
-    * @dev Gets all dispute variables
-    * @param _disputeId to look up
-    * @return address of reported miner
-    * @return address of reporting party
-    * @return disputed apiId
-    * @return disputed minimum execution date
-    * @return uint number of votes
-    * @return uint blockNumber of vote
-    * @return uint index in disputeId array
-    * @return int count of the current tally
-    * @return bool of whether vote has been tallied
-    */
-    function getAllDisputeVars(uint _disputeId) external view returns(address, address, uint, uint, uint ,uint, uint, int, bool){
-        Dispute storage disp = disputes[_disputeId];
-        return(disp.reportedMiner, disp.reportingParty, disp.apiId, disp.minExecutionDate, 
-            disp.numberOfVotes, disp.blockNumber, disp.index,disp.tally,disp.executed); 
-    }
-    
-    /**
-    * @dev Checks if an address voted in a dispute
-    * @param _disputeId to look up
-    * @param _address to look up
-    * @return bool of whether or not party voted
-    */
-    function didVote(uint _disputeId, address _address) external view returns(bool){
-        return disputes[_disputeId].voted[_address];
-    }
-
-
 }
