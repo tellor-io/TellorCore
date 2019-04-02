@@ -19,24 +19,26 @@ contract DisputesAndVoting is TokenAndStaking {
     * @param _apiId being disputed
     * @param _timestamp being disputed
     */
-    function initDispute(uint _apiId, uint _timestamp) external {
+    function initDispute(uint _apiId, uint _timestamp,uint _minerIndex) external {
         API storage _api = apiDetails[_apiId];
         require(block.number- _api.minedBlockNum[_timestamp]<= 144);
         require(_api.minedBlockNum[_timestamp] > 0);
-        address[5] memory _miners = _api.minersbyvalue[_timestamp];
-        bytes32 _hash = keccak256(abi.encodePacked(_miners[2],_apiId));
+        require(_minerIndex < 5);
+        address _miner = _api.minersbyvalue[_timestamp][_minerIndex];
+        bytes32 _hash = keccak256(abi.encodePacked(_miner,_apiId));
         require(disputeHashToId[_hash] == 0);
         doTransfer(msg.sender,address(this), disputeFee);
-        uint disputeId = disputesIds.length + 1;
+        disputeCount++;
+        uint disputeId = disputeCount;
         disputeHashToId[_hash] = disputeId;
         disputes[disputeId] = Dispute({
             hash:_hash,
             isPropFork: false,
-            reportedMiner: _miners[2], 
+            reportedMiner: _miner, 
             reportingParty: msg.sender,
             apiId: _apiId,
             timestamp: _timestamp,
-            value: _api.values[_timestamp],  
+            value: _api.valuesByTimestamp[_timestamp][_minerIndex],  
             minExecutionDate: now + 7 days, 
             numberOfVotes: 0,
             executed: false,
@@ -46,8 +48,10 @@ contract DisputesAndVoting is TokenAndStaking {
             index:disputeId,
             quorum: 0
             });
-        disputesIds.push(disputeId);
-        staker[_miners[2]].current_state = 3;
+        if(_minerIndex == 2){
+            apiDetails[_apiId].inDispute[_timestamp] = true;
+        }
+        staker[_miner].current_state = 3;
         emit NewDispute(disputeId,_apiId,_timestamp );
     }
 
@@ -59,7 +63,8 @@ contract DisputesAndVoting is TokenAndStaking {
         bytes32 _hash = keccak256(abi.encodePacked(_propNewTellorAddress));
         require(disputeHashToId[_hash] == 0);
         doTransfer(msg.sender,address(this), disputeFee);//This is the fork fee
-        uint disputeId = disputesIds.length + 1;
+        disputeCount++;
+        uint disputeId = disputeCount;
         disputeHashToId[_hash] = disputeId;
         disputes[disputeId] = Dispute({
             hash: _hash,
@@ -77,8 +82,7 @@ contract DisputesAndVoting is TokenAndStaking {
             tally: 0,
             index:disputeId,
             quorum: 0
-            });
-        disputesIds.push(disputeId);    
+            }); 
         propForkAddress[disputeId] = _propNewTellorAddress;
     }
 
@@ -123,12 +127,17 @@ contract DisputesAndVoting is TokenAndStaking {
                 doTransfer(disp.reportedMiner,disp.reportingParty, stakeAmt);
                 transfer(disp.reportingParty, disputeFee);
                 disp.disputeVotePassed = true;
-                _api.values[disp.timestamp] = 0;
+                if(_api.inDispute[disp.timestamp] == true){
+                    _api.values[disp.timestamp] = 0;
+                }
             } else {
                 stakes.current_state = 1;
                 disp.executed = true;
                 disp.disputeVotePassed = false;
                 transfer(disp.reportedMiner, disputeFee);
+                if(_api.inDispute[disp.timestamp] == true){
+                    _api.inDispute[disp.timestamp] = false;
+                }
             }
         emit DisputeVoteTallied(_disputeId,disp.tally,disp.reportedMiner,disp.reportingParty,disp.disputeVotePassed); 
         } else {

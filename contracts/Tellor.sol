@@ -89,6 +89,7 @@ contract Tellor is DisputesAndVoting{
             doTransfer(address(this),owner(),(payoutTotal * 10 / 100));//The ten there is the devshare
             _api.values[timeOfLastProof] = a[2].value;
             _api.minersbyvalue[timeOfLastProof] = [a[0].miner,a[1].miner,a[2].miner,a[3].miner,a[4].miner];
+            _api.valuesByTimestamp[timeOfLastProof] = [a[0].value,a[1].value,a[2].value,a[3].value,a[4].value];
             _api.minedBlockNum[timeOfLastProof] = block.number;
             miningApiId = apiId[apiOnQ]; 
             timeToApiId[timeOfLastProof] = _apiId;
@@ -104,7 +105,7 @@ contract Tellor is DisputesAndVoting{
                 apiOnQ = apiDetails[apiIdOnQ].apiHash;
                 apiOnQPayout = nums[0];
                 currentChallenge = keccak256(abi.encodePacked(nonce, currentChallenge, blockhash(block.number - 1))); // Save hash for next proof
-                emit NewChallenge(currentChallenge,miningApiId,difficulty_level,apiDetails[miningApiId].apiString);   
+                emit NewChallenge(currentChallenge,miningApiId,difficulty_level,apiDetails[miningApiId].granularity,apiDetails[miningApiId].apiString);   
                 emit NewAPIonQinfo(apiIdOnQ,apiDetails[apiIdOnQ].apiString,apiOnQ,apiOnQPayout);    
             }
             emit NewValue(_apiId,timeOfLastProof,a[2].value);
@@ -121,6 +122,7 @@ contract Tellor is DisputesAndVoting{
     function requestData(string calldata c_sapi,uint c_apiId,uint _granularity, uint _tip) external {
         uint _apiId = c_apiId;
         require(_granularity > 0);
+        require(_granularity <= 1e18);
         if(_apiId == 0){
             string memory _sapi = c_sapi;
             require(bytes(_sapi).length > 0);
@@ -159,7 +161,7 @@ contract Tellor is DisputesAndVoting{
         if(miningApiId == 0){
             miningApiId = _apiId;
             currentChallenge = keccak256(abi.encodePacked(_payout, currentChallenge, blockhash(block.number - 1))); // Save hash for next proof
-            emit NewChallenge(currentChallenge,miningApiId,difficulty_level,apiDetails[miningApiId].apiString);
+            emit NewChallenge(currentChallenge,miningApiId,difficulty_level,apiDetails[miningApiId].granularity,apiDetails[miningApiId].apiString);
             return;
         }
         if (_payout > apiOnQPayout || apiIdOnQ == 0) {

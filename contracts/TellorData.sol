@@ -30,7 +30,7 @@ contract TellorData {
     /*Tellor*/ uint[5] public payoutStructure =  [1e18,5e18,10e18,5e18,1e18];//The structure of the payout (how much uncles vs winner recieve)
     /*Tellor*/ uint[51] public payoutPool; //uint50 array of the top50 requests by payment amount
     /*Tellor*/ uint[] public timestamps; //array of all timestamps requested
-    /*DisputesAndVoting*/ uint[] public disputesIds; //array of all disputes
+    /*DisputesAndVoting*/ uint public disputeCount;
 
     /*Tellor*/ mapping(bytes32 => mapping(address=>bool)) miners;//This is a boolean that tells you if a given challenge has been completed by a given miner
     /*Tellor*/ mapping(uint => uint) timeToApiId;//minedTimestamp to apiId 
@@ -90,13 +90,15 @@ contract TellorData {
         uint payout;//current payout of the api, zeroed once mined
         mapping(uint => uint) minedBlockNum;//[apiId][minedTimestamp]=>block.number
         mapping(uint => uint) values;//This the time series of values stored by the contract where uint UNIX timestamp is mapped to value
+        mapping(uint => bool) inDispute;//checks if API id is in dispute or finalized.
         mapping(uint => address[5]) minersbyvalue;  
+        mapping(uint => uint[5])valuesByTimestamp;
     }    
     event NewValue(uint _apiId, uint _time, uint _value);//Emits upon a successful Mine, indicates the blocktime at point of the mine and the value mined
     event DataRequested(address sender, string _sapi,uint _granularity, uint _apiId, uint _value);//Emits upon someone adding value to a pool; msg.sender, amount added, and timestamp incentivized to be mined
     event NonceSubmitted(address _miner, string _nonce, uint _apiId, uint _value);//Emits upon each mine (5 total) and shows the miner, nonce, and value submitted
     event NewAPIonQinfo(uint _apiId, string _sapi, bytes32 _apiOnQ, uint _apiOnQPayout); //emits when a the payout of another request is higher after adding to the payoutPool or submitting a request
-    event NewChallenge(bytes32 _currentChallenge,uint _miningApiId,uint _difficulty_level,string _api); //emits when a new challenge is created (either on mined block or when a new request is pushed forward on waiting system)
+    event NewChallenge(bytes32 _currentChallenge,uint _miningApiId,uint _difficulty_level,uint _multiplier,string _api); //emits when a new challenge is created (either on mined block or when a new request is pushed forward on waiting system)
 
     event Approval(address indexed owner, address indexed spender, uint256 value);//ERC20 Approval event
     event Transfer(address indexed from, address indexed to, uint256 value);//ERC20 Transfer Event
@@ -119,22 +121,6 @@ contract TellorData {
     function getDisputeInfo(uint _disputeId) view external returns(uint, uint, uint,bool) {
         Dispute storage disp = disputes[_disputeId];
         return(disp.apiId, disp.timestamp, disp.value, disp.disputeVotePassed);
-    }
-
-    /**
-    * @dev Gets length of array containing all disputeIds
-    * @return number of disputes through system
-    */
-    function countDisputes() view external returns(uint) {
-        return disputesIds.length;
-    }
-
-    /**
-    * @dev getter function to get all disputessIds
-    * @return uint array of all disputeIds;
-    */
-    function getDisputesIds() view external returns (uint[] memory){
-        return disputesIds;
     }
 
     /**
@@ -278,6 +264,22 @@ contract TellorData {
     function getMinersByValue(uint _apiId, uint _timestamp) external view returns(address[5] memory){
         return apiDetails[_apiId].minersbyvalue[_timestamp];
     }
+        /**
+    * @dev Gets the 5 miners who mined the value for the specified apiId/_timestamp 
+    * @param _apiId to look up
+    * @param _timestamp is the timestampt to look up miners for
+    */
+    function getSubmissionsByTimestamp(uint _apiId, uint _timestamp) external view returns(uint[5] memory){
+        return apiDetails[_apiId].valuesByTimestamp[_timestamp];
+    }
+    /**
+    * @dev Gets the 5 miners who mined the value for the specified apiId/_timestamp 
+    * @param _apiId to look up
+    * @param _timestamp is the timestampt to look up miners for
+    */
+    function isInDispute(uint _apiId, uint _timestamp) external view returns(bool){
+        return apiDetails[_apiId].inDispute[_timestamp];
+    }
     /**
     * @dev This function tells you if a given challenge has been completed by a given miner
     * @param _challenge the challenge to search for
@@ -407,6 +409,4 @@ contract TellorData {
         }
         return checkpoints[min].value;
     }
-    event Print(bytes32 _hash);
-    event Print2(address _a);
 }

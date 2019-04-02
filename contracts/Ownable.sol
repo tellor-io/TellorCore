@@ -12,13 +12,13 @@ contract Ownable is TellorData{
     constructor ()  public{
         _owner = msg.sender;
     }
-    /**
-     * @dev Allows the current owner to transfer control of the contract to a newOwner.
-     * @param newOwner The address to transfer ownership to.
-    */
-    function transferOwnership(address payable newOwner) external {
-        require(msg.sender == owner());
-        emit OwnershipTransferred(_owner, newOwner);
-        _owner = newOwner;
-    }
+    // /**
+    //  * @dev Allows the current owner to transfer control of the contract to a newOwner.
+    //  * @param newOwner The address to transfer ownership to.
+    // */
+    // function transferOwnership(address payable newOwner) external {
+    //     require(msg.sender == owner());
+    //     emit OwnershipTransferred(_owner, newOwner);
+    //     _owner = newOwner;
+    // }
 }
