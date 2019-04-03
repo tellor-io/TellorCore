@@ -1,16 +1,19 @@
 pragma solidity ^0.5.0;
 
-import "./TellorData.sol";
+import "./TellorGetters.sol";
+import "./libraries/TellorLibrary.sol";
 
-contract TellorStorage is TellorData{
+contract TellorMaster is TellorGetters{
+
+    using TellorLibrary for TellorLibrary.TellorStorageStruct;
+    TellorLibrary.TellorStorageStruct public tellor;
     /**
      * @dev The constructor sets the original `tellorStorageOwner` of the contract to the sender
      * account.
     */
+
     constructor (address _tellorContract)  public{
-        _owner = msg.sender;
-        tellorContract = _tellorContract;
-        emit NewTellorAddress(_tellorContract);
+        tellor.tellorMasterConstructor(_tellorContract);
     }
 
     function () external payable {
