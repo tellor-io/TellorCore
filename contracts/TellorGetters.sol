@@ -3,11 +3,13 @@ pragma solidity ^0.5.0;
 import "./libraries/SafeMath.sol"; 
 import "./libraries/TellorGettersLibrary.sol";
 
+//add in base getters for eteernal storage
+//add in getters for public variables
+
 contract TellorGetters{
     using SafeMath for uint256;
-
     using TellorGettersLibrary for TellorGettersLibrary.TellorStorageStruct;
-    TellorGettersLibrary.TellorStorageStruct public tellor;
+    TellorGettersLibrary.TellorStorageStruct tellor;
     /**
     * @dev Get Dispute information
     * @param _disputeId is the dispute id to check the outcome of
@@ -31,6 +33,7 @@ contract TellorGetters{
     }
 
     /**
+    * ADD EVERYTHING TO THIS
     * @dev Gets the API struct variables that are not mappings
     * @param _apiId to look up
     * @return string of api to query
@@ -81,7 +84,7 @@ contract TellorGetters{
      *@param address of user
      *@param address of amount
     */
-    function allowedToTrade(address _user,uint _amount) public view returns(bool){
+    function allowedToTrade(address _user,uint _amount) external view returns(bool){
         return tellor.allowedToTrade(_user,_amount);
     }
 
@@ -90,7 +93,7 @@ contract TellorGetters{
      *@param address of staker enquiring about
      *@return bool is the staker is currently staked
     */
-    function isStaked(address _staker) public view returns(bool){
+    function isStaked(address _staker) external view returns(bool){
         return tellor.isStaked(_staker);
     }
 
@@ -100,7 +103,7 @@ contract TellorGetters{
      *@return uint current state of staker
      *@return uint startDate of staking
     */
-    function getStakerInfo(address _staker) public view returns(uint,uint){
+    function getStakerInfo(address _staker) external view returns(uint,uint){
         return tellor.getStakerInfo(_staker);
     }
 
@@ -110,7 +113,7 @@ contract TellorGetters{
     * @param _user is the owner address used to look up the balance
     * @return Returns the balance associated with the passed in _user
     */
-    function balanceOf(address _user) public view returns (uint bal) { 
+    function balanceOf(address _user) external view returns (uint bal) { 
         return tellor.balanceOf(_user);
     }
 /**
@@ -119,7 +122,7 @@ contract TellorGetters{
     * @param _blockNumber The block number when the balance is queried
     * @return The balance at _blockNumber
     */
-    function balanceOfAt(address _user, uint _blockNumber) public view returns (uint) {
+    function balanceOfAt(address _user, uint _blockNumber) external view returns (uint) {
         return tellor.balanceOfAt(_user,_blockNumber);
     }
  /**
@@ -127,7 +130,7 @@ contract TellorGetters{
     * @param _spender address
     * @return Returns the remaining allowance of tokens granted to the _spender from the _user
     */
-    function allowance(address _user, address _spender) public view returns (uint) {
+    function allowance(address _user, address _spender) external view returns (uint) {
        return tellor.allowance(_user,_spender);
     }
 
@@ -135,8 +138,8 @@ contract TellorGetters{
     * @dev Getter for the total_supply of oracle tokens
     * @return total supply
     */
-    function totalSupply() public view returns (uint) {
-       return tellor.totalSupply(uint);
+    function totalSupply() external view returns (uint) {
+       return tellor.totalSupply();
     }
     /**
     * @dev Gets the 5 miners who mined the value for the specified apiId/_timestamp 
@@ -239,7 +242,7 @@ contract TellorGetters{
     * @return the value of the total payoutPool
     */
     function getValuePoolAt(uint _apiId) external view returns(uint){
-        return tellor.getValueAt(_apiId);
+        return tellor.getValuePoolAt(_apiId);
     }
 
     /**
@@ -257,23 +260,14 @@ contract TellorGetters{
     * @param _timestamp to retreive data/value from
     * @return value for timestamp submitted
     */
-    function retrieveData(uint _apiId, uint _timestamp) public view returns (uint) {
+    function retrieveData(uint _apiId, uint _timestamp) external view returns (uint) {
         return tellor.retrieveData(_apiId,_timestamp);
     }
 
         /**
      * @return the address of the owner.
     */
-    function owner() public view returns (address) {
+    function owner() external view returns (address) {
         return tellor._owner;
-    }
-
-        /**
-    * @dev Getter for balance for owner on the specified _block number
-    * @param checkpoints gets the mapping for the balances[owner]
-    * @param _block is the block number to search the balance on
-    */
-    function getValueAt(Checkpoint[] storage checkpoints, uint _block) view internal returns (uint) {
-        return tellor.getValueAt(checkpoints,_block);
     }
 }

@@ -3,21 +3,21 @@ pragma solidity ^0.5.0;
 import "./libraries/SafeMath.sol";
 import "./libraries/Utilities.sol";
 import "./libraries/TellorLibrary.sol";
-import "./TellorGetters.sol";
+//import "./TellorGetters.sol";
 
 /**
  * @title Tellor Oracle System
  * @dev Oracle contract where miners can submit the proof of work along with the value.
  */
-contract Tellor is TellorGetters{
+contract Tellor /* is TellorGetters*/{
 
     using SafeMath for uint256;
 
     using TellorLibrary for TellorLibrary.TellorStorageStruct;
-    TellorLibrary.TellorStorageStruct public tellor;
+    TellorLibrary.TellorStorageStruct tellor;
 
-    constructor ()  public{
-        tellor.initStake(msg.sender);
+    function initStake() external {
+        tellor.initStake();
     }
     /**
          * @dev Allows the current owner to transfer control of the contract to a newOwner.
@@ -25,14 +25,6 @@ contract Tellor is TellorGetters{
     */
     function transferOwnership(address payable newOwner) external {
         tellor.transferOwnership(newOwner);
-    }
-    /*
-     *This function gives 5 miners the inital staked tokens in the system.  
-     * It would run with the constructor, but throws on too much gas
-     *Check do we need this since it runs in constructor?
-    */
-    function initStake() public{
-        tellor.initStake();
     }
     /**
     * @dev Proof of work is called by the miner when they submit the solution (proof of work and value)
@@ -54,14 +46,6 @@ contract Tellor is TellorGetters{
     */
     function requestData(string calldata c_sapi,uint c_apiId,uint _granularity, uint _tip) external {
         tellor.requestData(c_sapi,c_apiId,_granularity,_tip);
-    }
-
-    /**
-    @dev This function updates APIonQ and the payoutPool when requestData or addToValuePool are ran
-    @param _apiId being requested
-    */
-    function updateAPIonQ(uint _apiId) internal {
-        tellor.updateAPIonQ(_apiId);
     }
     /**
     * @dev Helps initialize a dispute by assigning it a disputeId 
@@ -94,12 +78,12 @@ contract Tellor is TellorGetters{
     * @dev tallies the votes.
     * @param _disputeId is the dispute id
     */
-    function tallyVotes(uint _disputeId) public {
+    function tallyVotes(uint _disputeId) external {
         tellor.tallyVotes(_disputeId);
     }
 
     function depositStake() external {
-        tellor.depositStake;
+        tellor.depositStake();
     }
     /**
     * @dev This function allows users to withdraw their stake after a 7 day waiting period from request 
@@ -121,7 +105,7 @@ contract Tellor is TellorGetters{
     * @param _amount The amount of tokens to send
     * @return true if transfer is successful
     */
-    function transfer(address _to, uint256 _amount) public returns (bool success) {
+    function transfer(address _to, uint256 _amount) external returns (bool success) {
         return tellor.transfer(_to,_amount);
     }
 
@@ -133,7 +117,7 @@ contract Tellor is TellorGetters{
     * @param _amount The amount of tokens to be transferred
     * @return True if the transfer was successful
     */
-    function transferFrom(address _from, address _to, uint256 _amount) public returns (bool success) {
+    function transferFrom(address _from, address _to, uint256 _amount) external returns (bool success) {
         return tellor.transferFrom(_from,_to,_amount);
     }
 
@@ -143,26 +127,7 @@ contract Tellor is TellorGetters{
     * @param _amount amount the spender is being approved for
     * @return true if spender appproved successfully
     */
-    function approve(address _spender, uint _amount) public returns (bool) {
+    function approve(address _spender, uint _amount) external returns (bool) {
         return tellor.approve(_spender,_amount);
-    }
-
-    /**
-    * @dev Updates balance for from and to on the current block number via doTransfer
-    * @param checkpoints gets the mapping for the balances[owner]
-    * @param _value is the new balance
-    */
-    function updateValueAtNow(Checkpoint[] storage checkpoints, uint _value) internal  {
-        tellor.updateValueAtNow(checkpoints,_value);
-    }
-    
-    /** 
-    * @dev Completes POWO transfers by updating the balances on the current block number
-    * @param _from address to transfer from
-    * @param _to addres to transfer to
-    * @param _amount to transfer 
-    */
-    function doTransfer(address _from, address _to, uint _amount) internal {
-        tellor.doTransfer(_from,_to,_amount);
     }
 }
