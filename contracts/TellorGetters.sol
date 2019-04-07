@@ -285,4 +285,8 @@ contract TellorGetters{
         function getUintVar(bytes32 _data) view public returns(uint){
         return tellor.getUintVar(_data);
     }
+
+            function getPayoutPool() view public returns(uint[51] memory){
+        return tellor.getPayoutPool();
+    }
 }

@@ -427,4 +427,8 @@ library TellorGettersLibrary{
     function getUintVar(TellorStorageStruct storage self,bytes32 _data) view public returns(uint){
         return self.uintVars[_data];
     }
+
+    function getPayoutPool(TellorStorageStruct storage self) view public returns(uint[51] memory){
+        return self.payoutPool;
+    }
 }
