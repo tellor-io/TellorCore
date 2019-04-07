@@ -5,14 +5,10 @@ import "./libraries/TellorLibrary.sol";
 import "./libraries/TellorGettersLibrary.sol";
 
 contract TellorMaster is TellorGetters{
-
-    using TellorLibrary for TellorLibrary.TellorStorageStruct;
-    TellorLibrary.TellorStorageStruct public tellor;
     /**
      * @dev The constructor sets the original `tellorStorageOwner` of the contract to the sender
      * account.
     */
-
     constructor (address _tellorContract)  public{
         tellor.tellorMasterConstructor(_tellorContract);
     }

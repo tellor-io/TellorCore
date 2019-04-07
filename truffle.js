@@ -16,7 +16,7 @@ module.exports = {
       host: "localhost",
       port: 8545,
       network_id: "*",
-      gas: 14000000,
+      gas: 10000000,
       websockets: true
     },
     dev2: {

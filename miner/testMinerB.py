@@ -85,8 +85,8 @@ def masterMiner():
 		print('n',nonce);
 		if(nonce > 0):
 			print ("You guessed the hash!");
-			value = max(0,(1000- miners_started*10) * granularity);
-			#value = max(0,(getAPIvalue(apiString) - miners_started*10) * granularity); #account 2 should always be winner
+			#value = max(0,(1000- miners_started*10) * granularity);
+			value = max(0,(getAPIvalue(apiString) - miners_started*10) * granularity); #account 2 should always be winner
 			arg_string =""+ str(nonce) + " "+ str(apiId) +" " + str(value)+" "+str(contract_address)+" "+str(public_keys[miners_started])+" "+str(private_keys[miners_started])
 			print(arg_string)
 			#success = execute_js('testSubmitter.js',arg_string)

@@ -97,6 +97,10 @@ contract TellorGetters{
         return tellor.isStaked(_staker);
     }
 
+        function stakerCount() external view returns(uint){
+        return tellor.stakerCount();
+    }
+
     /**
      *@dev This function allows users to retireve all information about a staker
      *@param address of staker enquiring about
@@ -269,5 +273,16 @@ contract TellorGetters{
     */
     function owner() external view returns (address) {
         return tellor._owner;
+    }
+
+            /**
+     * @return the address of the owner.
+    */
+    function getTellorContract() external view returns (address) {
+        return tellor.tellorContract;
+    }
+
+        function getUintVar(bytes32 _data) view public returns(uint){
+        return tellor.getUintVar(_data);
     }
 }

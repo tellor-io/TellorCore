@@ -114,6 +114,13 @@ library TellorGettersLibrary{
 
     //Tellor Getters
 
+    function tellorMasterConstructor(TellorStorageStruct storage self,address _tellorContract) internal{
+        self._owner = msg.sender;
+        self.tellorContract = _tellorContract;
+        emit NewTellorAddress(_tellorContract);
+    }
+
+    
     function getDisputeInfo(TellorStorageStruct storage self,uint _disputeId) view public returns(uint, uint, uint,bool) {
         Dispute storage disp = self.disputes[_disputeId];
         return(disp.apiId, disp.timestamp, disp.value, disp.disputeVotePassed);
@@ -212,6 +219,10 @@ library TellorGettersLibrary{
     */
     function getStakerInfo(TellorStorageStruct storage self,address _staker) public view returns(uint,uint){
         return (self.staker[_staker].current_state,self.staker[_staker].startDate);
+    }
+
+    function stakerCount(TellorStorageStruct storage self) external view returns(uint){
+        return self.uintVars[keccak256("stakers")];
     }
 
     /*****************ERC20 Functions***************/
@@ -382,6 +393,13 @@ library TellorGettersLibrary{
         return self._owner;
     }
 
+            /**
+     * @return the address of the owner.
+    */
+    function getTellorContract(TellorStorageStruct storage self) public view returns (address) {
+        return self.tellorContract;
+    }
+
         /**
     * @dev Getter for balance for owner on the specified _block number
     * @param checkpoints gets the mapping for the balances[owner]
@@ -404,5 +422,9 @@ library TellorGettersLibrary{
             }
         }
         return checkpoints[min].value;
+    }
+
+    function getUintVar(TellorStorageStruct storage self,bytes32 _data) view public returns(uint){
+        return self.uintVars[_data];
     }
 }

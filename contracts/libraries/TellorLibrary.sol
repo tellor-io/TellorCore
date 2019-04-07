@@ -111,12 +111,6 @@ library TellorLibrary{
     event DisputeVoteTallied(uint _disputeID, int _result,address _reportedMiner,address _reportingParty, bool _active);//emitted upon dispute tally
     event NewTellorAddress(address _newTellor); //emmited when a proposed fork is voted true
     event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
-
-    function tellorMasterConstructor(TellorStorageStruct storage self,address _tellorContract) internal{
-        self._owner = msg.sender;
-        self.tellorContract = _tellorContract;
-        emit NewTellorAddress(_tellorContract);
-    }
     /**
          * @dev Allows the current owner to transfer control of the contract to a newOwner.
          * @param newOwner The address to transfer ownership to.
@@ -133,7 +127,6 @@ library TellorLibrary{
     */
     function initStake(TellorStorageStruct storage self) internal{
         require(self.uintVars[keccak256("requests")] == 0);
-        self._owner = msg.sender;
         updateValueAtNow(self.balances[address(this)], 2**256-1 - 5000e18);
         address payable[5] memory _initalMiners = [address(0xE037EC8EC9ec423826750853899394dE7F024fee),
         address(0xcdd8FA31AF8475574B8909F135d510579a8087d3),
