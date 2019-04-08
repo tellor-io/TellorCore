@@ -39,13 +39,14 @@ contract Tellor /* is TellorGetters*/{
 
    /**
     * @dev Request to retreive value from oracle based on timestamp
-    * @param c_sapi being requested be mined
+    * @param _c_sapi being requested be mined
+    * @param _c_symbol being requested be mined
     * @param _tip amount the requester is willing to pay to be get on queue. Miners
     * mine the apiOnQ, or the api with the highest payout pool
     * @return _apiId for the request
     */
-    function requestData(string calldata c_sapi,uint c_apiId,uint _granularity, uint _tip) external {
-        tellor.requestData(c_sapi,c_apiId,_granularity,_tip);
+    function requestData(string calldata _c_sapi,string calldata _c_symbol,uint c_apiId,uint _granularity, uint _tip) external {
+        tellor.requestData(_c_sapi,_c_symbol,c_apiId,_granularity,_tip);
     }
     /**
     * @dev Helps initialize a dispute by assigning it a disputeId 

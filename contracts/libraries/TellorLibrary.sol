@@ -44,6 +44,7 @@ library TellorLibrary{
     }
     struct API{
         string apiString;//id to string api
+        string apiSymbol;
         bytes32 apiHash;//hash of string
         uint granularity; //multiplier for miners
         uint index; //index in payoutPool
@@ -97,7 +98,7 @@ library TellorLibrary{
     }
 
     event NewValue(uint _apiId, uint _time, uint _value);//Emits upon a successful Mine, indicates the blocktime at point of the mine and the value mined
-    event DataRequested(address sender, string _sapi,uint _granularity, uint _apiId, uint _value);//Emits upon someone adding value to a pool; msg.sender, amount added, and timestamp incentivized to be mined
+    event DataRequested(address sender, string _sapi, string _symbol, uint _granularity, uint _apiId, uint _value);//Emits upon someone adding value to a pool; msg.sender, amount added, and timestamp incentivized to be mined
     event NonceSubmitted(address _miner, string _nonce, uint _apiId, uint _value);//Emits upon each mine (5 total) and shows the miner, nonce, and value submitted
     event NewAPIonQinfo(uint _apiId, string _sapi, bytes32 _apiOnQ, uint _apiOnQPayout); //emits when a the payout of another request is higher after adding to the payoutPool or submitting a request
     event NewChallenge(bytes32 _currentChallenge,uint _miningApiId,uint _difficulty_level,uint _multiplier,string _api); //emits when a new challenge is created (either on mined block or when a new request is pushed forward on waiting system)
@@ -241,19 +242,22 @@ library TellorLibrary{
     * mine the apiOnQ, or the api with the highest payout pool
     * @return _apiId for the request
     */
-    function requestData(TellorStorageStruct storage self,string memory _c_sapi,uint _c_apiId,uint _granularity, uint _tip) internal {
+    function requestData(TellorStorageStruct storage self,string memory _c_sapi,string memory _c_symbol, uint _c_apiId,uint _granularity, uint _tip) internal {
         uint _apiId = _c_apiId;
         require(_granularity > 0);
         require(_granularity <= 1e18);
         if(_apiId == 0){
             string memory _sapi = _c_sapi;
+            string memory _symbol = _c_symbol;
             require(bytes(_sapi).length > 0);
+                    require(bytes(_symbol).length < 64);
             bytes32 _apiHash = sha256(abi.encodePacked(_sapi,_granularity));
             if(self.apiId[_apiHash] == 0){
                 self.uintVars[keccak256("requests")]++;
                 _apiId=self.uintVars[keccak256("requests")];
                 self.apiDetails[_apiId] = API({
                     apiString : _sapi, 
+                    apiSymbol: _symbol,
                     apiHash: _apiHash,
                     granularity:  _granularity,
                     payout: 0,
@@ -270,7 +274,7 @@ library TellorLibrary{
             self.apiDetails[_apiId].payout = self.apiDetails[_apiId].payout.add(_tip);
         }
         updateAPIonQ(self,_apiId);
-        emit DataRequested(msg.sender,self.apiDetails[_apiId].apiString,_granularity,_apiId,_tip);
+        emit DataRequested(msg.sender,self.apiDetails[_apiId].apiString,self.apiDetails[_apiId].apiSymbol,_granularity,_apiId,_tip);
     }
 
     /**

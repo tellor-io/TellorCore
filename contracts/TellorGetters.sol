@@ -41,7 +41,7 @@ contract TellorGetters{
     * @return uint of index in PayoutPool array
     * @return uint of current payout for this api
     */
-    function getApiVars(uint _apiId) external view returns(string memory, bytes32,uint, uint, uint) {
+    function getApiVars(uint _apiId) external view returns(string memory, string memory,bytes32,uint, uint, uint) {
         return tellor.getApiVars(_apiId);
     }
 

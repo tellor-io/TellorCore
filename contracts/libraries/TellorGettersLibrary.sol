@@ -44,6 +44,7 @@ library TellorGettersLibrary{
     }
     struct API{
         string apiString;//id to string api
+        string apiSymbol;
         bytes32 apiHash;//hash of string
         uint granularity; //multiplier for miners
         uint index; //index in payoutPool
@@ -140,13 +141,14 @@ library TellorGettersLibrary{
     * @dev Gets the API struct variables that are not mappings
     * @param _apiId to look up
     * @return string of api to query
+    * @return string of symbol of api to query
     * @return bytes32 hash of string
     * @return uint of index in PayoutPool array
     * @return uint of current payout for this api
     */
-    function getApiVars(TellorStorageStruct storage self,uint _apiId) public view returns(string memory, bytes32,uint, uint, uint) {
+    function getApiVars(TellorStorageStruct storage self,uint _apiId) public view returns(string memory,string memory, bytes32,uint, uint, uint) {
         API storage _api = self.apiDetails[_apiId]; 
-        return (_api.apiString, _api.apiHash, _api.granularity,_api.index,_api.payout);
+        return (_api.apiString,_api.apiSymbol,_api.apiHash, _api.granularity,_api.index,_api.payout);
     }
 
     /**
