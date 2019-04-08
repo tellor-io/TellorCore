@@ -62,14 +62,14 @@
 //    });
 //    it("Request data", async function () {
 //         let res2 = await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(api2,"ETH/USD",0,1000,20).encodeABI()})
-//         let res = await web3.eth.abi.decodeParameters(['address','string','string','uint256','uint256','uint256'],res2.logs[2].data);
-//         let resSapi = res['1']
-//         let resApiId = await res['4']
+//         let res = await web3.eth.abi.decodeParameters(['string','string','uint256','uint256'],res2.logs[2].data);
+//         let resSapi = res['0']
+//         let resApiId = await web3.eth.abi.decodeParameter('uint256',res2.logs[2].topics[2])
 //         let valuePool = await oracle.getValuePoolAt(resApiId);
 //         assert( web3.utils.hexToNumberString(valuePool) == 20, "value pool should be 20");
-//         res2 = await web3.eth.abi.decodeParameters(['uint256','string','bytes32','uint256'],res2.logs[1].data);
-//         let apiIdonQ = await res2['0'];
-//         let apiOnQPayout = res2['3'];
+//         res3 = await web3.eth.abi.decodeParameters(['string','bytes32','uint256'],res2.logs[1].data);
+//         let apiIdonQ = await web3.eth.abi.decodeParameter('uint256',res2.logs[1].topics[1])
+//         let apiOnQPayout = res3['2'];
 //         assert(resSapi == api2,"string should be correct");
 //         assert(web3.utils.hexToNumberString(apiOnQPayout) == 20, "Current payout on Q should be 20");
 //         assert(web3.utils.hexToNumberString(apiIdonQ) == resApiId, "timestamp on Q should be apiID");
@@ -79,21 +79,21 @@
 //     it("several request data", async function () {
 //        test1 = "https://api.gdax.com/products/ETH-USD/ticker";
 //        test2 = "https://api.gdax.com/products/BTC-USD/ticker";
-//        req1 = await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(test1,"ETH/USD",0,1000,20).encodeABI()})
-//         res2 = await web3.eth.abi.decodeParameters(['uint256','string','bytes32','uint256'],req1.logs[1].data);
-//         onQ = await res2['0'];
+//        let req1 = await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(test1,"ETH/USD",0,1000,20).encodeABI()})
+//     onQ = await web3.eth.abi.decodeParameter('uint256',req1.logs[1].topics[1])
 //        assert(web3.utils.hexToNumberString(onQ) == 2, "should be 2");
-//        req2 = await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(api2,"ETH/USD",0,1000,40).encodeABI()})
-//                res2 = await web3.eth.abi.decodeParameters(['uint256','string','bytes32','uint256'],req2.logs[1].data);
-//         onQ = await res2['0'];
+//        req1 = await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(api2,"ETH/USD",0,1000,40).encodeABI()})
+//         onQ = await web3.eth.abi.decodeParameter('uint256',req1.logs[1].topics[1])
 //        assert(web3.utils.hexToNumberString(onQ) == 3, "should be 3");
-//        req3 = await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData("","ETH/USD",2,1000,31).encodeABI()})
-//                res2 = await web3.eth.abi.decodeParameters(['uint256','string','bytes32','uint256'],req3.logs[1].data);
-//         onQ = await res2['0'];
+//        console.log(2);
+//        req1 = await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData("","ETH/USD",2,1000,31).encodeABI()})
+//               console.log(req1.logs[1].topics)
+//         onQ = await web3.eth.abi.decodeParameter('uint256',req1.logs[1].topics[1])
 //        assert(web3.utils.hexToNumberString(onQ) == 2, "should be 2");
-//        req4 = await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(test2,"ETH/USD",0,1000,60).encodeABI()})
-//                res2 = await web3.eth.abi.decodeParameters(['uint256','string','bytes32','uint256'],req4.logs[1].data);
-//         onQ = await res2['0'];
+
+//        req1 = await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(test2,"ETH/USD",0,1000,60).encodeABI()})
+//         onQ = await web3.eth.abi.decodeParameter('uint256',req1.logs[1].topics[1])
+//         console.log(3)
 //        assert(web3.utils.hexToNumberString(onQ) == 4, "should be 4");
 //     });
 //     it("Request data and change on queue with another request", async function () {
@@ -102,24 +102,25 @@
 //         let pay = web3.utils.toWei('20', 'ether');
 //         let pay2 = web3.utils.toWei('50', 'ether');
 //         let res3 = await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(test1,"ETH/USD",0,1000,pay).encodeABI()})
-//         let res = await web3.eth.abi.decodeParameters(['address','string','string','uint256','uint256','uint256'],res3.logs[2].data);
-//         let resSapi = res['1']
-//         let resApiId = res['4']
+//         let res = await web3.eth.abi.decodeParameters(['string','string','uint256','uint256'],res3.logs[2].data);
+//         let resSapi = res['0']
+
+//         let resApiId = await web3.eth.abi.decodeParameter('uint256',res3.logs[2].topics[2])
 //         let valuePool = await oracle.getValuePoolAt(resApiId);
 //         assert( web3.utils.fromWei(valuePool) == 20, "value pool should be 20");
-//         let res2 = await web3.eth.abi.decodeParameters(['uint256','string','bytes32','uint256'],res3.logs[1].data);
-//         let apiIdonQ = await res2['0'];
-//         let apiOnQPayout = res2['3'];
+//         let res2 = await web3.eth.abi.decodeParameters(['string','bytes32','uint256'],res3.logs[1].data);
+//         let apiIdonQ = await web3.eth.abi.decodeParameter('uint256',res3.logs[1].topics[1])
+//         let apiOnQPayout = res2['2'];
 //         assert(web3.utils.fromWei(apiOnQPayout) == 20, "Current payout on Q should be 20");
 //         assert(apiIdonQ== resApiId, "timestamp1 on Q should be apiID");
 //         res3 = await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(api2,"ETH/USD",0,1000,pay2).encodeABI()})
-//         res = await web3.eth.abi.decodeParameters(['address','string','string','uint256','uint256','uint256'],res3.logs[2].data);
-//         let resSapi2 = res['1']
-//         let resApiId2 = await res['4']
+//         res = await web3.eth.abi.decodeParameters(['string','string','uint256','uint256'],res3.logs[2].data);
+//         let resSapi2 = res['0']
+//         let resApiId2 = await web3.eth.abi.decodeParameter('uint256',res3.logs[2].topics[2])
 //         let valuePool2 = await oracle.getValuePoolAt(2);
-//         res2 = await web3.eth.abi.decodeParameters(['uint256','string','bytes32','uint256'],res3.logs[1].data);
-//         let apiIdonQ2 = await res2['0'];
-//         let apiOnQPayout2 = res2['3'];
+//         res2 = await web3.eth.abi.decodeParameters(['string','bytes32','uint256'],res3.logs[1].data);
+//         let apiIdonQ2 = await web3.eth.abi.decodeParameter('uint256',res3.logs[1].topics[1])
+//         let apiOnQPayout2 = res2['2'];
 //         assert(web3.utils.fromWei(apiOnQPayout2) == 50, "2Current payout on Q should be 50");
 //         assert(apiIdonQ2 == resApiId2, "2timestamp on Q should be apiTimestamp");
 //         balance2 = await (oracle.balanceOf(accounts[2],{from:accounts[1]}));
@@ -132,24 +133,25 @@
 //         let pay = web3.utils.toWei('20', 'ether');
 //         let pay2 = web3.utils.toWei('30', 'ether');
 //         let res3 = await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(test1,"ETH/USD",0,1000,pay).encodeABI()})
-//         let res = await web3.eth.abi.decodeParameters(['address','string','string','uint256','uint256','uint256'],res3.logs[2].data);
-//         let resSapi = res['1']
-//         let resApiId = await res['4']
+//         let res = await web3.eth.abi.decodeParameters(['string','string','uint256','uint256'],res3.logs[2].data);
+//         let resSapi = res['0']
+//         let resApiId = await web3.eth.abi.decodeParameter('uint256',res3.logs[2].topics[2])
 //         let valuePool = await oracle.getValuePoolAt(resApiId);
 //         assert( web3.utils.fromWei(valuePool) == 20, "value pool should be 20");
-//         let res2 = await web3.eth.abi.decodeParameters(['uint256','string','bytes32','uint256'],res3.logs[1].data);
-//         let apiIdonQ = await res2['0'];
-//         let apiOnQPayout = res2['3'];
+//         let res2 = await web3.eth.abi.decodeParameters(['string','bytes32','uint256'],res3.logs[1].data);
+//         let apiIdonQ = await web3.eth.abi.decodeParameter('uint256',res3.logs[1].topics[1])
+//         let apiOnQPayout = res2['2'];
 //         assert(web3.utils.fromWei(apiOnQPayout) == 20, "Current payout on Q should be 20");
 //         assert(apiIdonQ == resApiId, "timestamp on Q should be apiID");
+//         console.log(1)
 //         res3 = await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(api2,"ETH/USD",0,1000,pay2).encodeABI()}) 
-// 		res = await web3.eth.abi.decodeParameters(['address','string','string','uint256','uint256','uint256'],res3.logs[2].data);
-//         let resSapi2 = res['1']
-//         let resApiId2 = await res['4']
+// 		res = await web3.eth.abi.decodeParameters(['string','string','uint256','uint256'],res3.logs[2].data);
+//         let resSapi2 = res['0']
+//         let resApiId2 = await web3.eth.abi.decodeParameter('uint256',res3.logs[2].topics[2])
 //         let valuePool2 = await oracle.getValuePoolAt(2);
-//         res2 = await web3.eth.abi.decodeParameters(['uint256','string','bytes32','uint256'],res3.logs[1].data);
-//         let apiIdonQ2 = await res2['0'];
-//         let apiOnQPayout2 = res2['3'];
+//         res2 = await web3.eth.abi.decodeParameters(['string','bytes32','uint256'],res3.logs[1].data);
+//         let apiIdonQ2 = await web3.eth.abi.decodeParameter('uint256',res3.logs[1].topics[1])
+//         let apiOnQPayout2 = res2['2'];
 //         assert(web3.utils.fromWei(apiOnQPayout2) == 30, "2Current payout on Q should be 30");
 //         assert(web3.utils.hexToNumberString(apiIdonQ2) == web3.utils.hexToNumberString(resApiId2), "2timestamp on Q should be apiTimestamp");
 //         balance2 = await (oracle.balanceOf(accounts[2],{from:accounts[1]}));
@@ -158,9 +160,9 @@
 //         getValuePool = await oracle.getValuePoolAt(1);
 //         balance3 = await (oracle.balanceOf(accounts[2],{from:accounts[0]}));
 //         assert(web3.utils.fromWei(balance1) - web3.utils.fromWei(balance3) == 70, "balance should be down by 70")
-//         res2 = await web3.eth.abi.decodeParameters(['uint256','string','bytes32','uint256'],addvaluePool.logs[1].data);
-//         let vpApiIdonQ = await res2['0'];
-//         let vpapiOnQPayout = res2['3'];
+//         res2 = await web3.eth.abi.decodeParameters(['string','bytes32','uint256'],addvaluePool.logs[1].data);
+//         let vpApiIdonQ = await web3.eth.abi.decodeParameter('uint256',addvaluePool.logs[1].topics[1])
+//         let vpapiOnQPayout = res2['2'];
 //         assert(web3.utils.fromWei(vpapiOnQPayout) == 40, "Current payout on Q should be 40");
 //         assert(web3.utils.hexToNumberString(vpApiIdonQ) == 2, "timestamp on Q should be apiTimestamp");        
 //     }); 
@@ -223,8 +225,6 @@
 //     });
 //     it("Test New Tellor Storage Contract", async function () {
 //         //check original
-//         console.log(await oracle.owner())
-//         console.log(await oracle.getTellorContract(),oracleBase.address)
 //         assert(await oracle.getTellorContract() == oracleBase.address, "tellorContract should be Tellor Base");
 //         let oracleBase2 = await Tellor.new();
 //         await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.propFork(oracleBase2.address).encodeABI()})

@@ -173,10 +173,6 @@ def getAddress():
 	last_block = int(e['result'],16)
 	return False;
 
-from math import ceil
-
-
-
 #getVariables()
 masterMiner();
 #getAddress();
