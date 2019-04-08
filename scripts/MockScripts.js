@@ -1,7 +1,20 @@
+/*
+This deploys base contracts to run with the demo
+and makes first request
+*/
+
+
+
+
+
+
 function sleep_s(secs) {
   secs = (+new Date) + secs * 1000;
   while ((+new Date) < secs);
 }
+
+
+
 //truffle-flattener ./contracts/OracleVote.sol > ./flat_files/OracleVote_flat.sol
 // truffle exec scripts/DeployOracleandOracleVote.js --network rinkeby
 

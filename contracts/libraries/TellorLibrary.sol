@@ -97,7 +97,7 @@ library TellorLibrary{
             /*Tellor*/ Details[5]  first_five; //This struct is for organizing the five mined values to find the median
     }
 
-    event NewValue(uint _apiId, uint _time, uint _value);//Emits upon a successful Mine, indicates the blocktime at point of the mine and the value mined
+    event NewValue(uint _apiId, uint _time, uint _value,uint _payout);//Emits upon a successful Mine, indicates the blocktime at point of the mine and the value mined
     event DataRequested(address sender, string _sapi, string _symbol, uint _granularity, uint _apiId, uint _value);//Emits upon someone adding value to a pool; msg.sender, amount added, and timestamp incentivized to be mined
     event NonceSubmitted(address _miner, string _nonce, uint _apiId, uint _value);//Emits upon each mine (5 total) and shows the miner, nonce, and value submitted
     event NewAPIonQinfo(uint _apiId, string _sapi, bytes32 _apiOnQ, uint _apiOnQPayout); //emits when a the payout of another request is higher after adding to the payoutPool or submitting a request
@@ -206,6 +206,7 @@ library TellorLibrary{
             for (i = 0;i <5;i++){
                 doTransfer(self,address(this),a[i].miner,self.payoutStructure[i] + _api.payout/22 * self.payoutStructure[i] / 1e18);
             }
+            emit NewValue(_apiId,self.uintVars[keccak256("timeOfLastProof")],a[2].value,_api.payout);
             _api.payout = 0; 
             self.uintVars[keccak256("total_supply")] += self.uintVars[keccak256("payoutTotal")] + self.uintVars[keccak256("payoutTotal")]*10/100;//can we hardcode this?
             doTransfer(self,address(this),self._owner,(self.uintVars[keccak256("payoutTotal")] * 10 / 100));//The ten there is the devshare
@@ -230,7 +231,6 @@ library TellorLibrary{
                 emit NewChallenge(self.currentChallenge,self.uintVars[keccak256("miningApiId")],self.uintVars[keccak256("difficulty_level")],self.apiDetails[self.uintVars[keccak256("miningApiId")]].granularity,self.apiDetails[self.uintVars[keccak256("miningApiId")]].apiString);   
                 emit NewAPIonQinfo(self.uintVars[keccak256("apiIdOnQ")],self.apiDetails[self.uintVars[keccak256("apiIdOnQ")]].apiString,self.apiOnQ,self.uintVars[keccak256("apiOnQPayout")]);    
             }
-            emit NewValue(_apiId,self.uintVars[keccak256("timeOfLastProof")],a[2].value);
         }
     }
 
@@ -325,7 +325,7 @@ library TellorLibrary{
         require(_api.minedBlockNum[_timestamp] > 0);
         require(_minerIndex < 5);
         address _miner = _api.minersbyvalue[_timestamp][_minerIndex];
-        bytes32 _hash = keccak256(abi.encodePacked(_miner,_apiId));
+        bytes32 _hash = keccak256(abi.encodePacked(_miner,_apiId,_timestamp));
         require(self.disputeHashToId[_hash] == 0);
         doTransfer(self,msg.sender,address(this), self.uintVars[keccak256("disputeFee")]);
         self.uintVars[keccak256("disputeCount")]++;
@@ -345,7 +345,7 @@ library TellorLibrary{
             disputeVotePassed: false,
             blockNumber: block.number,
             tally: 0,
-            index:disputeId,
+            index:_minerIndex,
             quorum: 0
             });
         if(_minerIndex == 2){
