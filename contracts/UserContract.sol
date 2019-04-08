@@ -1,18 +1,29 @@
 // pragma solidity ^0.5.0;
-
-// import './Ownable.sol';
 // import './Tellor.sol';
 // /**
 // * @title UsingTellor
 // * This contracts creates for easy integration to the Tellor Tellor System
 // */
-// contract UserContract is Ownable{
+// contract UserContract{
 
 
 // 	uint public tellorPrice;
 // 	uint public apiId;
 // 	uint public spread;//in thousands * 100.  So a 5% spread is 1000  + .05 *1000 = 1050
 // 	address public tellorStorageAddress;
+
+//     constructor ()  public{
+//             _owner = msg.sender;
+//     }
+//         /**
+//          * @dev Allows the current owner to transfer control of the contract to a newOwner.
+//          * @param newOwner The address to transfer ownership to.
+//         */
+//     function transferOwnership(address payable newOwner) external {
+//             require(msg.sender == owner());
+//             emit OwnershipTransferred(_owner, newOwner);
+//             _owner = newOwner;
+//     }
 
 
 //     constructor(address _storage) public{
