@@ -7,6 +7,15 @@ import hashlib
 from Naked.toolshed.shell import execute_js, muterun_js, run_js
 from multiprocessing import Process, freeze_support
 
+'''
+This miner is to be run with the demo.  
+It mines values and then has random parties submit requests for data
+It loops through 10 different API's
+To do:
+Add requesting data
+Random intervals
+Different tip amounts and multiple tips before mines
+'''
 contract_address = "";
 node_url ="http://localhost:8545" #https://rinkeby.infura.io/
 net_id = 60 #eth network ID
@@ -172,6 +181,10 @@ def getAddress():
 		block = block - 1;
 	last_block = int(e['result'],16)
 	return False;
+
+from math import ceil
+
+
 
 #getVariables()
 masterMiner();
