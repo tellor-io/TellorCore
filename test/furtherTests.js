@@ -77,23 +77,19 @@
 //         assert(vars[1] == "ETH/USD")
 //     });
 //     it("several request data", async function () {
-//        test1 = "https://api.gdax.com/products/ETH-USD/ticker";
-//        test2 = "https://api.gdax.com/products/BTC-USD/ticker";
-//        let req1 = await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(test1,"ETH/USD",0,1000,20).encodeABI()})
-//     onQ = await web3.eth.abi.decodeParameter('uint256',req1.logs[1].topics[1])
-//        assert(web3.utils.hexToNumberString(onQ) == 2, "should be 2");
+//         test1 = "https://api.gdax.com/products/ETH-USD/ticker";
+//         test2 = "https://api.gdax.com/products/BTC-USD/ticker";
+//         let req1 = await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(test1,"ETH/USD",0,1000,20).encodeABI()})
+//         onQ = await web3.eth.abi.decodeParameter('uint256',req1.logs[1].topics[1])
+//         assert(web3.utils.hexToNumberString(onQ) == 2, "should be 2");
 //        req1 = await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(api2,"ETH/USD",0,1000,40).encodeABI()})
 //         onQ = await web3.eth.abi.decodeParameter('uint256',req1.logs[1].topics[1])
 //        assert(web3.utils.hexToNumberString(onQ) == 3, "should be 3");
-//        console.log(2);
 //        req1 = await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData("","ETH/USD",2,1000,31).encodeABI()})
-//               console.log(req1.logs[1].topics)
 //         onQ = await web3.eth.abi.decodeParameter('uint256',req1.logs[1].topics[1])
 //        assert(web3.utils.hexToNumberString(onQ) == 2, "should be 2");
-
 //        req1 = await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(test2,"ETH/USD",0,1000,60).encodeABI()})
 //         onQ = await web3.eth.abi.decodeParameter('uint256',req1.logs[1].topics[1])
-//         console.log(3)
 //        assert(web3.utils.hexToNumberString(onQ) == 4, "should be 4");
 //     });
 //     it("Request data and change on queue with another request", async function () {
@@ -143,7 +139,6 @@
 //         let apiOnQPayout = res2['2'];
 //         assert(web3.utils.fromWei(apiOnQPayout) == 20, "Current payout on Q should be 20");
 //         assert(apiIdonQ == resApiId, "timestamp on Q should be apiID");
-//         console.log(1)
 //         res3 = await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(api2,"ETH/USD",0,1000,pay2).encodeABI()}) 
 // 		res = await web3.eth.abi.decodeParameters(['string','string','uint256','uint256'],res3.logs[2].data);
 //         let resSapi2 = res['0']

@@ -98,7 +98,7 @@ library TellorGettersLibrary{
             /*Tellor*/ Details[5]  first_five; //This struct is for organizing the five mined values to find the median
     }
 
-    event NewValue(uint indexed _apiId, uint indexed _time, uint _value,uint _payout);//Emits upon a successful Mine, indicates the blocktime at point of the mine and the value mined
+    event NewValue(uint indexed _apiId, uint _time, uint _value,uint _payout);//Emits upon a successful Mine, indicates the blocktime at point of the mine and the value mined
     event DataRequested(address indexed _sender, string _sapi,string _symbol,uint _granularity, uint indexed _apiId, uint _value);//Emits upon someone adding value to a pool; msg.sender, amount added, and timestamp incentivized to be mined
     event NonceSubmitted(address indexed _miner, string _nonce, uint indexed _apiId, uint _value);//Emits upon each mine (5 total) and shows the miner, nonce, and value submitted
     event NewAPIonQinfo(uint indexed _apiId, string _sapi, bytes32 _apiOnQ, uint _apiOnQPayout); //emits when a the payout of another request is higher after adding to the payoutPool or submitting a request
@@ -113,6 +113,7 @@ library TellorGettersLibrary{
     event DisputeVoteTallied(uint indexed _disputeID, int _result,address indexed _reportedMiner,address _reportingParty, bool _active);//emitted upon dispute tally
     event NewTellorAddress(address _newTellor); //emmited when a proposed fork is voted true
     event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+    event TipAdded(address indexed _sender,uint indexed _apiId, uint _tip, uint _payout);
     //Tellor Getters
 
     function tellorMasterConstructor(TellorStorageStruct storage self,address _tellorContract) internal{

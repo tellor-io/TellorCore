@@ -113,6 +113,7 @@ library TellorLibrary{
     event DisputeVoteTallied(uint indexed _disputeID, int _result,address indexed _reportedMiner,address _reportingParty, bool _active);//emitted upon dispute tally
     event NewTellorAddress(address _newTellor); //emmited when a proposed fork is voted true
     event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+    event TipAdded(address indexed _sender,uint indexed _apiId, uint _tip, uint _payout);
     /**
          * @dev Allows the current owner to transfer control of the contract to a newOwner.
          * @param newOwner The address to transfer ownership to.
@@ -207,8 +208,10 @@ library TellorLibrary{
             for (i = 0;i <5;i++){
                 doTransfer(self,address(this),a[i].miner,self.payoutStructure[i] + self.uintVars[keccak256("miningPayout")]/22 * self.payoutStructure[i] / 1e18);
             }
-            emit NewValue(_apiId,self.uintVars[keccak256("timeOfLastProof")],a[2].value,self.uintVars[keccak256("miningPayout")]);
-            _api.payout += self.uintVars[keccak256("apiOnQPayout")] % 22; 
+            emit NewValue(_apiId,self.uintVars[keccak256("timeOfLastProof")],a[2].value,self.uintVars[keccak256("miningPayout")] - self.uintVars[keccak256("miningPayout")]%22);
+            if(self.uintVars[keccak256("miningPayout")] % 22 > 0){
+                updateAPIonQ(self,_apiId,self.uintVars[keccak256("miningPayout")] % 22,true); 
+            }
             self.uintVars[keccak256("total_supply")] += self.uintVars[keccak256("miningPayout")] - self.uintVars[keccak256("miningPayout")]%22 + self.uintVars[keccak256("payoutTotal")]*110/100;//can we hardcode this?
             doTransfer(self,address(this),self._owner,(self.uintVars[keccak256("payoutTotal")] * 10 / 100));//The ten there is the devshare
             _api.values[self.uintVars[keccak256("timeOfLastProof")]] = a[2].value;
@@ -223,6 +226,7 @@ library TellorLibrary{
             self.payoutPool[self.apiDetails[self.uintVars[keccak256("apiIdOnQ")]].index] = 0;
             self.payoutPoolIndexToApiId[self.apiDetails[self.uintVars[keccak256("apiIdOnQ")]].index] = 0;
             self.apiDetails[self.uintVars[keccak256("apiIdOnQ")]].index = 0;
+            self.apiDetails[self.uintVars[keccak256("apiIdOnQ")]].payout = 0;
             uint[2] memory nums; //reusable number array -- _amount,_paid,payoutMultiplier
             if(self.uintVars[keccak256("miningApiId")] > 0){
                 (nums[0],nums[1]) = Utilities.getMax(self.payoutPool);
@@ -232,6 +236,10 @@ library TellorLibrary{
                 self.currentChallenge = keccak256(abi.encodePacked(_nonce,self.currentChallenge, blockhash(block.number - 1))); // Save hash for next proof
                 emit NewChallenge(self.currentChallenge,self.uintVars[keccak256("miningApiId")],self.uintVars[keccak256("difficulty_level")],self.apiDetails[self.uintVars[keccak256("miningApiId")]].granularity,self.apiDetails[self.uintVars[keccak256("miningApiId")]].apiString);   
                 emit NewAPIonQinfo(self.uintVars[keccak256("apiIdOnQ")],self.apiDetails[self.uintVars[keccak256("apiIdOnQ")]].apiString,self.apiOnQ,self.uintVars[keccak256("apiOnQPayout")]);    
+            }
+            else{
+                self.uintVars[keccak256("apiIdOnQ")] = 0;
+                self.uintVars[keccak256("apiOnQPayout")] = 0;
             }
         }
     }
@@ -273,44 +281,67 @@ library TellorLibrary{
         }
         if(_tip > 0){
             doTransfer(self,msg.sender,address(this),_tip);
-            self.apiDetails[_apiId].payout = self.apiDetails[_apiId].payout.add(_tip);
         }
-        updateAPIonQ(self,_apiId);
+        updateAPIonQ(self,_apiId,_tip,false);
         emit DataRequested(msg.sender,self.apiDetails[_apiId].apiString,self.apiDetails[_apiId].apiSymbol,_granularity,_apiId,_tip);
+    }
+
+       /**
+    * @dev Add tip to Request to retreive value from oracle
+    * @param _apiId apiId being requested be mined
+    * @param _tip amount the requester is willing to pay to be get on queue. Miners
+    * mine the apiOnQ, or the api with the highest payout pool
+    */
+    function addTip(TellorStorageStruct storage self,uint _apiId, uint _tip) internal {
+        require(_apiId > 0);
+        if(_tip > 0){
+            doTransfer(self,msg.sender,address(this),_tip);
+        }
+        updateAPIonQ(self,_apiId,_tip,false);
+        emit TipAdded(msg.sender,_apiId,_tip,self.apiDetails[_apiId].payout);
     }
 
     /**
     @dev This function updates APIonQ and the payoutPool when requestData or addToValuePool are ran
     @param _apiId being requested
     */
-    function updateAPIonQ(TellorStorageStruct storage self,uint _apiId) public {
+    function updateAPIonQ(TellorStorageStruct storage self,uint _apiId, uint _tip,bool _mine) public {
         API storage _api = self.apiDetails[_apiId];
+        if (_tip > 0){
+            _api.payout = _api.payout.add(_tip);
+        }
         uint _payout = _api.payout;
         if(self.uintVars[keccak256("miningApiId")] == 0){
+            _api.payout = 0;
             self.uintVars[keccak256("miningApiId")] = _apiId;
             self.uintVars[keccak256("miningPayout")] = _payout;
             self.currentChallenge = keccak256(abi.encodePacked(_payout, self.currentChallenge, blockhash(block.number - 1))); // Save hash for next proof
             emit NewChallenge(self.currentChallenge,self.uintVars[keccak256("miningApiId")],self.uintVars[keccak256("difficulty_level")],self.apiDetails[self.uintVars[keccak256("miningApiId")]].granularity,self.apiDetails[self.uintVars[keccak256("miningApiId")]].apiString);
-            return;
-        }
-        if (_payout > self.uintVars[keccak256("apiOnQPayout")] || self.uintVars[keccak256("apiIdOnQ")] == 0) {
-                self.uintVars[keccak256("apiIdOnQ")] = _apiId;
-                self.apiOnQ = _api.apiHash;
-                self.uintVars[keccak256("apiOnQPayout")] = _payout;
-                emit NewAPIonQinfo(_apiId,_api.apiString,self.apiOnQ,self.uintVars[keccak256("apiOnQPayout")]);
-        }
-        if(_api.index == 0){
-            uint _min;
-            uint _index;
-            (_min,_index) = Utilities.getMin(self.payoutPool);
-            if(_payout > _min || _min == 0){
-                self.payoutPool[_index] = _payout;
-                self.payoutPoolIndexToApiId[_index] = _apiId;
-                _api.index = _index;
-            }
         }
         else{
-            self.payoutPool[_api.index] += _payout;
+            if(_apiId == self.uintVars[keccak256("apiIdOnQ")]){
+                self.uintVars[keccak256("apiOnQPayout")] = _payout;
+            }
+            else if (_payout > self.uintVars[keccak256("apiOnQPayout")] || (self.uintVars[keccak256("apiIdOnQ")] == 0) && _mine == false) {
+                    self.uintVars[keccak256("apiIdOnQ")] = _apiId;
+                    self.apiOnQ = _api.apiHash;
+                    self.uintVars[keccak256("apiOnQPayout")] = _payout;
+                    emit NewAPIonQinfo(_apiId,_api.apiString,self.apiOnQ,_payout);
+            }
+
+            if(_api.index == 0 && _mine == false){
+                uint _min;
+                uint _index;
+                (_min,_index) = Utilities.getMin(self.payoutPool);
+                if(_payout > _min || _min == 0){
+                    self.payoutPool[_index] = _payout;
+                    self.payoutPoolIndexToApiId[_index] = _apiId;
+                    _api.index = _index;
+                }
+            }
+            else if (_tip > 0 && _mine == false){
+                self.payoutPool[_api.index] += _tip;
+            }
         }
     }
 

@@ -48,6 +48,10 @@ contract Tellor /* is TellorGetters*/{
     function requestData(string calldata _c_sapi,string calldata _c_symbol,uint c_apiId,uint _granularity, uint _tip) external {
         tellor.requestData(_c_sapi,_c_symbol,c_apiId,_granularity,_tip);
     }
+
+    function addTip(uint _apiId, uint _tip) external {
+        tellor.addTip(_apiId,_tip);
+    }
     /**
     * @dev Helps initialize a dispute by assigning it a disputeId 
     * when a miner returns a false on the validate array(in Tellor.ProofOfWork) it sends the 
