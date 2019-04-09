@@ -17,14 +17,12 @@ function promisifyLogWatch(_contract,_event) {
     web3.eth.subscribe('logs', {
       address: _contract.options.address,
       topics: [web3.utils.sha3(_event)]
-      //topics:  ['0x1c59b53c2f787064c7f5aae431916a0600db3a76bb4029c09e24fe8313042674']
     }, (error, result) => {
         if (error){
           console.log('Error',error);
           reject(error);
         }
         web3.eth.clearSubscriptions();
-        //console.log(result);
         resolve(result);
     })
   });
@@ -37,18 +35,12 @@ contract('Mining Tests', function(accounts) {
   let logMineWatcher;
 
     beforeEach('Setup contract for each test', async function () {
-    	//old form
-    	// oracle = await Oracle.new();
-    	// oracle2 = await new web3.eth.Contract(oracleAbi,oracle.address);///will this instance work for logWatch? hopefully...
-       
         oracleBase = await Oracle.new();
         oracle = await TellorMaster.new(oracleBase.address);
         oracle2 = await new web3.eth.Contract(oracleAbi,oracle.address);///will this instance work for logWatch? hopefully...
         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000, data: web3.utils.keccak256("initStake()")})
         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",0,1000,0).encodeABI()})
     });
-
-    
     /*it("getStakersCount", async function(){
         let count = await oracle.stakerCount();
         assert(web3.utils.hexToNumberString(count)==5, "count is 5");
@@ -77,7 +69,6 @@ contract('Mining Tests', function(accounts) {
     it("Test miner", async function () {
         console.log('START MINING RIG!!');
         logMineWatcher = await promisifyLogWatch(oracle2, 'NewValue(uint256,uint256,uint256,uint256)');//or Event Mine?
-        console.log(logMineWatcher.data)
         res = web3.eth.abi.decodeParameters(['uint256','uint256'],logMineWatcher.data);
         assert(res[0] > 0, "value should be positive");
    });
@@ -162,7 +153,6 @@ contract('Mining Tests', function(accounts) {
         endbal = await oracle.balanceOf(accounts[0]);
         assert((endbal - begbal)/1e18  == 2.2, "devShare")
     }); 
-
     it("Test miner, alternating api request on Q and auto select", async function () {
         logMineWatcher = await promisifyLogWatch(oracle2, 'NewValue(uint256,uint256,uint256,uint256)');//or Event Mine?
         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",0,1000,0).encodeABI()});
@@ -307,7 +297,7 @@ contract('Mining Tests', function(accounts) {
     });
     it("Test 404 api request", async function () {
         logMineWatcher = await promisifyLogWatch(oracle2, 'NewValue(uint256,uint256,uint256,uint256)');//or Event Mine?
-        await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData("api2.....","fail",0,1000,41).encodeABI()});
+        await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData("api2.....","fail",0,1000,0).encodeABI()});
         logMineWatcher = await promisifyLogWatch(oracle2, 'NewValue(uint256,uint256,uint256,uint256)');
         res = web3.eth.abi.decodeParameters(['uint256','uint256','uint256'],logMineWatcher.data)
         assert(res[1] == 0, "Data should be zero");
@@ -318,11 +308,9 @@ contract('Mining Tests', function(accounts) {
         logMineWatcher = await promisifyLogWatch(oracle2, 'NewValue(uint256,uint256,uint256,uint256)');//or Event Mine?
         await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(api2,"ETH/USD",0,1,2).encodeABI()})
         vars = await oracle.getVariables()
-        assert(vars['4']==1 );
+        assert(vars['4']==1, "granularity should be 1");
     });
-    */
-    
-        it("Test Throw on Multiple Disputes", async function () {
+    it("Test Throw on Multiple Disputes", async function () {
         logMineWatcher = await promisifyLogWatch(oracle2, 'NewValue(uint256,uint256,uint256,uint256)');//or Event Mine?
         res = web3.eth.abi.decodeParameters(['uint256','uint256','uint256'],logMineWatcher.data)     
         balance1 = await (oracle.balanceOf(accounts[2],{from:accounts[4]}));
@@ -331,11 +319,10 @@ contract('Mining Tests', function(accounts) {
         await helper.expectThrow(web3.eth.sendTransaction({to: oracle.address,from:accounts[1],gas:7000000,data:oracle2.methods.initDispute(1,res[0],2).encodeABI()}));
         let miners =await oracle.getMinersByValue(1,res[0]);
         let _var = await oracle.getDisputeHashToId( web3.utils.soliditySha3({t:'address',v:miners[2]},{t:'uint256',v:1},{t:'uint256',v:res[0]}));
-        console.log(_var);
         assert(_var == 1, "hash should be same");
     });
   
-    /*it("Test Dispute of different miner Indexes", async function () {
+    it("Test Dispute of different miner Indexes", async function () {
         for(var i = 0;i<4;i++){
         	var k;
         	var j;
@@ -362,7 +349,6 @@ contract('Mining Tests', function(accounts) {
 	        await  web3.eth.sendTransaction({to: oracle.address,from:miners[j],gas:7000000,data:oracle2.methods.initDispute(1,res[0],i).encodeABI()});
 	        let disputeVars = await oracle.getAllDisputeVars(1);
 	        let vals = await oracle.getSubmissionsByTimestamp(1,res[0]);
-	        console.log(disputeVars['0'],web3.utils.soliditySha3({t:'address',v:miners[i]},{t:'uint256',v:1},{t:'uint256',v:res[0]}) )
 	        assert(disputeVars['0'] == web3.utils.soliditySha3({t:'address',v:miners[i]},{t:'uint256',v:1},{t:'uint256',v:res[0]}),"hash Should be correct");
 	        assert(disputeVars['1'] == false);
 	        assert(disputeVars['2'] == false);
@@ -416,7 +402,6 @@ contract('Mining Tests', function(accounts) {
 	        res = web3.eth.abi.decodeParameters(['uint256','uint256','uint256'],logMineWatcher.data)
 	        let miners =await oracle.getMinersByValue(1,res[0]);
 	        await  web3.eth.sendTransaction({to: oracle.address,from:miners[j],gas:7000000,data:oracle2.methods.initDispute(1,res[0],i).encodeABI()});
-	        console.log(1);
 	        let disputeVars = await oracle.getAllDisputeVars(1);
 	        balance1 = await oracle.balanceOf(miners[i]);
 	        assert(disputeVars['4'] == miners[i],"miner should be correct")
@@ -428,5 +413,45 @@ contract('Mining Tests', function(accounts) {
 	        assert(balance2-balance1 == await oracle.getUintVar(web3.utils.keccak256("disputeFee")),"reported miner's balance should change correctly");
 	        assert(await oracle.isStaked(miners[i])==true, "reported miner should no longer be staked")
 	     }
+    });
+    */
+    it("Test zero addTip", async function () {
+        logMineWatcher = await promisifyLogWatch(oracle2, 'NewValue(uint256,uint256,uint256,uint256)');//or Event Mine?
+        await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.addTip(1,0).encodeABI()})
+        logMineWatcher = await promisifyLogWatch(oracle2, 'NewValue(uint256,uint256,uint256,uint256)');//or Event Mine?
+        res = web3.eth.abi.decodeParameters(['uint256','uint256','uint256'],logMineWatcher.data)
+        data = await oracle.isData(1,res[0]);
+        assert(data == true, "Should be true if Data exist for that point in time");
+    });
+   /* it("Test Proper zeroing of Payout Test", async function () {
+    	logMineWatcher = await promisifyLogWatch(oracle2, 'NewValue(uint256,uint256,uint256,uint256)');//or Event Mine?
+        await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(api2,"ETH/USD",0,1000,22).encodeABI()})
+        logMineWatcher = await promisifyLogWatch(oracle2, 'NewValue(uint256,uint256,uint256,uint256)');//or Event Mine?
+        vars = await oracle.getApiVars(2)
+        assert(vars['5'] == 0  , "api payout should be zero")
+        await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(api2,"ETH/USD",0,1000,11).encodeABI()})
+        logMineWatcher = await promisifyLogWatch(oracle2, 'NewValue(uint256,uint256,uint256,uint256)');//or Event Mine?
+        vars = await oracle.getUintVar(web3.utils.keccak256("miningPayout"))
+        console.log(vars);
+        assert(vars == 11, "api payout should be 11")
+    });
+    it("Test Same ID mining and OnQ", async function () {
+    	logMineWatcher = await promisifyLogWatch(oracle2, 'NewValue(uint256,uint256,uint256,uint256)');//or Event Mine?
+		await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.addTip(1,11).encodeABI()})
+		await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.addTip(1,11).encodeABI()})
+        let vars  = await oracle.getVariables();
+        assert(vars[1] == 1 , "mining APIID is 1")
+        vars = await oracle.getVariablesOnQ();
+        assert(vars[0] == 1, "apiOnQ is 1")
+        logMineWatcher = await promisifyLogWatch(oracle2, 'NewValue(uint256,uint256,uint256,uint256)');//or Event Mine?
+        res = web3.eth.abi.decodeParameters(['uint256','uint256','uint256'],logMineWatcher.data)
+        assert(res['2'] == 0 , "last payout had a tip of 0")
+        vars  = await  oracle.getVariables();
+        assert(vars[1]==1, "mining APIID is 1")
+        vars = await oracle.getVariablesOnQ();
+        assert(vars[0] == 0 , "apiOnQ is 0");
+        logMineWatcher = await promisifyLogWatch(oracle2, 'NewValue(uint256,uint256,uint256,uint256)');//or Event Mine?
+		res = web3.eth.abi.decodeParameters(['uint256','uint256','uint256'],logMineWatcher.data)
+        assert(res['2'] == 22 , "last payout had a tip of 22")
     });*/
 });
