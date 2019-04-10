@@ -12,7 +12,7 @@ import "./Utilities.sol";
 library TellorLibrary{
     using SafeMath for uint256;
 
-struct Details {
+    struct Details {
         uint value;
         address miner;
     }
@@ -23,6 +23,7 @@ struct Details {
         bool isPropFork; //true for fork proposal NEW
         address reportedMiner; //miner who alledgedly submitted the 'bad value' will get disputeFee if dispute vote fails
         address reportingParty;//miner reporting the 'bad value'-pay disputeFee will get reportedMiner's stake if dispute vote passes
+        address propForkAddress;
         mapping(bytes32 => uint) disputeUintVars;
         // uint keccak256("apiId");//apiID of disputed value
         // uint keccak256("timestamp");//timestamp of distputed value
@@ -89,15 +90,14 @@ struct Details {
             /*Tellor*/ mapping(uint => uint) timeToApiId;//minedTimestamp to apiId 
             /*Tellor*/ mapping(uint => uint) payoutPoolIndexToApiId; //link from payoutPoolIndex (position in payout pool array) to apiId
             /*DisputesAndVoting*/ mapping(uint => Dispute) disputes;//disputeId=> Dispute details
-            /*DisputesAndVoting*/ mapping(bytes32 => uint) apiId;// api bytes32 gets an id = to count of requests array
             /*TokenAndStaking*/ mapping (address => Checkpoint[]) balances; //balances of a party given blocks
             /*TokenAndStaking*/ mapping(address => mapping (address => uint)) allowed; //allowance for a given party and approver
             /*TokenAndStaking*/ mapping(address => StakeInfo)  staker;//mapping from a persons address to their staking info
             /*DisputesAndVoting*/ mapping(uint => API) apiDetails;//mapping of apiID to details
-            /*DisputesAndVoting*/mapping(uint => address) propForkAddress;//maps proposalID to struct propFork
+            /*DisputesAndVoting*/ mapping(bytes32 => uint) apiId;// api bytes32 gets an id = to count of requests array
             /*DisputesAndVoting*/mapping(bytes32 => uint) disputeHashToId;//maps a hash to an ID for each dispute
-            /*DisputesAndVoting*/ string name; //name of the Token
-            /*DisputesAndVoting*/ string symbol;//Token Symbol
+            /*DisputesAndVoting*/ string _name; //name of the Token
+            /*DisputesAndVoting*/ string _symbol;//Token Symbol
             /*Tellor*/ Details[5]  first_five; //This struct is for organizing the five mined values to find the median
     }
 
@@ -267,6 +267,7 @@ struct Details {
             isPropFork: false,
             reportedMiner: _miner, 
             reportingParty: msg.sender, 
+            propForkAddress:address(0),
             executed: false,
             disputeVotePassed: false,
             tally: 0
@@ -318,18 +319,10 @@ struct Details {
         self.uintVars[keccak256("difficulty_level")] = 1;
         self.uintVars[keccak256("payoutTotal")] = 22e18;
         self.payoutStructure =  [1e18,5e18,10e18,5e18,1e18]; 
-        self.name = "Tellor Tributes";
-        self.symbol = "TT";
+        self._name = "Tellor Tributes";
+        self._symbol = "TT";
     }
 
-    /**
-     *@dev This function tells user is a given address is staked 
-     *@param address of staker enquiring about
-     *@return bool is the staker is currently staked
-    */
-    function isStaked(TellorStorageStruct storage self,address _staker) public view returns(bool){
-        return (self.staker[_staker].current_state == 1);
-    }
     /**
     * @dev Proof of work is called by the miner when they submit the solution (proof of work and value)
     * @param _nonce uint submitted by miner
@@ -338,7 +331,7 @@ struct Details {
     * @return count of values sumbitted so far and the time of the last successful mine
     */
     function proofOfWork(TellorStorageStruct storage self,string memory _nonce, uint _apiId, uint _value) internal{
-        require(isStaked(self,msg.sender));
+        require(self.staker[msg.sender].current_state == 1);
         require(_apiId == self.uintVars[keccak256("miningApiId")]);
         bytes32 n = sha256(abi.encodePacked(ripemd160(abi.encodePacked(keccak256(abi.encodePacked(self.currentChallenge,msg.sender,_nonce))))));
         require(uint(n) % self.uintVars[keccak256("difficulty_level")] == 0);
@@ -428,11 +421,11 @@ struct Details {
             isPropFork: true,
             reportedMiner: msg.sender, 
             reportingParty: msg.sender, 
+            propForkAddress: _propNewTellorAddress,
             executed: false,
             disputeVotePassed: false,
             tally: 0
             }); 
-        self.propForkAddress[disputeId] = _propNewTellorAddress;
         self.disputes[disputeId].disputeUintVars[keccak256("blockNumber")] = block.number;
         self.disputes[disputeId].disputeUintVars[keccak256("minExecutionDate")] = now + 7 days;
     }
@@ -521,8 +514,8 @@ struct Details {
         emit DisputeVoteTallied(_disputeId,disp.tally,disp.reportedMiner,disp.reportingParty,disp.disputeVotePassed); 
         } else {
             require(disp.disputeUintVars[keccak256("quorum")] >  (self.uintVars[keccak256("total_supply")] * 20 / 100));
-            self.addressVars[keccak256("tellorContract")] = self.propForkAddress[_disputeId];
-            emit NewTellorAddress(self.propForkAddress[_disputeId]);
+            self.addressVars[keccak256("tellorContract")] = disp.propForkAddress;
+            emit NewTellorAddress(disp.propForkAddress);
         }
     }
 

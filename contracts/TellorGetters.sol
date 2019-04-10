@@ -11,7 +11,14 @@ contract TellorGetters{
     using TellorGettersLibrary for TellorGettersLibrary.TellorStorageStruct;
     TellorGettersLibrary.TellorStorageStruct tellor;
     
-    
+     /**
+    * @param _user address
+    * @param _spender address
+    * @return Returns the remaining allowance of tokens granted to the _spender from the _user
+    */
+    function allowance(address _user, address _spender) external view returns (uint) {
+       return tellor.allowance(_user,_spender);
+    }
 /**
      *@dev This function returns whether or not a given user is allowed to trade a given amount  
      *@param address of user
@@ -20,14 +27,7 @@ contract TellorGetters{
     function allowedToTrade(address _user,uint _amount) external view returns(bool){
         return tellor.allowedToTrade(_user,_amount);
     }
- /**
-    * @param _user address
-    * @param _spender address
-    * @return Returns the remaining allowance of tokens granted to the _spender from the _user
-    */
-    function allowance(address _user, address _spender) external view returns (uint) {
-       return tellor.allowance(_user,_spender);
-    }
+
     /**
     * @dev Gets balance of owner specified
     * @param _user is the owner address used to look up the balance
@@ -63,7 +63,16 @@ contract TellorGetters{
     */
     function didVote(uint _disputeId, address _address) external view returns(bool){
         return tellor.didVote(_disputeId,_address);
-    }/**
+    }
+
+
+    //self.addressVars[keccak256("_owner")]
+    //addressVars[keccak256("tellorContract")]
+    function getAddressVars(bytes32 _data) view external returns(address){
+        return tellor.getAddressVars(_data);
+    }
+
+    /**
     * @dev Gets all dispute variables
     * @param _disputeId to look up
     * @return address of reported miner
@@ -76,7 +85,7 @@ contract TellorGetters{
     * @return int count of the current tally
     * @return bool of whether vote has been tallied
     */
-    function getAllDisputeVars(uint _disputeId) public view returns(bytes32, bool, bool, bool, address, address, uint[8] memory, int){
+    function getAllDisputeVars(uint _disputeId) public view returns(bytes32, bool, bool, bool, address, address, address,uint[8] memory, int){
         return tellor.getAllDisputeVars(_disputeId);
     }
         /**
@@ -88,23 +97,17 @@ contract TellorGetters{
     function getApiForTime(uint _timestamp) external view returns(uint){    
         return tellor.getApiForTime(_timestamp);
     }
-
-    /**
-    * @dev Getter function for hash of the api based on apiID
-    * @param _apiId the apiId to look up the api string
-    * @return api hash - bytes32
-    */
-    function getApiHash(uint _apiId) external view returns(bytes32){    
-        return tellor.getApiHash(_apiId);
-    }
-
-    /**
+   /**
     * @dev Getter function for apiId based on api hash
     * @param _api string to check if it already has an apiId
     * @return uint apiId
     */
     function getApiId(bytes32 _api) external view returns(uint){    
         return tellor.getApiId(_api);
+    }
+
+    function getApiUintVars(uint _apiId,bytes32 _data) internal view returns(uint){
+        return tellor.getApiUintVars(_apiId,_data);
     }
 
       /**
@@ -128,16 +131,9 @@ contract TellorGetters{
     function getDisputeHashToId(bytes32 _hash) external view returns(uint){
         return  tellor.getDisputeHashToId(_hash);
     }
-    /**
-    * @dev Get Dispute information
-    * @param _disputeId is the dispute id to check the outcome of
-    * @return uint of the API id being disputed
-    * @return uint of the timestamp being disputed
-    * @return uint disputed value
-    * @return bool of whether or not vote passed (false until vote is over)
-    */
-    function getDisputeInfo(uint _disputeId) view external returns(uint, uint, uint,bool) {
-        return tellor.getDisputeInfo(_disputeId);
+    
+    function getDisputeUintVars(uint _disputeId,bytes32 _data) internal view returns(uint){
+        return tellor.getDisputeUintVars(_disputeId,_data);
     }
     /**
     * @dev Gets the a value for the latest timestamp available
@@ -165,7 +161,7 @@ contract TellorGetters{
         return tellor.getMinersByValue(_apiId,_timestamp);
     }
 
-            function getPayoutPool() view public returns(uint[51] memory){
+    function getPayoutPool() view public returns(uint[51] memory){
         return tellor.getPayoutPool();
     }
         /**
@@ -193,25 +189,9 @@ contract TellorGetters{
     function getSubmissionsByTimestamp(uint _apiId, uint _timestamp) external view returns(uint[5] memory){
         return tellor.getSubmissionsByTimestamp(_apiId,_timestamp);
     }
-                /**
-     * @return the address of the owner.
-    */
-    function getTellorContract() external view returns (address) {
-        return tellor.addressVars[keccak256("tellorContract")];
-    }
 
-
-            function getUintVar(bytes32 _data) view public returns(uint){
+    function getUintVar(bytes32 _data) view public returns(uint){
         return tellor.getUintVar(_data);
-    }
-
-        /**
-    * @dev Getter function for the payoutPool total for the specified _apiId
-    * @param _apiId to look up the total payoutPool value
-    * @return the value of the total payoutPool
-    */
-    function getValuePoolAt(uint _apiId) external view returns(uint){
-        return tellor.getValuePoolAt(_apiId);
     }
 
      /**
@@ -229,17 +209,7 @@ contract TellorGetters{
     function getVariablesOnQ() external view returns(uint, uint,string memory){    
         return tellor.getVariablesOnQ();
     }
-
     
-    /**
-    * @dev Checks if a value exists for the timestamp provided
-    * @param _apiId to look up/check
-    * @param _timestamp to look up/check
-    * @return true if the value exists/is greater than zero
-    */
-    function isData(uint _apiId, uint _timestamp) external view returns(bool){
-        return tellor.isData(_apiId,_timestamp);
-    }
     /**
     * @dev Gets the 5 miners who mined the value for the specified apiId/_timestamp 
     * @param _apiId to look up
@@ -248,21 +218,9 @@ contract TellorGetters{
     function isInDispute(uint _apiId, uint _timestamp) external view returns(bool){
         return tellor.isInDispute(_apiId,_timestamp);
     }
-    /**
-     *@dev This function tells user is a given address is staked 
-     *@param address of staker enquiring about
-     *@return bool is the staker is currently staked
-    */
-    function isStaked(address _staker) external view returns(bool){
-        return tellor.isStaked(_staker);
+    function name() internal returns(string memory){
+        return tellor.name();
     }
-    /**
-     * @return the address of the owner.
-    */
-    function owner() external view returns (address) {
-        return tellor.addressVars[keccak256("_owner")];
-    }
-
 
     /**
     * @dev Retreive value from oracle based on timestamp
@@ -274,9 +232,9 @@ contract TellorGetters{
         return tellor.retrieveData(_apiId,_timestamp);
     }
 
-        function stakerCount() external view returns(uint){
-        return tellor.stakerCount();
-    }
+        function symbol() internal returns(string memory){
+        return tellor.symbol();
+    } 
 
     /**
     * @dev Getter for the total_supply of oracle tokens
