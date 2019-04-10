@@ -102,9 +102,11 @@
 //         let weSender =  await web3.eth.abi.decodeParameter('address',withdrawreq.logs[0].topics[1]);
 //         assert(weSender == accounts[1], "withdraw request by account 1");
 //         await helper.advanceTime(86400 * 10);
-//         assert(await web3.eth.call({to:oracle.address,data:oracle3.methods.isStaked(accounts[1]).encodeABI()}) == false, "is not Staked" );
+//         let s =  await oracle.getStakerInfo(accounts[1])
+//         assert(s[0] !=1 , "is not Staked" );
 //         await web3.eth.sendTransaction({to:oracle.address,from:accounts[1],gas:7000000,data:oracle2.methods.depositStake().encodeABI()})
-//         assert(await web3.eth.call({to:oracle.address,data:oracle3.methods.isStaked(accounts[1]).encodeABI()}) == true, "Staked" );
+//         s =  await oracle.getStakerInfo(accounts[1])
+//         assert(s[0] == 1, "is not Staked" );
 //     });    
 
 //     it("withdraw and re-stake", async function(){
@@ -113,11 +115,14 @@
 //         let weSender =  await web3.eth.abi.decodeParameter('address',withdrawreq.logs[0].topics[1]);
 //         assert(weSender == accounts[1], "withdraw request by account 1");
 //         await helper.advanceTime(86400 * 10);
-//         assert(await web3.eth.call({to:oracle.address,data:oracle3.methods.isStaked(accounts[1]).encodeABI()}) == false, "is not Staked" );
+//                let s =  await oracle.getStakerInfo(accounts[1])
+//         assert(s[0] !=1, "is not Staked" );
 //         await web3.eth.sendTransaction({to:oracle.address,from:accounts[1],gas:7000000,data:oracle2.methods.withdrawStake().encodeABI()})
-//         assert(await web3.eth.call({to:oracle.address,data:oracle3.methods.isStaked(accounts[1]).encodeABI()}) == false, " not Staked" );
+//         s =  await oracle.getStakerInfo(accounts[1])
+//         assert(s[0] != 1, " not Staked" );
 //         await web3.eth.sendTransaction({to:oracle.address,from:accounts[1],gas:7000000,data:oracle2.methods.depositStake().encodeABI()}) 
-//         assert(await web3.eth.call({to:oracle.address,data:oracle3.methods.isStaked(accounts[1]).encodeABI()}) == true, " Staked" );
+//         s =  await oracle.getStakerInfo(accounts[1])
+//         assert(s[0] ==1, " Staked" );
 //     }); 
 //     it("Attempt to transfer more than balance - stake", async function(){
 //         var tokens = web3.utils.toWei('1', 'ether');
@@ -143,7 +148,8 @@
 //     it("Attempt to withdraw before stake time is up", async function(){ 
 //         balance1b = await ( web3.eth.call({to:oracle.address,data:oracle3.methods.balanceOf(accounts[1]).encodeABI()}));
 //         await helper.expectThrow(web3.eth.sendTransaction({to:oracle.address,from:accounts[1],gas:7000000,data:oracle2.methods.withdrawStake().encodeABI()}) );
-//         assert(await web3.eth.call({to:oracle.address,data:oracle3.methods.isStaked(accounts[1]).encodeABI()}) == true, "still isStaked" );
+//                 s =  await oracle.getStakerInfo(accounts[1])
+//         assert(s[0] ==1, " Staked" );
 //         assert(web3.utils.fromWei(balance1b) == 1000, "Balance should equal transferred amt");
 //     });
 
@@ -152,9 +158,11 @@
 //         let weSender =  await web3.eth.abi.decodeParameter('address',withdrawreq.logs[0].topics[1])
 //         assert(weSender == accounts[1], "withdraw request by account 1");
 //         await helper.advanceTime(86400 * 8);
-//         assert(await web3.eth.call({to:oracle.address,data:oracle3.methods.isStaked(accounts[1]).encodeABI()}) == false, "is not Staked" );//should the requestWitdraw change the stakeState
+//                 s =  await oracle.getStakerInfo(accounts[1])
+//         assert(s !=1, " Staked" );
 //         await web3.eth.sendTransaction({to:oracle.address,from:accounts[1],gas:7000000,data:oracle2.methods.withdrawStake().encodeABI()})
-//         assert(await web3.eth.call({to:oracle.address,data:oracle3.methods.isStaked(accounts[1]).encodeABI()}) == false, " not Staked" );
+//                 s =  await oracle.getStakerInfo(accounts[1])
+//         assert(s !=1, "not Staked" );
 //     });
 
 //     it("getVariables", async function(){
@@ -172,12 +180,12 @@
 //     it("Get apiId", async function () {
 //         balance1 = await web3.eth.call({to:oracle.address,data:oracle3.methods.balanceOf(accounts[2]).encodeABI()})
 //         let res = await web3.eth.sendTransaction({to:oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",0,1000,20).encodeABI()}) 
-//         apiHash = await oracle.getApiHash(1)
-//         apiId = await oracle.getApiId(apiHash) 
+//         apiVars= await oracle.getApiVars(1)
+//         apiId = await oracle.getApiId(apiVars[2]) 
 //         assert(apiId == 1, "apiId should be 1");
 //     });
 //     it("Get apiHash", async function () {
-//         apiHash = await web3.eth.call({to:oracle.address,data:oracle3.methods.getApiHash(1).encodeABI()})
-//         assert(apiHash == web3.utils.soliditySha3({t:'string',v:api},{t:'uint256',v:1000}), "api on Q should be apiId");
+//         apiVars= await oracle.getApiVars(1)
+//         assert(apiVars[2] == web3.utils.soliditySha3({t:'string',v:api},{t:'uint256',v:1000}), "api on Q should be apiId");
 //     });
 // });

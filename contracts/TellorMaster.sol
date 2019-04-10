@@ -14,7 +14,7 @@ contract TellorMaster is TellorGetters{
     }
 
     function () external payable {
-        address addr = tellor.tellorContract;
+        address addr = tellor.addressVars[keccak256("tellorContract")];
         assembly {
             let freememstart := mload(0x40)
             calldatacopy(freememstart, 0, calldatasize())
