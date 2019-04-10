@@ -12,6 +12,7 @@ This miner is to be run with the demo.
 It mines values and then has random parties submit requests for data
 It loops through 10 different API's
 To do:
+Only get address at the beginning
 Add requesting data
 Random intervals
 Different tip amounts and multiple tips before mines
@@ -20,14 +21,67 @@ contract_address = "";
 node_url ="http://localhost:8545" #https://rinkeby.infura.io/
 net_id = 60 #eth network ID
 last_block = 0
+openApiIds = ["json(https://api.gdax.com/products/BTC-USD/ticker).price",
+"json(https://api.gdax.com/products/BTC-USD/ticker).price",
+"json(https://api.gdax.com/products/BTC-USD/ticker).price",
+"json(https://api.gdax.com/products/BTC-USD/ticker).price",
+"json(https://api.gdax.com/products/BTC-USD/ticker).price",
+"json(https://api.gdax.com/products/BTC-USD/ticker).price",
+"json(https://api.gdax.com/products/BTC-USD/ticker).price",
+"json(https://api.gdax.com/products/BTC-USD/ticker).price",
+"json(https://api.gdax.com/products/BTC-USD/ticker).price",
+"json(https://api.gdax.com/products/BTC-USD/ticker).price",
+]
+symbols = []
 
 public_keys = ["0xe037ec8ec9ec423826750853899394de7f024fee","0xcdd8fa31af8475574b8909f135d510579a8087d3","0xb9dd5afd86547df817da2d0fb89334a6f8edd891","0x230570cd052f40e14c14a81038c6f3aa685d712b","0x3233afa02644ccd048587f8ba6e99b3c00a34dcc"]
 private_keys = ["4bdc16637633fa4b4854670fbb83fa254756798009f52a1d3add27fb5f5a8e16","d32132133e03be292495035cf32e0e2ce0227728ff7ec4ef5d47ec95097ceeed","d13dc98a245bd29193d5b41203a1d3a4ae564257d60e00d6f68d120ef6b796c5","4beaa6653cdcacc36e3c400ce286f2aefd59e2642c2f7f29804708a434dd7dbe","78c1c7e40057ea22a36a0185380ce04ba4f333919d1c5e2effaf0ae8d6431f14"]
 
+
+apis = []
+granularities = [1,10,100,1000,1000000]
+
+
+
+
 def generate_random_number():
     return random.randint(1000000,9999999)
 
-def mine(challenge, public_address, difficulty):
+
+def requestData():
+	print("Requesting Data..")
+	requests = random.randint(min(1,len(apis)),min(len(apis),3))
+	for x in range(requests):
+		num = random.randrange(len(apis))
+		apiString= apis[num]
+		symbol = symbols[num]
+		granularity = granularities[random.randrange(len(granularities))]
+		tip = random.randint(0,10000)
+		apiId = 0;
+		j = random.randint(0,4)
+		arg_string =""+ apiString + " "+ symbol +" " + str(apiId)+" "+str(granularity)+" "+str(tip)+" "+str(contract_address)+" "+str(public_keys[j])+" "+str(private_keys[j])
+		run_js('requestData.js',arg_string);
+		openApiIds.push(len(openApiIds) + 2);
+		return
+
+
+
+def addToTip():
+	print("Adding Tips..")
+	tips = random.randint(1,3)
+	for x in range(tips):
+		rand_api= apis[random.randrange(len(openApiIds))]
+		value = random.randint(0,10000)
+		j = random.randint(0,4)
+		arg_string =""+ str(apiId) +" " + str(value)+" "+str(contract_address)+" "+str(public_keys[j])+" "+str(private_keys[j])
+		print(arg_string)
+		run_js('addTip.js',arg_string);
+		return
+
+
+
+
+def getSolution(challenge, public_address, difficulty):
 	global last_block, contract_address
 	x = 0;
 	while True:
@@ -40,10 +94,6 @@ def mine(challenge, public_address, difficulty):
 		n = "0x" + hashlib.new('sha256',bytes.fromhex(z)).hexdigest()
 		hash1 = int(n,16);
 		if hash1 % difficulty == 0:
-			print(j)
-			print(challenge)
-			print(_string)
-			print(hash1)
 			return j;
 		if x % 10000 == 0:
 			payload = {"jsonrpc":"2.0","id":net_id,"method":"eth_blockNumber"}
@@ -52,13 +102,29 @@ def mine(challenge, public_address, difficulty):
 			_block = int(d['result'],16)
 			if(last_block != _block):
 				_challenge,_apiId,_difficulty,_apiString = getVariables();
-				print(_challenge);
 				if challenge != _challenge:
 					return 0;
+def mine():
+		print("Mining..")
+		miners_started = 0;
+		challenge,apiId,difficulty,apiString,granularity = getVariables();
+		nonce = getSolution(str(challenge),public_keys[miners_started],difficulty);
+		if(nonce > 0):
+			print ("You guessed the hash!");
+			value = max(0,(getAPIvalue(apiString) - miners_started*10) * granularity); #account 2 should always be winner
+			arg_string =""+ str(nonce) + " "+ str(apiId) +" " + str(value)+" "+str(contract_address)+" "+str(public_keys[miners_started])+" "+str(private_keys[miners_started])
+			print(arg_string)
+			run_js('testSubmitter.js',arg_string);
+			miners_started += 1 
+			if(miners_started == 5):
+				print ("New Value Secured");
+				return;
+		else:
+			Print("No nonce found");
+			return
 
 def getAPIvalue(_api):
 	_api = _api.replace("'", "")
-	print('Getting : ',_api)
 	json = _api.split('(')[0]
 	print(json)
 	if('json' in json):
@@ -80,51 +146,7 @@ def getAPIvalue(_api):
 	print(price)
 	return int(float(price))
 
-# def getAPIvalue():
-# 	url = "https://api.gdax.com/products/BTC-USD/ticker"
-# 	response = requests.request("GET", url)
-# 	price =response.json()['price']
-# 	return int(float(price))
-
-def masterMiner():
-	miners_started = 0
-	challenge,apiId,difficulty,apiString,granularity = getVariables();
-	while True:
-		nonce = mine(str(challenge),public_keys[miners_started],difficulty);
-		print('n',nonce);
-		if(nonce > 0):
-			print ("You guessed the hash!");
-			#value = max(0,(1000- miners_started*10) * granularity);
-			value = max(0,(getAPIvalue(apiString) - miners_started*10) * granularity); #account 2 should always be winner
-			arg_string =""+ str(nonce) + " "+ str(apiId) +" " + str(value)+" "+str(contract_address)+" "+str(public_keys[miners_started])+" "+str(private_keys[miners_started])
-			print(arg_string)
-			#success = execute_js('testSubmitter.js',arg_string)
-			#print('WE WERE SUCCESSFUL: ', success)
-			run_js('testSubmitter.js',arg_string);
-			miners_started += 1 
-			if(miners_started == 5):
-				v = False;
-				while(v == False):
-					time.sleep(2);
-					_challenge,_apiId,_difficulty,_apiString,_granularity= getVariables();
-					if challenge == _challenge:
-						v = False
-						time.sleep(10);
-					elif _apiId > 0:
-						v = True
-						challenge = _challenge;
-						apiId = _apiId;
-						difficulty = _difficulty;
-						apiString = _apiString;
-						granularity = _granularity;
-				miners_started = 0;
-		else:
-			challenge,apiId,difficulty,apiString = getVariables(); 
-	print('Miner Stopping')
-
 def getVariables():
-	getAddress();
-	print (contract_address)
 	payload = {"jsonrpc":"2.0","id":net_id,"method":"eth_call","params":[{"to":contract_address,"data":"0x94aef022"}, "latest"]}
 	r = requests.post(node_url, data=json.dumps(payload));
 	val = jsonParser(r);
@@ -182,11 +204,25 @@ def getAddress():
 	last_block = int(e['result'],16)
 	return False;
 
-from math import ceil
 
+def masterMiner():
+	#First we get the contract address
+	getAddress();
+	miners_started = 0
+	while True:
+		#mine first value
+		mine();
+		time.sleep(10);
+		#request data for 1 - 10 API's
+		requestData();
+		time.sleep(10);
+		#keep track of open API's - randomly select a random number and tip them a random amount
+		addToTip();
+		time.sleep(10);
 
+	print('Mock System Stopping')
 
 #getVariables()
-masterMiner();
+#masterMiner();
 #getAddress();
-#getAPIvalue('json(https://api.gdax.com/products/BTC-USD/ticker).price')
+getAPIvalue('json(https://api.gdax.com/products/BTC-USD/ticker).price')

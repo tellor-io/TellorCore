@@ -16,6 +16,7 @@ library TellorLibrary{
         uint value;
         address miner;
     }
+
     struct Dispute {
         bytes32 hash;
         bool executed;//is the dispute settled
@@ -30,7 +31,7 @@ library TellorLibrary{
         // uint keccak256("value"); //the value being disputed
         // uint keccak256("minExecutionDate");//7 days from when dispute initialized
         // uint keccak256("numberOfVotes");//the number of parties who have voted on the measure
-        // uint  keccak256("blockNumber");// the blocknumber for which votes will be calculated from
+        // uint keccak256("blockNumber");// the blocknumber for which votes will be calculated from
         // uint keccak256("index"); //index in dispute array
         // uint keccak256("quorum"); //quorum for dispute vote NEW
         int tally;//current tally of votes for - against measure
