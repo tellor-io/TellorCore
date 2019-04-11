@@ -38,7 +38,7 @@ library TellorLibrary{
         mapping (address => bool) voted; //mapping of address to whether or not they voted
     } 
     struct StakeInfo {
-        uint current_state;//1=started, 2=LockedForWithdraw 3= OnDispute
+        uint current_state;//0-not Staked, 1=Staked, 2=LockedForWithdraw 3= OnDispute
         uint startDate; //stake start date
     }
     struct  Checkpoint {
@@ -52,13 +52,15 @@ library TellorLibrary{
         mapping(bytes32 => uint) apiUintVars;
         // uint keccak256("granularity"); //multiplier for miners
         // uint keccak256("index"); //index in payoutPool
-        // uint keccak256("payout");//current payout of the api, zeroed once mined
+        // uint keccak256("payout");//bonus portion of payout
         mapping(uint => uint) minedBlockNum;//[apiId][minedTimestamp]=>block.number
         mapping(uint => uint) values;//This the time series of values stored by the contract where uint UNIX timestamp is mapped to value
         mapping(uint => bool) inDispute;//checks if API id is in dispute or finalized.
         mapping(uint => address[5]) minersbyvalue;  
         mapping(uint => uint[5])valuesByTimestamp;
     }    
+
+
     struct TellorStorageStruct{
             /*TellorStorage*/ 
             mapping(bytes32 => address) addressVars;
@@ -69,7 +71,7 @@ library TellorLibrary{
             mapping(bytes32 => uint) uintVars; 
             // /*DisputesAndVoting*/  keccak256("decimals");    //18 decimal standard ERC20
             // /*DisputesAndVoting*/ keccak256("disputeFee");//cost to dispute a mined value
-            // /*DisputesAndVoting*/keccak256("disputeCount");
+            // /*DisputesAndVoting*/keccak256("disputeCount");//totalHistoricalDisputes
             // /*TokenAndStaking*/ keccak256("total_supply"); //total_supply of the token in circulation
             // /*TokenAndStaking*/ keccak256("stakeAmt");//stakeAmount for miners (we can cut gas if we just hardcode it in...or should it be variable?)
             // /*TokenAndStaking*/ keccak256("stakers"); //number of parties currently staked
@@ -83,7 +85,7 @@ library TellorLibrary{
             // /*Tellor*/ keccak256("count");//Number of miners who have mined this value so far
             // /*Tellor*/ keccak256("payoutTotal");//Mining Reward in PoWo tokens given to all miners per value
             // /*Tellor*/ keccak256("timeTarget"); //The time between blocks (mined Oracle values)
-            /*Tellor*/ uint[5]  payoutStructure;//The structure of the payout (how much uncles vs winner recieve)
+            /*Tellor*/ uint[5]  payoutStructure;//The structure of the payout (how much uncles vs winner recieve)[1,5,10,5,1]
             /*Tellor*/ uint[51]  payoutPool; //uint50 array of the top50 requests by payment amount
             /*Tellor*/ uint[]  timestamps; //array of all timestamps requested
 

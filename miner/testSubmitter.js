@@ -11,17 +11,10 @@ apiId = process.argv[3] - 0
 value = process.argv[4] - 0
 
 
-console.log('Nonce submitted: ',solution,'      ')
-console.log('Value submitted: ',value,'              ')
-
-
 var address = process.argv[5];
 var abi = json.abi;
 var account = process.argv[6];
 var privateKey = new Buffer(process.argv[7], 'hex');
-console.log('Presolution',solution);
-//solution = web3.utils.toHex(solution);
-console.log('My Solution',solution);
 
 let myContract = new web3.eth.Contract(abi,address);
 let data = myContract.methods.proofOfWork(solution,apiId,value).encodeABI();
@@ -42,7 +35,7 @@ web3.eth.getTransactionCount(account, function (err, nonce) {
     var raw = '0x' + tx.serialize().toString('hex');
     web3.eth.sendSignedTransaction(raw).on('transactionHash', function (txHash) {
       }).on('receipt', function (receipt) {
-          console.log("receipt:" + receipt);
+          //console.log("receipt:" + receipt);
       }).on('confirmation', function (confirmationNumber, receipt) {
           //console.log("confirmationNumber:" + confirmationNumber + " receipt:" + receipt);
       }).on('error', function (error) {
