@@ -11,34 +11,28 @@ from multiprocessing import Process, freeze_support
 This miner is to be run with the demo.  
 It mines values and then has random parties submit requests for data
 It loops through 10 different API's
-To do:
-Only get address at the beginning
-Add requesting data
-Random intervals
-Different tip amounts and multiple tips before mines
+and also requests data and adds tips to them
 '''
 contract_address = "";
 node_url ="http://localhost:8545" #https://rinkeby.infura.io/
 net_id = 60 #eth network ID
 last_block = 0
-openApiIds = ["json(https://api.gdax.com/products/BTC-USD/ticker).price",
-"json(https://api.gdax.com/products/BTC-USD/ticker).price",
-"json(https://api.gdax.com/products/BTC-USD/ticker).price",
-"json(https://api.gdax.com/products/BTC-USD/ticker).price",
-"json(https://api.gdax.com/products/BTC-USD/ticker).price",
-"json(https://api.gdax.com/products/BTC-USD/ticker).price",
-"json(https://api.gdax.com/products/BTC-USD/ticker).price",
-"json(https://api.gdax.com/products/BTC-USD/ticker).price",
-"json(https://api.gdax.com/products/BTC-USD/ticker).price",
-"json(https://api.gdax.com/products/BTC-USD/ticker).price",
-]
-symbols = []
-
+openApiIds = [1]
+symbols = ["BTCUSD","ETHUSD","LTCBTC","USDCBNB","ETHBTC","BTCUSDT","BNBBTC","BNBBTC","BNBTUSD","XRPTUSD"]
+sleep_between_mines =10;#number of seconds between mines
 public_keys = ["0xe037ec8ec9ec423826750853899394de7f024fee","0xcdd8fa31af8475574b8909f135d510579a8087d3","0xb9dd5afd86547df817da2d0fb89334a6f8edd891","0x230570cd052f40e14c14a81038c6f3aa685d712b","0x3233afa02644ccd048587f8ba6e99b3c00a34dcc"]
 private_keys = ["4bdc16637633fa4b4854670fbb83fa254756798009f52a1d3add27fb5f5a8e16","d32132133e03be292495035cf32e0e2ce0227728ff7ec4ef5d47ec95097ceeed","d13dc98a245bd29193d5b41203a1d3a4ae564257d60e00d6f68d120ef6b796c5","4beaa6653cdcacc36e3c400ce286f2aefd59e2642c2f7f29804708a434dd7dbe","78c1c7e40057ea22a36a0185380ce04ba4f333919d1c5e2effaf0ae8d6431f14"]
 
 
-apis = []
+apis = ["json(https://api.gdax.com/products/BTC-USD/ticker).price",
+"json(https://api.gdax.com/products/ETH-USD/ticker).price",
+"json(https://api.binance.com/api/v3/ticker/price?symbol=LTCBTC).price",
+"json(https://api.binance.com/api/v3/ticker/price?symbol=USDCBNB).price",
+"json(https://api.binance.com/api/v3/ticker/price?symbol=ETHBTC).price",
+"json(https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT).price",
+"json(https://api.binance.com/api/v3/ticker/price?symbol=BNBBTC).price",
+"json(https://api.binance.com/api/v3/ticker/price?symbol=BNBTUSD).price",
+"json(https://api.binance.com/api/v3/ticker/price?symbol=XRPTUSD).price"] #whats the standard way to do this?
 granularities = [1,10,100,1000,1000000]
 
 
@@ -50,9 +44,9 @@ def generate_random_number():
 
 def requestData():
 	print("Requesting Data..")
-	requests = random.randint(min(1,len(apis)),min(len(apis),3))
+	requests = random.randint(1,3)
 	for x in range(requests):
-		num = random.randrange(len(apis))
+		num = random.randint(0,len(apis)-1)
 		apiString= apis[num]
 		symbol = symbols[num]
 		granularity = granularities[random.randrange(len(granularities))]
@@ -61,8 +55,9 @@ def requestData():
 		j = random.randint(0,4)
 		arg_string =""+ apiString + " "+ symbol +" " + str(apiId)+" "+str(granularity)+" "+str(tip)+" "+str(contract_address)+" "+str(public_keys[j])+" "+str(private_keys[j])
 		run_js('requestData.js',arg_string);
-		openApiIds.push(len(openApiIds) + 2);
-		return
+		if num + 1 not in openApiIds:
+			openApiIds.append(num + 1);
+	return
 
 
 
@@ -70,13 +65,13 @@ def addToTip():
 	print("Adding Tips..")
 	tips = random.randint(1,3)
 	for x in range(tips):
-		rand_api= apis[random.randrange(len(openApiIds))]
+		rand_api= random.randint(0,len(openApiIds)-1)
 		value = random.randint(0,10000)
 		j = random.randint(0,4)
+		apiId = openApiIds[rand_api]
 		arg_string =""+ str(apiId) +" " + str(value)+" "+str(contract_address)+" "+str(public_keys[j])+" "+str(private_keys[j])
-		print(arg_string)
 		run_js('addTip.js',arg_string);
-		return
+	return
 
 
 
@@ -108,25 +103,24 @@ def mine():
 		print("Mining..")
 		miners_started = 0;
 		challenge,apiId,difficulty,apiString,granularity = getVariables();
-		nonce = getSolution(str(challenge),public_keys[miners_started],difficulty);
-		if(nonce > 0):
-			print ("You guessed the hash!");
-			value = max(0,(getAPIvalue(apiString) - miners_started*10) * granularity); #account 2 should always be winner
-			arg_string =""+ str(nonce) + " "+ str(apiId) +" " + str(value)+" "+str(contract_address)+" "+str(public_keys[miners_started])+" "+str(private_keys[miners_started])
-			print(arg_string)
-			run_js('testSubmitter.js',arg_string);
-			miners_started += 1 
-			if(miners_started == 5):
-				print ("New Value Secured");
-				return;
-		else:
-			Print("No nonce found");
-			return
+		while miners_started < 5:
+			nonce = getSolution(str(challenge),public_keys[miners_started],difficulty);
+			if(nonce > 0):
+				print ("You guessed the hash!");
+				value = max(0,(getAPIvalue(apiString)) * granularity); #account 2 should always be winner
+				arg_string =""+ str(nonce) + " "+ str(apiId) +" " + str(value)+" "+str(contract_address)+" "+str(public_keys[miners_started])+" "+str(private_keys[miners_started])
+				run_js('testSubmitter.js',arg_string);
+				miners_started += 1
+			else:
+				Print("No nonce found");
+				return
+		print ("New Value Secured");
+		return;
+
 
 def getAPIvalue(_api):
 	_api = _api.replace("'", "")
 	json = _api.split('(')[0]
-	print(json)
 	if('json' in json):
 		_api = _api.split('(')[1]
 		filter = _api.split(').')[1]
@@ -138,7 +132,16 @@ def getAPIvalue(_api):
 		print('API ERROR',_api)
 	if('json' in json):
 		if(len(filter)):
-			price =response.json()[filter]
+			allFilters = filter.split(".")
+			price = response.json()
+			i = 0
+			while i < len(allFilters):
+				if('/' in allFilters[i]):
+					allFilters[i] =allFilters[i].replace("/", ".")
+					allFilters[i+1] = allFilters[i] + allFilters[i+1]
+					i += 1
+				price =price[allFilters[i].replace("___"," ")]
+				i += 1
 		else:
 			price = response.json()
 	else:
@@ -151,7 +154,6 @@ def getVariables():
 	r = requests.post(node_url, data=json.dumps(payload));
 	val = jsonParser(r);
 	val = val['result'];
-	print(val);
 	_challenge = val[:66]
 	val = val[66:]
 	_apiId = int(val[:64],16)
@@ -159,13 +161,12 @@ def getVariables():
 	_difficulty = int(val[:64],16);
 	val =val[64:]
 	val =val[64:]
-	print(val[:64]);
 	_granularity = int(val[:64],16);
 	val =val[64:]
 	val =val[64:]
 	val = val[:-16]
-	_apiString =  str(binascii.unhexlify(val.strip()))
-	print('String',_challenge,_apiId,_difficulty,_apiString,_granularity)
+	_apiString =  str(binascii.unhexlify(val.strip())).replace("\\","").replace('x00',"")
+	print('Variable String',_challenge,_apiId,_difficulty,_apiString,_granularity)
 	return _challenge,_apiId,_difficulty,_apiString,_granularity
 
 def jsonParser(_info):
@@ -212,7 +213,7 @@ def masterMiner():
 	while True:
 		#mine first value
 		mine();
-		time.sleep(10);
+		time.sleep(sleep_between_mines);
 		#request data for 1 - 10 API's
 		requestData();
 		time.sleep(10);
@@ -223,6 +224,6 @@ def masterMiner():
 	print('Mock System Stopping')
 
 #getVariables()
-#masterMiner();
+masterMiner();
 #getAddress();
-getAPIvalue('json(https://api.gdax.com/products/BTC-USD/ticker).price')
+#getAPIvalue("json(https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=AAPL&apikey=8BOZABJ2U1CEWBD).Global___Quote.05/.___price")

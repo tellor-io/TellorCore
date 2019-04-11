@@ -6,6 +6,7 @@ and makes first request
 Directions:
 Run truffle migrate
 Run truffle exec scripts/MockScripts.js
+Run mockMiner.py
 
 */
 const Web3 = require('web3')
