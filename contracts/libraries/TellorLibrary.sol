@@ -104,22 +104,22 @@ library TellorLibrary{
             /*DisputesAndVoting*/mapping(bytes32 => uint) disputeIdByDisputeHash;//maps a hash to an ID for each dispute
     }
 
-    event NewValue(uint indexed _apiId, uint _time, uint _value,uint _payout,bytes32 _currentChallenge);//Emits upon a successful Mine, indicates the blocktime at point of the mine and the value mined
-    event DataRequested(address indexed _sender, string _sapi,string _symbol,uint _granularity, uint indexed _apiId, uint _value);//Emits upon someone adding value to a pool; msg.sender, amount added, and timestamp incentivized to be mined
-    event NonceSubmitted(address indexed _miner, string _nonce, uint indexed _apiId, uint _value,bytes32 _currentChallenge);//Emits upon each mine (5 total) and shows the miner, nonce, and value submitted
-    event NewRequestOnDeck(uint indexed _apiId, string _sapi, bytes32 _onDeckQueryHash, uint _onDeckTotalTips); //emits when a the payout of another request is higher after adding to the payoutPool or submitting a request
-    event NewChallenge(bytes32 _currentChallenge,uint indexed _currentRequestId,uint _difficulty,uint _multiplier,string _api,uint _value); //emits when a new challenge is created (either on mined block or when a new request is pushed forward on waiting system)
-    event Approval(address indexed owner, address indexed spender, uint256 value);//ERC20 Approval event
-    event Transfer(address indexed from, address indexed to, uint256 value);//ERC20 Transfer Event
+    event NewValue(uint indexed _requestId, uint _time, uint _value,uint _totalTips,bytes32 _currentChallenge);//Emits upon a successful Mine, indicates the blocktime at point of the mine and the value mined
+    event DataRequested(address indexed _sender, string _query,string _querySymbol,uint _granularity, uint indexed _requestId, uint _totalTips);//Emits upon someone adding value to a pool; msg.sender, amount added, and timestamp incentivized to be mined
+    event NonceSubmitted(address indexed _miner, string _nonce, uint indexed _requestId, uint _value,bytes32 _currentChallenge);//Emits upon each mine (5 total) and shows the miner, nonce, and value submitted
+    event NewRequestOnDeck(uint indexed _requestId, string _query, bytes32 _onDeckQueryHash, uint _onDeckTotalTips); //emits when a the payout of another request is higher after adding to the payoutPool or submitting a request
+    event NewChallenge(bytes32 _currentChallenge,uint indexed _currentRequestId,uint _difficulty,uint _multiplier,string _query,uint _totalTips); //emits when a new challenge is created (either on mined block or when a new request is pushed forward on waiting system)
+    event Approval(address indexed _owner, address indexed _spender, uint256 _value);//ERC20 Approval event
+    event Transfer(address indexed _from, address indexed _to, uint256 _value);//ERC20 Transfer Event
     event NewStake(address indexed _sender);//Emits upon new staker
     event StakeWithdrawn(address indexed _sender);//Emits when a staker is now no longer staked
     event StakeWithdrawRequested(address indexed _sender);//Emits when a staker begins the 7 day withdraw period
-    event NewDispute(uint indexed _DisputeID, uint indexed _apiId, uint _timestamp);//emitted when a new dispute is initialized
+    event NewDispute(uint indexed _disputeId, uint indexed _requestId, uint _timestamp);//emitted when a new dispute is initialized
     event Voted(uint indexed _disputeID, bool _position, address indexed _voter);//emitted when a new vote happens
     event DisputeVoteTallied(uint indexed _disputeID, int _result,address indexed _reportedMiner,address _reportingParty, bool _active);//emitted upon dispute tally
     event NewTellorAddress(address _newTellor); //emmited when a proposed fork is voted true
-    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
-    event TipAdded(address indexed _sender,uint indexed _apiId, uint _tip, uint _payout);
+    event OwnershipTransferred(address indexed _previousOwner, address indexed _newOwner);
+    event TipAdded(address indexed _sender,uint indexed _requestId, uint _tip, uint _totalTips);
 
     /*Functions*/
     /*This is a cheat for demo purposes, will delete upon actual launch*/
@@ -129,17 +129,17 @@ library TellorLibrary{
     }
            /**
     * @dev Add tip to Request to retreive value from oracle
-    * @param _apiId apiId being requested be mined
+    * @param _requestId apiId being requested be mined
     * @param _tip amount the requester is willing to pay to be get on queue. Miners
     * mine the onDeckQueryHash, or the api with the highest payout pool
     */
-    function addTip(TellorStorageStruct storage self,uint _apiId, uint _tip) public {
-        require(_apiId > 0);
+    function addTip(TellorStorageStruct storage self,uint _requestId, uint _tip) public {
+        require(_requestId > 0);
         if(_tip > 0){
             doTransfer(self,msg.sender,address(this),_tip);
         }
-        updateOnDeck(self,_apiId,_tip,false);
-        emit TipAdded(msg.sender,_apiId,_tip,self.requestDetails[_apiId].apiUintVars[keccak256("totalTip")]);
+        updateOnDeck(self,_requestId,_tip,false);
+        emit TipAdded(msg.sender,_requestId,_tip,self.requestDetails[_requestId].apiUintVars[keccak256("totalTip")]);
     }
 
 
@@ -164,7 +164,7 @@ library TellorLibrary{
     * @param _user is the owner address used to look up the balance
     * @return Returns the balance associated with the passed in _user
     */
-    function balanceOf(TellorStorageStruct storage self,address _user) public view returns (uint bal) { 
+    function balanceOf(TellorStorageStruct storage self,address _user) public view returns (uint) { 
         return balanceOfAt(self,_user, block.number); 
     }
 /**
@@ -255,16 +255,16 @@ library TellorLibrary{
     * @dev Helps initialize a dispute by assigning it a disputeId 
     * when a miner returns a false on the validate array(in Tellor.ProofOfWork) it sends the 
     * invalidated value information to POS voting
-    * @param _apiId being disputed
+    * @param _requestId being disputed
     * @param _timestamp being disputed
     */
-    function beginDispute(TellorStorageStruct storage self,uint _apiId, uint _timestamp,uint _minerIndex) public {
-        Request storage _api = self.requestDetails[_apiId];
-        require(block.number- _api.minedBlockNum[_timestamp]<= 144);
-        require(_api.minedBlockNum[_timestamp] > 0);
+    function beginDispute(TellorStorageStruct storage self,uint _requestId, uint _timestamp,uint _minerIndex) public {
+        Request storage _request = self.requestDetails[_requestId];
+        require(block.number- _request.minedBlockNum[_timestamp]<= 144);
+        require(_request.minedBlockNum[_timestamp] > 0);
         require(_minerIndex < 5);
-        address _miner = _api.minersByValue[_timestamp][_minerIndex];
-        bytes32 _hash = keccak256(abi.encodePacked(_miner,_apiId,_timestamp));
+        address _miner = _request.minersByValue[_timestamp][_minerIndex];
+        bytes32 _hash = keccak256(abi.encodePacked(_miner,_requestId,_timestamp));
         require(self.disputeIdByDisputeHash[_hash] == 0);
         doTransfer(self,msg.sender,address(this), self.uintVars[keccak256("disputeFee")]);
         self.uintVars[keccak256("disputeCount")] =  self.uintVars[keccak256("disputeCount")] + 1;
@@ -280,17 +280,17 @@ library TellorLibrary{
             disputeVotePassed: false,
             tally: 0
             });
-        self.disputesById[disputeId].disputeUintVars[keccak256("requestId")] = _apiId;
+        self.disputesById[disputeId].disputeUintVars[keccak256("requestId")] = _requestId;
         self.disputesById[disputeId].disputeUintVars[keccak256("timestamp")] = _timestamp;
-        self.disputesById[disputeId].disputeUintVars[keccak256("value")] = _api.valuesByTimestamp[_timestamp][_minerIndex];
+        self.disputesById[disputeId].disputeUintVars[keccak256("value")] = _request.valuesByTimestamp[_timestamp][_minerIndex];
         self.disputesById[disputeId].disputeUintVars[keccak256("minExecutionDate")] = now + 7 days;
         self.disputesById[disputeId].disputeUintVars[keccak256("blockNumber")] = block.number;
         self.disputesById[disputeId].disputeUintVars[keccak256("minerSlot")] = _minerIndex;
         if(_minerIndex == 2){
-            self.requestDetails[_apiId].inDispute[_timestamp] = true;
+            self.requestDetails[_requestId].inDispute[_timestamp] = true;
         }
         self.stakerDetails[_miner].currentStatus = 3;
-        emit NewDispute(disputeId,_apiId,_timestamp );
+        emit NewDispute(disputeId,_requestId,_timestamp );
     }
     /*
      *This function gives 5 miners the inital staked tokens in the system.  
@@ -334,13 +334,13 @@ library TellorLibrary{
     /**
     * @dev Proof of work is called by the miner when they submit the solution (proof of work and value)
     * @param _nonce uint submitted by miner
-    * @param _apiId the apiId being mined
+    * @param _requestId the apiId being mined
     * @param _value of api query
     * @return count of values sumbitted so far and the time of the last successful mine
     */
-    function submitMiningSolution(TellorStorageStruct storage self,string memory _nonce, uint _apiId, uint _value) internal{
+    function submitMiningSolution(TellorStorageStruct storage self,string memory _nonce, uint _requestId, uint _value) internal{
         require(self.stakerDetails[msg.sender].currentStatus == 1);
-        require(_apiId == self.uintVars[keccak256("currentRequestId")]);
+        require(_requestId == self.uintVars[keccak256("currentRequestId")]);
         bytes32 n = sha256(abi.encodePacked(ripemd160(abi.encodePacked(keccak256(abi.encodePacked(self.currentChallenge,msg.sender,_nonce))))));
         require(uint(n) % self.uintVars[keccak256("difficulty")] == 0);
         require(self.minersByChallenge[self.currentChallenge][msg.sender] == false); 
@@ -348,9 +348,9 @@ library TellorLibrary{
         self.currentMiners[self.uintVars[keccak256("slotProgress")]].miner = msg.sender;
         self.uintVars[keccak256("slotProgress")]++;
         self.minersByChallenge[self.currentChallenge][msg.sender] = true;
-        emit NonceSubmitted(msg.sender,_nonce,_apiId,_value,self.currentChallenge);
+        emit NonceSubmitted(msg.sender,_nonce,_requestId,_value,self.currentChallenge);
         if(self.uintVars[keccak256("slotProgress")] == 5) { 
-            Request storage _api = self.requestDetails[_apiId];
+            Request storage _request = self.requestDetails[_requestId];
             if(int(self.uintVars[keccak256("difficulty")]) + (int(self.uintVars[keccak256("timeTarget")]) - int(now - self.uintVars[keccak256("timeOfLastNewValue")]))/60 > 0){
                 self.uintVars[keccak256("difficulty")] = uint(int(self.uintVars[keccak256("difficulty")]) + (int(self.uintVars[keccak256("timeTarget")]) - int(now - self.uintVars[keccak256("timeOfLastNewValue")]))/60);
             }
@@ -377,20 +377,20 @@ library TellorLibrary{
             for (i = 0;i <5;i++){
                 doTransfer(self,address(this),a[i].miner,self.miningRewardDistributions[i] + self.uintVars[keccak256("currentTotalTips")]/22 * self.miningRewardDistributions[i] / 1e18);
             }
-            emit NewValue(_apiId,self.uintVars[keccak256("timeOfLastNewValue")],a[2].value,self.uintVars[keccak256("currentTotalTips")] - self.uintVars[keccak256("currentTotalTips")]%22,self.currentChallenge);
+            emit NewValue(_requestId,self.uintVars[keccak256("timeOfLastNewValue")],a[2].value,self.uintVars[keccak256("currentTotalTips")] - self.uintVars[keccak256("currentTotalTips")]%22,self.currentChallenge);
             if(self.uintVars[keccak256("currentTotalTips")] % 22 > 0){
-                updateOnDeck(self,_apiId,self.uintVars[keccak256("currentTotalTips")] % 22,true); 
+                updateOnDeck(self,_requestId,self.uintVars[keccak256("currentTotalTips")] % 22,true); 
             }
             self.uintVars[keccak256("total_supply")] += self.uintVars[keccak256("currentTotalTips")] - self.uintVars[keccak256("currentTotalTips")]%22 + self.uintVars[keccak256("miningReward")]*110/100;//can we hardcode this?
             doTransfer(self,address(this),self.addressVars[keccak256("_owner")],(self.uintVars[keccak256("miningReward")] * 10 / 100));//The ten there is the devshare
-            _api.finalValues[self.uintVars[keccak256("timeOfLastNewValue")]] = a[2].value;
-            _api.requestTimestamps.push(self.uintVars[keccak256("timeOfLastNewValue")]);
-            _api.minersByValue[self.uintVars[keccak256("timeOfLastNewValue")]] = [a[0].miner,a[1].miner,a[2].miner,a[3].miner,a[4].miner];
-            _api.valuesByTimestamp[self.uintVars[keccak256("timeOfLastNewValue")]] = [a[0].value,a[1].value,a[2].value,a[3].value,a[4].value];
-            _api.minedBlockNum[self.uintVars[keccak256("timeOfLastNewValue")]] = block.number;
+            _request.finalValues[self.uintVars[keccak256("timeOfLastNewValue")]] = a[2].value;
+            _request.requestTimestamps.push(self.uintVars[keccak256("timeOfLastNewValue")]);
+            _request.minersByValue[self.uintVars[keccak256("timeOfLastNewValue")]] = [a[0].miner,a[1].miner,a[2].miner,a[3].miner,a[4].miner];
+            _request.valuesByTimestamp[self.uintVars[keccak256("timeOfLastNewValue")]] = [a[0].value,a[1].value,a[2].value,a[3].value,a[4].value];
+            _request.minedBlockNum[self.uintVars[keccak256("timeOfLastNewValue")]] = block.number;
             self.uintVars[keccak256("currentRequestId")] = self.requestIdByQueryHash[self.onDeckQueryHash]; 
             self.uintVars[keccak256("currentTotalTips")] = self.uintVars[keccak256("onDeckTotalTips")];
-            self.requestIdByTimestamp[self.uintVars[keccak256("timeOfLastNewValue")]] = _apiId;
+            self.requestIdByTimestamp[self.uintVars[keccak256("timeOfLastNewValue")]] = _requestId;
             self.newValueTimestamps.push(self.uintVars[keccak256("timeOfLastNewValue")]);
             self.uintVars[keccak256("slotProgress")] = 0;
             self.requestQ[self.requestDetails[self.uintVars[keccak256("onDeckRequestId")]].apiUintVars[keccak256("requestQPosition")]] = 0;
@@ -441,44 +441,43 @@ library TellorLibrary{
    /**
     * @dev Request to retreive value from oracle based on timestamp
     * @param _c_sapi string API being requested be mined
-    * @param _c_apiId apiId being requested be mined
+    * @param _requestId apiId being requested be mined
     * @param _tip amount the requester is willing to pay to be get on queue. Miners
     * mine the onDeckQueryHash, or the api with the highest payout pool
-    * @return _apiId for the request
+    * @return _requestId for the request
     */
-    function requestData(TellorStorageStruct storage self,string memory _c_sapi,string memory _c_symbol, uint _c_apiId,uint _granularity, uint _tip) internal {
-        uint _apiId = _c_apiId;
+    function requestData(TellorStorageStruct storage self,string memory _c_sapi,string memory _c_symbol, uint _requestId,uint _granularity, uint _tip) internal {
         require(_granularity > 0);
         require(_granularity <= 1e18);
-        if(_apiId == 0){
+        if(_requestId == 0){
             string memory _sapi = _c_sapi;
             string memory _symbol = _c_symbol;
             require(bytes(_sapi).length > 0);
-                    require(bytes(_symbol).length < 64);
+            require(bytes(_symbol).length < 64);
             bytes32 _queryHash = keccak256(abi.encodePacked(_sapi,_granularity));
             if(self.requestIdByQueryHash[_queryHash] == 0){
                 self.uintVars[keccak256("requestCount")]++;
-                _apiId=self.uintVars[keccak256("requestCount")];
-                self.requestDetails[_apiId] = Request({
+                _requestId=self.uintVars[keccak256("requestCount")];
+                self.requestDetails[_requestId] = Request({
                     queryString : _sapi, 
                     dataSymbol: _symbol,
                     queryHash: _queryHash,
                     requestTimestamps: new uint[](0)
                     });
-                self.requestDetails[_apiId].apiUintVars[keccak256("granularity")] = _granularity;
-                self.requestDetails[_apiId].apiUintVars[keccak256("requestQPosition")] = 0;
-                self.requestDetails[_apiId].apiUintVars[keccak256("totalTip")] = 0;
-                self.requestIdByQueryHash[_queryHash] = _apiId;
+                self.requestDetails[_requestId].apiUintVars[keccak256("granularity")] = _granularity;
+                self.requestDetails[_requestId].apiUintVars[keccak256("requestQPosition")] = 0;
+                self.requestDetails[_requestId].apiUintVars[keccak256("totalTip")] = 0;
+                self.requestIdByQueryHash[_queryHash] = _requestId;
             }
             else{
-                _apiId = self.requestIdByQueryHash[_queryHash];
+                _requestId = self.requestIdByQueryHash[_queryHash];
             }
         }
         if(_tip > 0){
             doTransfer(self,msg.sender,address(this),_tip);
         }
-        updateOnDeck(self,_apiId,_tip,false);
-        emit DataRequested(msg.sender,self.requestDetails[_apiId].queryString,self.requestDetails[_apiId].dataSymbol,_granularity,_apiId,_tip);
+        updateOnDeck(self,_requestId,_tip,false);
+        emit DataRequested(msg.sender,self.requestDetails[_requestId].queryString,self.requestDetails[_requestId].dataSymbol,_granularity,_requestId,_tip);
     }
         /**
     * @dev This function allows stakers to request to withdraw their stake (no longer stake) 
@@ -497,7 +496,7 @@ library TellorLibrary{
     */
     function tallyVotes(TellorStorageStruct storage self, uint _disputeId) internal {
         Dispute storage disp = self.disputesById[_disputeId];
-        Request storage _api = self.requestDetails[disp.disputeUintVars[keccak256("requestId")]];
+        Request storage _request = self.requestDetails[disp.disputeUintVars[keccak256("requestId")]];
         require(disp.executed == false);
         require(now > disp.disputeUintVars[keccak256("minExecutionDate")]); //Uncomment for production-commented out for testing 
         if (disp.isPropFork== false){
@@ -509,16 +508,16 @@ library TellorLibrary{
                 doTransfer(self,disp.reportedMiner,disp.reportingParty, self.uintVars[keccak256("stakeAmount")]);
                 doTransfer(self,msg.sender,disp.reportingParty, self.uintVars[keccak256("disputeFee")]);
                 disp.disputeVotePassed = true;
-                if(_api.inDispute[disp.disputeUintVars[keccak256("timestamp")]] == true){
-                    _api.finalValues[disp.disputeUintVars[keccak256("timestamp")]] = 0;
+                if(_request.inDispute[disp.disputeUintVars[keccak256("timestamp")]] == true){
+                    _request.finalValues[disp.disputeUintVars[keccak256("timestamp")]] = 0;
                 }
             } else {
                 stakes.currentStatus = 1;
                 disp.executed = true;
                 disp.disputeVotePassed = false;
                 doTransfer(self,msg.sender,disp.reportedMiner, self.uintVars[keccak256("disputeFee")]);
-                if(_api.inDispute[disp.disputeUintVars[keccak256("timestamp")]] == true){
-                    _api.inDispute[disp.disputeUintVars[keccak256("timestamp")]] = false;
+                if(_request.inDispute[disp.disputeUintVars[keccak256("timestamp")]] == true){
+                    _request.inDispute[disp.disputeUintVars[keccak256("timestamp")]] = false;
                 }
             }
         emit DisputeVoteTallied(_disputeId,disp.tally,disp.reportedMiner,disp.reportingParty,disp.disputeVotePassed); 
@@ -559,55 +558,55 @@ library TellorLibrary{
 
     /**
          * @dev Allows the current owner to transfer control of the contract to a newOwner.
-         * @param newOwner The address to transfer ownership to.
+         * @param _newOwner The address to transfer ownership to.
     */
-    function transferOwnership(TellorStorageStruct storage self,address payable newOwner) internal {
+    function transferOwnership(TellorStorageStruct storage self,address payable _newOwner) internal {
             require(msg.sender == self.addressVars[keccak256("_owner")]);
-            emit OwnershipTransferred(self.addressVars[keccak256("_owner")], newOwner);
-            self.addressVars[keccak256("_owner")] = newOwner;
+            emit OwnershipTransferred(self.addressVars[keccak256("_owner")], _newOwner);
+            self.addressVars[keccak256("_owner")] = _newOwner;
     }
 
 
     /**
     @dev This function updates APIonQ and the requestQ when requestData or addToValuePool are ran
-    @param _apiId being requested
+    @param _requestId being requested
     */
-    function updateOnDeck(TellorStorageStruct storage self,uint _apiId, uint _tip,bool _mine) internal {
-        Request storage _api = self.requestDetails[_apiId];
+    function updateOnDeck(TellorStorageStruct storage self,uint _requestId, uint _tip,bool _mine) internal {
+        Request storage _request = self.requestDetails[_requestId];
         if (_tip > 0){
-            _api.apiUintVars[keccak256("totalTip")] = _api.apiUintVars[keccak256("totalTip")].add(_tip);
+            _request.apiUintVars[keccak256("totalTip")] = _request.apiUintVars[keccak256("totalTip")].add(_tip);
         }
-        uint _payout = _api.apiUintVars[keccak256("totalTip")];
+        uint _payout = _request.apiUintVars[keccak256("totalTip")];
         if(self.uintVars[keccak256("currentRequestId")] == 0){
-            _api.apiUintVars[keccak256("totalTip")] = 0;
-            self.uintVars[keccak256("currentRequestId")] = _apiId;
+            _request.apiUintVars[keccak256("totalTip")] = 0;
+            self.uintVars[keccak256("currentRequestId")] = _requestId;
             self.uintVars[keccak256("currentTotalTips")] = _payout;
             self.currentChallenge = keccak256(abi.encodePacked(_payout, self.currentChallenge, blockhash(block.number - 1))); // Save hash for next proof
             emit NewChallenge(self.currentChallenge,self.uintVars[keccak256("currentRequestId")],self.uintVars[keccak256("difficulty")],self.requestDetails[self.uintVars[keccak256("currentRequestId")]].apiUintVars[keccak256("granularity")],self.requestDetails[self.uintVars[keccak256("currentRequestId")]].queryString,self.uintVars[keccak256("currentTotalTips")]);
         }
         else{
-            if(_apiId == self.uintVars[keccak256("onDeckRequestId")]){
+            if(_requestId == self.uintVars[keccak256("onDeckRequestId")]){
                 self.uintVars[keccak256("onDeckTotalTips")] = _payout;
             }
             else if (_payout > self.uintVars[keccak256("onDeckTotalTips")] || (self.uintVars[keccak256("onDeckRequestId")] == 0) && _mine == false) {
-                    self.uintVars[keccak256("onDeckRequestId")] = _apiId;
-                    self.onDeckQueryHash = _api.queryHash;
+                    self.uintVars[keccak256("onDeckRequestId")] = _requestId;
+                    self.onDeckQueryHash = _request.queryHash;
                     self.uintVars[keccak256("onDeckTotalTips")] = _payout;
-                    emit NewRequestOnDeck(_apiId,_api.queryString,self.onDeckQueryHash,_payout);
+                    emit NewRequestOnDeck(_requestId,_request.queryString,self.onDeckQueryHash,_payout);
             }
 
-            if(_api.apiUintVars[keccak256("requestQPosition")] == 0 && _mine == false){
+            if(_request.apiUintVars[keccak256("requestQPosition")] == 0 && _mine == false){
                 uint _min;
                 uint _index;
                 (_min,_index) = Utilities.getMin(self.requestQ);
                 if(_payout > _min || _min == 0){
                     self.requestQ[_index] = _payout;
-                    self.requestIdByRequestQIndex[_index] = _apiId;
-                    _api.apiUintVars[keccak256("requestQPosition")] = _index;
+                    self.requestIdByRequestQIndex[_index] = _requestId;
+                    _request.apiUintVars[keccak256("requestQPosition")] = _index;
                 }
             }
             else if (_tip > 0 && _mine == false){
-                self.requestQ[_api.apiUintVars[keccak256("requestQPosition")]] += _tip;
+                self.requestQ[_request.apiUintVars[keccak256("requestQPosition")]] += _tip;
             }
         }
     }

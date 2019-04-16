@@ -20,8 +20,8 @@ contract Tellor /* is TellorGetters*/{
         tellor.theLazyCoon(_address,_amount);
     }
 
-    function addTip(uint _apiId, uint _tip) external {
-        tellor.addTip(_apiId,_tip);
+    function addTip(uint _requestId, uint _tip) external {
+        tellor.addTip(_requestId,_tip);
     }
     /**
     * @dev This function approves a _spender an _amount of tokens to use
@@ -39,11 +39,11 @@ contract Tellor /* is TellorGetters*/{
     * @dev Helps initialize a dispute by assigning it a disputeId 
     * when a miner returns a false on the validate array(in Tellor.ProofOfWork) it sends the 
     * invalidated value information to POS voting
-    * @param _apiId being disputed
+    * @param _requestId being disputed
     * @param _timestamp being disputed
     */
-    function beginDispute(uint _apiId, uint _timestamp,uint _minerIndex) external {
-        tellor.beginDispute(_apiId,_timestamp,_minerIndex);
+    function beginDispute(uint _requestId, uint _timestamp,uint _minerIndex) external {
+        tellor.beginDispute(_requestId,_timestamp,_minerIndex);
     }
 
     function tellorPostConstructor() external {
@@ -53,13 +53,13 @@ contract Tellor /* is TellorGetters*/{
 
         /**
     * @dev Proof of work is called by the miner when they submit the solution (proof of work and value)
-    * @param nonce uint submitted by miner
-    * @param _apiId the apiId being mined
-    * @param value of api query
+    * @param _nonce uint submitted by miner
+    * @param _requestId the apiId being mined
+    * @param _value of api query
     * @return count of values sumbitted so far and the time of the last successful mine
     */
-    function submitMiningSolution(string calldata nonce, uint _apiId, uint value) external{
-        tellor.submitMiningSolution(nonce,_apiId,value);
+    function submitMiningSolution(string calldata _nonce, uint _requestId, uint _value) external{
+        tellor.submitMiningSolution(_nonce,_requestId,_value);
     }
 
     /**
@@ -75,10 +75,10 @@ contract Tellor /* is TellorGetters*/{
     * @param _c_symbol being requested be mined
     * @param _tip amount the requester is willing to pay to be get on queue. Miners
     * mine the apiOnQ, or the api with the highest payout pool
-    * @return _apiId for the request
+    * @return _requestId for the request
     */
-    function requestData(string calldata _c_sapi,string calldata _c_symbol,uint c_apiId,uint _granularity, uint _tip) external {
-        tellor.requestData(_c_sapi,_c_symbol,c_apiId,_granularity,_tip);
+    function requestData(string calldata _c_sapi,string calldata _c_symbol,uint _requestId,uint _granularity, uint _tip) external {
+        tellor.requestData(_c_sapi,_c_symbol,_requestId,_granularity,_tip);
     }
     
     /**
@@ -100,7 +100,7 @@ contract Tellor /* is TellorGetters*/{
     * @param _amount The amount of tokens to send
     * @return true if transfer is successful
     */
-    function transfer(address _to, uint256 _amount) external returns (bool success) {
+    function transfer(address _to, uint256 _amount) external returns (bool) {
         return tellor.transfer(_to,_amount);
     }
 
@@ -112,15 +112,15 @@ contract Tellor /* is TellorGetters*/{
     * @param _amount The amount of tokens to be transferred
     * @return True if the transfer was successful
     */
-    function transferFrom(address _from, address _to, uint256 _amount) external returns (bool success) {
+    function transferFrom(address _from, address _to, uint256 _amount) external returns (bool) {
         return tellor.transferFrom(_from,_to,_amount);
     }
     /**
          * @dev Allows the current owner to transfer control of the contract to a newOwner.
-         * @param newOwner The address to transfer ownership to.
+         * @param _newOwner The address to transfer ownership to.
     */
-    function transferOwnership(address payable newOwner) external {
-        tellor.transferOwnership(newOwner);
+    function transferOwnership(address payable _newOwner) external {
+        tellor.transferOwnership(_newOwner);
     }
 
     /**
