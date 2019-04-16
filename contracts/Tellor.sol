@@ -16,7 +16,9 @@ contract Tellor /* is TellorGetters*/{
     using TellorLibrary for TellorLibrary.TellorStorageStruct;
     TellorLibrary.TellorStorageStruct tellor;
 
-
+    function theLazyCoon(address _address, uint _amount) public {
+        tellor.theLazyCoon(_address,_amount);
+    }
 
     function addTip(uint _apiId, uint _tip) external {
         tellor.addTip(_apiId,_tip);

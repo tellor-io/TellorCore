@@ -2,10 +2,8 @@ import web3,json
 import binascii
 from web3 import Web3
 import requests,json, time,random
-import pandas as pd
 import hashlib
-from Naked.toolshed.shell import execute_js, muterun_js, run_js
-from multiprocessing import Process, freeze_support
+from Naked.toolshed.shell import run_js
 
 '''
 This miner is to be run with the demo.  

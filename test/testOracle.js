@@ -41,7 +41,7 @@ contract('Mining Tests', function(accounts) {
         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000, data: web3.utils.keccak256("initStake()")})
         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",0,1000,0).encodeABI()})
     });
-    it("getStakersCount", async function(){
+   /* it("getStakersCount", async function(){
         let count = await oracle.getUintVar(web3.utils.keccak256("stakers"))
         assert(web3.utils.hexToNumberString(count)==5, "count is 5");
     });
@@ -102,13 +102,17 @@ contract('Mining Tests', function(accounts) {
         res2 = await oracle.getLastQuery();
         assert(res2 = res[1], "Ensure data exist for the last mine value");
     });
-    
+    */
     it("Test Data Read", async function () {
         logMineWatcher = await promisifyLogWatch(oracle2, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
         res = web3.eth.abi.decodeParameters(['uint256','uint256','uint256'],logMineWatcher.data)     
         res2 = await oracle.retrieveData(1,res[0]);
         assert(res2 = res[1], "Ensure data exist for the last mine value");
+        res2 = await oracle.getTimestampbyRequestIDandIndex(1,0);
+        assert(res2 == res[0]);
     });
+
+    /*
    it("Test Miner Payout", async function () {
         balances = []
         for(var i = 0;i<6;i++){
@@ -457,4 +461,5 @@ contract('Mining Tests', function(accounts) {
 		res = web3.eth.abi.decodeParameters(['uint256','uint256','uint256'],logMineWatcher.data)
         assert(res['2'] == 22 , "last payout had a tip of 22")
     });
+    */
 });

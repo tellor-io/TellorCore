@@ -190,6 +190,11 @@ contract TellorGetters{
         return tellor.getSubmissionsByTimestamp(_apiId,_timestamp);
     }
 
+     function getTimestampbyRequestIDandIndex(uint _requestID, uint _index) external view returns(uint){
+        return tellor.getTimestampbyRequestIDandIndex(_requestID,_index);
+    }
+
+
     function getUintVar(bytes32 _data) view public returns(uint){
         return tellor.getUintVar(_data);
     }
@@ -198,7 +203,7 @@ contract TellorGetters{
     * @dev Getter function for currentChallenge difficulty_level
     * @return current challenge, MiningApiID, level of difficulty_level
     */
-    function getVariables() external view returns(bytes32, uint, uint,string memory,uint){    
+    function getVariables() external view returns(bytes32, uint, uint,string memory,uint,uint){    
         return tellor.getVariables();
     }
 
