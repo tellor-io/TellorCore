@@ -94,20 +94,20 @@ contract TellorGetters{
     * @param _timestamp to check APIId
     * @return apiId
     */
-    function getApiForTime(uint _timestamp) external view returns(uint){    
-        return tellor.getApiForTime(_timestamp);
+    function getRequestIdByTimestamp(uint _timestamp) external view returns(uint){    
+        return tellor.getRequestIdByTimestamp(_timestamp);
     }
    /**
     * @dev Getter function for apiId based on api hash
     * @param _api string to check if it already has an apiId
     * @return uint apiId
     */
-    function getApiId(bytes32 _api) external view returns(uint){    
-        return tellor.getApiId(_api);
+    function getRequestIdByQueryHash(bytes32 _api) external view returns(uint){    
+        return tellor.getRequestIdByQueryHash(_api);
     }
 
-    function getApiUintVars(uint _apiId,bytes32 _data) internal view returns(uint){
-        return tellor.getApiUintVars(_apiId,_data);
+    function getRequestUintVars(uint _apiId,bytes32 _data) internal view returns(uint){
+        return tellor.getRequestUintVars(_apiId,_data);
     }
 
       /**
@@ -118,8 +118,8 @@ contract TellorGetters{
     * @return uint of index in PayoutPool array
     * @return uint of current payout for this api
     */
-    function getApiVars(uint _apiId) external view returns(string memory, string memory,bytes32,uint, uint, uint) {
-        return tellor.getApiVars(_apiId);
+    function getRequestVars(uint _apiId) external view returns(string memory, string memory,bytes32,uint, uint, uint) {
+        return tellor.getRequestVars(_apiId);
     }
 
 
@@ -128,8 +128,8 @@ contract TellorGetters{
     * @param _hash of sha256(abi.encodePacked(_miners[2],_apiId));
     * @return uint disputeId
     */
-    function getDisputeHashToId(bytes32 _hash) external view returns(uint){
-        return  tellor.getDisputeHashToId(_hash);
+    function getDisputeIdByDisputeHash(bytes32 _hash) external view returns(uint){
+        return  tellor.getDisputeIdByDisputeHash(_hash);
     }
     
     function getDisputeUintVars(uint _disputeId,bytes32 _data) internal view returns(uint){
@@ -139,8 +139,8 @@ contract TellorGetters{
     * @dev Gets the a value for the latest timestamp available
     * @return value for timestamp of last proof of work submited
     */
-    function getLastQuery() external view returns(uint,bool){
-        return tellor.getLastQuery();
+    function getLastNewValue() external view returns(uint,bool){
+        return tellor.getLastNewValue();
     }
 
     /**
@@ -157,20 +157,20 @@ contract TellorGetters{
     * @param _apiId to look up
     * @param _timestamp is the timestampt to look up miners for
     */
-    function getMinersByValue(uint _apiId, uint _timestamp) external view returns(address[5] memory){
-        return tellor.getMinersByValue(_apiId,_timestamp);
+    function getMinersByRequestIdAndTimestamp(uint _apiId, uint _timestamp) external view returns(address[5] memory){
+        return tellor.getMinersByRequestIdAndTimestamp(_apiId,_timestamp);
     }
 
-    function getPayoutPool() view public returns(uint[51] memory){
-        return tellor.getPayoutPool();
+    function getRequestQ() view public returns(uint[51] memory){
+        return tellor.getRequestQ();
     }
         /**
     * @dev Getter function for the apiId for the specified payoutPool index
     * @param _payoutPoolIndexToApiId to look up the apiId
     * @return apiId
     */
-    function getpayoutPoolIndexToApiId(uint _payoutPoolIndexToApiId) external view returns(uint){
-        return tellor.getpayoutPoolIndexToApiId(_payoutPoolIndexToApiId);
+    function getRequestIdByRequestQIndex(uint _payoutPoolIndexToApiId) external view returns(uint){
+        return tellor.getRequestIdByRequestQIndex(_payoutPoolIndexToApiId);
     }
     /**
      *@dev This function allows users to retireve all information about a staker
@@ -203,16 +203,16 @@ contract TellorGetters{
     * @dev Getter function for currentChallenge difficulty_level
     * @return current challenge, MiningApiID, level of difficulty_level
     */
-    function getVariables() external view returns(bytes32, uint, uint,string memory,uint,uint){    
-        return tellor.getVariables();
+    function getCurrentVariables() external view returns(bytes32, uint, uint,string memory,uint,uint){    
+        return tellor.getCurrentVariables();
     }
 
     /**
     * @dev Getter function for api on queue
     * @return apionQ hash, id, payout, and api string
     */
-    function getVariablesOnQ() external view returns(uint, uint,string memory){    
-        return tellor.getVariablesOnQ();
+    function getVariablesOnDeck() external view returns(uint, uint,string memory){    
+        return tellor.getVariablesOnDeck();
     }
     
     /**

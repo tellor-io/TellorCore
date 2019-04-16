@@ -54,10 +54,10 @@
 //         oracle = await TellorMaster.new(oracleBase.address);
 //         oracle2 = await new web3.eth.Contract(oracleAbi,oracleBase.address);///will this instance work for logWatch? hopefully...
 //         oracle3 = await new web3.eth.Contract(tellorAbi,oracleBase.address);
-//         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000, data: web3.utils.keccak256("initStake()")})
+//         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000, data: web3.utils.keccak256("tellorPostConstructor()")})
 //         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",0,1000,0).encodeABI()})
 //         await helper.advanceTime(86400 * 8);
-//         await web3.eth.sendTransaction({to:oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestWithdraw().encodeABI()})
+//         await web3.eth.sendTransaction({to:oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestStakingWithdraw().encodeABI()})
 //         await helper.advanceTime(86400 * 8);
 //         await web3.eth.sendTransaction({to:oracle.address,from:accounts[2],data:oracle2.methods.withdrawStake().encodeABI()})
 //    });  
@@ -98,7 +98,7 @@
 
 //     it("re-Staking without withdraw ", async function(){
 //     	await helper.advanceTime(86400 * 10);
-//         let withdrawreq = await web3.eth.sendTransaction({to:oracle.address,from:accounts[1],gas:7000000,data:oracle2.methods.requestWithdraw().encodeABI()})
+//         let withdrawreq = await web3.eth.sendTransaction({to:oracle.address,from:accounts[1],gas:7000000,data:oracle2.methods.requestStakingWithdraw().encodeABI()})
 //         let weSender =  await web3.eth.abi.decodeParameter('address',withdrawreq.logs[0].topics[1]);
 //         assert(weSender == accounts[1], "withdraw request by account 1");
 //         await helper.advanceTime(86400 * 10);
@@ -111,7 +111,7 @@
 
 //     it("withdraw and re-stake", async function(){
 //     	await helper.advanceTime(86400 * 10);
-//         let withdrawreq = await web3.eth.sendTransaction({to:oracle.address,from:accounts[1],gas:7000000,data:oracle2.methods.requestWithdraw().encodeABI()})
+//         let withdrawreq = await web3.eth.sendTransaction({to:oracle.address,from:accounts[1],gas:7000000,data:oracle2.methods.requestStakingWithdraw().encodeABI()})
 //         let weSender =  await web3.eth.abi.decodeParameter('address',withdrawreq.logs[0].topics[1]);
 //         assert(weSender == accounts[1], "withdraw request by account 1");
 //         await helper.advanceTime(86400 * 10);
@@ -153,8 +153,8 @@
 //         assert(web3.utils.fromWei(balance1b) == 1000, "Balance should equal transferred amt");
 //     });
 
-//     it("Staking, requestWithdraw, withdraw stake", async function(){
-//         let withdrawreq = await web3.eth.sendTransaction({to:oracle.address,from:accounts[1],gas:7000000,data:oracle2.methods.requestWithdraw().encodeABI()})
+//     it("Staking, requestStakingWithdraw, withdraw stake", async function(){
+//         let withdrawreq = await web3.eth.sendTransaction({to:oracle.address,from:accounts[1],gas:7000000,data:oracle2.methods.requestStakingWithdraw().encodeABI()})
 //         let weSender =  await web3.eth.abi.decodeParameter('address',withdrawreq.logs[0].topics[1])
 //         assert(weSender == accounts[1], "withdraw request by account 1");
 //         await helper.advanceTime(86400 * 8);
@@ -167,7 +167,7 @@
 
 //     it("getVariables", async function(){
 //     	let res = await web3.eth.sendTransaction({to:oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",0,1000,20).encodeABI()}) 
-//         vars = await oracle.getVariables();
+//         vars = await oracle.getCurrentVariables();
 //         let miningApiId =vars['1'];
 //         let difficulty = vars['2']
 //         let sapi = vars['3'];
@@ -180,12 +180,12 @@
 //     it("Get apiId", async function () {
 //         balance1 = await web3.eth.call({to:oracle.address,data:oracle3.methods.balanceOf(accounts[2]).encodeABI()})
 //         let res = await web3.eth.sendTransaction({to:oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",0,1000,20).encodeABI()}) 
-//         apiVars= await oracle.getApiVars(1)
-//         apiId = await oracle.getApiId(apiVars[2]) 
+//         apiVars= await oracle.getRequestVars(1)
+//         apiId = await oracle.getRequestIdByQueryHash(apiVars[2]) 
 //         assert(apiId == 1, "apiId should be 1");
 //     });
 //     it("Get apiHash", async function () {
-//         apiVars= await oracle.getApiVars(1)
+//         apiVars= await oracle.getRequestVars(1)
 //         assert(apiVars[2] == web3.utils.soliditySha3({t:'string',v:api},{t:'uint256',v:1000}), "api on Q should be apiId");
 //     });
 // });

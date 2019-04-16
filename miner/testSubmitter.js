@@ -17,7 +17,7 @@ var account = process.argv[6];
 var privateKey = new Buffer(process.argv[7], 'hex');
 
 let myContract = new web3.eth.Contract(abi,address);
-let data = myContract.methods.proofOfWork(solution,apiId,value).encodeABI();
+let data = myContract.methods.submitMiningSolution(solution,apiId,value).encodeABI();
 
 //web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.requestData(api,0,0).encodeABI()});
 

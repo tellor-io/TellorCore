@@ -42,12 +42,12 @@ contract Tellor /* is TellorGetters*/{
     * @param _apiId being disputed
     * @param _timestamp being disputed
     */
-    function initDispute(uint _apiId, uint _timestamp,uint _minerIndex) external {
-        tellor.initDispute(_apiId,_timestamp,_minerIndex);
+    function beginDispute(uint _apiId, uint _timestamp,uint _minerIndex) external {
+        tellor.beginDispute(_apiId,_timestamp,_minerIndex);
     }
 
-    function initStake() external {
-        tellor.initStake();
+    function tellorPostConstructor() external {
+        tellor.tellorPostConstructor();
     }
 
 
@@ -58,16 +58,16 @@ contract Tellor /* is TellorGetters*/{
     * @param value of api query
     * @return count of values sumbitted so far and the time of the last successful mine
     */
-    function proofOfWork(string calldata nonce, uint _apiId, uint value) external{
-        tellor.proofOfWork(nonce,_apiId,value);
+    function submitMiningSolution(string calldata nonce, uint _apiId, uint value) external{
+        tellor.submitMiningSolution(nonce,_apiId,value);
     }
 
     /**
     * @dev propose fork
     * @param _propNewTellorAddress address for new proposed Tellor
     */
-    function propFork(address _propNewTellorAddress) external {
-        tellor.propFork(_propNewTellorAddress);
+    function proposeFork(address _propNewTellorAddress) external {
+        tellor.proposeFork(_propNewTellorAddress);
     }
        /**
     * @dev Request to retreive value from oracle based on timestamp
@@ -84,8 +84,8 @@ contract Tellor /* is TellorGetters*/{
     /**
     * @dev This function allows stakers to request to withdraw their stake (no longer stake) 
     */
-    function requestWithdraw() external {
-        tellor.requestWithdraw();
+    function requestStakingWithdraw() external {
+        tellor.requestStakingWithdraw();
     }
         /**
     * @dev tallies the votes.

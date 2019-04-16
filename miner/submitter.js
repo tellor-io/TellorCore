@@ -13,7 +13,7 @@ var json = require('../build/contracts/Oracle.json');
 var privateKey = new Buffer(process.argv[7], 'hex');
 
 let myContract = new web3.eth.Contract(json.abi,process.argv[5]);
-let data = myContract.methods.proofOfWork(process.argv[2],process.argv[3] - 0,process.argv[4] - 0).encodeABI();
+let data = myContract.methods.submitMiningSolution(process.argv[2],process.argv[3] - 0,process.argv[4] - 0).encodeABI();
 
   web3.eth.getTransactionCount(process.argv[6], function (err, nonce) {
      var tx = new Tx({

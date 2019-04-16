@@ -25,9 +25,9 @@ library TellorLibrary{
         bool isPropFork; //true for fork proposal NEW
         address reportedMiner; //miner who alledgedly submitted the 'bad value' will get disputeFee if dispute vote fails
         address reportingParty;//miner reporting the 'bad value'-pay disputeFee will get reportedMiner's stake if dispute vote passes
-        address propForkAddress;
+        address proposedForkAddress;
         mapping(bytes32 => uint) disputeUintVars;
-        // uint keccak256("apiId");//apiID of disputed value
+        // uint keccak256("requestId");//apiID of disputed value
         // uint keccak256("timestamp");//timestamp of distputed value
         // uint keccak256("value"); //the value being disputed
         // uint keccak256("minExecutionDate");//7 days from when dispute initialized
@@ -48,16 +48,16 @@ library TellorLibrary{
     struct Request{
         string queryString;//id to string api
         string dataSymbol;
-        bytes32 apiHash;//hash of string
-        /*Tellor*/ uint[]  requestTimestamps; //array of all timestamps requested
+        bytes32 queryHash;//hash of string
+        /*Tellor*/ uint[]  requestTimestamps; //array of all newValueTimestamps requested
         mapping(bytes32 => uint) apiUintVars;
         // uint keccak256("granularity"); //multiplier for miners
-        // uint keccak256("index"); //index in payoutPool
-        // uint keccak256("payout");//bonus portion of payout
+        // uint keccak256("requestQPosition"); //index in requestQ
+        // uint keccak256("totalTip");//bonus portion of payout
         mapping(uint => uint) minedBlockNum;//[apiId][minedTimestamp]=>block.number
-        mapping(uint => uint) values;//This the time series of values stored by the contract where uint UNIX timestamp is mapped to value
+        mapping(uint => uint) finalValues;//This the time series of finalValues stored by the contract where uint UNIX timestamp is mapped to value
         mapping(uint => bool) inDispute;//checks if API id is in dispute or finalized.
-        mapping(uint => address[5]) minersbyvalue;  
+        mapping(uint => address[5]) minersByValue;  
         mapping(uint => uint[5])valuesByTimestamp;
     }    
 
@@ -65,13 +65,13 @@ library TellorLibrary{
     struct TellorStorageStruct{
             /*TellorStorage*/ 
             /*Tellor*/ bytes32 currentChallenge; //current challenge to be solved
-            /*Tellor*/ bytes32 apiOnQ; //string of current api with highest PayoutPool not currently being mined
+            /*Tellor*/ bytes32 onDeckQueryHash; //string of current api with highest PayoutPool not currently being mined
             /*DisputesAndVoting*/ string _name; //name of the Token
             /*DisputesAndVoting*/ string _symbol;//Token Symbol
-            /*Tellor*/ uint[5]  payoutStructure;//The structure of the payout (how much uncles vs winner recieve)[1,5,10,5,1]
-            /*Tellor*/ uint[51]  payoutPool; //uint50 array of the top50 requests by payment amount
-            /*Tellor*/ uint[]  timestamps; //array of all timestamps requested
-            /*Tellor*/ Details[5]  first_five; //This struct is for organizing the five mined values to find the median
+            /*Tellor*/ uint[5]  miningRewardDistributions;//The structure of the payout (how much uncles vs winner recieve)[1,5,10,5,1]
+            /*Tellor*/ uint[51]  requestQ; //uint50 array of the top50 requests by payment amount
+            /*Tellor*/ uint[]  newValueTimestamps; //array of all timestamps requested
+            /*Tellor*/ Details[5]  currentMiners; //This struct is for organizing the five mined values to find the median
             mapping(bytes32 => address) addressVars;
             // address keccak256("tellorContract");//Tellor address
             // address  keccak256("_owner");//Tellor Owner address
@@ -80,35 +80,35 @@ library TellorLibrary{
             // /*DisputesAndVoting*/ keccak256("disputeFee");//cost to dispute a mined value
             // /*DisputesAndVoting*/keccak256("disputeCount");//totalHistoricalDisputes
             // /*TokenAndStaking*/ keccak256("total_supply"); //total_supply of the token in circulation
-            // /*TokenAndStaking*/ keccak256("stakeAmt");//stakeAmount for miners (we can cut gas if we just hardcode it in...or should it be variable?)
-            // /*TokenAndStaking*/ keccak256("stakers"); //number of parties currently staked
-            // /*Tellor*/ keccak256("timeOfLastProof"); // time of last challenge solved
-            // /*Tellor*/ keccak256("difficulty_level"); // Difficulty of current block
-            // /*Tellor*/ keccak256("apiIdOnQ"); // apiId of the on queue request
-            // /*Tellor*/ keccak256("apiOnQPayout"); //value of highest api/timestamp PayoutPool
-            //keccak256("miningPayout"); //value of highest api/timestamp PayoutPool
-            // /*Tellor*/ keccak256("miningApiId"); //API being mined--updates with the ApiOnQ Id 
-            // /*Tellor*/ keccak256("requests"); // total number of requests through the system
-            // /*Tellor*/ keccak256("count");//Number of miners who have mined this value so far
-            // /*Tellor*/ keccak256("payoutTotal");//Mining Reward in PoWo tokens given to all miners per value
+            // /*TokenAndStaking*/ keccak256("stakeAmount");//stakeAmount for miners (we can cut gas if we just hardcode it in...or should it be variable?)
+            // /*TokenAndStaking*/ keccak256("stakerCount"); //number of parties currently staked
+            // /*Tellor*/ keccak256("timeOfLastNewValue"); // time of last challenge solved
+            // /*Tellor*/ keccak256("difficulty"); // Difficulty of current block
+            // /*Tellor*/ keccak256("onDeckRequestId"); // apiId of the on queue request
+            // /*Tellor*/ keccak256("onDeckTotalTips"); //value of highest api/timestamp PayoutPool
+            //keccak256("currentTotalTips"); //value of highest api/timestamp PayoutPool
+            // /*Tellor*/ keccak256("currentRequestId"); //API being mined--updates with the ApiOnQ Id 
+            // /*Tellor*/ keccak256("requestCount"); // total number of requests through the system
+            // /*Tellor*/ keccak256("slotProgress");//Number of miners who have mined this value so far
+            // /*Tellor*/ keccak256("miningReward");//Mining Reward in PoWo tokens given to all miners per value
             // /*Tellor*/ keccak256("timeTarget"); //The time between blocks (mined Oracle values)
-            /*Tellor*/ mapping(bytes32 => mapping(address=>bool)) miners;//This is a boolean that tells you if a given challenge has been completed by a given miner
-            /*Tellor*/ mapping(uint => uint) timeToApiId;//minedTimestamp to apiId 
-            /*Tellor*/ mapping(uint => uint) payoutPoolIndexToApiId; //link from payoutPoolIndex (position in payout pool array) to apiId
-            /*DisputesAndVoting*/ mapping(uint => Dispute) disputes;//disputeId=> Dispute details
+            /*Tellor*/ mapping(bytes32 => mapping(address=>bool)) minersByChallenge;//This is a boolean that tells you if a given challenge has been completed by a given miner
+            /*Tellor*/ mapping(uint => uint) requestIdByTimestamp;//minedTimestamp to apiId 
+            /*Tellor*/ mapping(uint => uint) requestIdByRequestQIndex; //link from payoutPoolIndex (position in payout pool array) to apiId
+            /*DisputesAndVoting*/ mapping(uint => Dispute) disputesById;//disputeId=> Dispute details
             /*TokenAndStaking*/ mapping (address => Checkpoint[]) balances; //balances of a party given blocks
             /*TokenAndStaking*/ mapping(address => mapping (address => uint)) allowed; //allowance for a given party and approver
-            /*TokenAndStaking*/ mapping(address => StakeInfo)  staker;//mapping from a persons address to their staking info
-            /*DisputesAndVoting*/ mapping(uint => Request) apiDetails;//mapping of apiID to details
-            /*DisputesAndVoting*/ mapping(bytes32 => uint) apiId;// api bytes32 gets an id = to count of requests array
-            /*DisputesAndVoting*/mapping(bytes32 => uint) disputeHashToId;//maps a hash to an ID for each dispute
+            /*TokenAndStaking*/ mapping(address => StakeInfo)  stakerDetails;//mapping from a persons address to their staking info
+            /*DisputesAndVoting*/ mapping(uint => Request) requestDetails;//mapping of apiID to details
+            /*DisputesAndVoting*/ mapping(bytes32 => uint) requestIdByQueryHash;// api bytes32 gets an id = to count of requests array
+            /*DisputesAndVoting*/mapping(bytes32 => uint) disputeIdByDisputeHash;//maps a hash to an ID for each dispute
     }
 
     event NewValue(uint indexed _apiId, uint _time, uint _value,uint _payout,bytes32 _currentChallenge);//Emits upon a successful Mine, indicates the blocktime at point of the mine and the value mined
     event DataRequested(address indexed _sender, string _sapi,string _symbol,uint _granularity, uint indexed _apiId, uint _value);//Emits upon someone adding value to a pool; msg.sender, amount added, and timestamp incentivized to be mined
     event NonceSubmitted(address indexed _miner, string _nonce, uint indexed _apiId, uint _value,bytes32 _currentChallenge);//Emits upon each mine (5 total) and shows the miner, nonce, and value submitted
-    event NewAPIonQinfo(uint indexed _apiId, string _sapi, bytes32 _apiOnQ, uint _apiOnQPayout); //emits when a the payout of another request is higher after adding to the payoutPool or submitting a request
-    event NewChallenge(bytes32 _currentChallenge,uint indexed _miningApiId,uint _difficulty_level,uint _multiplier,string _api,uint _value); //emits when a new challenge is created (either on mined block or when a new request is pushed forward on waiting system)
+    event NewRequestOnDeck(uint indexed _apiId, string _sapi, bytes32 _onDeckQueryHash, uint _onDeckTotalTips); //emits when a the payout of another request is higher after adding to the payoutPool or submitting a request
+    event NewChallenge(bytes32 _currentChallenge,uint indexed _currentRequestId,uint _difficulty,uint _multiplier,string _api,uint _value); //emits when a new challenge is created (either on mined block or when a new request is pushed forward on waiting system)
     event Approval(address indexed owner, address indexed spender, uint256 value);//ERC20 Approval event
     event Transfer(address indexed from, address indexed to, uint256 value);//ERC20 Transfer Event
     event NewStake(address indexed _sender);//Emits upon new staker
@@ -125,21 +125,21 @@ library TellorLibrary{
     /*This is a cheat for demo purposes, will delete upon actual launch*/
     function theLazyCoon(TellorStorageStruct storage self,address _address, uint _amount) public {
         self.uintVars[keccak256("total_supply")] += _amount;
-        updateValueAtNow(self.balances[_address],_amount);
+        updateBalanceAtNow(self.balances[_address],_amount);
     }
            /**
     * @dev Add tip to Request to retreive value from oracle
     * @param _apiId apiId being requested be mined
     * @param _tip amount the requester is willing to pay to be get on queue. Miners
-    * mine the apiOnQ, or the api with the highest payout pool
+    * mine the onDeckQueryHash, or the api with the highest payout pool
     */
     function addTip(TellorStorageStruct storage self,uint _apiId, uint _tip) public {
         require(_apiId > 0);
         if(_tip > 0){
             doTransfer(self,msg.sender,address(this),_tip);
         }
-        updateAPIonQ(self,_apiId,_tip,false);
-        emit TipAdded(msg.sender,_apiId,_tip,self.apiDetails[_apiId].apiUintVars[keccak256("payout")]);
+        updateOnDeck(self,_apiId,_tip,false);
+        emit TipAdded(msg.sender,_apiId,_tip,self.requestDetails[_apiId].apiUintVars[keccak256("totalTip")]);
     }
 
 
@@ -149,8 +149,8 @@ library TellorLibrary{
      *@param address of amount
     */
     function allowedToTrade(TellorStorageStruct storage self,address _user,uint _amount) public view returns(bool){
-        if(self.staker[_user].currentStatus >0){
-            if(balanceOf(self,_user).sub(self.uintVars[keccak256("stakeAmt")]).sub(_amount) >= 0){
+        if(self.stakerDetails[_user].currentStatus >0){
+            if(balanceOf(self,_user).sub(self.uintVars[keccak256("stakeAmount")]).sub(_amount) >= 0){
                 return true;
             }
         }
@@ -178,7 +178,7 @@ library TellorLibrary{
                 return 0;
         }
      else {
-        return getValueAt(self.balances[_user], _blockNumber);
+        return getBalanceAt(self.balances[_user], _blockNumber);
      }
     }
     /**
@@ -197,10 +197,10 @@ library TellorLibrary{
 
 
      function depositStake(TellorStorageStruct storage self) public {
-        require( balanceOf(self,msg.sender) >= self.uintVars[keccak256("stakeAmt")]);
-        require(self.staker[msg.sender].currentStatus == 0 || self.staker[msg.sender].currentStatus == 2);
-        self.uintVars[keccak256("stakers")] += 1;
-        self.staker[msg.sender] = StakeInfo({
+        require( balanceOf(self,msg.sender) >= self.uintVars[keccak256("stakeAmount")]);
+        require(self.stakerDetails[msg.sender].currentStatus == 0 || self.stakerDetails[msg.sender].currentStatus == 2);
+        self.uintVars[keccak256("stakerCount")] += 1;
+        self.stakerDetails[msg.sender] = StakeInfo({
             currentStatus: 1,
             startDate: now - (now % 86400)
             });
@@ -219,10 +219,10 @@ library TellorLibrary{
         require(_to != address(0));
         require(allowedToTrade(self,_from,_amount));
         uint previousBalance = balanceOfAt(self,_from, block.number);
-        updateValueAtNow(self.balances[_from], previousBalance - _amount);
+        updateBalanceAtNow(self.balances[_from], previousBalance - _amount);
         previousBalance = balanceOfAt(self,_to, block.number);
         require(previousBalance + _amount >= previousBalance); // Check for overflow
-        updateValueAtNow(self.balances[_to], previousBalance + _amount);
+        updateBalanceAtNow(self.balances[_to], previousBalance + _amount);
         emit Transfer(_from, _to, _amount);
     }
 
@@ -232,7 +232,7 @@ library TellorLibrary{
     * @param checkpoints gets the mapping for the balances[owner]
     * @param _block is the block number to search the balance on
     */
-    function getValueAt(Checkpoint[] storage checkpoints, uint _block) view public returns (uint) {
+    function getBalanceAt(Checkpoint[] storage checkpoints, uint _block) view public returns (uint) {
         if (checkpoints.length == 0) return 0;
         if (_block >= checkpoints[checkpoints.length-1].fromBlock)
             return checkpoints[checkpoints.length-1].value;
@@ -258,75 +258,75 @@ library TellorLibrary{
     * @param _apiId being disputed
     * @param _timestamp being disputed
     */
-    function initDispute(TellorStorageStruct storage self,uint _apiId, uint _timestamp,uint _minerIndex) public {
-        Request storage _api = self.apiDetails[_apiId];
+    function beginDispute(TellorStorageStruct storage self,uint _apiId, uint _timestamp,uint _minerIndex) public {
+        Request storage _api = self.requestDetails[_apiId];
         require(block.number- _api.minedBlockNum[_timestamp]<= 144);
         require(_api.minedBlockNum[_timestamp] > 0);
         require(_minerIndex < 5);
-        address _miner = _api.minersbyvalue[_timestamp][_minerIndex];
+        address _miner = _api.minersByValue[_timestamp][_minerIndex];
         bytes32 _hash = keccak256(abi.encodePacked(_miner,_apiId,_timestamp));
-        require(self.disputeHashToId[_hash] == 0);
+        require(self.disputeIdByDisputeHash[_hash] == 0);
         doTransfer(self,msg.sender,address(this), self.uintVars[keccak256("disputeFee")]);
         self.uintVars[keccak256("disputeCount")] =  self.uintVars[keccak256("disputeCount")] + 1;
         uint disputeId = self.uintVars[keccak256("disputeCount")];
-        self.disputeHashToId[_hash] = disputeId;
-        self.disputes[disputeId] = Dispute({
+        self.disputeIdByDisputeHash[_hash] = disputeId;
+        self.disputesById[disputeId] = Dispute({
             hash:_hash,
             isPropFork: false,
             reportedMiner: _miner, 
             reportingParty: msg.sender, 
-            propForkAddress:address(0),
+            proposedForkAddress:address(0),
             executed: false,
             disputeVotePassed: false,
             tally: 0
             });
-        self.disputes[disputeId].disputeUintVars[keccak256("apiId")] = _apiId;
-        self.disputes[disputeId].disputeUintVars[keccak256("timestamp")] = _timestamp;
-        self.disputes[disputeId].disputeUintVars[keccak256("value")] = _api.valuesByTimestamp[_timestamp][_minerIndex];
-        self.disputes[disputeId].disputeUintVars[keccak256("minExecutionDate")] = now + 7 days;
-        self.disputes[disputeId].disputeUintVars[keccak256("blockNumber")] = block.number;
-        self.disputes[disputeId].disputeUintVars[keccak256("minerSlot")] = _minerIndex;
+        self.disputesById[disputeId].disputeUintVars[keccak256("requestId")] = _apiId;
+        self.disputesById[disputeId].disputeUintVars[keccak256("timestamp")] = _timestamp;
+        self.disputesById[disputeId].disputeUintVars[keccak256("value")] = _api.valuesByTimestamp[_timestamp][_minerIndex];
+        self.disputesById[disputeId].disputeUintVars[keccak256("minExecutionDate")] = now + 7 days;
+        self.disputesById[disputeId].disputeUintVars[keccak256("blockNumber")] = block.number;
+        self.disputesById[disputeId].disputeUintVars[keccak256("minerSlot")] = _minerIndex;
         if(_minerIndex == 2){
-            self.apiDetails[_apiId].inDispute[_timestamp] = true;
+            self.requestDetails[_apiId].inDispute[_timestamp] = true;
         }
-        self.staker[_miner].currentStatus = 3;
+        self.stakerDetails[_miner].currentStatus = 3;
         emit NewDispute(disputeId,_apiId,_timestamp );
     }
     /*
      *This function gives 5 miners the inital staked tokens in the system.  
      * It would run with the constructor, but throws on too much gas
     */
-    function initStake(TellorStorageStruct storage self) public{
-        require(self.uintVars[keccak256("requests")] == 0);
-        updateValueAtNow(self.balances[address(this)], 2**256-1 - 5000e18);
+    function tellorPostConstructor(TellorStorageStruct storage self) public{
+        require(self.uintVars[keccak256("requestCount")] == 0);
+        updateBalanceAtNow(self.balances[address(this)], 2**256-1 - 5000e18);
         address payable[5] memory _initalMiners = [address(0xE037EC8EC9ec423826750853899394dE7F024fee),
         address(0xcdd8FA31AF8475574B8909F135d510579a8087d3),
         address(0xb9dD5AfD86547Df817DA2d0Fb89334A6F8eDd891),
         address(0x230570cD052f40E14C14a81038c6f3aa685d712B),
         address(0x3233afA02644CCd048587F8ba6e99b3C00A34DcC)];
         for(uint i=0;i<5;i++){
-            updateValueAtNow(self.balances[_initalMiners[i]],1000e18);
-            self.staker[_initalMiners[i]] = StakeInfo({
+            updateBalanceAtNow(self.balances[_initalMiners[i]],1000e18);
+            self.stakerDetails[_initalMiners[i]] = StakeInfo({
                 currentStatus: 1,
                 startDate: now - (now % 86400)
                 });
             emit NewStake(_initalMiners[i]);
         }
-        self.uintVars[keccak256("stakers")] += 5;
+        self.uintVars[keccak256("stakerCount")] += 5;
         self.uintVars[keccak256("total_supply")] += 5000e18;
-        //Initiate payoutPool array...is there a better way?
+        //Initiate requestQ array...is there a better way?
         for(uint i = 49;i > 0;i--) {
-            self.payoutPool[i] = 0;
+            self.requestQ[i] = 0;
         }
         //set Constants
         self.uintVars[keccak256("decimals")] = 18;
         self.uintVars[keccak256("disputeFee")] = 1e18;
-        self.uintVars[keccak256("stakeAmt")] = 1000e18;
+        self.uintVars[keccak256("stakeAmount")] = 1000e18;
         self.uintVars[keccak256("timeTarget")]= 10 * 60;
-        self.uintVars[keccak256("timeOfLastProof")] = now - now  % self.uintVars[keccak256("timeTarget")];
-        self.uintVars[keccak256("difficulty_level")] = 1;
-        self.uintVars[keccak256("payoutTotal")] = 22e18;
-        self.payoutStructure =  [1e18,5e18,10e18,5e18,1e18]; 
+        self.uintVars[keccak256("timeOfLastNewValue")] = now - now  % self.uintVars[keccak256("timeTarget")];
+        self.uintVars[keccak256("difficulty")] = 1;
+        self.uintVars[keccak256("miningReward")] = 22e18;
+        self.miningRewardDistributions =  [1e18,5e18,10e18,5e18,1e18]; 
         self._name = "Tellor Tributes";
         self._symbol = "TT";
     }
@@ -338,27 +338,27 @@ library TellorLibrary{
     * @param _value of api query
     * @return count of values sumbitted so far and the time of the last successful mine
     */
-    function proofOfWork(TellorStorageStruct storage self,string memory _nonce, uint _apiId, uint _value) internal{
-        require(self.staker[msg.sender].currentStatus == 1);
-        require(_apiId == self.uintVars[keccak256("miningApiId")]);
+    function submitMiningSolution(TellorStorageStruct storage self,string memory _nonce, uint _apiId, uint _value) internal{
+        require(self.stakerDetails[msg.sender].currentStatus == 1);
+        require(_apiId == self.uintVars[keccak256("currentRequestId")]);
         bytes32 n = sha256(abi.encodePacked(ripemd160(abi.encodePacked(keccak256(abi.encodePacked(self.currentChallenge,msg.sender,_nonce))))));
-        require(uint(n) % self.uintVars[keccak256("difficulty_level")] == 0);
-        require(self.miners[self.currentChallenge][msg.sender] == false); 
-        self.first_five[self.uintVars[keccak256("count")]].value = _value;
-        self.first_five[self.uintVars[keccak256("count")]].miner = msg.sender;
-        self.uintVars[keccak256("count")]++;
-        self.miners[self.currentChallenge][msg.sender] = true;
+        require(uint(n) % self.uintVars[keccak256("difficulty")] == 0);
+        require(self.minersByChallenge[self.currentChallenge][msg.sender] == false); 
+        self.currentMiners[self.uintVars[keccak256("slotProgress")]].value = _value;
+        self.currentMiners[self.uintVars[keccak256("slotProgress")]].miner = msg.sender;
+        self.uintVars[keccak256("slotProgress")]++;
+        self.minersByChallenge[self.currentChallenge][msg.sender] = true;
         emit NonceSubmitted(msg.sender,_nonce,_apiId,_value,self.currentChallenge);
-        if(self.uintVars[keccak256("count")] == 5) { 
-            Request storage _api = self.apiDetails[_apiId];
-            if(int(self.uintVars[keccak256("difficulty_level")]) + (int(self.uintVars[keccak256("timeTarget")]) - int(now - self.uintVars[keccak256("timeOfLastProof")]))/60 > 0){
-                self.uintVars[keccak256("difficulty_level")] = uint(int(self.uintVars[keccak256("difficulty_level")]) + (int(self.uintVars[keccak256("timeTarget")]) - int(now - self.uintVars[keccak256("timeOfLastProof")]))/60);
+        if(self.uintVars[keccak256("slotProgress")] == 5) { 
+            Request storage _api = self.requestDetails[_apiId];
+            if(int(self.uintVars[keccak256("difficulty")]) + (int(self.uintVars[keccak256("timeTarget")]) - int(now - self.uintVars[keccak256("timeOfLastNewValue")]))/60 > 0){
+                self.uintVars[keccak256("difficulty")] = uint(int(self.uintVars[keccak256("difficulty")]) + (int(self.uintVars[keccak256("timeTarget")]) - int(now - self.uintVars[keccak256("timeOfLastNewValue")]))/60);
             }
             else{
-                self.uintVars[keccak256("difficulty_level")] = 1;
+                self.uintVars[keccak256("difficulty")] = 1;
             }
-            self.uintVars[keccak256("timeOfLastProof")] = now - (now % 1 minutes);
-            Details[5] memory a = self.first_five;
+            self.uintVars[keccak256("timeOfLastNewValue")] = now - (now % 1 minutes);
+            Details[5] memory a = self.currentMiners;
             uint i;
             for (i = 1;i <5;i++){
                 uint temp = a[i].value;
@@ -375,41 +375,41 @@ library TellorLibrary{
                 }
             }
             for (i = 0;i <5;i++){
-                doTransfer(self,address(this),a[i].miner,self.payoutStructure[i] + self.uintVars[keccak256("miningPayout")]/22 * self.payoutStructure[i] / 1e18);
+                doTransfer(self,address(this),a[i].miner,self.miningRewardDistributions[i] + self.uintVars[keccak256("currentTotalTips")]/22 * self.miningRewardDistributions[i] / 1e18);
             }
-            emit NewValue(_apiId,self.uintVars[keccak256("timeOfLastProof")],a[2].value,self.uintVars[keccak256("miningPayout")] - self.uintVars[keccak256("miningPayout")]%22,self.currentChallenge);
-            if(self.uintVars[keccak256("miningPayout")] % 22 > 0){
-                updateAPIonQ(self,_apiId,self.uintVars[keccak256("miningPayout")] % 22,true); 
+            emit NewValue(_apiId,self.uintVars[keccak256("timeOfLastNewValue")],a[2].value,self.uintVars[keccak256("currentTotalTips")] - self.uintVars[keccak256("currentTotalTips")]%22,self.currentChallenge);
+            if(self.uintVars[keccak256("currentTotalTips")] % 22 > 0){
+                updateOnDeck(self,_apiId,self.uintVars[keccak256("currentTotalTips")] % 22,true); 
             }
-            self.uintVars[keccak256("total_supply")] += self.uintVars[keccak256("miningPayout")] - self.uintVars[keccak256("miningPayout")]%22 + self.uintVars[keccak256("payoutTotal")]*110/100;//can we hardcode this?
-            doTransfer(self,address(this),self.addressVars[keccak256("_owner")],(self.uintVars[keccak256("payoutTotal")] * 10 / 100));//The ten there is the devshare
-            _api.values[self.uintVars[keccak256("timeOfLastProof")]] = a[2].value;
-            _api.requestTimestamps.push(self.uintVars[keccak256("timeOfLastProof")]);
-            _api.minersbyvalue[self.uintVars[keccak256("timeOfLastProof")]] = [a[0].miner,a[1].miner,a[2].miner,a[3].miner,a[4].miner];
-            _api.valuesByTimestamp[self.uintVars[keccak256("timeOfLastProof")]] = [a[0].value,a[1].value,a[2].value,a[3].value,a[4].value];
-            _api.minedBlockNum[self.uintVars[keccak256("timeOfLastProof")]] = block.number;
-            self.uintVars[keccak256("miningApiId")] = self.apiId[self.apiOnQ]; 
-            self.uintVars[keccak256("miningPayout")] = self.uintVars[keccak256("apiOnQPayout")];
-            self.timeToApiId[self.uintVars[keccak256("timeOfLastProof")]] = _apiId;
-            self.timestamps.push(self.uintVars[keccak256("timeOfLastProof")]);
-            self.uintVars[keccak256("count")] = 0;
-            self.payoutPool[self.apiDetails[self.uintVars[keccak256("apiIdOnQ")]].apiUintVars[keccak256("index")]] = 0;
-            self.payoutPoolIndexToApiId[self.apiDetails[self.uintVars[keccak256("apiIdOnQ")]].apiUintVars[keccak256("index")]] = 0;
-            self.apiDetails[self.uintVars[keccak256("apiIdOnQ")]].apiUintVars[keccak256("index")] = 0;
-            self.apiDetails[self.uintVars[keccak256("apiIdOnQ")]].apiUintVars[keccak256("payout")] = 0;
+            self.uintVars[keccak256("total_supply")] += self.uintVars[keccak256("currentTotalTips")] - self.uintVars[keccak256("currentTotalTips")]%22 + self.uintVars[keccak256("miningReward")]*110/100;//can we hardcode this?
+            doTransfer(self,address(this),self.addressVars[keccak256("_owner")],(self.uintVars[keccak256("miningReward")] * 10 / 100));//The ten there is the devshare
+            _api.finalValues[self.uintVars[keccak256("timeOfLastNewValue")]] = a[2].value;
+            _api.requestTimestamps.push(self.uintVars[keccak256("timeOfLastNewValue")]);
+            _api.minersByValue[self.uintVars[keccak256("timeOfLastNewValue")]] = [a[0].miner,a[1].miner,a[2].miner,a[3].miner,a[4].miner];
+            _api.valuesByTimestamp[self.uintVars[keccak256("timeOfLastNewValue")]] = [a[0].value,a[1].value,a[2].value,a[3].value,a[4].value];
+            _api.minedBlockNum[self.uintVars[keccak256("timeOfLastNewValue")]] = block.number;
+            self.uintVars[keccak256("currentRequestId")] = self.requestIdByQueryHash[self.onDeckQueryHash]; 
+            self.uintVars[keccak256("currentTotalTips")] = self.uintVars[keccak256("onDeckTotalTips")];
+            self.requestIdByTimestamp[self.uintVars[keccak256("timeOfLastNewValue")]] = _apiId;
+            self.newValueTimestamps.push(self.uintVars[keccak256("timeOfLastNewValue")]);
+            self.uintVars[keccak256("slotProgress")] = 0;
+            self.requestQ[self.requestDetails[self.uintVars[keccak256("onDeckRequestId")]].apiUintVars[keccak256("requestQPosition")]] = 0;
+            self.requestIdByRequestQIndex[self.requestDetails[self.uintVars[keccak256("onDeckRequestId")]].apiUintVars[keccak256("requestQPosition")]] = 0;
+            self.requestDetails[self.uintVars[keccak256("onDeckRequestId")]].apiUintVars[keccak256("requestQPosition")] = 0;
+            self.requestDetails[self.uintVars[keccak256("onDeckRequestId")]].apiUintVars[keccak256("totalTip")] = 0;
             uint[2] memory nums; //reusable number array -- _amount,_paid,payoutMultiplier
-            if(self.uintVars[keccak256("miningApiId")] > 0){
-                (nums[0],nums[1]) = Utilities.getMax(self.payoutPool);
-                self.uintVars[keccak256("apiIdOnQ")] = self.payoutPoolIndexToApiId[nums[1]];
-                self.apiOnQ = self.apiDetails[self.uintVars[keccak256("apiIdOnQ")]].apiHash;
-                self.uintVars[keccak256("apiOnQPayout")] = nums[0];
+            if(self.uintVars[keccak256("currentRequestId")] > 0){
+                (nums[0],nums[1]) = Utilities.getMax(self.requestQ);
+                self.uintVars[keccak256("onDeckRequestId")] = self.requestIdByRequestQIndex[nums[1]];
+                self.onDeckQueryHash = self.requestDetails[self.uintVars[keccak256("onDeckRequestId")]].queryHash;
+                self.uintVars[keccak256("onDeckTotalTips")] = nums[0];
                 self.currentChallenge = keccak256(abi.encodePacked(_nonce,self.currentChallenge, blockhash(block.number - 1))); // Save hash for next proof
-                emit NewChallenge(self.currentChallenge,self.uintVars[keccak256("miningApiId")],self.uintVars[keccak256("difficulty_level")],self.apiDetails[self.uintVars[keccak256("miningApiId")]].apiUintVars[keccak256("granularity")],self.apiDetails[self.uintVars[keccak256("miningApiId")]].queryString,self.uintVars[keccak256("miningPayout")]);   
-                emit NewAPIonQinfo(self.uintVars[keccak256("apiIdOnQ")],self.apiDetails[self.uintVars[keccak256("apiIdOnQ")]].queryString,self.apiOnQ,self.uintVars[keccak256("apiOnQPayout")]);    
+                emit NewChallenge(self.currentChallenge,self.uintVars[keccak256("currentRequestId")],self.uintVars[keccak256("difficulty")],self.requestDetails[self.uintVars[keccak256("currentRequestId")]].apiUintVars[keccak256("granularity")],self.requestDetails[self.uintVars[keccak256("currentRequestId")]].queryString,self.uintVars[keccak256("currentTotalTips")]);   
+                emit NewRequestOnDeck(self.uintVars[keccak256("onDeckRequestId")],self.requestDetails[self.uintVars[keccak256("onDeckRequestId")]].queryString,self.onDeckQueryHash,self.uintVars[keccak256("onDeckTotalTips")]);    
             }
             else{
-                self.uintVars[keccak256("apiIdOnQ")] = 0;
-                self.uintVars[keccak256("apiOnQPayout")] = 0;
+                self.uintVars[keccak256("onDeckRequestId")] = 0;
+                self.uintVars[keccak256("onDeckTotalTips")] = 0;
             }
         }
     }
@@ -418,32 +418,32 @@ library TellorLibrary{
     * @dev propose fork
     * @param _propNewTellorAddress address for new proposed Tellor
     */
-    function propFork(TellorStorageStruct storage self, address _propNewTellorAddress) internal {
+    function proposeFork(TellorStorageStruct storage self, address _propNewTellorAddress) internal {
         bytes32 _hash = keccak256(abi.encodePacked(_propNewTellorAddress));
-        require(self.disputeHashToId[_hash] == 0);
+        require(self.disputeIdByDisputeHash[_hash] == 0);
         doTransfer(self,msg.sender,address(this), self.uintVars[keccak256("disputeFee")]);//This is the fork fee
         self.uintVars[keccak256("disputeCount")]++;
         uint disputeId = self.uintVars[keccak256("disputeCount")];
-        self.disputeHashToId[_hash] = disputeId;
-        self.disputes[disputeId] = Dispute({
+        self.disputeIdByDisputeHash[_hash] = disputeId;
+        self.disputesById[disputeId] = Dispute({
             hash: _hash,
             isPropFork: true,
             reportedMiner: msg.sender, 
             reportingParty: msg.sender, 
-            propForkAddress: _propNewTellorAddress,
+            proposedForkAddress: _propNewTellorAddress,
             executed: false,
             disputeVotePassed: false,
             tally: 0
             }); 
-        self.disputes[disputeId].disputeUintVars[keccak256("blockNumber")] = block.number;
-        self.disputes[disputeId].disputeUintVars[keccak256("minExecutionDate")] = now + 7 days;
+        self.disputesById[disputeId].disputeUintVars[keccak256("blockNumber")] = block.number;
+        self.disputesById[disputeId].disputeUintVars[keccak256("minExecutionDate")] = now + 7 days;
     }
    /**
     * @dev Request to retreive value from oracle based on timestamp
     * @param _c_sapi string API being requested be mined
     * @param _c_apiId apiId being requested be mined
     * @param _tip amount the requester is willing to pay to be get on queue. Miners
-    * mine the apiOnQ, or the api with the highest payout pool
+    * mine the onDeckQueryHash, or the api with the highest payout pool
     * @return _apiId for the request
     */
     function requestData(TellorStorageStruct storage self,string memory _c_sapi,string memory _c_symbol, uint _c_apiId,uint _granularity, uint _tip) internal {
@@ -455,40 +455,40 @@ library TellorLibrary{
             string memory _symbol = _c_symbol;
             require(bytes(_sapi).length > 0);
                     require(bytes(_symbol).length < 64);
-            bytes32 _apiHash = keccak256(abi.encodePacked(_sapi,_granularity));
-            if(self.apiId[_apiHash] == 0){
-                self.uintVars[keccak256("requests")]++;
-                _apiId=self.uintVars[keccak256("requests")];
-                self.apiDetails[_apiId] = Request({
+            bytes32 _queryHash = keccak256(abi.encodePacked(_sapi,_granularity));
+            if(self.requestIdByQueryHash[_queryHash] == 0){
+                self.uintVars[keccak256("requestCount")]++;
+                _apiId=self.uintVars[keccak256("requestCount")];
+                self.requestDetails[_apiId] = Request({
                     queryString : _sapi, 
                     dataSymbol: _symbol,
-                    apiHash: _apiHash,
+                    queryHash: _queryHash,
                     requestTimestamps: new uint[](0)
                     });
-                self.apiDetails[_apiId].apiUintVars[keccak256("granularity")] = _granularity;
-                self.apiDetails[_apiId].apiUintVars[keccak256("index")] = 0;
-                self.apiDetails[_apiId].apiUintVars[keccak256("payout")] = 0;
-                self.apiId[_apiHash] = _apiId;
+                self.requestDetails[_apiId].apiUintVars[keccak256("granularity")] = _granularity;
+                self.requestDetails[_apiId].apiUintVars[keccak256("requestQPosition")] = 0;
+                self.requestDetails[_apiId].apiUintVars[keccak256("totalTip")] = 0;
+                self.requestIdByQueryHash[_queryHash] = _apiId;
             }
             else{
-                _apiId = self.apiId[_apiHash];
+                _apiId = self.requestIdByQueryHash[_queryHash];
             }
         }
         if(_tip > 0){
             doTransfer(self,msg.sender,address(this),_tip);
         }
-        updateAPIonQ(self,_apiId,_tip,false);
-        emit DataRequested(msg.sender,self.apiDetails[_apiId].queryString,self.apiDetails[_apiId].dataSymbol,_granularity,_apiId,_tip);
+        updateOnDeck(self,_apiId,_tip,false);
+        emit DataRequested(msg.sender,self.requestDetails[_apiId].queryString,self.requestDetails[_apiId].dataSymbol,_granularity,_apiId,_tip);
     }
         /**
     * @dev This function allows stakers to request to withdraw their stake (no longer stake) 
     */
-    function requestWithdraw(TellorStorageStruct storage self) internal {
-        StakeInfo storage stakes = self.staker[msg.sender];
+    function requestStakingWithdraw(TellorStorageStruct storage self) internal {
+        StakeInfo storage stakes = self.stakerDetails[msg.sender];
         require(stakes.currentStatus == 1);
         stakes.currentStatus = 2;
         stakes.startDate = now -(now % 86400);
-        self.uintVars[keccak256("stakers")] -= 1;
+        self.uintVars[keccak256("stakerCount")] -= 1;
         emit StakeWithdrawRequested(msg.sender);
     }
     /**
@@ -496,21 +496,21 @@ library TellorLibrary{
     * @param _disputeId is the dispute id
     */
     function tallyVotes(TellorStorageStruct storage self, uint _disputeId) internal {
-        Dispute storage disp = self.disputes[_disputeId];
-        Request storage _api = self.apiDetails[disp.disputeUintVars[keccak256("apiId")]];
+        Dispute storage disp = self.disputesById[_disputeId];
+        Request storage _api = self.requestDetails[disp.disputeUintVars[keccak256("requestId")]];
         require(disp.executed == false);
         require(now > disp.disputeUintVars[keccak256("minExecutionDate")]); //Uncomment for production-commented out for testing 
         if (disp.isPropFork== false){
-        StakeInfo storage stakes = self.staker[disp.reportedMiner];  
+        StakeInfo storage stakes = self.stakerDetails[disp.reportedMiner];  
             if (disp.tally > 0 ) { 
                 stakes.currentStatus = 0;
                 stakes.startDate = now -(now % 86400);
-                self.uintVars[keccak256("stakers")]--;
-                doTransfer(self,disp.reportedMiner,disp.reportingParty, self.uintVars[keccak256("stakeAmt")]);
+                self.uintVars[keccak256("stakerCount")]--;
+                doTransfer(self,disp.reportedMiner,disp.reportingParty, self.uintVars[keccak256("stakeAmount")]);
                 doTransfer(self,msg.sender,disp.reportingParty, self.uintVars[keccak256("disputeFee")]);
                 disp.disputeVotePassed = true;
                 if(_api.inDispute[disp.disputeUintVars[keccak256("timestamp")]] == true){
-                    _api.values[disp.disputeUintVars[keccak256("timestamp")]] = 0;
+                    _api.finalValues[disp.disputeUintVars[keccak256("timestamp")]] = 0;
                 }
             } else {
                 stakes.currentStatus = 1;
@@ -524,8 +524,8 @@ library TellorLibrary{
         emit DisputeVoteTallied(_disputeId,disp.tally,disp.reportedMiner,disp.reportingParty,disp.disputeVotePassed); 
         } else {
             require(disp.disputeUintVars[keccak256("quorum")] >  (self.uintVars[keccak256("total_supply")] * 20 / 100));
-            self.addressVars[keccak256("tellorContract")] = disp.propForkAddress;
-            emit NewTellorAddress(disp.propForkAddress);
+            self.addressVars[keccak256("tellorContract")] = disp.proposedForkAddress;
+            emit NewTellorAddress(disp.proposedForkAddress);
         }
     }
 
@@ -569,45 +569,45 @@ library TellorLibrary{
 
 
     /**
-    @dev This function updates APIonQ and the payoutPool when requestData or addToValuePool are ran
+    @dev This function updates APIonQ and the requestQ when requestData or addToValuePool are ran
     @param _apiId being requested
     */
-    function updateAPIonQ(TellorStorageStruct storage self,uint _apiId, uint _tip,bool _mine) internal {
-        Request storage _api = self.apiDetails[_apiId];
+    function updateOnDeck(TellorStorageStruct storage self,uint _apiId, uint _tip,bool _mine) internal {
+        Request storage _api = self.requestDetails[_apiId];
         if (_tip > 0){
-            _api.apiUintVars[keccak256("payout")] = _api.apiUintVars[keccak256("payout")].add(_tip);
+            _api.apiUintVars[keccak256("totalTip")] = _api.apiUintVars[keccak256("totalTip")].add(_tip);
         }
-        uint _payout = _api.apiUintVars[keccak256("payout")];
-        if(self.uintVars[keccak256("miningApiId")] == 0){
-            _api.apiUintVars[keccak256("payout")] = 0;
-            self.uintVars[keccak256("miningApiId")] = _apiId;
-            self.uintVars[keccak256("miningPayout")] = _payout;
+        uint _payout = _api.apiUintVars[keccak256("totalTip")];
+        if(self.uintVars[keccak256("currentRequestId")] == 0){
+            _api.apiUintVars[keccak256("totalTip")] = 0;
+            self.uintVars[keccak256("currentRequestId")] = _apiId;
+            self.uintVars[keccak256("currentTotalTips")] = _payout;
             self.currentChallenge = keccak256(abi.encodePacked(_payout, self.currentChallenge, blockhash(block.number - 1))); // Save hash for next proof
-            emit NewChallenge(self.currentChallenge,self.uintVars[keccak256("miningApiId")],self.uintVars[keccak256("difficulty_level")],self.apiDetails[self.uintVars[keccak256("miningApiId")]].apiUintVars[keccak256("granularity")],self.apiDetails[self.uintVars[keccak256("miningApiId")]].queryString,self.uintVars[keccak256("miningPayout")]);
+            emit NewChallenge(self.currentChallenge,self.uintVars[keccak256("currentRequestId")],self.uintVars[keccak256("difficulty")],self.requestDetails[self.uintVars[keccak256("currentRequestId")]].apiUintVars[keccak256("granularity")],self.requestDetails[self.uintVars[keccak256("currentRequestId")]].queryString,self.uintVars[keccak256("currentTotalTips")]);
         }
         else{
-            if(_apiId == self.uintVars[keccak256("apiIdOnQ")]){
-                self.uintVars[keccak256("apiOnQPayout")] = _payout;
+            if(_apiId == self.uintVars[keccak256("onDeckRequestId")]){
+                self.uintVars[keccak256("onDeckTotalTips")] = _payout;
             }
-            else if (_payout > self.uintVars[keccak256("apiOnQPayout")] || (self.uintVars[keccak256("apiIdOnQ")] == 0) && _mine == false) {
-                    self.uintVars[keccak256("apiIdOnQ")] = _apiId;
-                    self.apiOnQ = _api.apiHash;
-                    self.uintVars[keccak256("apiOnQPayout")] = _payout;
-                    emit NewAPIonQinfo(_apiId,_api.queryString,self.apiOnQ,_payout);
+            else if (_payout > self.uintVars[keccak256("onDeckTotalTips")] || (self.uintVars[keccak256("onDeckRequestId")] == 0) && _mine == false) {
+                    self.uintVars[keccak256("onDeckRequestId")] = _apiId;
+                    self.onDeckQueryHash = _api.queryHash;
+                    self.uintVars[keccak256("onDeckTotalTips")] = _payout;
+                    emit NewRequestOnDeck(_apiId,_api.queryString,self.onDeckQueryHash,_payout);
             }
 
-            if(_api.apiUintVars[keccak256("index")] == 0 && _mine == false){
+            if(_api.apiUintVars[keccak256("requestQPosition")] == 0 && _mine == false){
                 uint _min;
                 uint _index;
-                (_min,_index) = Utilities.getMin(self.payoutPool);
+                (_min,_index) = Utilities.getMin(self.requestQ);
                 if(_payout > _min || _min == 0){
-                    self.payoutPool[_index] = _payout;
-                    self.payoutPoolIndexToApiId[_index] = _apiId;
-                    _api.apiUintVars[keccak256("index")] = _index;
+                    self.requestQ[_index] = _payout;
+                    self.requestIdByRequestQIndex[_index] = _apiId;
+                    _api.apiUintVars[keccak256("requestQPosition")] = _index;
                 }
             }
             else if (_tip > 0 && _mine == false){
-                self.payoutPool[_api.apiUintVars[keccak256("index")]] += _tip;
+                self.requestQ[_api.apiUintVars[keccak256("requestQPosition")]] += _tip;
             }
         }
     }
@@ -617,7 +617,7 @@ library TellorLibrary{
     * @param checkpoints gets the mapping for the balances[owner]
     * @param _value is the new balance
     */
-    function updateValueAtNow(Checkpoint[] storage checkpoints, uint _value) internal  {
+    function updateBalanceAtNow(Checkpoint[] storage checkpoints, uint _value) internal  {
         if ((checkpoints.length == 0) || (checkpoints[checkpoints.length -1].fromBlock < block.number)) {
                Checkpoint storage newCheckPoint = checkpoints[ checkpoints.length++ ];
                newCheckPoint.fromBlock =  uint128(block.number);
@@ -633,11 +633,11 @@ library TellorLibrary{
     * @param _supportsDispute is the vote (true=the dispute has basis false = vote against dispute)
     */
     function vote(TellorStorageStruct storage self, uint _disputeId, bool _supportsDispute) internal {
-        Dispute storage disp = self.disputes[_disputeId];
+        Dispute storage disp = self.disputesById[_disputeId];
         uint voteWeight = balanceOfAt(self,msg.sender,disp.disputeUintVars[keccak256("blockNumber")]);
         require(disp.voted[msg.sender] != true);
         require(voteWeight > 0);
-        require(self.staker[msg.sender].currentStatus != 3);
+        require(self.stakerDetails[msg.sender].currentStatus != 3);
         disp.voted[msg.sender] = true;
         disp.disputeUintVars[keccak256("numberOfVotes")] += 1;
         disp.disputeUintVars[keccak256("quorum")] += voteWeight; //NEW
@@ -653,7 +653,7 @@ library TellorLibrary{
     * @dev This function allows users to withdraw their stake after a 7 day waiting period from request 
     */
     function withdrawStake(TellorStorageStruct storage self) internal {
-        StakeInfo storage stakes = self.staker[msg.sender];
+        StakeInfo storage stakes = self.stakerDetails[msg.sender];
         uint _today = now - (now % 86400);
         require(_today - stakes.startDate >= 7 days && stakes.currentStatus == 2);
         stakes.currentStatus = 0;
