@@ -32,10 +32,7 @@ contract Tellor /* is TellorGetters*/{
     function approve(address _spender, uint _amount) external returns (bool) {
         return tellor.approve(_spender,_amount);
     }
-        function depositStake() external {
-        tellor.depositStake();
-    }
-    /**
+        /**
     * @dev Helps initialize a dispute by assigning it a disputeId 
     * when a miner returns a false on the validate array(in Tellor.ProofOfWork) it sends the 
     * invalidated value information to POS voting
@@ -46,22 +43,10 @@ contract Tellor /* is TellorGetters*/{
         tellor.beginDispute(_requestId,_timestamp,_minerIndex);
     }
 
-    function tellorPostConstructor() external {
-        tellor.tellorPostConstructor();
+
+    function depositStake() external {
+        tellor.depositStake();
     }
-
-
-        /**
-    * @dev Proof of work is called by the miner when they submit the solution (proof of work and value)
-    * @param _nonce uint submitted by miner
-    * @param _requestId the apiId being mined
-    * @param _value of api query
-    * @return count of values sumbitted so far and the time of the last successful mine
-    */
-    function submitMiningSolution(string calldata _nonce, uint _requestId, uint _value) external{
-        tellor.submitMiningSolution(_nonce,_requestId,_value);
-    }
-
     /**
     * @dev propose fork
     * @param _propNewTellorAddress address for new proposed Tellor
@@ -87,6 +72,17 @@ contract Tellor /* is TellorGetters*/{
     function requestStakingWithdraw() external {
         tellor.requestStakingWithdraw();
     }
+
+        /**
+    * @dev Proof of work is called by the miner when they submit the solution (proof of work and value)
+    * @param _nonce uint submitted by miner
+    * @param _requestId the apiId being mined
+    * @param _value of api query
+    * @return count of values sumbitted so far and the time of the last successful mine
+    */
+    function submitMiningSolution(string calldata _nonce, uint _requestId, uint _value) external{
+        tellor.submitMiningSolution(_nonce,_requestId,_value);
+    }
         /**
     * @dev tallies the votes.
     * @param _disputeId is the dispute id
@@ -94,6 +90,11 @@ contract Tellor /* is TellorGetters*/{
     function tallyVotes(uint _disputeId) external {
         tellor.tallyVotes(_disputeId);
     }
+
+    function tellorPostConstructor() external {
+        tellor.tellorPostConstructor();
+    }
+
     /**
     * @dev Allows for a transfer of tokens to _to
     * @param _to The address to send tokens to

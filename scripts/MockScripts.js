@@ -35,7 +35,7 @@ module.exports = async function(callback) {
     oracleBase = await Oracle.new();
     oracle = await TellorMaster.new(oracleBase.address);
     oracle2 = await new web3.eth.Contract(oracleAbi,oracle.address);///will this instance work for logWatch? hopefully...
-    web3.eth.sendTransaction({to: oracle.address,from:acct,gas:7000000, data: web3.utils.keccak256("initStake()")})
+    web3.eth.sendTransaction({to: oracle.address,from:acct,gas:7000000, data: web3.utils.keccak256("tellorPostConstructor()")})
     web3.eth.sendTransaction({to: oracle.address,from:acct,gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",0,1000,0).encodeABI()});
     console.log('Ready!')
     return true;
