@@ -5,8 +5,6 @@ import requests,json, time,random
 import pandas as pd
 import hashlib
 from Naked.toolshed.shell import execute_js, muterun_js, run_js
-from multiprocessing import Process, freeze_support
-
 contract_address = "";
 node_url ="http://localhost:8545" #https://rinkeby.infura.io/
 net_id = 60 #eth network ID

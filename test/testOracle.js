@@ -40,7 +40,7 @@ contract('Mining Tests', function(accounts) {
         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000, data: web3.utils.keccak256("tellorPostConstructor()")})
         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",0,1000,0).encodeABI()})
     });
-   /*it("getStakersCount", async function(){
+   it("getStakersCount", async function(){
         let count = await oracle.getUintVar(web3.utils.keccak256("stakerCount"))
         assert(web3.utils.hexToNumberString(count)==5, "count is 5");
     });
@@ -217,7 +217,7 @@ contract('Mining Tests', function(accounts) {
                 s =  await oracle.getStakerInfo(accounts[2])
         assert(s[0] ==1, " Staked" );
     });
-    */
+    
 
    it("Test time travel in data -- really long timesincelastPoof and proper difficulty adjustment", async function () {
         logMineWatcher = await promisifyLogWatch(oracle2, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
@@ -230,7 +230,7 @@ contract('Mining Tests', function(accounts) {
         assert((web3.utils.hexToNumberString(vars[2])*1) == 1,"difficulty should be 1 now");
         assert(await oracle.getNewValueCountbyRequestId(1) == 2, "Request ID 1 should have 2 mines");
     });
-   /*
+   
     it("Test 50 requests, proper booting, and mining of 5", async function () {
         logMineWatcher = await promisifyLogWatch(oracle2, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');
         await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(api2,"ETH/USD",0,1000,0).encodeABI()});
@@ -422,7 +422,7 @@ contract('Mining Tests', function(accounts) {
         	assert(s[0] ==1, " Staked" );
 	     }
     });
-    */
+    
     it("Test zero addTip", async function () {
         logMineWatcher = await promisifyLogWatch(oracle2, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.addTip(1,0).encodeABI()})

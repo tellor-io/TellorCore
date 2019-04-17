@@ -11,7 +11,7 @@ It mines values and then has random parties submit requests for data
 It loops through 10 different API's
 and also requests data and adds tips to them
 '''
-contract_address = "";
+contract_address = "0x2B63d6e98E66C7e9fe11225Ba349B0B33234D9A2";
 node_url ="http://localhost:8545" #https://rinkeby.infura.io/
 net_id = 60 #eth network ID
 last_block = 0
@@ -32,7 +32,7 @@ apis = ["json(https://api.gdax.com/products/BTC-USD/ticker).price",
 "json(https://api.binance.com/api/v3/ticker/price?symbol=BNBTUSD).price",
 "json(https://api.binance.com/api/v3/ticker/price?symbol=XRPTUSD).price"] #whats the standard way to do this?
 granularities = [1,10,100,1000,1000000]
-queryList = ["json(https://api.gdax.com/products/BTC-USD/ticker).price" + str(1000)]
+queryList = ["json(https://api.gdax.com/products/BTC-USD/ticker).price1000"]
 
 
 
@@ -53,9 +53,12 @@ def requestData():
 		apiId = 0;
 		j = random.randint(0,4)
 		arg_string =""+ apiString + " "+ symbol +" " + str(apiId)+" "+str(granularity)+" "+str(tip)+" "+str(contract_address)+" "+str(public_keys[j])+" "+str(private_keys[j])
+		print('Request_ID  - ',str(apiId),' , Tip - ',str(tip))
 		run_js('requestData.js',arg_string);
 		query = apis[num] + str(granularity)
 		if query not in queryList:
+			print("New Request - ",query)
+			print("New Request ID - ",len(openApiIds) + 1)
 			queryList.append(query);
 			openApiIds.append(len(openApiIds) + 1);
 	return
@@ -71,6 +74,7 @@ def addToTip():
 		j = random.randint(0,4)
 		apiId = openApiIds[rand_api]
 		arg_string =""+ str(apiId) +" " + str(value)+" "+str(contract_address)+" "+str(public_keys[j])+" "+str(private_keys[j])
+		print('Request_ID  - ',str(apiId),' , Tip - ',str(value))
 		run_js('addTip.js',arg_string);
 	return
 
@@ -103,11 +107,13 @@ def getSolution(challenge, public_address, difficulty):
 def mine():
 		print("Mining..")
 		miners_started = 0;
-		challenge,apiId,difficulty,apiString,granularity = getVariables();
+		apiId = 0
+		while apiId < 1:
+			challenge,apiId,difficulty,apiString,granularity = getVariables();
+			time.sleep(5);
 		while miners_started < 5:
 			nonce = getSolution(str(challenge),public_keys[miners_started],difficulty);
 			if(nonce > 0):
-				print ("You guessed the hash!");
 				value = max(0,(getAPIvalue(apiString)) * granularity); #account 2 should always be winner
 				arg_string =""+ str(nonce) + " "+ str(apiId) +" " + str(value)+" "+str(contract_address)+" "+str(public_keys[miners_started])+" "+str(private_keys[miners_started])
 				run_js('testSubmitter.js',arg_string);
@@ -138,6 +144,7 @@ def getAPIvalue(_api):
 	except:
 		response = 0;
 		print('API ERROR',_api)
+		return 0
 	if('json' in json):
 		if(len(filter)):
 			allFilters = filter.split(".")
@@ -154,7 +161,6 @@ def getAPIvalue(_api):
 			price = response.json()
 	else:
 		price = response
-	print(price)
 	return int(float(price))
 
 def getVariables():
@@ -216,7 +222,7 @@ def getAddress():
 
 def masterMiner():
 	#First we get the contract address
-	getAddress();
+	#getAddress();
 	miners_started = 0
 	while True:
 		#mine first value
