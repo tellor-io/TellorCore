@@ -118,6 +118,13 @@ def mine():
 		print ("New Value Secured");
 		return;
 
+def getMinersStarted():
+	payload = {"jsonrpc":"2.0","id":net_id,"method":"eth_call","params":[{"to":contract_address,"data":"0xa22e407a"}, "latest"]}
+	r = requests.post(node_url, data=json.dumps(payload));
+	val = jsonParser(r);
+	val = val['result'];
+	return int(val,16);
+
 
 def getAPIvalue(_api):
 	_api = _api.replace("'", "")
