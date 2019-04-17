@@ -104,11 +104,12 @@ library TellorLibrary{
             /*DisputesAndVoting*/mapping(bytes32 => uint) disputeIdByDisputeHash;//maps a hash to an ID for each dispute
     }
 
+
     event Approval(address indexed _owner, address indexed _spender, uint256 _value);//ERC20 Approval event
     event DataRequested(address indexed _sender, string _query,string _querySymbol,uint _granularity, uint indexed _requestId, uint _totalTips);//Emits upon someone adding value to a pool; msg.sender, amount added, and timestamp incentivized to be mined
     event DisputeVoteTallied(uint indexed _disputeID, int _result,address indexed _reportedMiner,address _reportingParty, bool _active);//emitted upon dispute tally
     event NewChallenge(bytes32 _currentChallenge,uint indexed _currentRequestId,uint _difficulty,uint _multiplier,string _query,uint _totalTips); //emits when a new challenge is created (either on mined block or when a new request is pushed forward on waiting system)
-    event NewDispute(uint indexed _disputeId, uint indexed _requestId, uint _timestamp);//emitted when a new dispute is initialized
+    event NewDispute(uint indexed _disputeId, uint indexed _requestId, uint _timestamp, address _miner);//emitted when a new dispute is initialized
     event NewRequestOnDeck(uint indexed _requestId, string _query, bytes32 _onDeckQueryHash, uint _onDeckTotalTips); //emits when a the payout of another request is higher after adding to the payoutPool or submitting a request
     event NewStake(address indexed _sender);//Emits upon new staker
     event NewTellorAddress(address _newTellor); //emmited when a proposed fork is voted true
@@ -236,7 +237,7 @@ library TellorLibrary{
             self.requestDetails[_requestId].inDispute[_timestamp] = true;
         }
         self.stakerDetails[_miner].currentStatus = 3;
-        emit NewDispute(disputeId,_requestId,_timestamp );
+        emit NewDispute(disputeId,_requestId,_timestamp,_miner);
     }
 
      function depositStake(TellorStorageStruct storage self) public {
