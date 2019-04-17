@@ -20,7 +20,6 @@ var api = "json(https://api.gdax.com/products/BTC-USD/ticker).price";
 let acct  =  "0xe010ac6e0248790e08f42d5f697160dedf97e024";
 
 
-
 function sleep_s(secs) {
   secs = (+new Date) + secs * 1000;
   while ((+new Date) < secs);
@@ -32,8 +31,8 @@ function sleep_s(secs) {
 module.exports = async function(callback) {
     let oracle;
     let oracle2;
-    oracleBase = await Oracle.new();
-    oracle = await TellorMaster.new(oracleBase.address);
+    oracle = await TellorMaster.deployed()
+    console.log('oracle address',oracle.address)
     oracle2 = await new web3.eth.Contract(oracleAbi,oracle.address);///will this instance work for logWatch? hopefully...
     web3.eth.sendTransaction({to: oracle.address,from:acct,gas:7000000, data: web3.utils.keccak256("tellorPostConstructor()")})
     web3.eth.sendTransaction({to: oracle.address,from:acct,gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",0,1000,0).encodeABI()});

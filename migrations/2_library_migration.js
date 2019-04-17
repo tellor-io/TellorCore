@@ -35,5 +35,6 @@ module.exports = async function (deployer) {
     await deployer.link(TellorGettersLibrary,TellorMaster);
     await deployer.link(TellorLibrary,Tellor);
     await deployer.deploy(Tellor);
+    await deployer.deploy(Tellor).then(async function() {await deployer.deploy(TellorMaster, Tellor.address)});
 };
 /****Uncomment the body to run this with Truffle migrate for truffle testing*/
