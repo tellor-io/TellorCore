@@ -172,6 +172,11 @@ contract TellorGetters{
     function getRequestIdByRequestQIndex(uint _index) external view returns(uint){
         return tellor.getRequestIdByRequestQIndex(_index);
     }
+
+
+    function getNewValueCountbyRequestId(uint _requestId) external view returns(uint){
+        return tellor.getNewValueCountbyRequestId(_requestId);
+    }
     /**
      *@dev This function allows users to retireve all information about a staker
      *@param address of staker enquiring about

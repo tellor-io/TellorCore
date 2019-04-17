@@ -103,23 +103,23 @@ library TellorGettersLibrary{
             /*DisputesAndVoting*/mapping(bytes32 => uint) disputeIdByDisputeHash;//maps a hash to an ID for each dispute
     }
 
-    event NewValue(uint indexed _requestId, uint _time, uint _value,uint _totalTips,bytes32 _currentChallenge);//Emits upon a successful Mine, indicates the blocktime at point of the mine and the value mined
-    event DataRequested(address indexed _sender, string _query,string _querySymbol,uint _granularity, uint indexed _requestId, uint _totalTips);//Emits upon someone adding value to a pool; msg.sender, amount added, and timestamp incentivized to be mined
-    event NonceSubmitted(address indexed _miner, string _nonce, uint indexed _requestId, uint _value,bytes32 _currentChallenge);//Emits upon each mine (5 total) and shows the miner, nonce, and value submitted
-    event NewRequestOnDeck(uint indexed _requestId, string _query, bytes32 _onDeckQueryHash, uint _onDeckTotalTips); //emits when a the payout of another request is higher after adding to the payoutPool or submitting a request
-    event NewChallenge(bytes32 _currentChallenge,uint indexed _currentRequestId,uint _difficulty,uint _multiplier,string _query,uint _totalTips); //emits when a new challenge is created (either on mined block or when a new request is pushed forward on waiting system)
     event Approval(address indexed _owner, address indexed _spender, uint256 _value);//ERC20 Approval event
-    event Transfer(address indexed _from, address indexed _to, uint256 _value);//ERC20 Transfer Event
+    event DataRequested(address indexed _sender, string _query,string _querySymbol,uint _granularity, uint indexed _requestId, uint _totalTips);//Emits upon someone adding value to a pool; msg.sender, amount added, and timestamp incentivized to be mined
+    event DisputeVoteTallied(uint indexed _disputeID, int _result,address indexed _reportedMiner,address _reportingParty, bool _active);//emitted upon dispute tally
+    event NewChallenge(bytes32 _currentChallenge,uint indexed _currentRequestId,uint _difficulty,uint _multiplier,string _query,uint _totalTips); //emits when a new challenge is created (either on mined block or when a new request is pushed forward on waiting system)
+    event NewDispute(uint indexed _disputeId, uint indexed _requestId, uint _timestamp);//emitted when a new dispute is initialized
+    event NewRequestOnDeck(uint indexed _requestId, string _query, bytes32 _onDeckQueryHash, uint _onDeckTotalTips); //emits when a the payout of another request is higher after adding to the payoutPool or submitting a request
     event NewStake(address indexed _sender);//Emits upon new staker
+    event NewTellorAddress(address _newTellor); //emmited when a proposed fork is voted true
+    event NewValue(uint indexed _requestId, uint _time, uint _value,uint _totalTips,bytes32 _currentChallenge);//Emits upon a successful Mine, indicates the blocktime at point of the mine and the value mined
+    event NonceSubmitted(address indexed _miner, string _nonce, uint indexed _requestId, uint _value,bytes32 _currentChallenge);//Emits upon each mine (5 total) and shows the miner, nonce, and value submitted
+    event OwnershipTransferred(address indexed _previousOwner, address indexed _newOwner);
     event StakeWithdrawn(address indexed _sender);//Emits when a staker is now no longer staked
     event StakeWithdrawRequested(address indexed _sender);//Emits when a staker begins the 7 day withdraw period
-    event NewDispute(uint indexed _disputeId, uint indexed _requestId, uint _timestamp);//emitted when a new dispute is initialized
-    event Voted(uint indexed _disputeID, bool _position, address indexed _voter);//emitted when a new vote happens
-    event DisputeVoteTallied(uint indexed _disputeID, int _result,address indexed _reportedMiner,address _reportingParty, bool _active);//emitted upon dispute tally
-    event NewTellorAddress(address _newTellor); //emmited when a proposed fork is voted true
-    event OwnershipTransferred(address indexed _previousOwner, address indexed _newOwner);
     event TipAdded(address indexed _sender,uint indexed _requestId, uint _tip, uint _totalTips);
-
+    event Transfer(address indexed _from, address indexed _to, uint256 _value);//ERC20 Transfer Event
+    event Voted(uint indexed _disputeID, bool _position, address indexed _voter);//emitted when a new vote happens
+    
     //Tellor Getters
 
 
@@ -235,48 +235,14 @@ library TellorGettersLibrary{
         Dispute storage disp = self.disputesById[_disputeId];
         return(disp.hash,disp.executed, disp.disputeVotePassed, disp.isPropFork, disp.reportedMiner, disp.reportingParty,disp.proposedForkAddress,[disp.disputeUintVars[keccak256("requestId")], disp.disputeUintVars[keccak256("timestamp")], disp.disputeUintVars[keccak256("value")], disp.disputeUintVars[keccak256("minExecutionDate")], disp.disputeUintVars[keccak256("numberOfVotes")], disp.disputeUintVars[keccak256("blockNumber")], disp.disputeUintVars[keccak256("minerSlot")], disp.disputeUintVars[keccak256("quorum")]],disp.tally);
     }
-
-
-
     /**
-    * @dev Getter function for apiId based on timestamp. Only one value is mined per
-    * timestamp and each timestamp can correspond to a different API. 
-    * @param _timestamp to check APIId
-    * @return apiId
+    * @dev Getter function for currentChallenge difficulty
+    * @return current challenge, MiningApiID, level of difficulty
     */
-    function getRequestIdByTimestamp(TellorStorageStruct storage self, uint _timestamp) internal view returns(uint){    
-        return self.requestIdByTimestamp[_timestamp];
-    }
-    /**
-    * @dev Getter function for apiId based on api hash
-    * @param _queryHash string to check if it already has an apiId
-    * @return uint apiId
-    */
-    function getRequestIdByQueryHash(TellorStorageStruct storage self, bytes32 _queryHash) internal view returns(uint){    
-        return self.requestIdByQueryHash[_queryHash];
+    function getCurrentVariables(TellorStorageStruct storage self) internal view returns(bytes32, uint, uint,string memory,uint,uint){    
+        return (self.currentChallenge,self.uintVars[keccak256("currentRequestId")],self.uintVars[keccak256("difficulty")],self.requestDetails[self.uintVars[keccak256("currentRequestId")]].queryString,self.requestDetails[self.uintVars[keccak256("currentRequestId")]].apiUintVars[keccak256("granularity")],self.requestDetails[self.uintVars[keccak256("currentRequestId")]].apiUintVars[keccak256("totalTip")]);
     }
 
-
-    function getRequestUintVars(TellorStorageStruct storage self,uint _requestId,bytes32 _data) internal view returns(uint){
-        return self.requestDetails[_requestId].apiUintVars[_data];
-    }
-        /**
-    * @dev Gets the API struct variables that are not mappings
-    * @param _requestId to look up
-    * @return string of api to query
-    * @return string of symbol of api to query
-    * @return bytes32 hash of string
-    * @return uint of index in PayoutPool array
-    * @return uint of current payout for this api
-    */
-    function getRequestVars(TellorStorageStruct storage self,uint _requestId) internal view returns(string memory,string memory, bytes32,uint, uint, uint) {
-        Request storage _request = self.requestDetails[_requestId]; 
-        return (_request.queryString,_request.dataSymbol,_request.queryHash, _request.apiUintVars[keccak256("granularity")],_request.apiUintVars[keccak256("requestQPosition")],_request.apiUintVars[keccak256("totalTip")]);
-    }
-
-    function getTimestampbyRequestIDandIndex(TellorStorageStruct storage self,uint _requestID, uint _index) internal view returns(uint){
-        return self.requestDetails[_requestID].requestTimestamps[_index];
-    }
     /**
     * @dev Checks if a given hash of miner,apiId has been disputed
     * @param _hash of sha256(abi.encodePacked(_miners[2],_requestId));
@@ -289,6 +255,7 @@ library TellorGettersLibrary{
     function getDisputeUintVars(TellorStorageStruct storage self,uint _disputeId,bytes32 _data) internal view returns(uint){
         return self.disputesById[_disputeId].disputeUintVars[_data];
     }
+
 
 
     /**
@@ -319,9 +286,11 @@ library TellorGettersLibrary{
 
 
 
-    function getRequestQ(TellorStorageStruct storage self) view internal returns(uint[51] memory){
-        return self.requestQ;
+
+    function getNewValueCountbyRequestId(TellorStorageStruct storage self, uint _requestId) internal view returns(uint){
+        return self.requestDetails[_requestId].requestTimestamps.length;
     }
+
         /**
     * @dev Getter function for the apiId for the specified requestQ index
     * @param _index to look up the apiId
@@ -330,6 +299,48 @@ library TellorGettersLibrary{
     function getRequestIdByRequestQIndex(TellorStorageStruct storage self, uint _index) internal view returns(uint){
         return self.requestIdByRequestQIndex[_index];
     }
+
+    /**
+    * @dev Getter function for apiId based on timestamp. Only one value is mined per
+    * timestamp and each timestamp can correspond to a different API. 
+    * @param _timestamp to check APIId
+    * @return apiId
+    */
+    function getRequestIdByTimestamp(TellorStorageStruct storage self, uint _timestamp) internal view returns(uint){    
+        return self.requestIdByTimestamp[_timestamp];
+    }
+    /**
+    * @dev Getter function for apiId based on api hash
+    * @param _queryHash string to check if it already has an apiId
+    * @return uint apiId
+    */
+    function getRequestIdByQueryHash(TellorStorageStruct storage self, bytes32 _queryHash) internal view returns(uint){    
+        return self.requestIdByQueryHash[_queryHash];
+    }
+
+
+
+    function getRequestQ(TellorStorageStruct storage self) view internal returns(uint[51] memory){
+        return self.requestQ;
+    }
+
+    function getRequestUintVars(TellorStorageStruct storage self,uint _requestId,bytes32 _data) internal view returns(uint){
+        return self.requestDetails[_requestId].apiUintVars[_data];
+    }
+        /**
+    * @dev Gets the API struct variables that are not mappings
+    * @param _requestId to look up
+    * @return string of api to query
+    * @return string of symbol of api to query
+    * @return bytes32 hash of string
+    * @return uint of index in PayoutPool array
+    * @return uint of current payout for this api
+    */
+    function getRequestVars(TellorStorageStruct storage self,uint _requestId) internal view returns(string memory,string memory, bytes32,uint, uint, uint) {
+        Request storage _request = self.requestDetails[_requestId]; 
+        return (_request.queryString,_request.dataSymbol,_request.queryHash, _request.apiUintVars[keccak256("granularity")],_request.apiUintVars[keccak256("requestQPosition")],_request.apiUintVars[keccak256("totalTip")]);
+    }
+
 
     /**
      *@dev This function allows users to retireve all information about a staker
@@ -341,6 +352,7 @@ library TellorGettersLibrary{
         return (self.stakerDetails[_staker].currentStatus,self.stakerDetails[_staker].startDate);
     }
 
+
         /**
     * @dev Gets the 5 miners who mined the value for the specified apiId/_timestamp 
     * @param _requestId to look up
@@ -351,17 +363,14 @@ library TellorGettersLibrary{
     }
 
 
+    function getTimestampbyRequestIDandIndex(TellorStorageStruct storage self,uint _requestID, uint _index) internal view returns(uint){
+        return self.requestDetails[_requestID].requestTimestamps[_index];
+    }
+
 
     //self.uintVars[keccak256("stakerCount")]
     function getUintVar(TellorStorageStruct storage self,bytes32 _data) view internal returns(uint){
         return self.uintVars[_data];
-    }
-    /**
-    * @dev Getter function for currentChallenge difficulty
-    * @return current challenge, MiningApiID, level of difficulty
-    */
-    function getCurrentVariables(TellorStorageStruct storage self) internal view returns(bytes32, uint, uint,string memory,uint,uint){    
-        return (self.currentChallenge,self.uintVars[keccak256("currentRequestId")],self.uintVars[keccak256("difficulty")],self.requestDetails[self.uintVars[keccak256("currentRequestId")]].queryString,self.requestDetails[self.uintVars[keccak256("currentRequestId")]].apiUintVars[keccak256("granularity")],self.requestDetails[self.uintVars[keccak256("currentRequestId")]].apiUintVars[keccak256("totalTip")]);
     }
 
     /**

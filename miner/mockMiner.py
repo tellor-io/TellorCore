@@ -32,6 +32,7 @@ apis = ["json(https://api.gdax.com/products/BTC-USD/ticker).price",
 "json(https://api.binance.com/api/v3/ticker/price?symbol=BNBTUSD).price",
 "json(https://api.binance.com/api/v3/ticker/price?symbol=XRPTUSD).price"] #whats the standard way to do this?
 granularities = [1,10,100,1000,1000000]
+queryList = ["json(https://api.gdax.com/products/BTC-USD/ticker).price" + str(1000)]
 
 
 
@@ -53,8 +54,10 @@ def requestData():
 		j = random.randint(0,4)
 		arg_string =""+ apiString + " "+ symbol +" " + str(apiId)+" "+str(granularity)+" "+str(tip)+" "+str(contract_address)+" "+str(public_keys[j])+" "+str(private_keys[j])
 		run_js('requestData.js',arg_string);
-		if num + 1 not in openApiIds:
-			openApiIds.append(num + 1);
+		query = apis[num] + str(granularity)
+		if query not in queryList:
+			queryList.append(query);
+			openApiIds.append(len(openApiIds) + 1);
 	return
 
 
