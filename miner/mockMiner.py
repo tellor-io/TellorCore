@@ -2,10 +2,8 @@ import web3,json
 import binascii
 from web3 import Web3
 import requests,json, time,random
-import pandas as pd
 import hashlib
-from Naked.toolshed.shell import execute_js, muterun_js, run_js
-from multiprocessing import Process, freeze_support
+from Naked.toolshed.shell import run_js
 
 '''
 This miner is to be run with the demo.  
@@ -34,6 +32,7 @@ apis = ["json(https://api.gdax.com/products/BTC-USD/ticker).price",
 "json(https://api.binance.com/api/v3/ticker/price?symbol=BNBTUSD).price",
 "json(https://api.binance.com/api/v3/ticker/price?symbol=XRPTUSD).price"] #whats the standard way to do this?
 granularities = [1,10,100,1000,1000000]
+queryList = ["json(https://api.gdax.com/products/BTC-USD/ticker).price" + str(1000)]
 
 
 
@@ -55,8 +54,10 @@ def requestData():
 		j = random.randint(0,4)
 		arg_string =""+ apiString + " "+ symbol +" " + str(apiId)+" "+str(granularity)+" "+str(tip)+" "+str(contract_address)+" "+str(public_keys[j])+" "+str(private_keys[j])
 		run_js('requestData.js',arg_string);
-		if num + 1 not in openApiIds:
-			openApiIds.append(num + 1);
+		query = apis[num] + str(granularity)
+		if query not in queryList:
+			queryList.append(query);
+			openApiIds.append(len(openApiIds) + 1);
 	return
 
 
@@ -150,7 +151,7 @@ def getAPIvalue(_api):
 	return int(float(price))
 
 def getVariables():
-	payload = {"jsonrpc":"2.0","id":net_id,"method":"eth_call","params":[{"to":contract_address,"data":"0x94aef022"}, "latest"]}
+	payload = {"jsonrpc":"2.0","id":net_id,"method":"eth_call","params":[{"to":contract_address,"data":"0xa22e407a"}, "latest"]}
 	r = requests.post(node_url, data=json.dumps(payload));
 	val = jsonParser(r);
 	val = val['result'];

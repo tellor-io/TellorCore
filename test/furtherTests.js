@@ -46,10 +46,10 @@
 //         oracleBase = await Tellor.new();
 //         oracle = await TellorMaster.new(oracleBase.address);
 //         oracle2 = await new web3.eth.Contract(oracleAbi,oracleBase.address);///will this instance work for logWatch? hopefully...
-//         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000, data: web3.utils.keccak256("initStake()")})
+//         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000, data: web3.utils.keccak256("tellorPostConstructor()")})
 //         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",0,1000,0).encodeABI()})
 //         await helper.advanceTime(86400 * 8);
-//         await web3.eth.sendTransaction({to:oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestWithdraw().encodeABI()})
+//         await web3.eth.sendTransaction({to:oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestStakingWithdraw().encodeABI()})
 //         await helper.advanceTime(86400 * 8);
 //         await web3.eth.sendTransaction({to:oracle.address,from:accounts[2],data:oracle2.methods.withdrawStake().encodeABI()})
 //    });  
@@ -65,7 +65,7 @@
 //         let res = await web3.eth.abi.decodeParameters(['string','string','uint256','uint256'],res2.logs[2].data);
 //         let resSapi = res['0']
 //         let resApiId = await web3.eth.abi.decodeParameter('uint256',res2.logs[2].topics[2])
-//         apiVars = await oracle.getApiVars(resApiId)
+//         apiVars = await oracle.getRequestVars(resApiId)
 //         assert( apiVars[5] == 20, "value pool should be 20");
 //         res3 = await web3.eth.abi.decodeParameters(['string','bytes32','uint256'],res2.logs[1].data);
 //         let apiIdonQ = await web3.eth.abi.decodeParameter('uint256',res2.logs[1].topics[1])
@@ -73,7 +73,7 @@
 //         assert(resSapi == api2,"string should be correct");
 //         assert(web3.utils.hexToNumberString(apiOnQPayout) == 20, "Current payout on Q should be 20");
 //         assert(web3.utils.hexToNumberString(apiIdonQ) == resApiId, "timestamp on Q should be apiID");
-//         vars = await oracle.getApiVars(2)
+//         vars = await oracle.getRequestVars(2)
 //         assert(vars[1] == "ETH/USD")
 //     });
 //     it("several request data", async function () {
@@ -102,7 +102,7 @@
 //         let resSapi = res['0']
 
 //         let resApiId = await web3.eth.abi.decodeParameter('uint256',res3.logs[2].topics[2])
-//         apiVars = await oracle.getApiVars(resApiId)
+//         apiVars = await oracle.getRequestVars(resApiId)
 //         assert( apiVars[5] == pay, "value pool should be 20");
 //         let res2 = await web3.eth.abi.decodeParameters(['string','bytes32','uint256'],res3.logs[1].data);
 //         let apiIdonQ = await web3.eth.abi.decodeParameter('uint256',res3.logs[1].topics[1])
@@ -131,7 +131,7 @@
 //         let res = await web3.eth.abi.decodeParameters(['string','string','uint256','uint256'],res3.logs[2].data);
 //         let resSapi = res['0']
 //         let resApiId = await web3.eth.abi.decodeParameter('uint256',res3.logs[2].topics[2])
-//         apiVars = await oracle.getApiVars(resApiId)
+//         apiVars = await oracle.getRequestVars(resApiId)
 //         assert( apiVars[5] == pay, "value pool should be 20");
 //         let res2 = await web3.eth.abi.decodeParameters(['string','bytes32','uint256'],res3.logs[1].data);
 //         let apiIdonQ = await web3.eth.abi.decodeParameter('uint256',res3.logs[1].topics[1])
@@ -159,27 +159,27 @@
 //         assert(web3.utils.hexToNumberString(vpApiIdonQ) == 2, "timestamp on Q should be apiTimestamp");        
 //     }); 
 //    it("Test 51 request and lowest is kicked out", async function () {
-//    	       apiVars= await oracle.getApiVars(1)
-//         apiIdforpayoutPoolIndex = await oracle.getpayoutPoolIndexToApiId(0);
-//         apiId = await oracle.getApiId(apiVars[2]);
+//    	       apiVars= await oracle.getRequestVars(1)
+//         apiIdforpayoutPoolIndex = await oracle.getRequestIdByRequestQIndex(0);
+//         apiId = await oracle.getRequestIdByQueryHash(apiVars[2]);
 //         assert(web3.utils.hexToNumberString(apiId) == 1, "timestamp on Q should be 1");
 //         console.log("51 requests....");
 //          for(var i = 1;i <=51 ;i++){
 //         	apix= ("api" + i);
 //         	await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(apix,"",0,1000,i).encodeABI()})
 //         }
-//         let payoutPool = await oracle.getPayoutPool();
+//         let payoutPool = await oracle.getRequestQ();
 //         for(var i = 2;i <=49 ;i++){
 //         	assert(payoutPool[i] == 51-i)
 
 //         }
-//         apiVars= await oracle.getApiVars(52)
-//         apiIdforpayoutPoolIndex = await oracle.getpayoutPoolIndexToApiId(50);
-//         vars = await oracle.getVariablesOnQ();
+//         apiVars= await oracle.getRequestVars(52)
+//         apiIdforpayoutPoolIndex = await oracle.getRequestIdByRequestQIndex(50);
+//         vars = await oracle.getVariablesOnDeck();
 //         let apiOnQ = web3.utils.hexToNumberString(vars['0']);
 //         let apiPayout = web3.utils.hexToNumberString(vars['1']);
 //         let sapi = vars['2'];
-//         apiIdforpayoutPoolIndex2 = await oracle.getpayoutPoolIndexToApiId(49);
+//         apiIdforpayoutPoolIndex2 = await oracle.getRequestIdByRequestQIndex(49);
 //         assert(apiIdforpayoutPoolIndex == 52, "position 1 should be booted"); 
 //         assert(sapi == "api51", "API on Q string should be correct"); 
 //         assert(apiPayout == 51, "API on Q payout should be 51"); 
@@ -188,8 +188,8 @@
 //         assert(apiIdforpayoutPoolIndex2 == 3, "position 2 should be in same place"); 
 //    });
 //     it("Test Throw on wrong apiId", async function () {
-//         await helper.expectThrow(web3.eth.sendTransaction({to: oracle.address,from:accounts[1],gas:7000000,data:oracle2.methods.proofOfWork("2",4,3000).encodeABI()}) );
-//         await web3.eth.sendTransaction({to: oracle.address,from:accounts[1],gas:7000000,data:oracle2.methods.proofOfWork("2",1,3000).encodeABI()})
+//         await helper.expectThrow(web3.eth.sendTransaction({to: oracle.address,from:accounts[1],gas:7000000,data:oracle2.methods.submitMiningSolution("2",4,3000).encodeABI()}) );
+//         await web3.eth.sendTransaction({to: oracle.address,from:accounts[1],gas:7000000,data:oracle2.methods.submitMiningSolution("2",1,3000).encodeABI()})
 //     });
 //     it("Stake miner", async function (){
 //          balance2 = await oracle.balanceOf(accounts[2]);
@@ -206,7 +206,7 @@
 //          await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(api2,"ETH/USD",0,1000,2).encodeABI()})
 //          await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData("api3","",0,1000,3).encodeABI()})
 //          await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(api2,"ETH/USD",0,1000,4).encodeABI()})
-//         vars = await oracle.getVariablesOnQ();
+//         vars = await oracle.getVariablesOnDeck();
 //         let apiOnQ = web3.utils.hexToNumberString(vars['0']);
 //         let apiPayout = web3.utils.hexToNumberString(vars['1']);
 //         let sapi = vars['2'];
@@ -217,7 +217,7 @@
 //     it("Test New Tellor Storage Contract", async function () {
 //         assert(await oracle.getAddressVars(web3.utils.keccak256("tellorContract")) == oracleBase.address, "tellorContract should be Tellor Base");
 //         let oracleBase2 = await Tellor.new();
-//         await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.propFork(oracleBase2.address).encodeABI()})
+//         await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.proposeFork(oracleBase2.address).encodeABI()})
 //         for(var i = 1;i<5;i++){
 //             await web3.eth.sendTransaction({to: oracle.address,from:accounts[i],gas:7000000,data:oracle2.methods.vote(1,true).encodeABI()})
 //         }
@@ -229,7 +229,7 @@
 //         it("Test Failed Vote - New Tellor Storage Contract", async function () {
 //         assert(await oracle.getAddressVars(web3.utils.keccak256("tellorContract")) == oracleBase.address, "tellorContract should be Tellor Base");
 //         let oracleBase2 = await Tellor.new();
-//         await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.propFork(oracleBase2.address).encodeABI()})
+//         await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.proposeFork(oracleBase2.address).encodeABI()})
 //         for(var i = 1;i<5;i++){
 //             await web3.eth.sendTransaction({to: oracle.address,from:accounts[i],gas:7000000,data:oracle2.methods.vote(1,false).encodeABI()})
 //         }

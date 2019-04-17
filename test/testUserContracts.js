@@ -7,7 +7,6 @@
 // const helper = require("./helpers/test_helpers");
 
 // const Oracle = artifacts.require("./Tellor.sol"); // globally injected artifacts helper
-// var Reader = artifacts.require("Reader.sol");
 // var oracleAbi = Oracle.abi;
 // var oracleByte = Oracle.bytecode;
 
