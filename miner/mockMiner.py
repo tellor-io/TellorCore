@@ -235,11 +235,11 @@ def masterMiner():
 		mine();
 		time.sleep(sleep_between_mines);
 		#request data for 1 - 10 API's
-		requestData();
-		time.sleep(10);
-		#keep track of open API's - randomly select a random number and tip them a random amount
-		addToTip();
-		time.sleep(10);
+		# requestData();
+		# time.sleep(10);
+		# #keep track of open API's - randomly select a random number and tip them a random amount
+		# addToTip();
+		# time.sleep(10);
 
 	print('Mock System Stopping')
 

@@ -35,7 +35,8 @@ module.exports = async function(callback) {
     console.log('oracle address',oracle.address)
     oracle2 = await new web3.eth.Contract(oracleAbi,oracle.address);///will this instance work for logWatch? hopefully...
     console.log(await oracle.getRequestQ());
-    console.log(await oracle.getRequestVars(2));
+    console.log(await oracle.getCurrentVariables());
+    console.log(await oracle.getVariablesOnDeck());
     console.log('Ready!')
     return true;
 }

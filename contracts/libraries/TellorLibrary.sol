@@ -353,17 +353,21 @@ library TellorLibrary{
                 self.requestDetails[_requestId].apiUintVars[keccak256("requestQPosition")] = 0;
                 self.requestDetails[_requestId].apiUintVars[keccak256("totalTip")] = 0;
                 self.requestIdByQueryHash[_queryHash] = _requestId;
+                if(_tip > 0){
+                    doTransfer(self,msg.sender,address(this),_tip);
+                }
+                updateOnDeck(self,_requestId,_tip,false);
+                emit DataRequested(msg.sender,self.requestDetails[_requestId].queryString,self.requestDetails[_requestId].dataSymbol,_granularity,_requestId,_tip);
             }
             else{
-                _requestId = self.requestIdByQueryHash[_queryHash];
+                addTip(self,self.requestIdByQueryHash[_queryHash],_tip);
             }
+
         }
-        if(_tip > 0){
-            doTransfer(self,msg.sender,address(this),_tip);
+        else{
+            addTip(self,_requestId,_tip);
         }
-        updateOnDeck(self,_requestId,_tip,false);
-        emit DataRequested(msg.sender,self.requestDetails[_requestId].queryString,self.requestDetails[_requestId].dataSymbol,_granularity,_requestId,_tip);
-    }
+ }
         /**
     * @dev This function allows stakers to request to withdraw their stake (no longer stake) 
     */
@@ -460,9 +464,6 @@ library TellorLibrary{
                 doTransfer(self,address(this),a[i].miner,self.miningRewardDistributions[i] + self.uintVars[keccak256("currentTotalTips")]/22 * self.miningRewardDistributions[i] / 1e18);
             }
             emit NewValue(_requestId,self.uintVars[keccak256("timeOfLastNewValue")],a[2].value,self.uintVars[keccak256("currentTotalTips")] - self.uintVars[keccak256("currentTotalTips")]%22,self.currentChallenge);
-            if(self.uintVars[keccak256("currentTotalTips")] % 22 > 0){
-                updateOnDeck(self,_requestId,self.uintVars[keccak256("currentTotalTips")] % 22,true); 
-            }
             self.uintVars[keccak256("total_supply")] += self.uintVars[keccak256("currentTotalTips")] - self.uintVars[keccak256("currentTotalTips")]%22 + self.uintVars[keccak256("miningReward")]*110/100;//can we hardcode this?
             doTransfer(self,address(this),self.addressVars[keccak256("_owner")],(self.uintVars[keccak256("miningReward")] * 10 / 100));//The ten there is the devshare
             _request.finalValues[self.uintVars[keccak256("timeOfLastNewValue")]] = a[2].value;
@@ -470,7 +471,7 @@ library TellorLibrary{
             _request.minersByValue[self.uintVars[keccak256("timeOfLastNewValue")]] = [a[0].miner,a[1].miner,a[2].miner,a[3].miner,a[4].miner];
             _request.valuesByTimestamp[self.uintVars[keccak256("timeOfLastNewValue")]] = [a[0].value,a[1].value,a[2].value,a[3].value,a[4].value];
             _request.minedBlockNum[self.uintVars[keccak256("timeOfLastNewValue")]] = block.number;
-            self.uintVars[keccak256("currentRequestId")] = self.requestIdByQueryHash[self.onDeckQueryHash]; 
+            self.uintVars[keccak256("currentRequestId")] = self.uintVars[keccak256("onDeckRequestId")]; 
             self.uintVars[keccak256("currentTotalTips")] = self.uintVars[keccak256("onDeckTotalTips")];
             self.requestIdByTimestamp[self.uintVars[keccak256("timeOfLastNewValue")]] = _requestId;
             self.newValueTimestamps.push(self.uintVars[keccak256("timeOfLastNewValue")]);
@@ -492,6 +493,8 @@ library TellorLibrary{
             else{
                 self.uintVars[keccak256("onDeckRequestId")] = 0;
                 self.uintVars[keccak256("onDeckTotalTips")] = 0;
+                self.onDeckQueryHash = "";
+                self.currentChallenge = "";
             }
         }
     }
@@ -654,7 +657,7 @@ library TellorLibrary{
     }
 
     function voteOnFork(TellorStorageStruct storage self, uint _forkId, bool _supportsFork) internal{
-        
+
     }
 
     /**
