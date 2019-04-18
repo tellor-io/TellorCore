@@ -11,7 +11,7 @@ value = process.argv[3] - 0
 var address = process.argv[4];
 var abi = json.abi;
 var account = process.argv[5];
-var privateKey = new Buffer(process.argv[6], 'hex');
+var privateKey = Buffer.from(process.argv[6], 'hex');
 let myContract = new web3.eth.Contract(abi,address);
 let data = myContract.methods.addTip(apiId,value).encodeABI();
 

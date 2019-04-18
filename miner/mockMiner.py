@@ -3,7 +3,7 @@ import binascii
 from web3 import Web3
 import requests,json, time,random
 import hashlib
-from Naked.toolshed.shell import run_js
+from Naked.toolshed.shell import execute
 
 '''
 This miner is to be run with the demo.  
@@ -52,9 +52,9 @@ def requestData():
 		tip = random.randint(0,10000)
 		apiId = 0;
 		j = random.randint(0,4)
-		arg_string =""+ apiString + " "+ symbol +" " + str(apiId)+" "+str(granularity)+" "+str(tip)+" "+str(contract_address)+" "+str(public_keys[j])+" "+str(private_keys[j])
+		arg_string ="\""+ apiString + "\" "+ symbol +" " + str(apiId)+" "+str(granularity)+" "+str(tip)+" "+str(contract_address)+" "+str(public_keys[j])+" "+str(private_keys[j])
 		print('Request_ID  - ',str(apiId),' , Tip - ',str(tip))
-		run_js('requestData.js',arg_string);
+		execute("node requestData.js "+arg_string);
 		query = apis[num] + str(granularity)
 		if query not in queryList:
 			print("New Request - ",query)
@@ -75,7 +75,7 @@ def addToTip():
 		apiId = openApiIds[rand_api]
 		arg_string =""+ str(apiId) +" " + str(value)+" "+str(contract_address)+" "+str(public_keys[j])+" "+str(private_keys[j])
 		print('Request_ID  - ',str(apiId),' , Tip - ',str(value))
-		run_js('addTip.js',arg_string);
+		execute("node addTip.js "+arg_string);
 	return
 
 
@@ -116,7 +116,7 @@ def mine():
 			if(nonce > 0):
 				value = max(0,(getAPIvalue(apiString)) * granularity); #account 2 should always be winner
 				arg_string =""+ str(nonce) + " "+ str(apiId) +" " + str(value)+" "+str(contract_address)+" "+str(public_keys[miners_started])+" "+str(private_keys[miners_started])
-				run_js('testSubmitter.js',arg_string);
+				execute("node testSubmitter.js "+arg_string);
 				miners_started += 1
 			else:
 				Print("No nonce found");

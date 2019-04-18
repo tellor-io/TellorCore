@@ -1,9 +1,10 @@
 
+console.log("Starting request data script...");
 
 const Web3 = require("web3");
 const fs = require('fs');
-const Tx = require('ethereumjs-tx')
-var web3 = new Web3(new Web3.providers.HttpProvider('http://127.0.0.1:8545/'))
+const Tx = require('ethereumjs-tx');
+var web3 = new Web3(new Web3.providers.HttpProvider('http://127.0.0.1:8545/'));
 var json = require('../build/contracts/Tellor.json');
 
 apiString = process.argv[2]
@@ -14,7 +15,7 @@ tip = process.argv[6] - 0
 var address = process.argv[7];
 var abi = json.abi;
 var account = process.argv[8];
-var privateKey = new Buffer(process.argv[9], 'hex');
+var privateKey = Buffer.from(process.argv[9], 'hex');
 let myContract = new web3.eth.Contract(abi,address);
 console.log(apiString,symbol,apiId,granularity,tip);
 let data = myContract.methods.requestData(apiString,symbol,apiId,granularity,tip).encodeABI();
