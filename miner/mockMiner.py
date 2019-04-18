@@ -105,29 +105,32 @@ def getSolution(challenge, public_address, difficulty):
 				if challenge != _challenge:
 					return 0;
 def mine():
-	global challenge,miners_started
-		print("Mining..")
-		apiId = 0
-		while apiId < 1:
-			_challenge,apiId,difficulty,apiString,granularity = getVariables();
-			challenge = _challenge
-			time.sleep(5);
-		while challenge == challenge:
-			nonce = getSolution(str(challenge),public_keys[miners_started],difficulty);
-			if(nonce > 0):
-				value = max(0,(getAPIvalue(apiString)) * granularity); #account 2 should always be winner
-				arg_string =""+ str(nonce) + " "+ str(apiId) +" " + str(value)+" "+str(contract_address)+" "+str(public_keys[miners_started])+" "+str(private_keys[miners_started])
-				execute("node testSubmitter.js "+arg_string);
-				if miners_started == 5:
-					miners_started = 0
-				else:
-					miners_started += 1
-				_challenge,apiId,difficulty,apiString,granularity = getVariables();
+	global miners_started
+	print("Mining..")
+	apiId = 0
+	challenge = 0
+	while apiId < 1:
+		_challenge,_apiId,difficulty,apiString,granularity = getVariables();
+		print('Variable String',_challenge,_apiId,difficulty,apiString,granularity)
+		apiId = _apiId
+		challenge = _challenge
+		time.sleep(5);
+	while apiId == _apiId and challenge == _challenge:
+		nonce = getSolution(str(challenge),public_keys[miners_started],difficulty);
+		if(nonce > 0):
+			value = max(0,(getAPIvalue(apiString)) * granularity); #account 2 should always be winner
+			arg_string =""+ str(nonce) + " "+ str(apiId) +" " + str(value)+" "+str(contract_address)+" "+str(public_keys[miners_started])+" "+str(private_keys[miners_started])
+			execute("node testSubmitter.js "+arg_string);
+			if miners_started == 4:
+				miners_started = 0
 			else:
-				Print("No nonce found");
-				return
-		print ("New Value Secured");
-		return;
+				miners_started += 1
+			_challenge,_apiId,difficulty,apiString,granularity = getVariables();
+		else:
+			Print("No nonce found");
+			return
+	print ("New Value Secured - ", value);
+	return;
 
 def getMinersStarted():
 	payload = {"jsonrpc":"2.0","id":net_id,"method":"eth_call","params":[{"to":contract_address,"data":"0xa22e407a"}, "latest"]}
@@ -185,7 +188,6 @@ def getVariables():
 	val =val[64:]
 	val = val[:-16]
 	_apiString =  str(binascii.unhexlify(val.strip())).replace("\\","").replace('x00',"")
-	print('Variable String',_challenge,_apiId,_difficulty,_apiString,_granularity)
 	return _challenge,_apiId,_difficulty,_apiString,_granularity
 
 def jsonParser(_info):
@@ -228,7 +230,6 @@ def getAddress():
 def masterMiner():
 	#First we get the contract address
 	#getAddress();
-	miners_started = 0
 	while True:
 		#mine first value
 		mine();
