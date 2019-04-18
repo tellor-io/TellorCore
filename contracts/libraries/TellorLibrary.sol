@@ -653,6 +653,10 @@ library TellorLibrary{
         emit Voted(_disputeId,_supportsDispute,msg.sender);
     }
 
+    function voteOnFork(TellorStorageStruct storage self, uint _forkId, bool _supportsFork) internal{
+        
+    }
+
     /**
     * @dev This function allows users to withdraw their stake after a 7 day waiting period from request 
     */
