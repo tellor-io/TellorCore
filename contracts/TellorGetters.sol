@@ -19,7 +19,8 @@ contract TellorGetters{
     function allowance(address _user, address _spender) external view returns (uint) {
        return tellor.allowance(_user,_spender);
     }
-/**
+
+    /**
      *@dev This function returns whether or not a given user is allowed to trade a given amount  
      *@param address of user
      *@param address of amount
@@ -36,7 +37,8 @@ contract TellorGetters{
     function balanceOf(address _user) external view returns (uint) { 
         return tellor.balanceOf(_user);
     }
-/**
+
+    /**
     * @dev Queries the balance of _user at a specific _blockNumber
     * @param _user The address from which the balance will be retrieved
     * @param _blockNumber The block number when the balance is queried
@@ -89,7 +91,7 @@ contract TellorGetters{
         return tellor.getAllDisputeVars(_disputeId);
     }
 
-         /**
+    /**
     * @dev Getter function for currentChallenge difficulty_level
     * @return current challenge, MiningApiID, level of difficulty_level
     */
@@ -135,11 +137,11 @@ contract TellorGetters{
         return tellor.getMinersByRequestIdAndTimestamp(_requestId,_timestamp);
     }
 
-
     function getNewValueCountbyRequestId(uint _requestId) external view returns(uint){
         return tellor.getNewValueCountbyRequestId(_requestId);
     }
-        /**
+
+    /**
     * @dev Getter function for the apiId for the specified payoutPool index
     * @param _index to look up the apiId
     * @return apiId
@@ -147,7 +149,7 @@ contract TellorGetters{
     function getRequestIdByRequestQIndex(uint _index) external view returns(uint){
         return tellor.getRequestIdByRequestQIndex(_index);
     }
-        /**
+    /**
     * @dev Getter function for apiId based on timestamp. Only one value is mined per
     * timestamp and each timestamp can correspond to a different API. 
     * @param _timestamp to check APIId
@@ -156,6 +158,7 @@ contract TellorGetters{
     function getRequestIdByTimestamp(uint _timestamp) external view returns(uint){    
         return tellor.getRequestIdByTimestamp(_timestamp);
     }
+
    /**
     * @dev Getter function for apiId based on api hash
     * @param _request string to check if it already has an apiId
@@ -169,7 +172,7 @@ contract TellorGetters{
         return tellor.getRequestUintVars(_requestId,_data);
     }
 
-      /**
+    /**
     * @dev Gets the API struct variables that are not mappings
     * @param _requestId to look up
     * @return string of api to query
@@ -180,7 +183,6 @@ contract TellorGetters{
     function getRequestVars(uint _requestId) external view returns(string memory, string memory,bytes32,uint, uint, uint) {
         return tellor.getRequestVars(_requestId);
     }
-
 
 
     function getRequestQ() view public returns(uint[51] memory){
@@ -196,7 +198,8 @@ contract TellorGetters{
     function getStakerInfo(address _staker) external view returns(uint,uint){
         return tellor.getStakerInfo(_staker);
     }
-            /**
+    
+    /**
     * @dev Gets the 5 miners who mined the value for the specified apiId/_timestamp 
     * @param _requestId to look up
     * @param _timestamp is the timestampt to look up miners for
@@ -205,7 +208,8 @@ contract TellorGetters{
         return tellor.getSubmissionsByTimestamp(_requestId,_timestamp);
     }
 
-     function getTimestampbyRequestIDandIndex(uint _requestID, uint _index) external view returns(uint){
+
+    function getTimestampbyRequestIDandIndex(uint _requestID, uint _index) external view returns(uint){
         return tellor.getTimestampbyRequestIDandIndex(_requestID,_index);
     }
 
@@ -232,6 +236,7 @@ contract TellorGetters{
     function isInDispute(uint _requestId, uint _timestamp) external view returns(bool){
         return tellor.isInDispute(_requestId,_timestamp);
     }
+    
     function name() internal returns(string memory){
         return tellor.name();
     }

@@ -8,6 +8,7 @@ import "./libraries/TellorLibrary.sol";
 /**
  * @title Tellor Oracle System
  * @dev Oracle contract where miners can submit the proof of work along with the value.
+ * The logic for this contract is in TellorLibrary.sol
  */
 contract Tellor /* is TellorGetters*/{
 

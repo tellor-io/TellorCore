@@ -11,6 +11,7 @@ import "./Utilities.sol";
  */
 library TellorGettersLibrary{
     using SafeMath for uint256;
+
     struct Details {
         uint value;
         address miner;
@@ -26,14 +27,16 @@ library TellorGettersLibrary{
         address reportingParty;//miner reporting the 'bad value'-pay disputeFee will get reportedMiner's stake if dispute vote passes
         address proposedForkAddress;
         mapping(bytes32 => uint) disputeUintVars;
-        // uint keccak256("requestId");//apiID of disputed value
-        // uint keccak256("timestamp");//timestamp of distputed value
-        // uint keccak256("value"); //the value being disputed
-        // uint keccak256("minExecutionDate");//7 days from when dispute initialized
-        // uint keccak256("numberOfVotes");//the number of parties who have voted on the measure
-        // uint keccak256("blockNumber");// the blocknumber for which votes will be calculated from
-        // uint keccak256("minerSlot"); //index in dispute array
-        // uint keccak256("quorum"); //quorum for dispute vote NEW
+        //Each of the variables below is saved in the mapping disputeUintVars for each disputeID
+        //e.g. TellorStorageStruct.DisputeById[disputeID].disputeUintVars[keccak256("requestId")] 
+            // uint keccak256("requestId");//apiID of disputed value
+            // uint keccak256("timestamp");//timestamp of distputed value
+            // uint keccak256("value"); //the value being disputed
+            // uint keccak256("minExecutionDate");//7 days from when dispute initialized
+            // uint keccak256("numberOfVotes");//the number of parties who have voted on the measure
+            // uint keccak256("blockNumber");// the blocknumber for which votes will be calculated from
+            // uint keccak256("minerSlot"); //index in dispute array
+            // uint keccak256("quorum"); //quorum for dispute vote NEW
         mapping (address => bool) voted; //mapping of address to whether or not they voted
     }  
     struct StakeInfo {
@@ -46,13 +49,15 @@ library TellorGettersLibrary{
     }
     struct Request{
         string queryString;//id to string api
-        string dataSymbol;
+        string dataSymbol;//short name for api request
         bytes32 queryHash;//hash of string
-        /*Tellor*/ uint[]  requestTimestamps; //array of all newValueTimestamps requested
+        uint[]  requestTimestamps; //array of all newValueTimestamps requested
         mapping(bytes32 => uint) apiUintVars;
-        // uint keccak256("granularity"); //multiplier for miners
-        // uint keccak256("requestQPosition"); //index in requestQ
-        // uint keccak256("totalTip");//bonus portion of payout
+        //Each of the variables below is saved in the mapping apiUintVars for each api request
+        //e.g. requestDetails[_requestId].apiUintVars[keccak256("totalTip")]
+            // uint keccak256("granularity"); //multiplier for miners
+            // uint keccak256("requestQPosition"); //index in requestQ
+            // uint keccak256("totalTip");//bonus portion of payout
         mapping(uint => uint) minedBlockNum;//[apiId][minedTimestamp]=>block.number
         mapping(uint => uint) finalValues;//This the time series of finalValues stored by the contract where uint UNIX timestamp is mapped to value
         mapping(uint => bool) inDispute;//checks if API id is in dispute or finalized.
@@ -62,45 +67,48 @@ library TellorGettersLibrary{
 
 
     struct TellorStorageStruct{
-            /*TellorStorage*/ 
-            /*Tellor*/ bytes32 currentChallenge; //current challenge to be solved
-            /*Tellor*/ bytes32 onDeckQueryHash; //string of current api with highest PayoutPool not currently being mined
-            /*DisputesAndVoting*/ string _name; //name of the Token
-            /*DisputesAndVoting*/ string _symbol;//Token Symbol
-            /*Tellor*/ uint[5]  miningRewardDistributions;//The structure of the payout (how much uncles vs winner recieve)[1,5,10,5,1]
-            /*Tellor*/ uint[51]  requestQ; //uint50 array of the top50 requests by payment amount
-            /*Tellor*/ uint[]  newValueTimestamps; //array of all timestamps requested
-            /*Tellor*/ Details[5]  currentMiners; //This struct is for organizing the five mined values to find the median
-            mapping(bytes32 => address) addressVars;
+        bytes32 currentChallenge; //current challenge to be solved
+        bytes32 onDeckQueryHash; //string of current api with highest PayoutPool not currently being mined
+        string _name; //name of the Token
+        string _symbol;//Token Symbol
+        uint[5]  miningRewardDistributions;//The structure of the payout (how much uncles vs winner recieve)[1,5,10,5,1]
+        uint[51]  requestQ; //uint50 array of the top50 requests by payment amount
+        uint[]  newValueTimestamps; //array of all timestamps requested
+        Details[5]  currentMiners; //This struct is for organizing the five mined values to find the median
+        mapping(bytes32 => address) addressVars;
+        //Address fields in the Tellor contract are saved the addressVars mapping
+        //e.g. addressVars[keccak256("tellorContract")] = address
             // address keccak256("tellorContract");//Tellor address
             // address  keccak256("_owner");//Tellor Owner address
-            mapping(bytes32 => uint) uintVars; 
-            // /*DisputesAndVoting*/  keccak256("decimals");    //18 decimal standard ERC20
-            // /*DisputesAndVoting*/ keccak256("disputeFee");//cost to dispute a mined value
-            // /*DisputesAndVoting*/keccak256("disputeCount");//totalHistoricalDisputes
-            // /*TokenAndStaking*/ keccak256("total_supply"); //total_supply of the token in circulation
-            // /*TokenAndStaking*/ keccak256("stakeAmount");//stakeAmount for miners (we can cut gas if we just hardcode it in...or should it be variable?)
-            // /*TokenAndStaking*/ keccak256("stakerCount"); //number of parties currently staked
-            // /*Tellor*/ keccak256("timeOfLastNewValue"); // time of last challenge solved
-            // /*Tellor*/ keccak256("difficulty"); // Difficulty of current block
-            // /*Tellor*/ keccak256("onDeckRequestId"); // apiId of the on queue request
-            // /*Tellor*/ keccak256("onDeckTotalTips"); //value of highest api/timestamp PayoutPool
-            //keccak256("currentTotalTips"); //value of highest api/timestamp PayoutPool
-            // /*Tellor*/ keccak256("currentRequestId"); //API being mined--updates with the ApiOnQ Id 
-            // /*Tellor*/ keccak256("requestCount"); // total number of requests through the system
-            // /*Tellor*/ keccak256("slotProgress");//Number of miners who have mined this value so far
-            // /*Tellor*/ keccak256("miningReward");//Mining Reward in PoWo tokens given to all miners per value
-            // /*Tellor*/ keccak256("timeTarget"); //The time between blocks (mined Oracle values)
-            /*Tellor*/ mapping(bytes32 => mapping(address=>bool)) minersByChallenge;//This is a boolean that tells you if a given challenge has been completed by a given miner
-            /*Tellor*/ mapping(uint => uint) requestIdByTimestamp;//minedTimestamp to apiId 
-            /*Tellor*/ mapping(uint => uint) requestIdByRequestQIndex; //link from payoutPoolIndex (position in payout pool array) to apiId
-            /*DisputesAndVoting*/ mapping(uint => Dispute) disputesById;//disputeId=> Dispute details
-            /*TokenAndStaking*/ mapping (address => Checkpoint[]) balances; //balances of a party given blocks
-            /*TokenAndStaking*/ mapping(address => mapping (address => uint)) allowed; //allowance for a given party and approver
-            /*TokenAndStaking*/ mapping(address => StakeInfo)  stakerDetails;//mapping from a persons address to their staking info
-            /*DisputesAndVoting*/ mapping(uint => Request) requestDetails;//mapping of apiID to details
-            /*DisputesAndVoting*/ mapping(bytes32 => uint) requestIdByQueryHash;// api bytes32 gets an id = to count of requests array
-            /*DisputesAndVoting*/mapping(bytes32 => uint) disputeIdByDisputeHash;//maps a hash to an ID for each dispute
+        mapping(bytes32 => uint) uintVars; 
+        //uint fields in the Tellor contract are saved the uintVars mapping
+        //e.g. uintVars[keccak256("decimals")] = uint
+            // keccak256("decimals");    //18 decimal standard ERC20
+            // keccak256("disputeFee");//cost to dispute a mined value
+            // keccak256("disputeCount");//totalHistoricalDisputes
+            // keccak256("total_supply"); //total_supply of the token in circulation
+            // keccak256("stakeAmount");//stakeAmount for miners (we can cut gas if we just hardcode it in...or should it be variable?)
+            // keccak256("stakerCount"); //number of parties currently staked
+            // keccak256("timeOfLastNewValue"); // time of last challenge solved
+            // keccak256("difficulty"); // Difficulty of current block
+            // keccak256("onDeckRequestId"); // apiId of the on queue request
+            // keccak256("onDeckTotalTips"); //value of highest api/timestamp PayoutPool
+            // keccak256("currentTotalTips"); //value of highest api/timestamp PayoutPool
+            // keccak256("currentRequestId"); //API being mined--updates with the ApiOnQ Id 
+            // keccak256("requestCount"); // total number of requests through the system
+            // keccak256("slotProgress");//Number of miners who have mined this value so far
+            // keccak256("miningReward");//Mining Reward in PoWo tokens given to all miners per value
+            // keccak256("timeTarget"); //The time between blocks (mined Oracle values)
+        mapping(bytes32 => mapping(address=>bool)) minersByChallenge;//This is a boolean that tells you if a given challenge has been completed by a given miner
+        mapping(uint => uint) requestIdByTimestamp;//minedTimestamp to apiId 
+        mapping(uint => uint) requestIdByRequestQIndex; //link from payoutPoolIndex (position in payout pool array) to apiId
+        mapping(uint => Dispute) disputesById;//disputeId=> Dispute details
+        mapping (address => Checkpoint[]) balances; //balances of a party given blocks
+        mapping(address => mapping (address => uint)) allowed; //allowance for a given party and approver
+        mapping(address => StakeInfo)  stakerDetails;//mapping from a persons address to their staking info
+        mapping(uint => Request) requestDetails;//mapping of apiID to details
+        mapping(bytes32 => uint) requestIdByQueryHash;// api bytes32 gets an id = to count of requests array
+        mapping(bytes32 => uint) disputeIdByDisputeHash;//maps a hash to an ID for each dispute
     }
 
     event Approval(address indexed _owner, address indexed _spender, uint256 _value);//ERC20 Approval event
@@ -121,9 +129,7 @@ library TellorGettersLibrary{
     event Voted(uint indexed _disputeID, bool _position, address indexed _voter);//emitted when a new vote happens
     
     //Tellor Getters
-
-
- /**
+    /**
     * @param _user address
     * @param _spender address
     * @return Returns the remaining allowance of tokens granted to the _spender from the _user
@@ -148,9 +154,9 @@ library TellorGettersLibrary{
         }
         return false;
     }
+
+
     /**
-    }
-    }
     * @dev Gets balance of owner specified
     * @param _user is the owner address used to look up the balance
     * @return Returns the balance associated with the passed in _user
@@ -160,8 +166,7 @@ library TellorGettersLibrary{
     }
 
     
-
-/**
+    /**
     * @dev Queries the balance of _user at a specific _blockNumber
     * @param _user The address from which the balance will be retrieved
     * @param _blockNumber The block number when the balance is queried
@@ -191,6 +196,8 @@ library TellorGettersLibrary{
         return checkpoints[min].value;
      }
     }
+
+
     /**
     * @dev This function tells you if a given challenge has been completed by a given miner
     * @param _challenge the challenge to search for
@@ -201,6 +208,7 @@ library TellorGettersLibrary{
         return self.minersByChallenge[_challenge][_miner];
     }
     
+
     /**
     * @dev Checks if an address voted in a dispute
     * @param _disputeId to look up
@@ -218,7 +226,7 @@ library TellorGettersLibrary{
         return self.addressVars[_data];
     }
 
-        /**
+    /**
     * @dev Gets all dispute variables
     * @param _disputeId to look up
     * @return address of reported miner
@@ -235,6 +243,8 @@ library TellorGettersLibrary{
         Dispute storage disp = self.disputesById[_disputeId];
         return(disp.hash,disp.executed, disp.disputeVotePassed, disp.isPropFork, disp.reportedMiner, disp.reportingParty,disp.proposedForkAddress,[disp.disputeUintVars[keccak256("requestId")], disp.disputeUintVars[keccak256("timestamp")], disp.disputeUintVars[keccak256("value")], disp.disputeUintVars[keccak256("minExecutionDate")], disp.disputeUintVars[keccak256("numberOfVotes")], disp.disputeUintVars[keccak256("blockNumber")], disp.disputeUintVars[keccak256("minerSlot")], disp.disputeUintVars[keccak256("quorum")]],disp.tally);
     }
+
+
     /**
     * @dev Getter function for currentChallenge difficulty
     * @return current challenge, MiningApiID, level of difficulty
@@ -242,6 +252,7 @@ library TellorGettersLibrary{
     function getCurrentVariables(TellorStorageStruct storage self) internal view returns(bytes32, uint, uint,string memory,uint,uint){    
         return (self.currentChallenge,self.uintVars[keccak256("currentRequestId")],self.uintVars[keccak256("difficulty")],self.requestDetails[self.uintVars[keccak256("currentRequestId")]].queryString,self.requestDetails[self.uintVars[keccak256("currentRequestId")]].apiUintVars[keccak256("granularity")],self.requestDetails[self.uintVars[keccak256("currentRequestId")]].apiUintVars[keccak256("totalTip")]);
     }
+
 
     /**
     * @dev Checks if a given hash of miner,apiId has been disputed
@@ -252,10 +263,10 @@ library TellorGettersLibrary{
         return  self.disputeIdByDisputeHash[_hash];
     }
 
+
     function getDisputeUintVars(TellorStorageStruct storage self,uint _disputeId,bytes32 _data) internal view returns(uint){
         return self.disputesById[_disputeId].disputeUintVars[_data];
     }
-
 
 
     /**
@@ -265,7 +276,9 @@ library TellorGettersLibrary{
     function getLastNewValue(TellorStorageStruct storage self) internal view returns(uint,bool){
         return (retrieveData(self,self.requestIdByTimestamp[self.uintVars[keccak256("timeOfLastNewValue")]], self.uintVars[keccak256("timeOfLastNewValue")]),true);
     }
-            /**
+
+
+    /**
     * @dev Gets blocknumber for mined timestamp 
     * @param _requestId to look up
     * @param _timestamp is the timestamp to look up blocknumber
@@ -274,6 +287,7 @@ library TellorGettersLibrary{
     function getMinedBlockNum(TellorStorageStruct storage self,uint _requestId, uint _timestamp) internal view returns(uint){
         return self.requestDetails[_requestId].minedBlockNum[_timestamp];
     }
+
 
     /**
     * @dev Gets the 5 miners who mined the value for the specified apiId/_timestamp 
@@ -285,13 +299,11 @@ library TellorGettersLibrary{
     }
 
 
-
-
     function getNewValueCountbyRequestId(TellorStorageStruct storage self, uint _requestId) internal view returns(uint){
         return self.requestDetails[_requestId].requestTimestamps.length;
     }
 
-        /**
+    /**
     * @dev Getter function for the apiId for the specified requestQ index
     * @param _index to look up the apiId
     * @return apiId
@@ -309,6 +321,7 @@ library TellorGettersLibrary{
     function getRequestIdByTimestamp(TellorStorageStruct storage self, uint _timestamp) internal view returns(uint){    
         return self.requestIdByTimestamp[_timestamp];
     }
+
     /**
     * @dev Getter function for apiId based on api hash
     * @param _queryHash string to check if it already has an apiId
@@ -319,15 +332,17 @@ library TellorGettersLibrary{
     }
 
 
-
     function getRequestQ(TellorStorageStruct storage self) view internal returns(uint[51] memory){
         return self.requestQ;
     }
 
+
     function getRequestUintVars(TellorStorageStruct storage self,uint _requestId,bytes32 _data) internal view returns(uint){
         return self.requestDetails[_requestId].apiUintVars[_data];
     }
-        /**
+
+
+    /**
     * @dev Gets the API struct variables that are not mappings
     * @param _requestId to look up
     * @return string of api to query
@@ -353,7 +368,7 @@ library TellorGettersLibrary{
     }
 
 
-        /**
+    /**
     * @dev Gets the 5 miners who mined the value for the specified apiId/_timestamp 
     * @param _requestId to look up
     * @param _timestamp is the timestampt to look up miners for
@@ -373,6 +388,7 @@ library TellorGettersLibrary{
         return self.uintVars[_data];
     }
 
+
     /**
     * @dev Getter function for api on queue
     * @return apionQ hash, id, payout, and api string
@@ -380,6 +396,8 @@ library TellorGettersLibrary{
     function getVariablesOnDeck(TellorStorageStruct storage self) internal view returns(uint, uint,string memory){    
         return (self.uintVars[keccak256("onDeckRequestId")],self.uintVars[keccak256("onDeckTotalTips")],self.requestDetails[self.uintVars[keccak256("onDeckRequestId")]].queryString);
     }
+
+
     /**
     * @dev Gets the 5 miners who mined the value for the specified apiId/_timestamp 
     * @param _requestId to look up
@@ -388,7 +406,8 @@ library TellorGettersLibrary{
     function isInDispute(TellorStorageStruct storage self, uint _requestId, uint _timestamp) internal view returns(bool){
         return self.requestDetails[_requestId].inDispute[_timestamp];
     }
-        //add tests for these
+
+    //add tests for these
     //should I just drop these?
     function name(TellorStorageStruct storage self) internal returns(string memory){
         return self._name;
@@ -414,6 +433,8 @@ library TellorGettersLibrary{
         self.addressVars[keccak256("tellorContract")]= _tellorContract;
         emit NewTellorAddress(_tellorContract);
     }
+
+
     /**
     * @dev Getter for the total_supply of oracle tokens
     * @return total supply
@@ -421,6 +442,5 @@ library TellorGettersLibrary{
     function totalSupply(TellorStorageStruct storage self) internal view returns (uint) {
        return self.uintVars[keccak256("total_supply")];
     }
-
 
 }
