@@ -145,9 +145,13 @@ library TellorLibrary{
     */
     function addTip(TellorStorageStruct storage self,uint _requestId, uint _tip) public {
         require(_requestId > 0);
+        
+        //If the tip > 0 transfer the tip to this contract
         if(_tip > 0){
             doTransfer(self,msg.sender,address(this),_tip);
         }
+        
+        //Update the information for the request that should be mined next based on the tip submitted
         updateOnDeck(self,_requestId,_tip,false);
         emit TipAdded(msg.sender,_requestId,_tip,self.requestDetails[_requestId].apiUintVars[keccak256("totalTip")]);
     }
@@ -202,7 +206,7 @@ library TellorLibrary{
     * @dev Queries the balance of _user at a specific _blockNumber
     * @param _user The address from which the balance will be retrieved
     * @param _blockNumber The block number when the balance is queried
-    * @return The balance at _blockNumber
+    * @return The balance at _blockNumber specified
     */
     function balanceOfAt(TellorStorageStruct storage self,address _user, uint _blockNumber) public view returns (uint) {
         if ((self.balances[_user].length == 0) || (self.balances[_user][0].fromBlock > _blockNumber)) {
@@ -247,6 +251,7 @@ library TellorLibrary{
         
         //maps the dispute hash to the disputeId
         self.disputeIdByDisputeHash[_hash] = disputeId;
+        //maps the dispute to the Dispute struct
         self.disputesById[disputeId] = Dispute({
             hash:_hash,
             isPropFork: false,
@@ -281,12 +286,15 @@ library TellorLibrary{
     */
      function depositStake(TellorStorageStruct storage self) public {
         require( balanceOf(self,msg.sender) >= self.uintVars[keccak256("stakeAmount")]);
+        
         //Ensure they can only stake if they are not currrently staked or if their stake time frame has ended 
         //and they are currently locked for witdhraw
         require(self.stakerDetails[msg.sender].currentStatus == 0 || self.stakerDetails[msg.sender].currentStatus == 2);
         self.uintVars[keccak256("stakerCount")] += 1;
         self.stakerDetails[msg.sender] = StakeInfo({
             currentStatus: 1,
+            
+            //this resets their stake start date to today
             startDate: now - (now % 86400)
             });
         emit NewStake(msg.sender);
@@ -345,6 +353,7 @@ library TellorLibrary{
     function proposeFork(TellorStorageStruct storage self, address _propNewTellorAddress) internal {
         bytes32 _hash = keccak256(abi.encodePacked(_propNewTellorAddress));
         require(self.disputeIdByDisputeHash[_hash] == 0);
+        //Should the fork fee be the same as the dispute fee??? should it be higher?
         doTransfer(self,msg.sender,address(this), self.uintVars[keccak256("disputeFee")]);//This is the fork fee
         self.uintVars[keccak256("disputeCount")]++;
         uint disputeId = self.uintVars[keccak256("disputeCount")];
@@ -375,8 +384,12 @@ library TellorLibrary{
     * mine the onDeckQueryHash, or the api with the highest payout pool
     */
     function requestData(TellorStorageStruct storage self,string memory _c_sapi,string memory _c_symbol, uint _requestId,uint _granularity, uint _tip) internal {
+        //Require at least one decimal place
         require(_granularity > 0);
+        
+        //But no more than 18 decimal places???
         require(_granularity <= 1e18);
+        
         //If the requestId is not provided check if the string Api (_c_s_sapi) and granularity has already been requested
         // and if it has been requested before then add the tip to it otherwise create the queryHash for it
         if(_requestId == 0){
@@ -385,6 +398,7 @@ library TellorLibrary{
             require(bytes(_sapi).length > 0);
             require(bytes(_symbol).length < 64);
             bytes32 _queryHash = keccak256(abi.encodePacked(_sapi,_granularity));
+            
             //If this is the first time the API and granularity combination has been requested then create the API and granularity hash 
             //otherwise the tip will be added to the requestId submitted
             if(self.requestIdByQueryHash[_queryHash] == 0){
@@ -400,7 +414,8 @@ library TellorLibrary{
                 self.requestDetails[_requestId].apiUintVars[keccak256("requestQPosition")] = 0;
                 self.requestDetails[_requestId].apiUintVars[keccak256("totalTip")] = 0;
                 self.requestIdByQueryHash[_queryHash] = _requestId;
-                //if the tip > 0 it tranfers the tip to this contract
+                
+                //If the tip > 0 it tranfers the tip to this contract
                 if(_tip > 0){
                     doTransfer(self,msg.sender,address(this),_tip);
                 }
@@ -423,10 +438,19 @@ library TellorLibrary{
     */
     function requestStakingWithdraw(TellorStorageStruct storage self) internal {
         StakeInfo storage stakes = self.stakerDetails[msg.sender];
+        //Require that the miner is staked
         require(stakes.currentStatus == 1);
+
+        //Change the miner staked to locked to be withdrawStake
         stakes.currentStatus = 2;
+
+        //Change the startDate to now since the lock up period begins now
+        //and the miner can only withdraw 7 days later from now(check the withdraw function)
         stakes.startDate = now -(now % 86400);
+
+        //Reduce the staker count
         self.uintVars[keccak256("stakerCount")] -= 1;
+
         emit StakeWithdrawRequested(msg.sender);
     }
 
@@ -438,31 +462,67 @@ library TellorLibrary{
     function tallyVotes(TellorStorageStruct storage self, uint _disputeId) internal {
         Dispute storage disp = self.disputesById[_disputeId];
         Request storage _request = self.requestDetails[disp.disputeUintVars[keccak256("requestId")]];
+
+        //Ensure this has not already been executed/tallied
         require(disp.executed == false);
+
+        //Ensure the time for voting has elapsed
         require(now > disp.disputeUintVars[keccak256("minExecutionDate")]);  
+
+        //If the vote is not a proposed fork 
         if (disp.isPropFork== false){
         StakeInfo storage stakes = self.stakerDetails[disp.reportedMiner];  
+            //If the vote for disputing a value is succesful(disp.tally >0) then unstake the reported 
+            // miner and transfer the stakeAmount and dispute fee to the reporting party 
             if (disp.tally > 0 ) { 
+
+                //Changing the currentStatus and startDate unstakes the reported miner and allows for the
+                //transfer of the stakeAmount
                 stakes.currentStatus = 0;
                 stakes.startDate = now -(now % 86400);
+
+                //Decreases the stakerCount since the miner's stake is being slashed
                 self.uintVars[keccak256("stakerCount")]--;
+
+                //Transfers the StakeAmount from the reporded miner to the reporting party
                 doTransfer(self,disp.reportedMiner,disp.reportingParty, self.uintVars[keccak256("stakeAmount")]);
+                
+                //Returns the dispute fee to the reportingParty
                 doTransfer(self,msg.sender,disp.reportingParty, self.uintVars[keccak256("disputeFee")]);
+                
+                //Set the dispute state to passed/true
                 disp.disputeVotePassed = true;
+
+                //If the dispute was succeful(miner found guilty) then update the timestamp value to zero
+                //so that users don't use this datapoint
                 if(_request.inDispute[disp.disputeUintVars[keccak256("timestamp")]] == true){
                     _request.finalValues[disp.disputeUintVars[keccak256("timestamp")]] = 0;
                 }
+
+            //If the vote for disputing a value is unsuccesful then update the miner status from being on 
+            //dispute(currentStatus=3) to staked(currentStatus =1) and tranfer the dispute fee to the miner
             } else {
+                //Update the miner's current status to staked(currentStatus = 1)
                 stakes.currentStatus = 1;
-                disp.executed = true;
+
+                //update the dispute status to executed
+                disp.executed = true;//???should this be right above the emit DisputeVoteTallied??? 
+
+                //Set the dispute state to failed/false
                 disp.disputeVotePassed = false;
+                
+                //tranfer the dispute fee to the miner
                 doTransfer(self,msg.sender,disp.reportedMiner, self.uintVars[keccak256("disputeFee")]);
                 if(_request.inDispute[disp.disputeUintVars[keccak256("timestamp")]] == true){
                     _request.inDispute[disp.disputeUintVars[keccak256("timestamp")]] = false;
                 }
             }
+
         emit DisputeVoteTallied(_disputeId,disp.tally,disp.reportedMiner,disp.reportingParty,disp.disputeVotePassed); 
+        //If the vote is for a proposed fork require a 20% quorum before exceduting the update to the new tellor contract address
         } else {
+            //require (disp.tally > 0 ); ??? should this be here too?
+            //requires a 20% quorum
             require(disp.disputeUintVars[keccak256("quorum")] >  (self.uintVars[keccak256("total_supply")] * 20 / 100));
             self.addressVars[keccak256("tellorContract")] = disp.proposedForkAddress;
             emit NewTellorAddress(disp.proposedForkAddress);
@@ -583,8 +643,8 @@ library TellorLibrary{
             self.requestDetails[self.uintVars[keccak256("onDeckRequestId")]].apiUintVars[keccak256("totalTip")] = 0;
             uint[2] memory nums; //reusable number array -- _amount,_paid,payoutMultiplier
             
-            //if the currentRequestId is not zero(currentRequestId exists/something is being mined???) select the requestId with the hightest payout 
-            //and issue a challenge otherwise dont mine???????
+            //if the currentRequestId is not zero(currentRequestId exists/something is being mined) select the requestId with the hightest payout 
+            //and issue a challenge otherwise dont mine??????? what is the else???
             if(self.uintVars[keccak256("currentRequestId")] > 0){
                 
                 //gets the max tip in the in the requestQ[51] array and its index within the array??
@@ -649,6 +709,7 @@ library TellorLibrary{
         //set Constants
         self.uintVars[keccak256("decimals")] = 18;
         self.uintVars[keccak256("disputeFee")] = 1e18;
+        self.uintVars[keccak256("disputeFee")] = 1e18;
         self.uintVars[keccak256("stakeAmount")] = 1000e18;
         self.uintVars[keccak256("timeTarget")]= 10 * 60;
         self.uintVars[keccak256("timeOfLastNewValue")] = now - now  % self.uintVars[keccak256("timeTarget")];
@@ -689,8 +750,8 @@ library TellorLibrary{
 
 
     /**
-         * @dev Allows the current owner to transfer control of the contract to a newOwner.
-         * @param _newOwner The address to transfer ownership to.
+    * @dev Allows the current owner to transfer control of the contract to a newOwner.
+    * @param _newOwner The address to transfer ownership to.
     */
     function transferOwnership(TellorStorageStruct storage self,address payable _newOwner) internal {
             require(msg.sender == self.addressVars[keccak256("_owner")]);
@@ -724,14 +785,16 @@ library TellorLibrary{
     */
     function updateOnDeck(TellorStorageStruct storage self,uint _requestId, uint _tip,bool _mine) internal {
         Request storage _request = self.requestDetails[_requestId];
-        //If the tip >0 for update the tip for the requestId
+        //If the tip >0 update the tip for the requestId
         if (_tip > 0){
             _request.apiUintVars[keccak256("totalTip")] = _request.apiUintVars[keccak256("totalTip")].add(_tip);
         }
-        //Set _payout for that api request
+        //Set _payout for the submitted request
         uint _payout = _request.apiUintVars[keccak256("totalTip")];
-        //If there is no current request set the currentRequestId to the requestid for the requestData submitted or addtip request submitted,
-        // the totalTips to the payout/tip submitted, and issue a new mining challenge challenge
+        
+        //If there is no current request being mined
+        //then set the currentRequestId to the requestid of the requestData or addtip requestId submitted,
+        // the totalTips to the payout/tip submitted, and issue a new mining challenge
         if(self.uintVars[keccak256("currentRequestId")] == 0){
             _request.apiUintVars[keccak256("totalTip")] = 0;
             self.uintVars[keccak256("currentRequestId")] = _requestId;
@@ -741,13 +804,14 @@ library TellorLibrary{
         }
         else{
 
-            //If a request is being mined then add the requestId is currently the one with the 
-            // highest payout (about to be mined next) then 
+            //If a request is being mined and the _requestId submitted is the request next in line to be mined(OnDeckRequestId)
+            // then add the _payout to the OnDeckRequestId 
             if(_requestId == self.uintVars[keccak256("onDeckRequestId")]){
                 self.uintVars[keccak256("onDeckTotalTips")] = _payout;
             }
+            
             //if the _payout/tip for the submitted request is higher than the OnDecktotaltips
-            //or the there is no OnDeckRequestId  && it has not been mined ???
+            //or the there is no OnDeckRequestId  && it has not been mined ??? wha is "_mine == false"
             //then replace/add the requestId to be the OnDeckRequestId, queryHash and OnDeckTotalTips(current highest payout, aside from what
             //is being currently mined)
             else if (_payout > self.uintVars[keccak256("onDeckTotalTips")] || (self.uintVars[keccak256("onDeckRequestId")] == 0) && _mine == false) {
@@ -759,7 +823,7 @@ library TellorLibrary{
             }
             
             //if the request is not part of the requestQ[51] array and it is not currenlty being mined???
-            //then add to the requestQ[51] only if the _payout/tip is greater than the minimum
+            //then add to the requestQ[51] only if the _payout/tip is greater than the minimum(tip) in the requestQ[51] array
             if(_request.apiUintVars[keccak256("requestQPosition")] == 0 && _mine == false){
                 uint _min;
                 uint _index;
@@ -772,6 +836,7 @@ library TellorLibrary{
                     _request.apiUintVars[keccak256("requestQPosition")] = _index;
                 }
             }
+            //else if the requestid is part of the requestQ[51] then update the tip for it
             else if (_tip > 0 && _mine == false){
                 self.requestQ[_request.apiUintVars[keccak256("requestQPosition")]] += _tip;
             }
@@ -786,18 +851,37 @@ library TellorLibrary{
     */
     function vote(TellorStorageStruct storage self, uint _disputeId, bool _supportsDispute) internal {
         Dispute storage disp = self.disputesById[_disputeId];
+        
+        //Get the voteWeight or the balance of the user at the time/blockNumber the disupte began
         uint voteWeight = balanceOfAt(self,msg.sender,disp.disputeUintVars[keccak256("blockNumber")]);
+        
+        //Require that the msg.sender has not voted
         require(disp.voted[msg.sender] != true);
+        
+        //Requre that the user had a balance >0 at time/blockNumber the disupte began
         require(voteWeight > 0);
+        
+        //ensures miners that are under dispute cannot vote
         require(self.stakerDetails[msg.sender].currentStatus != 3);
+        
+        //Update user voting status to true
         disp.voted[msg.sender] = true;
+        
+        //Update the number of votes for the dispute
         disp.disputeUintVars[keccak256("numberOfVotes")] += 1;
-        disp.disputeUintVars[keccak256("quorum")] += voteWeight; //NEW
+        
+        //Update the quorum by adding the voteWeight
+        disp.disputeUintVars[keccak256("quorum")] += voteWeight; 
+        
+        //If the user supports the dispute increase the tally for the dispute by the voteWeight
+        //otherwise decrease it
         if (_supportsDispute) {
             disp.tally = disp.tally + int(voteWeight);
         } else {
             disp.tally = disp.tally - int(voteWeight);
         }
+        
+        //Let the network know the user has voted on the dispute and their casted vote
         emit Voted(_disputeId,_supportsDispute,msg.sender);
     }
 
@@ -808,7 +892,11 @@ library TellorLibrary{
     function withdrawStake(TellorStorageStruct storage self) internal {
         StakeInfo storage stakes = self.stakerDetails[msg.sender];
         uint _today = now - (now % 86400);
+
+        //Require the staker has locked for withdraw(currentStatus ==2) and that 7 days have 
+        //passed by since they locked for withdraw
         require(_today - stakes.startDate >= 7 days && stakes.currentStatus == 2);
+
         stakes.currentStatus = 0;
         emit StakeWithdrawn(msg.sender);
     }

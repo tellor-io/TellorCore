@@ -139,9 +139,10 @@ library TellorGettersLibrary{
 
 
     /**
-     *@dev This function returns whether or not a given user is allowed to trade a given amount  
-     *@param address of user
-     *@param address of amount
+    * @dev This function returns whether or not a given user is allowed to trade a given amount  
+    * @param address of user
+    * @param address of amount
+    * @return true if the user is alloed to trade the amount specified
     */
     function allowedToTrade(TellorStorageStruct storage self,address _user,uint _amount) internal view returns(bool){
         if(self.stakerDetails[_user].currentStatus >0){
@@ -219,9 +220,12 @@ library TellorGettersLibrary{
         return self.disputesById[_disputeId].voted[_address];
     }
 
-
-    //self.addressVars[keccak256("_owner")]
-    //addressVars[keccak256("tellorContract")]
+    /**
+    * @dev allows Tellor to read data from the addressVars mapping
+    * @param _data is the keccak256("data") of the variable that is being accessed. For example:
+    * self.addressVars[keccak256("_owner")]
+    * addressVars[keccak256("tellorContract")]
+    **/
     function getAddressVars(TellorStorageStruct storage self, bytes32 _data) view internal returns(address){
         return self.addressVars[_data];
     }
@@ -264,11 +268,18 @@ library TellorGettersLibrary{
     }
 
 
+    /**
+    * @dev Checks for uint variables in the disputeUintVars mapping based on the disuputeId
+    * @param _disputeId is the dispute id;
+    * @param _data is the the keccak256("_data") the parameters saved in this mapping are commented 
+    * in the Dispute struct above under the disputeUintVars mapping
+    * @return uint value for the bytes32 data submitted
+    */
     function getDisputeUintVars(TellorStorageStruct storage self,uint _disputeId,bytes32 _data) internal view returns(uint){
         return self.disputesById[_disputeId].disputeUintVars[_data];
     }
 
-
+    
     /**
     * @dev Gets the a value for the latest timestamp available
     * @return value for timestamp of last proof of work submited
