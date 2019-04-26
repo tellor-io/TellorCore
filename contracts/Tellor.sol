@@ -23,15 +23,13 @@ contract Tellor /* is TellorGetters*/{
         tellor.theLazyCoon(_address,_amount);
     }
 
-
-    /**
-    * @dev Add tip to Request value from oracle
-    * @param _requestId being requested to be mined
-    * @param _tip amount the requester is willing to pay to be get on queue. Miners
-    * mine the onDeckQueryHash, or the api with the highest payout pool
+    /*
+    * @dev This function gives 5 miners the inital staked tokens in the system.  
+    * It would run with the constructor, but throws on too much gas
+    * It only runs once or only when the requestCount is zero. 
     */
-    function addTip(uint _requestId, uint _tip) external {
-        tellor.addTip(_requestId,_tip);
+    function tellorPostConstructor() external {
+        tellor.tellorPostConstructor();
     }
 
 
@@ -43,6 +41,13 @@ contract Tellor /* is TellorGetters*/{
     */
     function approve(address _spender, uint _amount) external returns (bool) {
         return tellor.approve(_spender,_amount);
+    }
+
+    /**
+    * @dev This function allows miners to deposit their stake.
+    */
+    function depositStake() external {
+        tellor.depositStake();
     }
 
 
@@ -59,13 +64,6 @@ contract Tellor /* is TellorGetters*/{
         tellor.beginDispute(_requestId,_timestamp,_minerIndex);
     }
 
-    /**
-    * @dev This function allows miners to deposit their stake.
-    */
-    function depositStake() external {
-        tellor.depositStake();
-    }
-
 
     /**
     * @dev Allows for a fork to be proposed
@@ -76,7 +74,18 @@ contract Tellor /* is TellorGetters*/{
     }
 
 
-   /**
+    /**
+    * @dev Add tip to Request value from oracle
+    * @param _requestId being requested to be mined
+    * @param _tip amount the requester is willing to pay to be get on queue. Miners
+    * mine the onDeckQueryHash, or the api with the highest payout pool
+    */
+    function addTip(uint _requestId, uint _tip) external {
+        tellor.addTip(_requestId,_tip);
+    }
+
+
+    /**
     * @dev Request to retreive value from oracle based on timestamp. The tip is not required to be 
     * greater than 0 because there are no tokens in circulation for the initial(genesis) request 
     * @param _c_sapi string API being requested be mined
@@ -102,17 +111,6 @@ contract Tellor /* is TellorGetters*/{
 
 
     /**
-    * @dev Proof of work is called by the miner when they submit the solution (proof of work and value)
-    * @param _nonce uint submitted by miner
-    * @param _requestId the apiId being mined
-    * @param _value of api query
-    */
-    function submitMiningSolution(string calldata _nonce, uint _requestId, uint _value) external{
-        tellor.submitMiningSolution(_nonce,_requestId,_value);
-    }
-
-
-        /**
     * @dev tallies the votes.
     * @param _disputeId is the dispute id
     */
@@ -121,8 +119,14 @@ contract Tellor /* is TellorGetters*/{
     }
 
 
-    function tellorPostConstructor() external {
-        tellor.tellorPostConstructor();
+    /**
+    * @dev Proof of work is called by the miner when they submit the solution (proof of work and value)
+    * @param _nonce uint submitted by miner
+    * @param _requestId the apiId being mined
+    * @param _value of api query
+    */
+    function submitMiningSolution(string calldata _nonce, uint _requestId, uint _value) external{
+        tellor.submitMiningSolution(_nonce,_requestId,_value);
     }
 
 
@@ -151,8 +155,8 @@ contract Tellor /* is TellorGetters*/{
 
 
     /**
-         * @dev Allows the current owner to transfer control of the contract to a newOwner.
-         * @param _newOwner The address to transfer ownership to.
+    * @dev Allows the current owner to transfer control of the contract to a newOwner.
+    * @param _newOwner The address to transfer ownership to.
     */
     function transferOwnership(address payable _newOwner) external {
         tellor.transferOwnership(_newOwner);

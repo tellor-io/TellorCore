@@ -138,6 +138,53 @@ library TellorLibrary{
         updateBalanceAtNow(self.balances[_address],_amount);
     }
 
+    /*
+    * @dev This function gives 5 miners the inital staked tokens in the system.  
+    * It would run with the constructor, but throws on too much gas
+    * It only runs once or only when the requestCount is zero. 
+    */
+    function tellorPostConstructor(TellorStorageStruct storage self) public{
+        require(self.uintVars[keccak256("requestCount")] == 0);
+        //Give this contract 5000 Tellor Tributes so that it can stake the initial 5 miners
+        updateBalanceAtNow(self.balances[address(this)], 2**256-1 - 5000e18);
+
+        //the initial 5 miner addresses are specfied below
+        address payable[5] memory _initalMiners = [address(0xE037EC8EC9ec423826750853899394dE7F024fee),
+        address(0xcdd8FA31AF8475574B8909F135d510579a8087d3),
+        address(0xb9dD5AfD86547Df817DA2d0Fb89334A6F8eDd891),
+        address(0x230570cD052f40E14C14a81038c6f3aa685d712B),
+        address(0x3233afA02644CCd048587F8ba6e99b3C00A34DcC)];
+        //Stake each of the 5 miners specified above
+        for(uint i=0;i<5;i++){
+            updateBalanceAtNow(self.balances[_initalMiners[i]],1000e18);
+            self.stakerDetails[_initalMiners[i]] = StakeInfo({
+                currentStatus: 1,
+                startDate: now - (now % 86400)
+                });
+            emit NewStake(_initalMiners[i]);
+        }
+        //update the stakers coutn
+        self.uintVars[keccak256("stakerCount")] += 5;
+        //update the total suppply
+        self.uintVars[keccak256("total_supply")] += 5000e18;
+        //Initiate requestQ array...is there a better way?
+        for(uint i = 49;i > 0;i--) {
+            self.requestQ[i] = 0;
+        }
+        //set Constants
+        self.uintVars[keccak256("decimals")] = 18;
+        self.uintVars[keccak256("disputeFee")] = 1e18;
+        self.uintVars[keccak256("disputeFee")] = 1e18;
+        self.uintVars[keccak256("stakeAmount")] = 1000e18;
+        self.uintVars[keccak256("timeTarget")]= 10 * 60;
+        self.uintVars[keccak256("timeOfLastNewValue")] = now - now  % self.uintVars[keccak256("timeTarget")];
+        self.uintVars[keccak256("difficulty")] = 1;
+        self.uintVars[keccak256("miningReward")] = 22e18;
+        self.miningRewardDistributions =  [1e18,5e18,10e18,5e18,1e18]; 
+        self._name = "Tellor Tributes";
+        self._symbol = "TT";
+    }
+
 
     /**
     * @dev This function returns whether or not a given user is allowed to trade a given amount 
@@ -199,28 +246,6 @@ library TellorLibrary{
      }
     }
 
-
-
-    /**
-    * @dev This function allows miners to deposit their stake.
-    */
-     function depositStake(TellorStorageStruct storage self) public {
-        require( balanceOf(self,msg.sender) >= self.uintVars[keccak256("stakeAmount")]);
-        
-        //Ensure they can only stake if they are not currrently staked or if their stake time frame has ended 
-        //and they are currently locked for witdhraw
-        require(self.stakerDetails[msg.sender].currentStatus == 0 || self.stakerDetails[msg.sender].currentStatus == 2);
-        self.uintVars[keccak256("stakerCount")] += 1;
-        self.stakerDetails[msg.sender] = StakeInfo({
-            currentStatus: 1,
-            
-            //this resets their stake start date to today
-            startDate: now - (now % 86400)
-            });
-        emit NewStake(msg.sender);
-    }
-
-
     /** 
     * @dev Completes POWO transfers by updating the balances on the current block number
     * @param _from address to transfer from
@@ -264,6 +289,29 @@ library TellorLibrary{
         }
         return checkpoints[min].value;
     }
+
+
+
+    /**
+    * @dev This function allows miners to deposit their stake.
+    */
+     function depositStake(TellorStorageStruct storage self) public {
+        require( balanceOf(self,msg.sender) >= self.uintVars[keccak256("stakeAmount")]);
+        
+        //Ensure they can only stake if they are not currrently staked or if their stake time frame has ended 
+        //and they are currently locked for witdhraw
+        require(self.stakerDetails[msg.sender].currentStatus == 0 || self.stakerDetails[msg.sender].currentStatus == 2);
+        self.uintVars[keccak256("stakerCount")] += 1;
+        self.stakerDetails[msg.sender] = StakeInfo({
+            currentStatus: 1,
+            
+            //this resets their stake start date to today
+            startDate: now - (now % 86400)
+            });
+        emit NewStake(msg.sender);
+    }
+
+
 
     /**
     * @dev Helps initialize a dispute by assigning it a disputeId 
@@ -328,6 +376,32 @@ library TellorLibrary{
         emit NewDispute(disputeId,_requestId,_timestamp,_miner);
     }
 
+    /**
+    * @dev Allows for a transfer of tokens to _to
+    * @param _to The address to send tokens to
+    * @param _amount The amount of tokens to send
+    * @return true if transfer is successful
+    */
+     function transfer(TellorStorageStruct storage self, address _to, uint256 _amount) internal returns (bool success) {
+        doTransfer(self,msg.sender, _to, _amount);
+        return true;
+    }
+
+
+    /**
+    * @notice Send _amount tokens to _to from _from on the condition it
+    * is approved by _from
+    * @param _from The address holding the tokens being transferred
+    * @param _to The address of the recipient
+    * @param _amount The amount of tokens to be transferred
+    * @return True if the transfer was successful
+    */
+    function transferFrom(TellorStorageStruct storage self, address _from, address _to, uint256 _amount) internal returns (bool success) {
+        require(self.allowed[_from][msg.sender] >= _amount);
+        self.allowed[_from][msg.sender] -= _amount;
+        doTransfer(self,_from, _to, _amount);
+        return true;
+    }
 
     /**
     * @dev Allows for a fork to be proposed
@@ -355,8 +429,26 @@ library TellorLibrary{
         self.disputesById[disputeId].disputeUintVars[keccak256("minExecutionDate")] = now + 7 days;
     }
 
+    /**
+    * @dev Add tip to Request value from oracle
+    * @param _requestId being requested to be mined
+    * @param _tip amount the requester is willing to pay to be get on queue. Miners
+    * mine the onDeckQueryHash, or the api with the highest payout pool
+    */
+    function addTip(TellorStorageStruct storage self,uint _requestId, uint _tip) public {
+        require(_requestId > 0);
+        
+        //If the tip > 0 transfer the tip to this contract
+        if(_tip > 0){
+            doTransfer(self,msg.sender,address(this),_tip);
+        }
+        
+        //Update the information for the request that should be mined next based on the tip submitted
+        updateOnDeck(self,_requestId,_tip,false);
+        emit TipAdded(msg.sender,_requestId,_tip,self.requestDetails[_requestId].apiUintVars[keccak256("totalTip")]);
+    }
 
-   /**
+    /**
     * @dev Request to retreive value from oracle based on timestamp. The tip is not required to be 
     * greater than 0 because there are no tokens in circulation for the initial(genesis) request 
     * @param _c_sapi string API being requested be mined
@@ -370,7 +462,7 @@ library TellorLibrary{
         //Require at least one decimal place
         require(_granularity > 0);
         
-        //But no more than 18 decimal places???
+        //But no more than 18 decimal places
         require(_granularity <= 1e18);
         
         //If the requestId is not provided check if the string Api (_c_s_sapi) and granularity has already been requested
@@ -415,26 +507,7 @@ library TellorLibrary{
         }
     }
     
-    /**
-    * @dev Add tip to Request value from oracle
-    * @param _requestId being requested to be mined
-    * @param _tip amount the requester is willing to pay to be get on queue. Miners
-    * mine the onDeckQueryHash, or the api with the highest payout pool
-    */
-    function addTip(TellorStorageStruct storage self,uint _requestId, uint _tip) public {
-        require(_requestId > 0);
-        
-        //If the tip > 0 transfer the tip to this contract
-        if(_tip > 0){
-            doTransfer(self,msg.sender,address(this),_tip);
-        }
-        
-        //Update the information for the request that should be mined next based on the tip submitted
-        updateOnDeck(self,_requestId,_tip,false);
-        emit TipAdded(msg.sender,_requestId,_tip,self.requestDetails[_requestId].apiUintVars[keccak256("totalTip")]);
-    }
 
-    
     /**
     * @dev This function allows stakers to request to withdraw their stake (no longer stake) 
     * once they lock for withdraw(stakes.currentStatus = 2) they are locked for 7 days before they 
@@ -674,81 +747,6 @@ library TellorLibrary{
                 self.currentChallenge = "";
             }
         }
-    }
-
-
-    /*
-    * @dev This function gives 5 miners the inital staked tokens in the system.  
-    * It would run with the constructor, but throws on too much gas
-    */
-    function tellorPostConstructor(TellorStorageStruct storage self) public{
-        require(self.uintVars[keccak256("requestCount")] == 0);
-        //Give this contract 5000 Tellor Tributes so that it can stake the initial 5 miners
-        updateBalanceAtNow(self.balances[address(this)], 2**256-1 - 5000e18);
-
-        //the initial 5 miner addresses are specfied below
-        address payable[5] memory _initalMiners = [address(0xE037EC8EC9ec423826750853899394dE7F024fee),
-        address(0xcdd8FA31AF8475574B8909F135d510579a8087d3),
-        address(0xb9dD5AfD86547Df817DA2d0Fb89334A6F8eDd891),
-        address(0x230570cD052f40E14C14a81038c6f3aa685d712B),
-        address(0x3233afA02644CCd048587F8ba6e99b3C00A34DcC)];
-        //Stake each of the 5 miners specified above
-        for(uint i=0;i<5;i++){
-            updateBalanceAtNow(self.balances[_initalMiners[i]],1000e18);
-            self.stakerDetails[_initalMiners[i]] = StakeInfo({
-                currentStatus: 1,
-                startDate: now - (now % 86400)
-                });
-            emit NewStake(_initalMiners[i]);
-        }
-        //update the stakers coutn
-        self.uintVars[keccak256("stakerCount")] += 5;
-        //update the total suppply
-        self.uintVars[keccak256("total_supply")] += 5000e18;
-        //Initiate requestQ array...is there a better way?
-        for(uint i = 49;i > 0;i--) {
-            self.requestQ[i] = 0;
-        }
-        //set Constants
-        self.uintVars[keccak256("decimals")] = 18;
-        self.uintVars[keccak256("disputeFee")] = 1e18;
-        self.uintVars[keccak256("disputeFee")] = 1e18;
-        self.uintVars[keccak256("stakeAmount")] = 1000e18;
-        self.uintVars[keccak256("timeTarget")]= 10 * 60;
-        self.uintVars[keccak256("timeOfLastNewValue")] = now - now  % self.uintVars[keccak256("timeTarget")];
-        self.uintVars[keccak256("difficulty")] = 1;
-        self.uintVars[keccak256("miningReward")] = 22e18;
-        self.miningRewardDistributions =  [1e18,5e18,10e18,5e18,1e18]; 
-        self._name = "Tellor Tributes";
-        self._symbol = "TT";
-    }
-
-
-    /**
-    * @dev Allows for a transfer of tokens to _to
-    * @param _to The address to send tokens to
-    * @param _amount The amount of tokens to send
-    * @return true if transfer is successful
-    */
-     function transfer(TellorStorageStruct storage self, address _to, uint256 _amount) internal returns (bool success) {
-        doTransfer(self,msg.sender, _to, _amount);
-        return true;
-    }
-
-
-    /**
-    * @notice Send _amount tokens to _to from _from on the condition it
-    * is approved by _from
-    * @param _from The address holding the tokens being transferred
-    * @param _to The address of the recipient
-    * @param _amount The amount of tokens to be transferred
-    * @return True if the transfer was successful
-    */
-    function transferFrom(TellorStorageStruct storage self, address _from, address _to, uint256 _amount) internal returns (bool success) {
-        require(self.allowed[_from][msg.sender] >= _amount);
-        self.allowed[_from][msg.sender] -= _amount;
-        doTransfer(self,_from, _to, _amount);
-        return true;
     }
 
 

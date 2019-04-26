@@ -11,8 +11,8 @@ import "./libraries/TellorGettersLibrary.sol";
 * @dev Failure to do so will result in errors with the fallback proxy
 */
 
-//add in base getters for eternal storage
-//add in getters for public variables
+//add in base getters for eternal storage ???
+//add in getters for public variables ???
 
 contract TellorGetters{
     using SafeMath for uint256;

@@ -6,13 +6,17 @@ import "./libraries/TellorGettersLibrary.sol";
 
 contract TellorMaster is TellorGetters{
     /**
-     * @dev The constructor sets the original `tellorStorageOwner` of the contract to the sender
-     * account.
+    * @dev The constructor sets the original `tellorStorageOwner` of the contract to the sender
+    * account.
     */
     constructor (address _tellorContract)  public{
         tellor.tellorMasterConstructor(_tellorContract);
     }
 
+
+    /**
+    @dev this fuction allows for delegate calls to the Tellor contract.???
+    */
     function () external payable {
         address addr = tellor.addressVars[keccak256("tellorContract")];
         bytes memory _calldata = msg.data;
@@ -29,6 +33,7 @@ contract TellorMaster is TellorGetters{
     }
 
 }
+
 
         // Test this one:
         //     let result := delegatecall(not(0), addr, add(_calldata, 0x20), mload(_calldata), 0, 0)
