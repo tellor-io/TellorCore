@@ -188,4 +188,5 @@ contract('Token and Staking Tests', function(accounts) {
         apiVars= await oracle.getRequestVars(1)
         assert(apiVars[2] == web3.utils.soliditySha3({t:'string',v:api},{t:'uint256',v:1000}), "api on Q should be apiId");
     });
+
 });

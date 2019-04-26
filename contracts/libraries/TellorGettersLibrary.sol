@@ -160,8 +160,8 @@ library TellorGettersLibrary{
 
     /**
     * @dev This function returns whether or not a given user is allowed to trade a given amount  
-    * @param address of user
-    * @param address of amount
+    * @param _user address 
+    * @param _amount of amount
     * @return true if the user is alloed to trade the amount specified
     */
     function allowedToTrade(TellorStorageStruct storage self,address _user,uint _amount) internal view returns(bool){
@@ -179,7 +179,7 @@ library TellorGettersLibrary{
 
     /**
     * @dev Gets balance of owner specified
-    * @param _user is the owner address used to look up the balance
+    * @param _user address is the owner address used to look up the balance
     * @return Returns the balance associated with the passed in _user
     */
     function balanceOf(TellorStorageStruct storage self,address _user) internal view returns (uint) { 
@@ -380,7 +380,8 @@ library TellorGettersLibrary{
 
     /**
     * @dev Getter function for requestId based on the qeuaryHash
-    * @param _queryHash hash(of string api and granularity) to check if a request already exists
+    * 
+     hash(of string api and granularity) to check if a request already exists
     * @return uint requestId
     */
     function getRequestIdByQueryHash(TellorStorageStruct storage self, bytes32 _queryHash) internal view returns(uint){    
@@ -428,7 +429,7 @@ library TellorGettersLibrary{
 
     /**
     * @dev This function allows users to retireve all information about a staker
-    * @param address of staker inquiring about
+    * @param _staker address of staker inquiring about
     * @return uint current state of staker
     * @return uint startDate of staking
     */
@@ -451,7 +452,7 @@ library TellorGettersLibrary{
     * @dev Gets the timestamp for the value based on their index
     * @param _requestID is the requestId to look up
     * @param _index is the value index to look up
-    * @returns uint timestamp
+    * @return uint timestamp
     */
     function getTimestampbyRequestIDandIndex(TellorStorageStruct storage self,uint _requestID, uint _index) internal view returns(uint){
         return self.requestDetails[_requestID].requestTimestamps[_index];
@@ -497,7 +498,7 @@ library TellorGettersLibrary{
     */
     //add tests for these
     //should I just drop these?
-    function name(TellorStorageStruct storage self) internal returns(string memory){
+    function getName(TellorStorageStruct storage self) internal returns(string memory){
         return self._name;
     }
 
@@ -506,7 +507,7 @@ library TellorGettersLibrary{
     * @dev Get the symbol of the token
     * return string of the token symbol
     */
-    function symbol(TellorStorageStruct storage self) internal returns(string memory){
+    function getSymbol(TellorStorageStruct storage self) internal returns(string memory){
         return self._symbol;
     } 
 

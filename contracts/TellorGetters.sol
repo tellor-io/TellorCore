@@ -30,8 +30,8 @@ contract TellorGetters{
 
     /**
     * @dev This function returns whether or not a given user is allowed to trade a given amount  
-    * @param address of user
-    * @param address of amount
+    * @param _user address
+    * @param _amount uint of amount
     * @return true if the user is alloed to trade the amount specified
     */
     function allowedToTrade(address _user,uint _amount) external view returns(bool){
@@ -208,8 +208,8 @@ contract TellorGetters{
     }
 
     /**
-    * @dev Getter function for requestId based on the qeuaryHash
-    * @param _queryHash hash(of string api and granularity) to check if a request already exists
+    * @dev Getter function for requestId based on the queryHash
+    * @param _request is the hash(of string api and granularity) to check if a request already exists
     * @return uint requestId
     */
     function getRequestIdByQueryHash(bytes32 _request) external view returns(uint){    
@@ -256,7 +256,7 @@ contract TellorGetters{
 
     /**
     * @dev This function allows users to retireve all information about a staker
-    * @param address of staker inquiring about
+    * @param _staker address of staker inquiring about
     * @return uint current state of staker
     * @return uint startDate of staking
     */
@@ -278,7 +278,7 @@ contract TellorGetters{
     * @dev Gets the timestamp for the value based on their index
     * @param _requestID is the requestId to look up
     * @param _index is the value index to look up
-    * @returns uint timestamp
+    * @return uint timestamp
     */
     function getTimestampbyRequestIDandIndex(uint _requestID, uint _index) external view returns(uint){
         return tellor.getTimestampbyRequestIDandIndex(_requestID,_index);
@@ -323,8 +323,8 @@ contract TellorGetters{
     * @dev Get the name of the token
     * return string of the token name
     */
-    function name() internal returns(string memory){
-        return tellor.name();
+    function getName() external returns(string memory){
+        return tellor.getName();
     }
 
 
@@ -332,8 +332,8 @@ contract TellorGetters{
     * @dev Get the symbol of the token
     * return string of the token symbol
     */
-    function symbol() internal returns(string memory){
-        return tellor.symbol();
+    function getSymbol() external returns(string memory){
+        return tellor.getSymbol();
     } 
 
 

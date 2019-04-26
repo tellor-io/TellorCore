@@ -40,6 +40,19 @@ contract('Mining Tests', function(accounts) {
         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000, data: web3.utils.keccak256("tellorPostConstructor()")})
         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",0,1000,0).encodeABI()})
     });
+
+    it("Get Symbol", async function(){
+        let symbol = await oracle.getSymbol();
+        console.log("symbol", symbol);
+        //assert.equal(symbol,"TT","the Symbol should be TT");
+    });
+
+    it("Get name", async function(){
+        let name = await oracle.getName();
+        console.log("name", name);
+        //assert.equal(name,"Tellor Tributes","the Symbol should be Tellor Tributes");
+    });
+
     it("getStakersCount", async function(){
         let count = await oracle.getUintVar(web3.utils.keccak256("stakerCount"))
         assert(web3.utils.hexToNumberString(count)==5, "count is 5");

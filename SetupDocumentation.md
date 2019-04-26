@@ -39,11 +39,12 @@ The documentation is broken down into four parts: steps for setting up, quick in
 ### Operator Setup <a name="operator-setup"> </a>  
 The setup documentation is noted for acting as the operator. Specific contract details are laid out for ease of use regardless of dev environment. 
 
-**Step 1: Operator - Deploy Oracle.sol**  
-The first deployed Oracle.sol.
+**Step 1: Operator - Deploy Tellor.sol**  
+The first deployed Tellor.sol.
 
 ```solidity
-Oracle()
+Tellor();
+TellorMaster(Tellor.address); //where the tellor.address is the address of the deployed Tellor() above.
 ```
 Congrats!!
 
@@ -87,7 +88,7 @@ Follow the steps below to launch the Oracle contracts using Truffle.
 Production and test python miners are available under the miner subdirectory [here](./miner/). You will need to get at least 5 miners running.
 
 ### User functions <a name="user-fx"> </a>  
-Once the operator deploys the Oracle. Users can buy the ERC-20 PoWO token via an exchange or mine them.
+Once the operator deploys the Tellor Oracle. Users can buy the ERC-20 Tellor Tributes (TT) token via an exchange or mine them.
 
 To request data, users will need Tributes to call this function:
 * <b>requestData</b> function allows the user to specify the API, timestamp and tip (this can be thought of as “gas”, the higher the tip/payout the higher the probability it will get mined next) for the value they are requesting.  If multiple parties are requesting the same data at the same time, their tips are combined to further incentivize miners at that time period and/or API. 
