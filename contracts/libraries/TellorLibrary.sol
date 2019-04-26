@@ -6,7 +6,7 @@ import "./Utilities.sol";
 /**
  * @title Tellor Oracle System Library
  * @dev Contains the functions' logic for the Tellor contract where miners can submit the proof of work along with the value.
- * @dev Note at the top is the struct.  THE STRUCT SHOULD ALWAYS BE THE SAME AS TELLORGETTERS.SOL
+ * @dev Note at the top is the struct.  THE STRUCT SHOULD ALWAYS BE THE SAME AS TellorGettersLibrary.SOL
  * @dev Failure to do so will result in errors with the fallback proxy
  */
 library TellorLibrary{
@@ -39,14 +39,17 @@ library TellorLibrary{
             // uint keccak256("quorum"); //quorum for dispute vote NEW
         mapping (address => bool) voted; //mapping of address to whether or not they voted
     }  
+
     struct StakeInfo {
         uint currentStatus;//0-not Staked, 1=Staked, 2=LockedForWithdraw 3= OnDispute
         uint startDate; //stake start date
     }
+
     struct  Checkpoint {
         uint128 fromBlock;// fromBlock is the block number that the value was generated from
         uint128 value;// value is the amount of tokens at a specific block number
     }
+
     struct Request{
         string queryString;//id to string api
         string dataSymbol;//short name for api request
@@ -64,7 +67,6 @@ library TellorLibrary{
         mapping(uint => address[5]) minersByValue;  
         mapping(uint => uint[5]) valuesByTimestamp;
     }    
-
 
     struct TellorStorageStruct{
         bytes32 currentChallenge; //current challenge to be solved
@@ -138,26 +140,6 @@ library TellorLibrary{
 
 
     /**
-    * @dev Add tip to Request value from oracle
-    * @param _requestId being requested to be mined
-    * @param _tip amount the requester is willing to pay to be get on queue. Miners
-    * mine the onDeckQueryHash, or the api with the highest payout pool
-    */
-    function addTip(TellorStorageStruct storage self,uint _requestId, uint _tip) public {
-        require(_requestId > 0);
-        
-        //If the tip > 0 transfer the tip to this contract
-        if(_tip > 0){
-            doTransfer(self,msg.sender,address(this),_tip);
-        }
-        
-        //Update the information for the request that should be mined next based on the tip submitted
-        updateOnDeck(self,_requestId,_tip,false);
-        emit TipAdded(msg.sender,_requestId,_tip,self.requestDetails[_requestId].apiUintVars[keccak256("totalTip")]);
-    }
-
-
-    /**
     * @dev This function returns whether or not a given user is allowed to trade a given amount 
     * and removing the staked amount from their balance if they are staked
     * @param _user address of user
@@ -218,68 +200,6 @@ library TellorLibrary{
     }
 
 
-    /**
-    * @dev Helps initialize a dispute by assigning it a disputeId 
-    * when a miner returns a false on the validate array(in Tellor.ProofOfWork) it sends the 
-    * invalidated value information to POS voting
-    * @param _requestId being disputed
-    * @param _timestamp being disputed
-    * @param _minerIndex the index of the miner that submitted the value being disputed. Since each official value 
-    * requires 5 miners to submit a value.
-    */
-    function beginDispute(TellorStorageStruct storage self,uint _requestId, uint _timestamp,uint _minerIndex) public {
-        Request storage _request = self.requestDetails[_requestId];
-        //require that no more than a day( (24 hours * 60 minutes)/10minutes=144 blocks) has gone by since the value was "mined" 
-        require(block.number- _request.minedBlockNum[_timestamp]<= 144);
-        require(_request.minedBlockNum[_timestamp] > 0);
-        require(_minerIndex < 5);
-        
-        //_miner is the miner being disputed. For every mined value 5 miners are saved in an array and the _minerIndex 
-        //provided by the party initiating the dispute 
-        address _miner = _request.minersByValue[_timestamp][_minerIndex];
-        bytes32 _hash = keccak256(abi.encodePacked(_miner,_requestId,_timestamp));
-        
-        //Ensures that a dispute is not already open for the that miner, requestId and timestamp
-        require(self.disputeIdByDisputeHash[_hash] == 0);
-        doTransfer(self,msg.sender,address(this), self.uintVars[keccak256("disputeFee")]);
-        
-        //Increase the dispute count by 1
-        self.uintVars[keccak256("disputeCount")] =  self.uintVars[keccak256("disputeCount")] + 1;
-        
-        //Sets the new disputeCount as the disputeId
-        uint disputeId = self.uintVars[keccak256("disputeCount")];
-        
-        //maps the dispute hash to the disputeId
-        self.disputeIdByDisputeHash[_hash] = disputeId;
-        //maps the dispute to the Dispute struct
-        self.disputesById[disputeId] = Dispute({
-            hash:_hash,
-            isPropFork: false,
-            reportedMiner: _miner, 
-            reportingParty: msg.sender, 
-            proposedForkAddress:address(0),
-            executed: false,
-            disputeVotePassed: false,
-            tally: 0
-            });
-        
-        //Saves all the dispute variables for the disputeId
-        self.disputesById[disputeId].disputeUintVars[keccak256("requestId")] = _requestId;
-        self.disputesById[disputeId].disputeUintVars[keccak256("timestamp")] = _timestamp;
-        self.disputesById[disputeId].disputeUintVars[keccak256("value")] = _request.valuesByTimestamp[_timestamp][_minerIndex];
-        self.disputesById[disputeId].disputeUintVars[keccak256("minExecutionDate")] = now + 7 days;
-        self.disputesById[disputeId].disputeUintVars[keccak256("blockNumber")] = block.number;
-        self.disputesById[disputeId].disputeUintVars[keccak256("minerSlot")] = _minerIndex;
-        
-        //Values are sorted as they come in and the official value is the median of the first five
-        //So the "official value" miner is always minerIndex==2. If the official value is being 
-        //disputed, it sets its status to inDispute(currentStatus = 3) so that users are made aware it is under dispute
-        if(_minerIndex == 2){
-            self.requestDetails[_requestId].inDispute[_timestamp] = true;
-        }
-        self.stakerDetails[_miner].currentStatus = 3;
-        emit NewDispute(disputeId,_requestId,_timestamp,_miner);
-    }
 
     /**
     * @dev This function allows miners to deposit their stake.
@@ -343,6 +263,69 @@ library TellorLibrary{
             }
         }
         return checkpoints[min].value;
+    }
+
+    /**
+    * @dev Helps initialize a dispute by assigning it a disputeId 
+    * when a miner returns a false on the validate array(in Tellor.ProofOfWork) it sends the 
+    * invalidated value information to POS voting
+    * @param _requestId being disputed
+    * @param _timestamp being disputed
+    * @param _minerIndex the index of the miner that submitted the value being disputed. Since each official value 
+    * requires 5 miners to submit a value.
+    */
+    function beginDispute(TellorStorageStruct storage self,uint _requestId, uint _timestamp,uint _minerIndex) public {
+        Request storage _request = self.requestDetails[_requestId];
+        //require that no more than a day( (24 hours * 60 minutes)/10minutes=144 blocks) has gone by since the value was "mined" 
+        require(block.number- _request.minedBlockNum[_timestamp]<= 144);
+        require(_request.minedBlockNum[_timestamp] > 0);
+        require(_minerIndex < 5);
+        
+        //_miner is the miner being disputed. For every mined value 5 miners are saved in an array and the _minerIndex 
+        //provided by the party initiating the dispute 
+        address _miner = _request.minersByValue[_timestamp][_minerIndex];
+        bytes32 _hash = keccak256(abi.encodePacked(_miner,_requestId,_timestamp));
+        
+        //Ensures that a dispute is not already open for the that miner, requestId and timestamp
+        require(self.disputeIdByDisputeHash[_hash] == 0);
+        doTransfer(self,msg.sender,address(this), self.uintVars[keccak256("disputeFee")]);
+        
+        //Increase the dispute count by 1
+        self.uintVars[keccak256("disputeCount")] =  self.uintVars[keccak256("disputeCount")] + 1;
+        
+        //Sets the new disputeCount as the disputeId
+        uint disputeId = self.uintVars[keccak256("disputeCount")];
+        
+        //maps the dispute hash to the disputeId
+        self.disputeIdByDisputeHash[_hash] = disputeId;
+        //maps the dispute to the Dispute struct
+        self.disputesById[disputeId] = Dispute({
+            hash:_hash,
+            isPropFork: false,
+            reportedMiner: _miner, 
+            reportingParty: msg.sender, 
+            proposedForkAddress:address(0),
+            executed: false,
+            disputeVotePassed: false,
+            tally: 0
+            });
+        
+        //Saves all the dispute variables for the disputeId
+        self.disputesById[disputeId].disputeUintVars[keccak256("requestId")] = _requestId;
+        self.disputesById[disputeId].disputeUintVars[keccak256("timestamp")] = _timestamp;
+        self.disputesById[disputeId].disputeUintVars[keccak256("value")] = _request.valuesByTimestamp[_timestamp][_minerIndex];
+        self.disputesById[disputeId].disputeUintVars[keccak256("minExecutionDate")] = now + 7 days;
+        self.disputesById[disputeId].disputeUintVars[keccak256("blockNumber")] = block.number;
+        self.disputesById[disputeId].disputeUintVars[keccak256("minerSlot")] = _minerIndex;
+        
+        //Values are sorted as they come in and the official value is the median of the first five
+        //So the "official value" miner is always minerIndex==2. If the official value is being 
+        //disputed, it sets its status to inDispute(currentStatus = 3) so that users are made aware it is under dispute
+        if(_minerIndex == 2){
+            self.requestDetails[_requestId].inDispute[_timestamp] = true;
+        }
+        self.stakerDetails[_miner].currentStatus = 3;
+        emit NewDispute(disputeId,_requestId,_timestamp,_miner);
     }
 
 
@@ -432,9 +415,30 @@ library TellorLibrary{
         }
     }
     
+    /**
+    * @dev Add tip to Request value from oracle
+    * @param _requestId being requested to be mined
+    * @param _tip amount the requester is willing to pay to be get on queue. Miners
+    * mine the onDeckQueryHash, or the api with the highest payout pool
+    */
+    function addTip(TellorStorageStruct storage self,uint _requestId, uint _tip) public {
+        require(_requestId > 0);
+        
+        //If the tip > 0 transfer the tip to this contract
+        if(_tip > 0){
+            doTransfer(self,msg.sender,address(this),_tip);
+        }
+        
+        //Update the information for the request that should be mined next based on the tip submitted
+        updateOnDeck(self,_requestId,_tip,false);
+        emit TipAdded(msg.sender,_requestId,_tip,self.requestDetails[_requestId].apiUintVars[keccak256("totalTip")]);
+    }
 
+    
     /**
     * @dev This function allows stakers to request to withdraw their stake (no longer stake) 
+    * once they lock for withdraw(stakes.currentStatus = 2) they are locked for 7 days before they 
+    * can withdraw the stake
     */
     function requestStakingWithdraw(TellorStorageStruct storage self) internal {
         StakeInfo storage stakes = self.stakerDetails[msg.sender];
@@ -530,12 +534,11 @@ library TellorLibrary{
     }
 
 
-   /**
+    /**
     * @dev Proof of work is called by the miner when they submit the solution (proof of work and value)
     * @param _nonce uint submitted by miner
     * @param _requestId the apiId being mined
     * @param _value of api query
-    * @return count of values sumbitted so far and the time of the last successful mine
     */
     function submitMiningSolution(TellorStorageStruct storage self,string memory _nonce, uint _requestId, uint _value) internal{
         //requre miner is staked

@@ -4,11 +4,11 @@ import "./SafeMath.sol";
 import "./Utilities.sol";
 
 /**
- * @title Tellor Oracle System Library
- * @dev Oracle contract where miners can submit the proof of work along with the value.
- * @dev Note at the top is the struct.  THE STRUCT SHOULD ALWAYS BE THE SAME AS TELLORDATA.SOL
- * @dev Failure to do so will result in errors with the fallback proxy
- */
+* @title Tellor Getters Library
+* @dev Oracle contract with all tellor getter functions logic
+* @dev Note at the top is the struct.  THE STRUCT SHOULD ALWAYS BE THE SAME AS TellorLibrary.SOL
+* @dev Failure to do so will result in errors with the fallback proxy
+*/
 library TellorGettersLibrary{
     using SafeMath for uint256;
 
@@ -29,6 +29,7 @@ library TellorGettersLibrary{
         mapping(bytes32 => uint) disputeUintVars;
         //Each of the variables below is saved in the mapping disputeUintVars for each disputeID
         //e.g. TellorStorageStruct.DisputeById[disputeID].disputeUintVars[keccak256("requestId")] 
+        //These are the variables saved in this mapping:
             // uint keccak256("requestId");//apiID of disputed value
             // uint keccak256("timestamp");//timestamp of distputed value
             // uint keccak256("value"); //the value being disputed
@@ -39,14 +40,17 @@ library TellorGettersLibrary{
             // uint keccak256("quorum"); //quorum for dispute vote NEW
         mapping (address => bool) voted; //mapping of address to whether or not they voted
     }  
+
     struct StakeInfo {
         uint currentStatus;//0-not Staked, 1=Staked, 2=LockedForWithdraw 3= OnDispute
         uint startDate; //stake start date
     }
+
     struct  Checkpoint {
         uint128 fromBlock;// fromBlock is the block number that the value was generated from
         uint128 value;// value is the amount of tokens at a specific block number
     }
+
     struct Request{
         string queryString;//id to string api
         string dataSymbol;//short name for api request
@@ -55,6 +59,7 @@ library TellorGettersLibrary{
         mapping(bytes32 => uint) apiUintVars;
         //Each of the variables below is saved in the mapping apiUintVars for each api request
         //e.g. requestDetails[_requestId].apiUintVars[keccak256("totalTip")]
+        //These are the variables saved in this mapping:
             // uint keccak256("granularity"); //multiplier for miners
             // uint keccak256("requestQPosition"); //index in requestQ
             // uint keccak256("totalTip");//bonus portion of payout
@@ -64,7 +69,6 @@ library TellorGettersLibrary{
         mapping(uint => address[5]) minersByValue;  
         mapping(uint => uint[5])valuesByTimestamp;
     }    
-
 
     struct TellorStorageStruct{
         bytes32 currentChallenge; //current challenge to be solved
@@ -78,11 +82,13 @@ library TellorGettersLibrary{
         mapping(bytes32 => address) addressVars;
         //Address fields in the Tellor contract are saved the addressVars mapping
         //e.g. addressVars[keccak256("tellorContract")] = address
+        //These are the variables saved in this mapping:
             // address keccak256("tellorContract");//Tellor address
             // address  keccak256("_owner");//Tellor Owner address
         mapping(bytes32 => uint) uintVars; 
         //uint fields in the Tellor contract are saved the uintVars mapping
         //e.g. uintVars[keccak256("decimals")] = uint
+        //These are the variables saved in this mapping:
             // keccak256("decimals");    //18 decimal standard ERC20
             // keccak256("disputeFee");//cost to dispute a mined value
             // keccak256("disputeCount");//totalHistoricalDisputes
@@ -128,14 +134,28 @@ library TellorGettersLibrary{
     event Transfer(address indexed _from, address indexed _to, uint256 _value);//ERC20 Transfer Event
     event Voted(uint indexed _disputeID, bool _position, address indexed _voter);//emitted when a new vote happens
     
-    //Tellor Getters
+    /*Constructor*/
+    /**
+    * @dev Sets the tellor contract to the Tellor master address and owner to the Tellor master owner address
+    * @param _tellorContract is the address for the tellor contract
+    */
+    //Only needs to be in library
+    function tellorMasterConstructor(TellorStorageStruct storage self,address _tellorContract) internal{
+        self.addressVars[keccak256("_owner")] = msg.sender;
+        self.addressVars[keccak256("tellorContract")]= _tellorContract;
+        emit NewTellorAddress(_tellorContract);
+    }
+
+    /*Tellor Getters*/
+
     /**
     * @param _user address
     * @param _spender address
     * @return Returns the remaining allowance of tokens granted to the _spender from the _user
     */
     function allowance(TellorStorageStruct storage self,address _user, address _spender) public view returns (uint) {
-       return self.allowed[_user][_spender]; }
+       return self.allowed[_user][_spender]; 
+    }
 
 
     /**
@@ -220,15 +240,18 @@ library TellorGettersLibrary{
         return self.disputesById[_disputeId].voted[_address];
     }
 
+
     /**
     * @dev allows Tellor to read data from the addressVars mapping
-    * @param _data is the keccak256("data") of the variable that is being accessed. For example:
-    * self.addressVars[keccak256("_owner")]
+    * @param _data is the keccak256("variable_name") of the variable that is being accessed. 
+    * These are examples of how the variables are saved within other functions:
+    * addressVars[keccak256("_owner")]
     * addressVars[keccak256("tellorContract")]
     **/
     function getAddressVars(TellorStorageStruct storage self, bytes32 _data) view internal returns(address){
         return self.addressVars[_data];
     }
+
 
     /**
     * @dev Gets all dispute variables
@@ -250,8 +273,8 @@ library TellorGettersLibrary{
 
 
     /**
-    * @dev Getter function for currentChallenge difficulty
-    * @return current challenge, MiningApiID, level of difficulty
+    * @dev Getter function for variables for the requestId being currently mined(currentRequestId)
+    * @return current challenge, curretnRequestId, level of difficulty, api/query string, and granularity(number of decimals requested) 
     */
     function getCurrentVariables(TellorStorageStruct storage self) internal view returns(bytes32, uint, uint,string memory,uint,uint){    
         return (self.currentChallenge,self.uintVars[keccak256("currentRequestId")],self.uintVars[keccak256("difficulty")],self.requestDetails[self.uintVars[keccak256("currentRequestId")]].queryString,self.requestDetails[self.uintVars[keccak256("currentRequestId")]].apiUintVars[keccak256("granularity")],self.requestDetails[self.uintVars[keccak256("currentRequestId")]].apiUintVars[keccak256("totalTip")]);
@@ -259,8 +282,8 @@ library TellorGettersLibrary{
 
 
     /**
-    * @dev Checks if a given hash of miner,apiId has been disputed
-    * @param _hash of sha256(abi.encodePacked(_miners[2],_requestId));
+    * @dev Checks if a given hash of miner,requestId has been disputed
+    * @param _hash is the sha256(abi.encodePacked(_miners[2],_requestId));
     * @return uint disputeId
     */
     function getDisputeIdByDisputeHash(TellorStorageStruct storage self,bytes32 _hash) internal view returns(uint){
@@ -271,8 +294,9 @@ library TellorGettersLibrary{
     /**
     * @dev Checks for uint variables in the disputeUintVars mapping based on the disuputeId
     * @param _disputeId is the dispute id;
-    * @param _data is the the keccak256("_data") the parameters saved in this mapping are commented 
-    * in the Dispute struct above under the disputeUintVars mapping
+    * @param _data the variable to pull from the mapping. _data = keccak256("variable_name") where variable_name is 
+    * the variables/strings used to save the data in the mapping. The variables names are  
+    * commented out under the disputeUintVars under the Dispute struct
     * @return uint value for the bytes32 data submitted
     */
     function getDisputeUintVars(TellorStorageStruct storage self,uint _disputeId,bytes32 _data) internal view returns(uint){
@@ -290,6 +314,17 @@ library TellorGettersLibrary{
 
 
     /**
+    * @dev Retreive value from oracle based on requestId/timestamp
+    * @param _requestId being requested
+    * @param _timestamp to retreive data/value from
+    * @return uint value for requestId/timestamp submitted
+    */
+    function retrieveData(TellorStorageStruct storage self, uint _requestId, uint _timestamp) internal view returns (uint) {
+        return self.requestDetails[_requestId].finalValues[_timestamp];
+    }
+
+
+    /**
     * @dev Gets blocknumber for mined timestamp 
     * @param _requestId to look up
     * @param _timestamp is the timestamp to look up blocknumber
@@ -301,53 +336,75 @@ library TellorGettersLibrary{
 
 
     /**
-    * @dev Gets the 5 miners who mined the value for the specified apiId/_timestamp 
+    * @dev Gets the 5 miners who mined the value for the specified requestId/_timestamp 
     * @param _requestId to look up
-    * @param _timestamp is the timestampt to look up miners for
+    * @param _timestamp is the timestamp to look up miners for
+    * @return the 5 miners' addresses
     */
     function getMinersByRequestIdAndTimestamp(TellorStorageStruct storage self, uint _requestId, uint _timestamp) internal view returns(address[5] memory){
         return self.requestDetails[_requestId].minersByValue[_timestamp];
     }
 
 
+    /**
+    * @dev Counts the number of values that have been submited for the request 
+    * if called for the currentRequest being mined it can tell you how many miners have submitted a value for that
+    * request so far
+    * @param _requestId the requestId to look up
+    * @return uint count of the number of values received for the requestId
+    */
     function getNewValueCountbyRequestId(TellorStorageStruct storage self, uint _requestId) internal view returns(uint){
         return self.requestDetails[_requestId].requestTimestamps.length;
     }
 
+
     /**
-    * @dev Getter function for the apiId for the specified requestQ index
-    * @param _index to look up the apiId
-    * @return apiId
+    * @dev Getter function for the specified requestQ index
+    * @param _index to look up in the requestQ array
+    * @return uint of reqeuestId
     */
     function getRequestIdByRequestQIndex(TellorStorageStruct storage self, uint _index) internal view returns(uint){
         return self.requestIdByRequestQIndex[_index];
     }
 
+
     /**
-    * @dev Getter function for apiId based on timestamp. Only one value is mined per
-    * timestamp and each timestamp can correspond to a different API. 
-    * @param _timestamp to check APIId
-    * @return apiId
+    * @dev Getter function for requestId based on timestamp 
+    * @param _timestamp to check requestId
+    * @return uint of reqeuestId
     */
     function getRequestIdByTimestamp(TellorStorageStruct storage self, uint _timestamp) internal view returns(uint){    
         return self.requestIdByTimestamp[_timestamp];
     }
 
+
     /**
-    * @dev Getter function for apiId based on api hash
-    * @param _queryHash string to check if it already has an apiId
-    * @return uint apiId
+    * @dev Getter function for requestId based on the qeuaryHash
+    * @param _queryHash hash(of string api and granularity) to check if a request already exists
+    * @return uint requestId
     */
     function getRequestIdByQueryHash(TellorStorageStruct storage self, bytes32 _queryHash) internal view returns(uint){    
         return self.requestIdByQueryHash[_queryHash];
     }
 
 
+    /**
+    * @dev Getter function for the requestQ array
+    * @return the requestQ arrray
+    */
     function getRequestQ(TellorStorageStruct storage self) view internal returns(uint[51] memory){
         return self.requestQ;
     }
 
 
+    /**
+    * @dev Allowes access to the uint variables saved in the apiUintVars under the requestDetails struct
+    * for the requestId specified
+    * @param _requestId to look up
+    * @param _data the variable to pull from the mapping. _data = keccak256("variable_name") where variable_name is 
+    * the variables/strings used to save the data in the mapping. The variables names are  
+    * commented out under the apiUintVars under the requestDetails struct
+    */
     function getRequestUintVars(TellorStorageStruct storage self,uint _requestId,bytes32 _data) internal view returns(uint){
         return self.requestDetails[_requestId].apiUintVars[_data];
     }
@@ -359,8 +416,9 @@ library TellorGettersLibrary{
     * @return string of api to query
     * @return string of symbol of api to query
     * @return bytes32 hash of string
-    * @return uint of index in PayoutPool array
-    * @return uint of current payout for this api
+    * @return bytes32 of the granularity(decimal places) requested
+    * @return uint of index in requestQ array
+    * @return uint of current payout/tip for this requestId
     */
     function getRequestVars(TellorStorageStruct storage self,uint _requestId) internal view returns(string memory,string memory, bytes32,uint, uint, uint) {
         Request storage _request = self.requestDetails[_requestId]; 
@@ -369,10 +427,10 @@ library TellorGettersLibrary{
 
 
     /**
-     *@dev This function allows users to retireve all information about a staker
-     *@param address of staker enquiring about
-     *@return uint current state of staker
-     *@return uint startDate of staking
+    * @dev This function allows users to retireve all information about a staker
+    * @param address of staker inquiring about
+    * @return uint current state of staker
+    * @return uint startDate of staking
     */
     function getStakerInfo(TellorStorageStruct storage self,address _staker) internal view returns(uint,uint){
         return (self.stakerDetails[_staker].currentStatus,self.stakerDetails[_staker].startDate);
@@ -380,29 +438,43 @@ library TellorGettersLibrary{
 
 
     /**
-    * @dev Gets the 5 miners who mined the value for the specified apiId/_timestamp 
+    * @dev Gets the 5 miners who mined the value for the specified requestId/_timestamp 
     * @param _requestId to look up
     * @param _timestamp is the timestampt to look up miners for
+    * @return address[5] array of 5 addresses ofminers that mined the requestId
     */
     function getSubmissionsByTimestamp(TellorStorageStruct storage self, uint _requestId, uint _timestamp) internal view returns(uint[5] memory){
         return self.requestDetails[_requestId].valuesByTimestamp[_timestamp];
     }
 
-
+    /**
+    * @dev Gets the timestamp for the value based on their index
+    * @param _requestID is the requestId to look up
+    * @param _index is the value index to look up
+    * @returns uint timestamp
+    */
     function getTimestampbyRequestIDandIndex(TellorStorageStruct storage self,uint _requestID, uint _index) internal view returns(uint){
         return self.requestDetails[_requestID].requestTimestamps[_index];
     }
 
 
-    //self.uintVars[keccak256("stakerCount")]
+    /**
+    * @dev Getter for the variables saved under the TellorStorageStruct uintVars variable
+    * @param _data the variable to pull from the mapping. _data = keccak256("variable_name") where variable_name is 
+    * the variables/strings used to save the data in the mapping. The variables names are  
+    * commented out under the uintVars under the TellorStorageStruct struct
+    * This is an example of how data is saved into the mapping within other functions: 
+    * self.uintVars[keccak256("stakerCount")]
+    * @return uint of specified variable  
+    */ 
     function getUintVar(TellorStorageStruct storage self,bytes32 _data) view internal returns(uint){
         return self.uintVars[_data];
     }
 
 
     /**
-    * @dev Getter function for api on queue
-    * @return apionQ hash, id, payout, and api string
+    * @dev Getter function for next requestId on queue
+    * @return onDeckRequestId, onDeckTotaltips, and onDeckRequestId
     */
     function getVariablesOnDeck(TellorStorageStruct storage self) internal view returns(uint, uint,string memory){    
         return (self.uintVars[keccak256("onDeckRequestId")],self.uintVars[keccak256("onDeckTotalTips")],self.requestDetails[self.uintVars[keccak256("onDeckRequestId")]].queryString);
@@ -410,45 +482,38 @@ library TellorGettersLibrary{
 
 
     /**
-    * @dev Gets the 5 miners who mined the value for the specified apiId/_timestamp 
+    * @dev Gets the 5 miners who mined the value for the specified requestId/_timestamp 
     * @param _requestId to look up
-    * @param _timestamp is the timestampt to look up miners for
+    * @param _timestamp is the timestamp to look up miners for
+    * @return bool true if requestId/timestamp is under dispute
     */
     function isInDispute(TellorStorageStruct storage self, uint _requestId, uint _timestamp) internal view returns(bool){
         return self.requestDetails[_requestId].inDispute[_timestamp];
     }
 
+    /**
+    * @dev Get the name of the token
+    * return string of the token name
+    */
     //add tests for these
     //should I just drop these?
     function name(TellorStorageStruct storage self) internal returns(string memory){
         return self._name;
     }
 
-    /**
-    * @dev Retreive value from oracle based on timestamp
-    * @param _requestId being requested
-    * @param _timestamp to retreive data/value from
-    * @return value for timestamp submitted
-    */
-    function retrieveData(TellorStorageStruct storage self, uint _requestId, uint _timestamp) internal view returns (uint) {
-        return self.requestDetails[_requestId].finalValues[_timestamp];
-    }
 
+    /**
+    * @dev Get the symbol of the token
+    * return string of the token symbol
+    */
     function symbol(TellorStorageStruct storage self) internal returns(string memory){
         return self._symbol;
     } 
 
-    //Only needs to be in library
-    function tellorMasterConstructor(TellorStorageStruct storage self,address _tellorContract) internal{
-        self.addressVars[keccak256("_owner")] = msg.sender;
-        self.addressVars[keccak256("tellorContract")]= _tellorContract;
-        emit NewTellorAddress(_tellorContract);
-    }
-
 
     /**
     * @dev Getter for the total_supply of oracle tokens
-    * @return total supply
+    * @return uint total supply
     */
     function totalSupply(TellorStorageStruct storage self) internal view returns (uint) {
        return self.uintVars[keccak256("total_supply")];
