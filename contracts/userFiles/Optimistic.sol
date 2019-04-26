@@ -9,6 +9,7 @@ import '../Tellor.sol';
 */
 contract Optimistic is UsingTellor{
 
+	//Can we rework soem of these mappings into a struct?
 	mapping(uint => bool) public isValue;
 	uint[] timestamps; //timestamps with values
 	mapping(uint => bool) public disputedValues;
@@ -37,6 +38,7 @@ contract Optimistic is UsingTellor{
 		require(msg.sender == owner);
 		require(getIsValue(_timestamp) == false);
 		valuesByTimestamp[_timestamp] = _value;
+		isValue[_timestamp] = true;
 		emit NewValueSet(_timestamp,_value);
 
 	}

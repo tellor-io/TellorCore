@@ -40,16 +40,85 @@ contract('Mining Tests', function(accounts) {
         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000, data: web3.utils.keccak256("tellorPostConstructor()")})
         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",0,1000,0).encodeABI()})
     });
+    it("Test Base Derivative Contract - Optimistic Up Move", async function(){
+    })
+    it("Test Base Derivative Contract - Optimistic Down Move", async function(){
+    })
+    it("Test Base Derivative Contract - Disputed Up Move", async function(){
+    })
+    it("Test Base Derivative Contract - Disputed Down Move", async function(){
+    })
+    it("Test Ownership Transfer", async function(){
+    })
+    it("Test No Tributes in User Contract w/Solution", async function(){
+    })
+    it("Test 3 request ID avearge for Optimistic disputed Value", async function(){
+    })
     /*
 List of All functions to Test
 Reader 
 
+  uint public startDateTime;
+  uint public endDateTime;
+  uint public startValue;
+  uint public endValue;
+  bool public longWins;
+  bool public contractEnded;
+
+  //Functions
+  testContract
+  settleContracts
+
 Optimistic 
+
+  uint[] timestamps; //timestamps with values
+  mapping(uint => bool) public disputedValues;
+  mapping(uint => uint[]) public requestIdsIncluded;
+  uint[] requestIds;
+  uint public granularity;
+  uint public disputeFee; //In Tributes
+  uint public disputePeriod;
+
+  //FUNCTIONS
+  setValue
+  disputeOptimisticValue
+  getMyValuesByTimestamp
+  getNumberOfValuesPerTimestamp
+  getIsValue
+  getTellorValues
+  getLastValueAfter
+  getLastUndisputedValueAfter
+  getCurrentValue() 
 
 User Contract 
 
-Tellor
+  address payable public owner;
+  uint public apiId;
+  uint public spread;//in thousands * 100.  So a 5% spread is 1000  + .05 *1000 = 1050
+  uint public tributePrice;
+  address payable public tellorStorageAddress;
 
+  //FUNCTIONS
+  transferOwnership
+  withdrawEther
+  requestDataWithEther
+  addTipWithEther
+  setSpread
+  setPrice
+
+UsingTellor
+  address public owner;
+
+  //Functions
+   getCurrentValue
+   getFirstVerifiedDataAfter
+   getAnyDataAfter
+   requestData
+   requestDataWithEther
+   addTip
+   addTipWithEther
+   setUserContract
+   transferOwnership
 
     */
 });
