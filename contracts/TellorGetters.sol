@@ -106,7 +106,7 @@ contract TellorGetters{
         return  tellor.getDisputeIdByDisputeHash(_hash);
     }
     
-    function getDisputeUintVars(uint _disputeId,bytes32 _data) internal view returns(uint){
+    function getDisputeUintVars(uint _disputeId,bytes32 _data) external view returns(uint){
         return tellor.getDisputeUintVars(_disputeId,_data);
     }
     /**
@@ -165,7 +165,7 @@ contract TellorGetters{
         return tellor.getRequestIdByQueryHash(_request);
     }
 
-    function getRequestUintVars(uint _requestId,bytes32 _data) internal view returns(uint){
+    function getRequestUintVars(uint _requestId,bytes32 _data) external view returns(uint){
         return tellor.getRequestUintVars(_requestId,_data);
     }
 
@@ -232,7 +232,7 @@ contract TellorGetters{
     function isInDispute(uint _requestId, uint _timestamp) external view returns(bool){
         return tellor.isInDispute(_requestId,_timestamp);
     }
-    function name() internal returns(string memory){
+    function name() external returns(string memory){
         return tellor.name();
     }
 
@@ -246,7 +246,7 @@ contract TellorGetters{
         return tellor.retrieveData(_requestId,_timestamp);
     }
 
-    function symbol() internal returns(string memory){
+    function symbol() external returns(string memory){
         return tellor.symbol();
     } 
 

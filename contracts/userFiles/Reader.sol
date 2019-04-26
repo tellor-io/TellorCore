@@ -1,6 +1,6 @@
 pragma solidity ^0.5.0;
 
-import './Tellor.sol';
+import './Optimistic.sol';
 /**
 * @title Reader
 * This contracts is a pretend contract using Tellor that compares two time values
@@ -15,12 +15,12 @@ contract Reader is Optimistic{
 	bool public contractEnded;
 
 
-	function testContract(uint _duration){
+	function testContract(uint _duration) external {
 		startDateTime = now - now % granularity;
 		endDateTime = now + _duration - now % granularity;
 	}
 
-	function settleContracts(){
+	function settleContracts() external{
 		if(getIsValue(startDateTime)){
 			startValue =  getMyValuesByTimestamp(startDateTime);
 			if(getIsValue(endDateTime)){

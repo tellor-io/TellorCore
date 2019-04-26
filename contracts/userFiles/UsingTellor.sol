@@ -1,84 +1,101 @@
 pragma solidity ^0.5.0;
 
-import './Tellor.sol';
+import '../Tellor.sol';
+import '../TellorMaster.sol';
 import './UserContract.sol';
 /**
 * @title UsingTellor
 * This contracts creates for easy integration to the Tellor Tellor System
 */
 contract UsingTellor{
-	address public tellorUserContract;
+	UserContract tellorUserContract;
 	address public owner;
 	bool public canSet;
+	
+	event OwnershipTransferred(address _previousOwner,address _newOwner);
 
 
-
-    constructor(address _storage, address _user, bool _canSet)public {
-    	tellorUserContract = _user;
+    constructor(address _user)public {
+    	tellorUserContract = UserContract(_user);
     	owner = msg.sender;
     }
 
-	function getLastValue(uint _requestId) public returns(bool ifRetrieve, uint value) {
-		Tellor _tellor = Tellor(tellorUserContract.tellorStorageAddress);
-		 return _tellor.getLastQuery();
+	function getCurrentValue(uint _requestId) public returns(bool ifRetrieve, uint value, uint _timestampRetrieved) {
+		TellorMaster _tellor = TellorMaster(tellorUserContract.tellorStorageAddress());
+		uint _count = _tellor.getNewValueCountbyRequestId(_requestId) ;
+		if(_count > 0){
+				_timestampRetrieved = _tellor.getTimestampbyRequestIDandIndex(_requestId,_count -1);//will this work with a zero index? (or insta hit?)
+				return(true,_tellor.retrieveData(_requestId,_timestampRetrieved),_timestampRetrieved);
+        }
+        return(false,0,0);
 	}
 
-	function getFirstVerifiedDataAfter(uint _requestId, uint _timestamp) public view returns(uint,bool) {
-		Tellor _tellor = Tellor(tellorUserContract.tellorStorageAddress);
-		for(uint i = _timestamp - _timestamp % _tellor.timeTarget;i < block.timestamp - 86400;i += _tellor.timeTarget){
-			if(_tellor.isData(_requestId,i)){
-				return (_tellor.retrieveData(_requestId,i),true);
-			}
-		}
-		return (0,false);
+	function getFirstVerifiedDataAfter(uint _requestId, uint _timestamp) public view returns(bool,uint,uint _timestampRetrieved) {
+		TellorMaster _tellor = TellorMaster(tellorUserContract.tellorStorageAddress());
+		uint _count = _tellor.getNewValueCountbyRequestId(_requestId) ;
+		if(_count > 0){
+				for(uint i = _count - 1;i > 0;i--){
+					if(_tellor.getTimestampbyRequestIDandIndex(_requestId,i) < _timestamp && _tellor.getTimestampbyRequestIDandIndex(_requestId,i) < block.timestamp - 86400){
+						_timestampRetrieved = _tellor.getTimestampbyRequestIDandIndex(_requestId,i + 1);//will this work with a zero index? (or insta hit?)
+						i  = 0;
+					}
+				}
+				if(_timestampRetrieved > 0){
+					return(true,_tellor.retrieveData(_requestId,_timestampRetrieved),_timestampRetrieved);
+				}
+        }
+        return(false,0,0);
+	}
+	
+
+	function getAnyDataAfter(uint _requestId, uint _timestamp) public view returns(bool _ifRetrieve, uint _value, uint _timestampRetrieved){
+		TellorMaster _tellor = TellorMaster(tellorUserContract.tellorStorageAddress());
+		uint _count = _tellor.getNewValueCountbyRequestId(_requestId) ;
+		if(_count > 0){
+				for(uint i = _count - 1;i > 0;i--){
+					if(_tellor.getTimestampbyRequestIDandIndex(_requestId,i) < _timestamp){
+						_timestampRetrieved = _tellor.getTimestampbyRequestIDandIndex(_requestId,i + 1);//will this work with a zero index? (or insta hit?)
+						i  = 0;
+					}
+				}
+				if(_timestampRetrieved > 0){
+					return(true,_tellor.retrieveData(_requestId,_timestampRetrieved),_timestampRetrieved);
+				}
+        }
+        return(false,0,0);
 	}
 
-	function isData(uint _requestId, uint _timestamp) public view returns(bool) {
-		Tellor _tellor = Tellor(tellorUserContract.tellorStorageAddress);
-		return _tellor.isData(_requestId,_timestamp);
-	}
-
-	function getAnyDataAfter(uint _requestId, uint _timestamp) public view returns(bool ifRetrieve, uint value){
-		Tellor _tellor = Tellor(tellorUserContract.tellorStorageAddress);
-		for(uint i = _timestamp - _timestamp % _tellor.timeTarget;i < block.timestamp;i += _tellor.timeTarget){
-			if(_tellor.isData(_requestId,i)){
-				return _tellor.retrieveData(_requestId,i);
-			}
-		}
-		(value,ifRetrieve) = _tellor.getLastQuery();
-	}
-
-	function requestData(string calldata _request,string calldata _symbol,uint _requestId,uint _granularity, uint _tip) external returns(uint _requestId){
-		Tellor _tellor = Tellor(tellorUserContract.tellorStorageAddress);
+	function requestData(string calldata _request,string calldata _symbol,uint _requestId,uint _granularity, uint _tip) external{
+		Tellor _tellor = Tellor(tellorUserContract.tellorStorageAddress());
 		if(_tip > 0){
 			_tellor.transfer(address(this),_tip);
 		}
-		return _tellor.requestData(_request,_symbol,_requestId,_granularity,_tip);
+		_tellor.requestData(_request,_symbol,_requestId,_granularity,_tip);
 	}
 
-	function requestDataWithEther(string calldata c_srequest, uint _tip) payable external returns(uint _requestId){
-		UserContract(tellorUserContract).requestDataWithEther(c_srequest,_tip);
+	function requestDataWithEther(string calldata _request,string calldata _symbol,uint _requestId,uint _granularity, uint _tip) payable external{
+		tellorUserContract.requestDataWithEther(_request,_symbol,_requestId,_granularity,_tip);
 	}
 
 	function addTip(uint _requestId, uint _tip) public {
-		Tellor _tellor = Tellor(tellorUserContract.tellorStorageAddress);
+		Tellor _tellor = Tellor(tellorUserContract.tellorStorageAddress());
 		_tellor.transfer(address(this),_tip);
-		_tellor.addToValuePool(_requestId,_tip);
+		_tellor.addTip(_requestId,_tip);
 	}
 
 	function addTipWithEther(uint _requestId, uint _tip) public {
-		UserContract(tellorUserContract).addValueToPoolWithEther(_requestId,_tip);
+		UserContract(tellorUserContract).addTipWithEther(_requestId,_tip);
 	}
 
 	function setUserContract(address _userContract) public {
-		require(msg.sender == owner);
-		tellorUserContract = _userContract
+		require(msg.sender == owner);//who should this be?
+		tellorUserContract = UserContract(_userContract);
 	}
 
-	function transferOwnership(address payable newOwner) external {
+	function transferOwnership(address payable _newOwner) external {
             require(msg.sender == owner);
-            emit OwnershipTransferred(_owner, newOwner);
-            _owner = newOwner;
+            emit OwnershipTransferred(owner, _newOwner);
+            owner = _newOwner;
     }
 }
 

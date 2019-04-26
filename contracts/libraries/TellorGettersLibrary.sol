@@ -265,6 +265,21 @@ library TellorGettersLibrary{
     function getLastNewValue(TellorStorageStruct storage self) internal view returns(uint,bool){
         return (retrieveData(self,self.requestIdByTimestamp[self.uintVars[keccak256("timeOfLastNewValue")]], self.uintVars[keccak256("timeOfLastNewValue")]),true);
     }
+
+        /**
+    * @dev Gets the a value for the latest timestamp available
+    * @return value for timestamp of last proof of work submited
+    */
+    function getLastNewValueById(TellorStorageStruct storage self,uint _requestId) internal view returns(uint,bool){
+        Request storage _request = self.requestDetails[_requestId]; 
+        if(_request.requestTimestamps.length > 0){
+            return (retrieveData(self,_requestId,_request.requestTimestamps[_request.requestTimestamps.length - 1]),true);
+        }
+        else{
+            return (0,false);
+        }
+    }
+
             /**
     * @dev Gets blocknumber for mined timestamp 
     * @param _requestId to look up

@@ -1,5 +1,7 @@
 pragma solidity ^0.5.0;
-import './Tellor.sol';
+
+import '../TellorMaster.sol';
+import '../Tellor.sol';
 /**
 * @title UsingTellor
 * This contracts creates for easy integration to the Tellor Tellor System
@@ -8,60 +10,63 @@ import './Tellor.sol';
 * Once the tellor system is running, this can be set properly.  
 * Note deploy through centralized 'Tellor Master contract'
 */
-contract UserContract is Optimistic{
+contract UserContract{
 
-
-	uint public tellorPrice;
+	address payable public owner;
 	uint public apiId;
 	uint public spread;//in thousands * 100.  So a 5% spread is 1000  + .05 *1000 = 1050
-	address public tellorStorageAddress;
+	uint public tributePrice;
+	address payable public tellorStorageAddress;
 
-    constructor ()  public{
-            _owner = msg.sender;
-    }
-        /**
+	event OwnershipTransferred(address _previousOwner,address _newOwner);
+	event NewPriceSet(uint _newPrice);
+
+    /**
          * @dev Allows the current owner to transfer control of the contract to a newOwner.
          * @param newOwner The address to transfer ownership to.
-        */
+     */
     function transferOwnership(address payable newOwner) external {
-            require(msg.sender == owner());
-            emit OwnershipTransferred(_owner, newOwner);
-            _owner = newOwner;
+            require(msg.sender == owner);
+            emit OwnershipTransferred(owner, newOwner);
+            owner = newOwner;
     }
 
 
-    constructor(address _storage) public{
+    constructor(address payable _storage) public{
     	tellorStorageAddress = _storage;
+    	owner = msg.sender;
     }
-
-	function depositTributes(uint _amount) external {
-		Tellor doracle = Tellor(tellorStorageAddress);
-		doracle.transfer(address(this),_amount);
-	}
 
 	function withdrawEther() external {
-		require(msg.sender == owner());
-		_owner.transfer(address(this).balance);
+		require(msg.sender == owner);
+		owner.transfer(address(this).balance);
 
 	}
 
 	//allow them to pay with their own Tributes (prevents us from increasing spread too high)
-	function requestDataWithEther(string calldata c_sapi, uint _tip) external payable{
-		Tellor doracle = Tellor(tellorStorageAddress);
-		require(doracle.balanceOf(address(this)) > _tip * tellorPrice);
-		doracle.requestData(c_sapi,_tip);
+	function requestDataWithEther(string calldata c_sapi, string calldata _c_symbol,uint _requestId,uint _granularity, uint _tip) external payable{
+		TellorMaster _tellorm = TellorMaster(tellorStorageAddress);
+		require(_tellorm.balanceOf(address(this)) > _tip * tributePrice);
+		Tellor _tellor = Tellor(tellorStorageAddress); //we should delcall here
+		_tellor.requestData(c_sapi,_c_symbol,_requestId,_granularity,_tip);
 	}
 
-	function addValueToPoolWithEther(uint _apiId, uint _tip) public {
-		Tellor doracle = Tellor(tellorStorageAddress);
-		require(doracle.balanceOf(address(this)) > _tip * tellorPrice);
-		doracle.addTip(_apiId,_tip);
+	function addTipWithEther(uint _apiId, uint _tip) public {
+		TellorMaster _tellorm = TellorMaster(tellorStorageAddress);
+		require(_tellorm.balanceOf(address(this)) > _tip * tributePrice);
+		Tellor _tellor = Tellor(tellorStorageAddress); //we should delcall here
+		_tellor.addTip(_apiId,_tip);
 	}
 
 	function setSpread(uint _spread) public{
-		require(msg.sender == owner());
-		apiId = _id;
+		require(msg.sender == owner);
 		spread = _spread;
+	}
+
+	function setPrice(uint _price) public {
+		require(msg.sender == owner);
+		tributePrice = _price;
+		emit NewPriceSet(_price);
 	}
 
 }
