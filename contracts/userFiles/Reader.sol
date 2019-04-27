@@ -13,11 +13,13 @@ contract Reader is Optimistic{
 	uint public endValue;
 	bool public longWins;
 	bool public contractEnded;
+	event ContractSettled(uint _svalue, uint _evalue);
 
+	constructor(address _userContract, uint _disputeFeeRequired, uint _disputePeriod, uint[] memory _requestIds, uint _granularity) Optimistic(_userContract,_disputeFeeRequired,_disputePeriod, _requestIds,_granularity) public {}
 
 	function testContract(uint _duration) external {
 		startDateTime = now - now % granularity;
-		endDateTime = now + _duration - now % granularity;
+		endDateTime = now - now % granularity + _duration;
 	}
 
 	function settleContracts() external{
@@ -29,6 +31,7 @@ contract Reader is Optimistic{
 					longWins = true;
 				}
 				contractEnded = true;
+				emit ContractSettled(startValue, endValue);
 			}
 		}
 	}

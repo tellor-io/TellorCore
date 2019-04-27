@@ -26,7 +26,7 @@ contract Optimistic is UsingTellor{
 
 	//A list of parties who can set the values (must not be blank)
 	//The off
-	constructor(uint _disputeFeeRequired, uint _disputePeriod, uint[] memory _requestIds, uint _granularity) public{
+	constructor(address _userContract, uint _disputeFeeRequired, uint _disputePeriod, uint[] memory _requestIds, uint _granularity) UsingTellor(_userContract) public{
 		disputeFee = _disputeFeeRequired;
 		disputePeriod = _disputePeriod;
 		granularity = _granularity;
@@ -39,6 +39,7 @@ contract Optimistic is UsingTellor{
 		require(getIsValue(_timestamp) == false);
 		valuesByTimestamp[_timestamp] = _value;
 		isValue[_timestamp] = true;
+		timestamps.push(_timestamp);
 		emit NewValueSet(_timestamp,_value);
 
 	}
@@ -95,9 +96,8 @@ contract Optimistic is UsingTellor{
 		uint _count = timestamps.length ;
 		if(_count > 0){
 				for(uint i = _count - 1;i > 0;i--){
-					if(timestamps[i] < _timestamp){
-						_timestampRetrieved = timestamps[i+1];//will this work with a zero index? (or insta hit?)
-						i  = 0;
+					if(timestamps[i] >= _timestamp){
+						_timestampRetrieved = timestamps[i];
 					}
 				}
 				if(_timestampRetrieved > 0){

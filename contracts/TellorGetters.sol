@@ -232,7 +232,7 @@ contract TellorGetters{
     function isInDispute(uint _requestId, uint _timestamp) external view returns(bool){
         return tellor.isInDispute(_requestId,_timestamp);
     }
-    function name() external returns(string memory){
+    function name() external view returns(string memory){
         return tellor.name();
     }
 
@@ -246,7 +246,7 @@ contract TellorGetters{
         return tellor.retrieveData(_requestId,_timestamp);
     }
 
-    function symbol() external returns(string memory){
+    function symbol() external view returns(string memory){
         return tellor.symbol();
     } 
 

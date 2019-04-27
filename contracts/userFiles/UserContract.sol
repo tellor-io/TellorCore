@@ -21,6 +21,14 @@ contract UserContract{
 	event OwnershipTransferred(address _previousOwner,address _newOwner);
 	event NewPriceSet(uint _newPrice);
 
+
+
+    constructor(address payable _storage) public{
+    	tellorStorageAddress = _storage;
+    	owner = msg.sender;
+    }
+
+    
     /**
          * @dev Allows the current owner to transfer control of the contract to a newOwner.
          * @param newOwner The address to transfer ownership to.
@@ -29,12 +37,6 @@ contract UserContract{
             require(msg.sender == owner);
             emit OwnershipTransferred(owner, newOwner);
             owner = newOwner;
-    }
-
-
-    constructor(address payable _storage) public{
-    	tellorStorageAddress = _storage;
-    	owner = msg.sender;
     }
 
 	function withdrawEther() external {

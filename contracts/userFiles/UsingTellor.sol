@@ -10,7 +10,6 @@ import './UserContract.sol';
 contract UsingTellor{
 	UserContract tellorUserContract;
 	address public owner;
-	bool public canSet;
 	
 	event OwnershipTransferred(address _previousOwner,address _newOwner);
 
@@ -20,7 +19,7 @@ contract UsingTellor{
     	owner = msg.sender;
     }
 
-	function getCurrentValue(uint _requestId) public returns(bool ifRetrieve, uint value, uint _timestampRetrieved) {
+	function getCurrentValue(uint _requestId) public view returns(bool ifRetrieve, uint value, uint _timestampRetrieved) {
 		TellorMaster _tellor = TellorMaster(tellorUserContract.tellorStorageAddress());
 		uint _count = _tellor.getNewValueCountbyRequestId(_requestId) ;
 		if(_count > 0){

@@ -405,7 +405,7 @@ library TellorGettersLibrary{
     }
         //add tests for these
     //should I just drop these?
-    function name(TellorStorageStruct storage self) internal returns(string memory){
+    function name(TellorStorageStruct storage self) internal view returns(string memory){
         return self._name;
     }
 
@@ -419,7 +419,7 @@ library TellorGettersLibrary{
         return self.requestDetails[_requestId].finalValues[_timestamp];
     }
 
-    function symbol(TellorStorageStruct storage self) internal returns(string memory){
+    function symbol(TellorStorageStruct storage self) internal view returns(string memory){
         return self._symbol;
     } 
 
