@@ -13,7 +13,8 @@ module.exports =async function(callback) {
     let oracle;
     s
         oracleBase = await Oracle.new();
-        console.log("oracle address", oracleBase.address);
+        console.log("Tellor address", oracleBase.address);
         oracle = await TellorMaster.new(oracleBase.address);
+        console.log("Tellor Master address", oracle.address);
 
 }

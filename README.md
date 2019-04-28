@@ -78,7 +78,7 @@ Ethereum smart contracts cannot access off-chain data. If your smart contract re
 Tellor implements a hybrid Proof-of-work (PoW)/Proof-of-Stake (PoS) model where miners have to stake tellor tributes (tellor's native token) to be able to mine and along with the PoW solution they also provide an off-chain data point. The first five miners to provide the PoW and off-chain data point are rewarded: the miner with the median value is given the highest reward since that is what is used as the 'official' value and the four miners get a lower reward that decreases the further they are from the median. Once validated and processed the value is available for on-chain contracts to use. The value can be disputed by anyone holding tellor tributes within 10 blocks after being mined for a fee. After the value goes to dispute, anyone holding tributes can vote on it's validity. If the vote determines the value was invalid the reporting party gets awarded the miner's stake, otherwise the wrongly accused miner gets the reporting fee. 
 
 <p align="center">
-<img src="./public/Powo.png" width="400" height="200" alt = "How it works">
+<img src="./public/ProcessFlow.png" width="400" height="200" alt = "How it works">
 </p>
 
 A deep dive in methodology is available here: [In-Depth Overview](./InDepthOverview.md)

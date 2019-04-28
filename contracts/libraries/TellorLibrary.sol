@@ -53,7 +53,7 @@ library TellorLibrary{
     struct Request{
         string queryString;//id to string api
         string dataSymbol;//short name for api request
-        bytes32 queryHash;//hash of string
+        bytes32 queryHash;//hash of api string and granularity e.g. keccak256(abi.encodePacked(_sapi,_granularity))
         uint[]  requestTimestamps; //array of all newValueTimestamps requested
         mapping(bytes32 => uint) apiUintVars;
         //Each of the variables below is saved in the mapping apiUintVars for each api request

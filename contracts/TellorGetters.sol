@@ -108,7 +108,7 @@ contract TellorGetters{
 
     /**
     * @dev Getter function for variables for the requestId being currently mined(currentRequestId)
-    * @return current challenge, curretnRequestId, level of difficulty, api/query string, and granularity(number of decimals requested) 
+    * @return current challenge, curretnRequestId, level of difficulty, api/query string, and granularity(number of decimals requested), , total tip for the request 
     */
     function getCurrentVariables() external view returns(bytes32, uint, uint,string memory,uint,uint){    
         return tellor.getCurrentVariables();
@@ -302,7 +302,7 @@ contract TellorGetters{
 
     /**
     * @dev Getter function for next requestId on queue
-    * @return onDeckRequestId, onDeckTotaltips, and onDeckRequestId
+    * @return onDeckRequestId, onDeckTotaltips, , and API query string
     */
     function getVariablesOnDeck() external view returns(uint, uint,string memory){    
         return tellor.getVariablesOnDeck();

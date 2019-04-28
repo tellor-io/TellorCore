@@ -54,7 +54,7 @@ library TellorGettersLibrary{
     struct Request{
         string queryString;//id to string api
         string dataSymbol;//short name for api request
-        bytes32 queryHash;//hash of string
+        bytes32 queryHash;//hash of api string and granularity e.g. keccak256(abi.encodePacked(_sapi,_granularity))
         uint[]  requestTimestamps; //array of all newValueTimestamps requested
         mapping(bytes32 => uint) apiUintVars;
         //Each of the variables below is saved in the mapping apiUintVars for each api request
@@ -274,7 +274,7 @@ library TellorGettersLibrary{
 
     /**
     * @dev Getter function for variables for the requestId being currently mined(currentRequestId)
-    * @return current challenge, curretnRequestId, level of difficulty, api/query string, and granularity(number of decimals requested) 
+    * @return current challenge, curretnRequestId, level of difficulty, api/query string, and granularity(number of decimals requested), total tip for the request 
     */
     function getCurrentVariables(TellorStorageStruct storage self) internal view returns(bytes32, uint, uint,string memory,uint,uint){    
         return (self.currentChallenge,self.uintVars[keccak256("currentRequestId")],self.uintVars[keccak256("difficulty")],self.requestDetails[self.uintVars[keccak256("currentRequestId")]].queryString,self.requestDetails[self.uintVars[keccak256("currentRequestId")]].apiUintVars[keccak256("granularity")],self.requestDetails[self.uintVars[keccak256("currentRequestId")]].apiUintVars[keccak256("totalTip")]);
@@ -475,7 +475,7 @@ library TellorGettersLibrary{
 
     /**
     * @dev Getter function for next requestId on queue
-    * @return onDeckRequestId, onDeckTotaltips, and onDeckRequestId
+    * @return onDeckRequestId, onDeckTotaltips, and API query string
     */
     function getVariablesOnDeck(TellorStorageStruct storage self) internal view returns(uint, uint,string memory){    
         return (self.uintVars[keccak256("onDeckRequestId")],self.uintVars[keccak256("onDeckTotalTips")],self.requestDetails[self.uintVars[keccak256("onDeckRequestId")]].queryString);
