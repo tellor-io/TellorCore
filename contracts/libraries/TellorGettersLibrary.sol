@@ -85,6 +85,7 @@ library TellorGettersLibrary{
         //These are the variables saved in this mapping:
             // address keccak256("tellorContract");//Tellor address
             // address  keccak256("_owner");//Tellor Owner address
+            // address  keccak256("_deity");//Tellor Owner that can do things at will
         mapping(bytes32 => uint) uintVars; 
         //uint fields in the Tellor contract are saved the uintVars mapping
         //e.g. uintVars[keccak256("decimals")] = uint
@@ -142,8 +143,22 @@ library TellorGettersLibrary{
     //Only needs to be in library
     function tellorMasterConstructor(TellorStorageStruct storage self,address _tellorContract) internal{
         self.addressVars[keccak256("_owner")] = msg.sender;
+        self.addressVars[keccak256("_deity")] = msg.sender;
         self.addressVars[keccak256("tellorContract")]= _tellorContract;
         emit NewTellorAddress(_tellorContract);
+    }
+
+        //Only needs to be in library
+    function changeTellorContract(TellorStorageStruct storage self,address _tellorContract) internal{
+        require(self.addressVars[keccak256("_deity")] == msg.sender);
+        self.addressVars[keccak256("tellorContract")]= _tellorContract;
+        emit NewTellorAddress(_tellorContract);
+    }
+
+        //Only needs to be in library
+    function changeDeity(TellorStorageStruct storage self, address _newDeity) internal{
+        require(self.addressVars[keccak256("_deity")] == msg.sender);
+        self.addressVars[keccak256("_deity")] =_newDeity;
     }
 
     /*Tellor Getters*/
@@ -312,6 +327,21 @@ library TellorGettersLibrary{
         return (retrieveData(self,self.requestIdByTimestamp[self.uintVars[keccak256("timeOfLastNewValue")]], self.uintVars[keccak256("timeOfLastNewValue")]),true);
     }
 
+
+    /**
+    * @dev Gets the a value for the latest timestamp available
+    * @param _requestId being requested
+    * @return value for timestamp of last proof of work submited
+    */
+    function getLastNewValueById(TellorStorageStruct storage self,uint _requestId) internal view returns(uint,bool){
+        Request storage _request = self.requestDetails[_requestId]; 
+        if(_request.requestTimestamps.length > 0){
+            return (retrieveData(self,_requestId,_request.requestTimestamps[_request.requestTimestamps.length - 1]),true);
+        }
+        else{
+            return (0,false);
+        }
+    }
 
     /**
     * @dev Retreive value from oracle based on requestId/timestamp

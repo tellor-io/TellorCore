@@ -131,7 +131,7 @@ contract TellorGetters{
     * commented out under the disputeUintVars under the Dispute struct
     * @return uint value for the bytes32 data submitted
     */
-    function getDisputeUintVars(uint _disputeId,bytes32 _data) internal view returns(uint){
+    function getDisputeUintVars(uint _disputeId,bytes32 _data) external view returns(uint){
         return tellor.getDisputeUintVars(_disputeId,_data);
     }
 
@@ -142,6 +142,15 @@ contract TellorGetters{
     function getLastNewValue() external view returns(uint,bool){
         return tellor.getLastNewValue();
     }
+
+    /* @dev Gets the a value for the latest timestamp available
+    * @param _requestId being requested
+    * @return value for timestamp of last proof of work submited
+    */
+    function getLastNewValueById(uint _requestId) external view returns(uint,bool){
+        return tellor.getLastNewValueById(_requestId);
+    }
+        
 
     /**
     * @dev Retreive value from oracle based on timestamp
@@ -234,7 +243,7 @@ contract TellorGetters{
     * the variables/strings used to save the data in the mapping. The variables names are  
     * commented out under the apiUintVars under the requestDetails struct
     */
-    function getRequestUintVars(uint _requestId,bytes32 _data) internal view returns(uint){
+    function getRequestUintVars(uint _requestId,bytes32 _data) external view returns(uint){
         return tellor.getRequestUintVars(_requestId,_data);
     }
 
