@@ -93,7 +93,7 @@ contract('Token and Staking Tests', function(accounts) {
 
    it("Total Supply", async function(){
         supply = await web3.eth.call({to:oracle.address,data:oracle3.methods.totalSupply().encodeABI()});
-        assert.equal(web3.utils.fromWei(supply),5000,"Supply should be 10000");
+        assert.equal(web3.utils.fromWei(supply),6000,"Supply should be 6000");//added miner
     });
 
     it("re-Staking without withdraw ", async function(){

@@ -149,13 +149,15 @@ library TellorLibrary{
         updateBalanceAtNow(self.balances[address(this)], 2**256-1 - 5000e18);
 
         //the initial 5 miner addresses are specfied below
-        address payable[5] memory _initalMiners = [address(0xE037EC8EC9ec423826750853899394dE7F024fee),
+        //changed payable[5] to 6
+        address payable[6] memory _initalMiners = [address(0xE037EC8EC9ec423826750853899394dE7F024fee),
         address(0xcdd8FA31AF8475574B8909F135d510579a8087d3),
         address(0xb9dD5AfD86547Df817DA2d0Fb89334A6F8eDd891),
         address(0x230570cD052f40E14C14a81038c6f3aa685d712B),
-        address(0x3233afA02644CCd048587F8ba6e99b3C00A34DcC)];
+        address(0x3233afA02644CCd048587F8ba6e99b3C00A34DcC),
+        address(0xe010aC6e0248790e08F42d5F697160DEDf97E024)];
         //Stake each of the 5 miners specified above
-        for(uint i=0;i<5;i++){
+        for(uint i=0;i<6;i++){//6th miner to allow for dispute
             updateBalanceAtNow(self.balances[_initalMiners[i]],1000e18);
             self.stakerDetails[_initalMiners[i]] = StakeInfo({
                 currentStatus: 1,
@@ -164,9 +166,9 @@ library TellorLibrary{
             emit NewStake(_initalMiners[i]);
         }
         //update the stakers coutn
-        self.uintVars[keccak256("stakerCount")] += 5;
+        self.uintVars[keccak256("stakerCount")] += 6;//6th miner to allow for dispute
         //update the total suppply
-        self.uintVars[keccak256("total_supply")] += 5000e18;
+        self.uintVars[keccak256("total_supply")] += 6000e18;//6th miner to allow for dispute
         //Initiate requestQ array...is there a better way?
         for(uint i = 49;i > 0;i--) {
             self.requestQ[i] = 0;

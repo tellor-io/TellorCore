@@ -498,7 +498,7 @@ library TellorGettersLibrary{
     */
     //add tests for these
     //should I just drop these?
-    function getName(TellorStorageStruct storage self) internal returns(string memory){
+    function getName(TellorStorageStruct storage self) internal view returns(string memory){
         return self._name;
     }
 
@@ -507,7 +507,7 @@ library TellorGettersLibrary{
     * @dev Get the symbol of the token
     * return string of the token symbol
     */
-    function getSymbol(TellorStorageStruct storage self) internal returns(string memory){
+    function getSymbol(TellorStorageStruct storage self) internal view returns(string memory){
         return self._symbol;
     } 
 

@@ -323,7 +323,7 @@ contract TellorGetters{
     * @dev Get the name of the token
     * return string of the token name
     */
-    function getName() external returns(string memory){
+    function getName() external view returns(string memory){
         return tellor.getName();
     }
 
@@ -332,7 +332,7 @@ contract TellorGetters{
     * @dev Get the symbol of the token
     * return string of the token symbol
     */
-    function getSymbol() external returns(string memory){
+    function getSymbol() external view returns(string memory){
         return tellor.getSymbol();
     } 
 
