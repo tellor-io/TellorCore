@@ -13,7 +13,6 @@ import '../Tellor.sol';
 contract UserContract{
 
 	address payable public owner;
-	uint public apiId;
 	uint public spread;//in thousands * 100.  So a 5% spread is 1000  + .05 *1000 = 1050
 	uint public tributePrice;
 	address payable public tellorStorageAddress;
@@ -28,7 +27,7 @@ contract UserContract{
     	owner = msg.sender;
     }
 
-    
+
     /**
          * @dev Allows the current owner to transfer control of the contract to a newOwner.
          * @param newOwner The address to transfer ownership to.

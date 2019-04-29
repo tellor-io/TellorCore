@@ -108,12 +108,12 @@ contract Optimistic is UsingTellor{
 	}
 
 	function getLastUndisputedValueAfter(uint _timestamp) external view returns(bool,uint, uint _timestampRetrieved){
-		uint _count = timestamps.length ;
+		uint _count = timestamps.length;
 		if(_count > 0){
 				for(uint i = _count - 1;i > 0;i--){
-					if(timestamps[i] < _timestamp && timestamps[i]< block.timestamp - disputePeriod  ){
-						_timestampRetrieved = timestamps[i + 1];//will this work with a zero index? (or insta hit?)
-						i  = 0;
+
+					if(timestamps[i] >= _timestamp && timestamps[i] > block.timestamp - disputePeriod){
+						_timestampRetrieved = timestamps[i];
 					}
 				}
 				if(_timestampRetrieved > 0){
@@ -124,7 +124,11 @@ contract Optimistic is UsingTellor{
 	}
 
 	function getCurrentValue() external view returns(uint){
-		getMyValuesByTimestamp(timestamps[timestamps.length -1]);
+		return getMyValuesByTimestamp(timestamps[timestamps.length -1]);
+	}
+
+	function getTimestamps() external view returns(uint[] memory){
+		return timestamps;
 	}
 }
 

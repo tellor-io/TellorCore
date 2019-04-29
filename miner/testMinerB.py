@@ -117,6 +117,7 @@ def getVariables():
 	payload = {"jsonrpc":"2.0","id":net_id,"method":"eth_call","params":[{"to":contract_address,"data":"0xa22e407a"}, "latest"]}
 	r = requests.post(node_url, data=json.dumps(payload));
 	val = jsonParser(r);
+	print(val);
 	val = val['result'];
 	print(val);
 	_challenge = val[:66]
@@ -159,7 +160,8 @@ def getAddress():
 			d = jsonParser(r);
 			tx = d['result']
 			_contract_address =tx['contractAddress']
-			if len(_contract_address)>0:
+			print(tx['logs'][0]['topics'][0])
+			if len(_contract_address)>0 and tx['logs'][0]['topics'][0] =='0xc2d1449eb0b6547aa426e09d9942a77fa4fc8cd3296305b3163e22452e0bcb8d':
 				last_block = int(e['result'],16) 
 				block = 0;
 				contract_address = _contract_address
@@ -172,6 +174,16 @@ def getAddress():
 	return False;
 
 #getVariables()
-masterMiner();
+#masterMiner();
 #getAddress();
 #getAPIvalue('json(https://api.gdax.com/products/BTC-USD/ticker).price')
+
+def testHash():
+		_string = Web3.toHex(str.encode(str("Nick")))
+		v = Web3.toHex(Web3.sha3(hexstr=_string));
+		z= hashlib.new('ripemd160',bytes.fromhex(v[2:])).hexdigest()
+		n = "0x" + hashlib.new('sha256',bytes.fromhex(z)).hexdigest()
+		print(v)
+		print(z)
+		print(n)
+testHash()
