@@ -13,14 +13,13 @@ contract TellorMaster is TellorGetters{
         tellor.tellorMasterConstructor(_tellorContract);
     }
 
-    function changeTellorContract(TellorStorageStruct storage self,address _tellorContract) external{
+    function changeTellorContract(address _tellorContract) external{
         tellor.changeTellorContract(_tellorContract);
     }
 
         //Only needs to be in library
-    function changeDeity(TellorStorageStruct storage self, address _newDeity) external{
-        require(self.addressVars[keccak256("_deity")] = msg.sender);
-        self.addressVars[keccak256("_deity")] =_newDeity;
+    function changeDeity(address _newDeity) external{
+        tellor.changeDeity(_newDeity);
     }
 
     /**

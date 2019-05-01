@@ -621,8 +621,7 @@ library TellorLibrary{
         require(_requestId == self.uintVars[keccak256("currentRequestId")]);
         
         //Saving the challenge information as unique by using the msg.sender
-        bytes32 n = sha256(abi.encodePacked(ripemd160(abi.encodePacked(keccak256(abi.encodePacked(self.currentChallenge,msg.sender,_nonce))))));
-        require(uint(n) % self.uintVars[keccak256("difficulty")] == 0);
+        require(uint(sha256(abi.encodePacked(ripemd160(abi.encodePacked(keccak256(abi.encodePacked(self.currentChallenge,msg.sender,_nonce))))))) % self.uintVars[keccak256("difficulty")] == 0);
         
         //Make sure the miner does not submit a value more than once
         require(self.minersByChallenge[self.currentChallenge][msg.sender] == false); 
@@ -646,11 +645,12 @@ library TellorLibrary{
             // If the difference between the timeTarget and how long it takes to solve the challenge this updates the challenge 
             //difficulty up or donw by the difference between the target time and how long it took to solve the prevous challenge
             //otherwise it sets it to 1
-            if(int(self.uintVars[keccak256("difficulty")]) + (int(self.uintVars[keccak256("timeTarget")]) - int(now - self.uintVars[keccak256("timeOfLastNewValue")]))/60 > 0){
-                self.uintVars[keccak256("difficulty")] = uint(int(self.uintVars[keccak256("difficulty")]) + (int(self.uintVars[keccak256("timeTarget")]) - int(now - self.uintVars[keccak256("timeOfLastNewValue")]))/60);
+            int _newDiff = int(self.uintVars[keccak256("difficulty")]) + int(self.uintVars[keccak256("difficulty")]) *(int(self.uintVars[keccak256("timeTarget")]) - int(now - self.uintVars[keccak256("timeOfLastNewValue")]))/100;
+            if(_newDiff <= 0){
+                self.uintVars[keccak256("difficulty")] = 1;
             }
             else{
-                self.uintVars[keccak256("difficulty")] = 1;
+                self.uintVars[keccak256("difficulty")] = uint(_newDiff);
             }
             
             //Sets time of value submission rounded to 1 minute
