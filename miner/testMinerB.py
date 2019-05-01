@@ -115,25 +115,32 @@ def getVariables():
 	getAddress();
 	print (contract_address)
 	payload = {"jsonrpc":"2.0","id":net_id,"method":"eth_call","params":[{"to":contract_address,"data":"0xa22e407a"}, "latest"]}
-	r = requests.post(node_url, data=json.dumps(payload));
-	val = jsonParser(r);
-	val = val['result'];
-	print(val);
-	_challenge = val[:66]
-	val = val[66:]
-	_apiId = int(val[:64],16)
-	val = val[64:]
-	_difficulty = int(val[:64],16);
-	val =val[64:]
-	val =val[64:]
-	print(val[:64]);
-	_granularity = int(val[:64],16);
-	val =val[64:]
-	val =val[64:]
-	val = val[:-16]
-	_apiString =  str(binascii.unhexlify(val.strip()))
-	print('String',_challenge,_apiId,_difficulty,_apiString,_granularity)
-	return _challenge,_apiId,_difficulty,_apiString,_granularity
+	tries = 1;
+	while tries < 5:
+		try:
+			r = requests.post(node_url, data=json.dumps(payload));
+			val = jsonParser(r);
+			val = val['result'];
+			print(val);
+			_challenge = val[:66]
+			val = val[66:]
+			_apiId = int(val[:64],16)
+			val = val[64:]
+			_difficulty = int(val[:64],16);
+			val =val[64:]
+			val =val[64:]
+			print(val[:64]);
+			_granularity = int(val[:64],16);
+			val =val[64:]
+			val =val[64:]
+			val = val[:-16]
+			_apiString =  str(binascii.unhexlify(val.strip()))
+			print('String',_challenge,_apiId,_difficulty,_apiString,_granularity)
+			return _challenge,_apiId,_difficulty,_apiString,_granularity
+		except:
+			tries += 1
+			print('Oh no...not working')
+	return 0,0,0,0,0
 
 def jsonParser(_info):
 	my_json = _info.content

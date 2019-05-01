@@ -32,6 +32,15 @@ contract Tellor /* is TellorGetters*/{
         tellor.tellorPostConstructor();
     }
 
+    /**
+    * @dev Add tip to Request value from oracle
+    * @param _requestId being requested to be mined
+    * @param _tip amount the requester is willing to pay to be get on queue. Miners
+    * mine the onDeckQueryHash, or the api with the highest payout pool
+    */
+    function addTip(uint _requestId, uint _tip) external {
+        tellor.addTip(_requestId,_tip);
+    }
 
     /**
     * @dev This function approves a _spender an _amount of tokens to use
@@ -41,13 +50,6 @@ contract Tellor /* is TellorGetters*/{
     */
     function approve(address _spender, uint _amount) external returns (bool) {
         return tellor.approve(_spender,_amount);
-    }
-
-    /**
-    * @dev This function allows miners to deposit their stake.
-    */
-    function depositStake() external {
-        tellor.depositStake();
     }
 
 
@@ -66,6 +68,14 @@ contract Tellor /* is TellorGetters*/{
 
 
     /**
+    * @dev This function allows miners to deposit their stake.
+    */
+    function depositStake() external {
+        tellor.depositStake();
+    }
+
+
+    /**
     * @dev Allows for a fork to be proposed
     * @param _propNewTellorAddress address for new proposed Tellor
     */
@@ -75,28 +85,16 @@ contract Tellor /* is TellorGetters*/{
 
 
     /**
-    * @dev Add tip to Request value from oracle
-    * @param _requestId being requested to be mined
-    * @param _tip amount the requester is willing to pay to be get on queue. Miners
-    * mine the onDeckQueryHash, or the api with the highest payout pool
-    */
-    function addTip(uint _requestId, uint _tip) external {
-        tellor.addTip(_requestId,_tip);
-    }
-
-
-    /**
     * @dev Request to retreive value from oracle based on timestamp. The tip is not required to be 
     * greater than 0 because there are no tokens in circulation for the initial(genesis) request 
     * @param _c_sapi string API being requested be mined
     * @param _c_symbol is the short string symbol for the api request
-    * @param _requestId being requested be mined if it exist otherwise use zero(0)
     * @param _granularity is the number of decimals miners should include on the submitted value
     * @param _tip amount the requester is willing to pay to be get on queue. Miners
     * mine the onDeckQueryHash, or the api with the highest payout pool
     */
-    function requestData(string calldata _c_sapi,string calldata _c_symbol,uint _requestId,uint _granularity, uint _tip) external {
-        tellor.requestData(_c_sapi,_c_symbol,_requestId,_granularity,_tip);
+    function requestData(string calldata _c_sapi,string calldata _c_symbol,uint _granularity, uint _tip) external {
+        tellor.requestData(_c_sapi,_c_symbol,_granularity,_tip);
     }
     
 

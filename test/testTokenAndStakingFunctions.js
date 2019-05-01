@@ -55,7 +55,7 @@
 //         oracle2 = await new web3.eth.Contract(oracleAbi,oracleBase.address);///will this instance work for logWatch? hopefully...
 //         oracle3 = await new web3.eth.Contract(tellorAbi,oracleBase.address);
 //         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000, data: web3.utils.keccak256("tellorPostConstructor()")})
-//         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",0,1000,0).encodeABI()})
+//         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",1000,0).encodeABI()})
 //         await helper.advanceTime(86400 * 8);
 //         await web3.eth.sendTransaction({to:oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestStakingWithdraw().encodeABI()})
 //         await helper.advanceTime(86400 * 8);
@@ -166,7 +166,7 @@
 //     });
 
 //     it("getVariables", async function(){
-//     	let res = await web3.eth.sendTransaction({to:oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",0,1000,20).encodeABI()}) 
+//     	let res = await web3.eth.sendTransaction({to:oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",1000,20).encodeABI()}) 
 //         vars = await oracle.getCurrentVariables();
 //         let miningApiId =vars['1'];
 //         let difficulty = vars['2']
@@ -179,7 +179,7 @@
 
 //     it("Get apiId", async function () {
 //         balance1 = await web3.eth.call({to:oracle.address,data:oracle3.methods.balanceOf(accounts[2]).encodeABI()})
-//         let res = await web3.eth.sendTransaction({to:oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",0,1000,20).encodeABI()}) 
+//         let res = await web3.eth.sendTransaction({to:oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",1000,20).encodeABI()}) 
 //         apiVars= await oracle.getRequestVars(1)
 //         apiId = await oracle.getRequestIdByQueryHash(apiVars[2]) 
 //         assert(apiId == 1, "apiId should be 1");

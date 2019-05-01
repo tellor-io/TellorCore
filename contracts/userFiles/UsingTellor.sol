@@ -64,16 +64,16 @@ contract UsingTellor{
         return(false,0,0);
 	}
 
-	function requestData(string calldata _request,string calldata _symbol,uint _requestId,uint _granularity, uint _tip) external{
+	function requestData(string calldata _request,string calldata _symbol,uint _granularity, uint _tip) external{
 		Tellor _tellor = Tellor(tellorUserContract.tellorStorageAddress());
 		if(_tip > 0){
 			_tellor.transfer(address(this),_tip);
 		}
-		_tellor.requestData(_request,_symbol,_requestId,_granularity,_tip);
+		_tellor.requestData(_request,_symbol,_granularity,_tip);
 	}
 
-	function requestDataWithEther(string calldata _request,string calldata _symbol,uint _requestId,uint _granularity, uint _tip) payable external{
-		tellorUserContract.requestDataWithEther(_request,_symbol,_requestId,_granularity,_tip);
+	function requestDataWithEther(string calldata _request,string calldata _symbol,uint _granularity, uint _tip) payable external{
+		tellorUserContract.requestDataWithEther(_request,_symbol,_granularity,_tip);
 	}
 
 	function addTip(uint _requestId, uint _tip) public {
