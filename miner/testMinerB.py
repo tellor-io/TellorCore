@@ -40,7 +40,7 @@ def mine(challenge, public_address, difficulty):
 			d = jsonParser(r);
 			_block = int(d['result'],16)
 			if(last_block != _block):
-				_challenge,_apiId,_difficulty,_apiString = getVariables();
+				_challenge,_apiId,_difficulty,_apiString,_granularity = getVariables();
 				print(_challenge);
 				if challenge != _challenge:
 					return 0;

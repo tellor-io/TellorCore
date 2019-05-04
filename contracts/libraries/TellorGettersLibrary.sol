@@ -77,7 +77,6 @@ library TellorGettersLibrary{
         bytes32 onDeckQueryHash; //string of current api with highest PayoutPool not currently being mined
         string _name; //name of the Token
         string _symbol;//Token Symbol
-        uint[5]  miningRewardDistributions;//The structure of the payout (how much uncles vs winner recieve)[1,5,10,5,1]
         uint[51]  requestQ; //uint50 array of the top50 requests by payment amount
         uint[]  newValueTimestamps; //array of all timestamps requested
         Details[5]  currentMiners; //This struct is for organizing the five mined values to find the median
@@ -184,11 +183,12 @@ library TellorGettersLibrary{
 
     /**
     * @dev This function returns whether or not a given user is allowed to trade a given amount  
-    * @param _user address 
-    * @param _amount of amount
+    * @param _user address of party trying to spend
+    * @param _amount of Tributes party is trying to spend
     * @return true if the user is alloed to trade the amount specified
     */
     function allowedToTrade(TellorStorageStruct storage self,address _user,uint _amount) internal view returns(bool){
+        //currentStatus = 0 is not staked, 1 is staked, 2 is in withdraw, 3 is in dispute
         if(self.stakerDetails[_user].currentStatus >0){
             if(balanceOf(self,_user).sub(self.uintVars[keccak256("stakeAmount")]).sub(_amount) >= 0){
                 return true;
@@ -257,7 +257,7 @@ library TellorGettersLibrary{
     /**
     * @dev Checks if an address voted in a dispute
     * @param _disputeId to look up
-    * @param _address to look up
+    * @param _address of voting party to look up
     * @return bool of whether or not party voted
     */
     function didVote(TellorStorageStruct storage self,uint _disputeId, address _address) internal view returns(bool){

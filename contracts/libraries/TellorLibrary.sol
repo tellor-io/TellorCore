@@ -10,22 +10,23 @@ import "./Utilities.sol";
  * @dev Failure to do so will result in errors with the fallback proxy
  */
 library TellorLibrary{
-        using SafeMath for uint256;
+    using SafeMath for uint256;
 
+    //Internal struct for use in proof-of-work submission
     struct Details {
         uint value;
         address miner;
     }
 
     struct Dispute {
-        bytes32 hash;
+        bytes32 hash;//unique hash of dispute: keccak256(_miner,_requestId,_timestamp)
         int tally;//current tally of votes for - against measure
         bool executed;//is the dispute settled
         bool disputeVotePassed;//did the vote pass?
         bool isPropFork; //true for fork proposal NEW
         address reportedMiner; //miner who alledgedly submitted the 'bad value' will get disputeFee if dispute vote fails
         address reportingParty;//miner reporting the 'bad value'-pay disputeFee will get reportedMiner's stake if dispute vote passes
-        address proposedForkAddress;
+        address proposedForkAddress;//new fork address (if fork proposal)
         mapping(bytes32 => uint) disputeUintVars;
         //Each of the variables below is saved in the mapping disputeUintVars for each disputeID
         //e.g. TellorStorageStruct.DisputeById[disputeID].disputeUintVars[keccak256("requestId")] 
@@ -46,6 +47,7 @@ library TellorLibrary{
         uint startDate; //stake start date
     }
 
+    //Internal struct to allow balances to be queried by blocknumber for voting purposes
     struct  Checkpoint {
         uint128 fromBlock;// fromBlock is the block number that the value was generated from
         uint128 value;// value is the amount of tokens at a specific block number
@@ -75,7 +77,6 @@ library TellorLibrary{
         bytes32 onDeckQueryHash; //string of current api with highest PayoutPool not currently being mined
         string _name; //name of the Token
         string _symbol;//Token Symbol
-        uint[5]  miningRewardDistributions;//The structure of the payout (how much uncles vs winner recieve)[1,5,10,5,1]
         uint[51]  requestQ; //uint50 array of the top50 requests by payment amount
         uint[]  newValueTimestamps; //array of all timestamps requested
         Details[5]  currentMiners; //This struct is for organizing the five mined values to find the median
@@ -186,8 +187,6 @@ library TellorLibrary{
         self.uintVars[keccak256("timeTarget")]= 10 * 60;
         self.uintVars[keccak256("timeOfLastNewValue")] = now - now  % self.uintVars[keccak256("timeTarget")];
         self.uintVars[keccak256("difficulty")] = 1;
-        self.uintVars[keccak256("miningReward")] = 22e18;
-        self.miningRewardDistributions =  [1e18,5e18,10e18,5e18,1e18]; 
         self._name = "Tellor Tributes";
         self._symbol = "TT";
     }
@@ -474,7 +473,6 @@ library TellorLibrary{
         else{
             addTip(self,self.requestIdByQueryHash[_queryHash],_tip);
         }
-
     }
     
 
@@ -569,15 +567,15 @@ library TellorLibrary{
             
             //Pay the miners according to the reward distribution
             for (i = 0;i <5;i++){
-                doTransfer(self,address(this),a[i].miner,self.miningRewardDistributions[i] + self.uintVars[keccak256("currentTotalTips")]/22 * self.miningRewardDistributions[i] / 1e18);
+                doTransfer(self,address(this),a[i].miner,5e18 + self.uintVars[keccak256("currentTotalTips")]/5);
             }
-            emit NewValue(_requestId,self.uintVars[keccak256("timeOfLastNewValue")],a[2].value,self.uintVars[keccak256("currentTotalTips")] - self.uintVars[keccak256("currentTotalTips")]%22,self.currentChallenge);
+            emit NewValue(_requestId,self.uintVars[keccak256("timeOfLastNewValue")],a[2].value,self.uintVars[keccak256("currentTotalTips")] - self.uintVars[keccak256("currentTotalTips")] % 5,self.currentChallenge);
             
             //update the total supply
-            self.uintVars[keccak256("total_supply")] += self.uintVars[keccak256("currentTotalTips")] - self.uintVars[keccak256("currentTotalTips")]%22 + self.uintVars[keccak256("miningReward")]*110/100;//can we hardcode this?
+            self.uintVars[keccak256("total_supply")] += 275e17;//can we hardcode this?
             
             //pay the dev-share
-            doTransfer(self,address(this),self.addressVars[keccak256("_owner")],(self.uintVars[keccak256("miningReward")] * 10 / 100));//The ten there is the devshare
+            doTransfer(self,address(this),self.addressVars[keccak256("_owner")],25e17);//The ten there is the devshare
             //Save the official(finalValue), timestamp of it, 5 miners and their submitted values for it, and its block number
             _request.finalValues[self.uintVars[keccak256("timeOfLastNewValue")]] = a[2].value;
             _request.requestTimestamps.push(self.uintVars[keccak256("timeOfLastNewValue")]);
