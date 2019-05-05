@@ -13,6 +13,7 @@
 // const TellorLibrary = artifacts.require(".libraries/TellorLibrary.sol");
 // const Tellor = artifacts.require("./Tellor.sol"); // globally injected artifacts helper
 // var oracleAbi = Tellor.abi;
+// var masterAbi = TellorMaster.abi;
 // var oracleByte = Tellor.bytecode;
 
 // var api = 'json(https://api.gdax.com/products/BTC-USD/ticker).price';
@@ -40,20 +41,22 @@
 //   let oracle2;
 //   let oracleBase;
 //   let logNewValueWatcher;
-//   let myLib
+//   let myLib;
+//   let master;
 
 //     beforeEach('Setup contract for each test', async function () {
 //         oracleBase = await Tellor.new();
 //         oracle = await TellorMaster.new(oracleBase.address);
+//         master = await new web3.eth.Contract(masterAbi,oracle.address);
 //         oracle2 = await new web3.eth.Contract(oracleAbi,oracleBase.address);///will this instance work for logWatch? hopefully...
 //         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000, data: web3.utils.keccak256("tellorPostConstructor()")})
-//         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",0,1000,0).encodeABI()})
+//         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",1000,0).encodeABI()})
 //         await helper.advanceTime(86400 * 8);
 //         await web3.eth.sendTransaction({to:oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestStakingWithdraw().encodeABI()})
 //         await helper.advanceTime(86400 * 8);
 //         await web3.eth.sendTransaction({to:oracle.address,from:accounts[2],data:oracle2.methods.withdrawStake().encodeABI()})
 //    });  
-//     it("transferOwnership", async function () {
+//    it("transferOwnership", async function () {
 //         let checkowner = await oracle.getAddressVars(web3.utils.keccak256("_owner"));
 //         assert(checkowner == accounts[0], "initial owner acct 0");
 //         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.transferOwnership(accounts[2]).encodeABI()});
@@ -61,7 +64,7 @@
 //         assert(checkowner == accounts[2], "initial owner acct 2");
 //    });
 //    it("Request data", async function () {
-//         let res2 = await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(api2,"ETH/USD",0,1000,20).encodeABI()})
+//         let res2 = await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(api2,"ETH/USD",1000,20).encodeABI()})
 //         let res = await web3.eth.abi.decodeParameters(['string','string','uint256','uint256'],res2.logs[2].data);
 //         let resSapi = res['0']
 //         let resApiId = await web3.eth.abi.decodeParameter('uint256',res2.logs[2].topics[2])
@@ -76,19 +79,20 @@
 //         vars = await oracle.getRequestVars(2)
 //         assert(vars[1] == "ETH/USD")
 //     });
+    
 //     it("several request data", async function () {
 //         test1 = "https://api.gdax.com/products/ETH-USD/ticker";
 //         test2 = "https://api.gdax.com/products/BTC-USD/ticker";
-//         let req1 = await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(test1,"ETH/USD",0,1000,20).encodeABI()})
+//         let req1 = await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(test1,"ETH/USD",1000,20).encodeABI()})
 //         onQ = await web3.eth.abi.decodeParameter('uint256',req1.logs[1].topics[1])
 //         assert(web3.utils.hexToNumberString(onQ) == 2, "should be 2");
-//        req1 = await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(api2,"ETH/USD",0,1000,40).encodeABI()})
+//        req1 = await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(api2,"ETH/USD",1000,40).encodeABI()})
 //         onQ = await web3.eth.abi.decodeParameter('uint256',req1.logs[1].topics[1])
 //        assert(web3.utils.hexToNumberString(onQ) == 3, "should be 3");
-//        req1 = await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData("","ETH/USD",2,1000,31).encodeABI()})
+//        req1 = await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(test1,"ETH/USD",1000,31).encodeABI()})
 //         onQ = await web3.eth.abi.decodeParameter('uint256',req1.logs[1].topics[1])
 //        assert(web3.utils.hexToNumberString(onQ) == 2, "should be 2");
-//        req1 = await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(test2,"ETH/USD",0,1000,60).encodeABI()})
+//        req1 = await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(test2,"ETH/USD",1000,60).encodeABI()})
 //         onQ = await web3.eth.abi.decodeParameter('uint256',req1.logs[1].topics[1])
 //        assert(web3.utils.hexToNumberString(onQ) == 4, "should be 4");
 //     });
@@ -97,7 +101,7 @@
 //         test1 = 'test';
 //         let pay = web3.utils.toWei('20', 'ether');
 //         let pay2 = web3.utils.toWei('50', 'ether');
-//         let res3 = await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(test1,"ETH/USD",0,1000,pay).encodeABI()})
+//         let res3 = await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(test1,"ETH/USD",1000,pay).encodeABI()})
 //         let res = await web3.eth.abi.decodeParameters(['string','string','uint256','uint256'],res3.logs[2].data);
 //         let resSapi = res['0']
 
@@ -109,7 +113,7 @@
 //         let apiOnQPayout = res2['2'];
 //         assert(web3.utils.fromWei(apiOnQPayout) == 20, "Current payout on Q should be 20");
 //         assert(apiIdonQ== resApiId, "timestamp1 on Q should be apiID");
-//         res3 = await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(api2,"ETH/USD",0,1000,pay2).encodeABI()})
+//         res3 = await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(api2,"ETH/USD",1000,pay2).encodeABI()})
 //         res = await web3.eth.abi.decodeParameters(['string','string','uint256','uint256'],res3.logs[2].data);
 //         let resSapi2 = res['0']
 //         let resApiId2 = await web3.eth.abi.decodeParameter('uint256',res3.logs[2].topics[2])
@@ -127,7 +131,7 @@
 //         test1 = 'test';
 //         let pay = web3.utils.toWei('20', 'ether');
 //         let pay2 = web3.utils.toWei('30', 'ether');
-//         let res3 = await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(test1,"ETH/USD",0,1000,pay).encodeABI()})
+//         let res3 = await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(test1,"ETH/USD",1000,pay).encodeABI()})
 //         let res = await web3.eth.abi.decodeParameters(['string','string','uint256','uint256'],res3.logs[2].data);
 //         let resSapi = res['0']
 //         let resApiId = await web3.eth.abi.decodeParameter('uint256',res3.logs[2].topics[2])
@@ -138,7 +142,7 @@
 //         let apiOnQPayout = res2['2'];
 //         assert(web3.utils.fromWei(apiOnQPayout) == 20, "Current payout on Q should be 20");
 //         assert(apiIdonQ == resApiId, "timestamp on Q should be apiID");
-//         res3 = await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(api2,"ETH/USD",0,1000,pay2).encodeABI()}) 
+//         res3 = await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(api2,"ETH/USD",1000,pay2).encodeABI()}) 
 // 		res = await web3.eth.abi.decodeParameters(['string','string','uint256','uint256'],res3.logs[2].data);
 //         let resSapi2 = res['0']
 //         let resApiId2 = await web3.eth.abi.decodeParameter('uint256',res3.logs[2].topics[2])
@@ -149,7 +153,7 @@
 //         assert(web3.utils.hexToNumberString(apiIdonQ2) == web3.utils.hexToNumberString(resApiId2), "2timestamp on Q should be apiTimestamp");
 //         balance2 = await (oracle.balanceOf(accounts[2],{from:accounts[1]}));
 //         assert(web3.utils.fromWei(balance1) - web3.utils.fromWei(balance2) == 50, "balance should be down by 50")
-//         let addvaluePool =await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData("","ETH/USD",2,1000,pay).encodeABI()})
+//         let addvaluePool =await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(test1,"ETH/USD",1000,pay).encodeABI()})
 //         balance3 = await (oracle.balanceOf(accounts[2],{from:accounts[0]}));
 //         assert(web3.utils.fromWei(balance1) - web3.utils.fromWei(balance3) == 70, "balance should be down by 70")
 //         res2 = await web3.eth.abi.decodeParameters(['string','bytes32','uint256'],addvaluePool.logs[1].data);
@@ -166,7 +170,7 @@
 //         console.log("51 requests....");
 //          for(var i = 1;i <=51 ;i++){
 //         	apix= ("api" + i);
-//         	await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(apix,"",0,1000,i).encodeABI()})
+//         	await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(apix,"",1000,i).encodeABI()})
 //         }
 //         let payoutPool = await oracle.getRequestQ();
 //         for(var i = 2;i <=49 ;i++){
@@ -200,12 +204,12 @@
 //     });
     
 //     it("Test competing API requests - multiple switches in API on Queue", async function () {
-//     	 await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",0,1000,0).encodeABI()})
-// 		await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(api2,"ETH/USD",0,1000,0).encodeABI()})
-//          await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData("api3","",0,1000,1).encodeABI()})
-//          await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(api2,"ETH/USD",0,1000,2).encodeABI()})
-//          await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData("api3","",0,1000,3).encodeABI()})
-//          await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(api2,"ETH/USD",0,1000,4).encodeABI()})
+//     	 await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",1000,0).encodeABI()})
+// 		await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(api2,"ETH/USD",1000,0).encodeABI()})
+//          await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData("api3","",1000,1).encodeABI()})
+//          await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(api2,"ETH/USD",1000,2).encodeABI()})
+//          await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData("api3","",1000,3).encodeABI()})
+//          await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(api2,"ETH/USD",1000,4).encodeABI()})
 //         vars = await oracle.getVariablesOnDeck();
 //         let apiOnQ = web3.utils.hexToNumberString(vars['0']);
 //         let apiPayout = web3.utils.hexToNumberString(vars['1']);
@@ -235,6 +239,16 @@
 //         }
 //         await helper.advanceTime(86400 * 8);
 //         await web3.eth.sendTransaction({to: oracle.address,from:accounts[i],gas:7000000,data:oracle2.methods.tallyVotes(1).encodeABI()})
-//         assert(await oracle.getAddressVars(web3.utils.keccak256("tellorContract")) == oracleBase2.address);
+//         assert(await oracle.getAddressVars(web3.utils.keccak256("tellorContract")) == oracleBase.address, "vote should have failed");
+//     });
+//     it("Test Deity Functions", async function () {
+//     	let owner = await oracle.getAddressVars(web3.utils.keccak256("_deity"));
+//     	assert(owner == accounts[0])
+//     	await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:master.methods.changeDeity(accounts[1]).encodeABI()})
+// 		owner = await oracle.getAddressVars(web3.utils.keccak256("_deity"));
+// 		assert(owner == accounts[1])
+// 		let newOracle = await Tellor.new();
+// 		await web3.eth.sendTransaction({to: oracle.address,from:accounts[1],gas:7000000,data:master.methods.changeTellorContract(newOracle.address).encodeABI()})
+// 		assert(await oracle.getAddressVars(web3.utils.keccak256("tellorContract")) == newOracle.address);
 //     });
 // });

@@ -10,10 +10,6 @@ import "./libraries/TellorGettersLibrary.sol";
 * @dev Note at the top is the struct.  THE STRUCT SHOULD ALWAYS BE THE SAME AS TellorLibrary.SOL
 * @dev Failure to do so will result in errors with the fallback proxy
 */
-
-//add in base getters for eternal storage ???
-//add in getters for public variables ???
-
 contract TellorGetters{
     using SafeMath for uint256;
     using TellorGettersLibrary for TellorGettersLibrary.TellorStorageStruct;
@@ -131,7 +127,7 @@ contract TellorGetters{
     * commented out under the disputeUintVars under the Dispute struct
     * @return uint value for the bytes32 data submitted
     */
-    function getDisputeUintVars(uint _disputeId,bytes32 _data) internal view returns(uint){
+    function getDisputeUintVars(uint _disputeId,bytes32 _data) external view returns(uint){
         return tellor.getDisputeUintVars(_disputeId,_data);
     }
 
@@ -143,16 +139,14 @@ contract TellorGetters{
         return tellor.getLastNewValue();
     }
 
-    /**
-    * @dev Retreive value from oracle based on timestamp
+    /* @dev Gets the a value for the latest timestamp available
     * @param _requestId being requested
-    * @param _timestamp to retreive data/value from
-    * @return value for timestamp submitted
+    * @return value for timestamp of last proof of work submited
     */
-    function retrieveData(uint _requestId, uint _timestamp) external view returns (uint) {
-        return tellor.retrieveData(_requestId,_timestamp);
+    function getLastNewValueById(uint _requestId) external view returns(uint,bool){
+        return tellor.getLastNewValueById(_requestId);
     }
-
+        
 
     /**
     * @dev Gets blocknumber for mined timestamp 
@@ -173,6 +167,15 @@ contract TellorGetters{
     */
     function getMinersByRequestIdAndTimestamp(uint _requestId, uint _timestamp) external view returns(address[5] memory){
         return tellor.getMinersByRequestIdAndTimestamp(_requestId,_timestamp);
+    }
+
+
+    /**
+    * @dev Get the name of the token
+    * return string of the token name
+    */
+    function getName() external view returns(string memory){
+        return tellor.getName();
     }
 
 
@@ -234,7 +237,7 @@ contract TellorGetters{
     * the variables/strings used to save the data in the mapping. The variables names are  
     * commented out under the apiUintVars under the requestDetails struct
     */
-    function getRequestUintVars(uint _requestId,bytes32 _data) internal view returns(uint){
+    function getRequestUintVars(uint _requestId,bytes32 _data) external view returns(uint){
         return tellor.getRequestUintVars(_requestId,_data);
     }
 
@@ -269,10 +272,18 @@ contract TellorGetters{
     * @param _requestId to look up
     * @param _timestamp is the timestampt to look up miners for
     * @return address[5] array of 5 addresses ofminers that mined the requestId
-    */    function getSubmissionsByTimestamp(uint _requestId, uint _timestamp) external view returns(uint[5] memory){
+    */    
+    function getSubmissionsByTimestamp(uint _requestId, uint _timestamp) external view returns(uint[5] memory){
         return tellor.getSubmissionsByTimestamp(_requestId,_timestamp);
     }
 
+    /**
+    * @dev Get the symbol of the token
+    * return string of the token symbol
+    */
+    function getSymbol() external view returns(string memory){
+        return tellor.getSymbol();
+    } 
 
     /**
     * @dev Gets the timestamp for the value based on their index
@@ -320,21 +331,14 @@ contract TellorGetters{
     
 
     /**
-    * @dev Get the name of the token
-    * return string of the token name
+    * @dev Retreive value from oracle based on timestamp
+    * @param _requestId being requested
+    * @param _timestamp to retreive data/value from
+    * @return value for timestamp submitted
     */
-    function getName() external view returns(string memory){
-        return tellor.getName();
+    function retrieveData(uint _requestId, uint _timestamp) external view returns (uint) {
+        return tellor.retrieveData(_requestId,_timestamp);
     }
-
-
-    /**
-    * @dev Get the symbol of the token
-    * return string of the token symbol
-    */
-    function getSymbol() external view returns(string memory){
-        return tellor.getSymbol();
-    } 
 
 
     /**

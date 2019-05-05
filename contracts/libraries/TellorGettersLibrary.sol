@@ -5,27 +5,28 @@ import "./Utilities.sol";
 
 /**
 * @title Tellor Getters Library
-* @dev Oracle contract with all tellor getter functions logic
-* @dev Note at the top is the struct.  THE STRUCT SHOULD ALWAYS BE THE SAME AS TellorLibrary.SOL
+* @dev This is the getter library for all variables in the Tellor Tributes system
+* @dev Note at the top are the structs.  THE STRUCTS AND ORDER SHOULD ALWAYS BE THE SAME AS TellorLibrary.SOL
 * @dev Failure to do so will result in errors with the fallback proxy
 */
 library TellorGettersLibrary{
     using SafeMath for uint256;
 
+    //Internal struct for use in proof-of-work submission
     struct Details {
         uint value;
         address miner;
     }
 
     struct Dispute {
-        bytes32 hash;
+        bytes32 hash;//unique hash of dispute: keccak256(_miner,_requestId,_timestamp)
         int tally;//current tally of votes for - against measure
         bool executed;//is the dispute settled
         bool disputeVotePassed;//did the vote pass?
         bool isPropFork; //true for fork proposal NEW
         address reportedMiner; //miner who alledgedly submitted the 'bad value' will get disputeFee if dispute vote fails
         address reportingParty;//miner reporting the 'bad value'-pay disputeFee will get reportedMiner's stake if dispute vote passes
-        address proposedForkAddress;
+        address proposedForkAddress;//new fork address (if fork proposal)
         mapping(bytes32 => uint) disputeUintVars;
         //Each of the variables below is saved in the mapping disputeUintVars for each disputeID
         //e.g. TellorStorageStruct.DisputeById[disputeID].disputeUintVars[keccak256("requestId")] 
@@ -46,6 +47,7 @@ library TellorGettersLibrary{
         uint startDate; //stake start date
     }
 
+    //Internal struct to allow balances to be queried by blocknumber for voting purposes
     struct  Checkpoint {
         uint128 fromBlock;// fromBlock is the block number that the value was generated from
         uint128 value;// value is the amount of tokens at a specific block number
@@ -75,7 +77,6 @@ library TellorGettersLibrary{
         bytes32 onDeckQueryHash; //string of current api with highest PayoutPool not currently being mined
         string _name; //name of the Token
         string _symbol;//Token Symbol
-        uint[5]  miningRewardDistributions;//The structure of the payout (how much uncles vs winner recieve)[1,5,10,5,1]
         uint[51]  requestQ; //uint50 array of the top50 requests by payment amount
         uint[]  newValueTimestamps; //array of all timestamps requested
         Details[5]  currentMiners; //This struct is for organizing the five mined values to find the median
@@ -85,6 +86,7 @@ library TellorGettersLibrary{
         //These are the variables saved in this mapping:
             // address keccak256("tellorContract");//Tellor address
             // address  keccak256("_owner");//Tellor Owner address
+            // address  keccak256("_deity");//Tellor Owner that can do things at will
         mapping(bytes32 => uint) uintVars; 
         //uint fields in the Tellor contract are saved the uintVars mapping
         //e.g. uintVars[keccak256("decimals")] = uint
@@ -134,14 +136,35 @@ library TellorGettersLibrary{
     event Transfer(address indexed _from, address indexed _to, uint256 _value);//ERC20 Transfer Event
     event Voted(uint indexed _disputeID, bool _position, address indexed _voter);//emitted when a new vote happens
     
+    //The next two functions are onlyOwner functions.  For Tellor to be truly decentralized, we will need to transfer the Deity to the 0 address.
+    //Only needs to be in library
+    /**
+    * @dev This function allows us to set a new Deity (or remove it) 
+    * @param _newDeity address of the new Deity of the tellor system 
+    */
+    function changeDeity(TellorStorageStruct storage self, address _newDeity) internal{
+        require(self.addressVars[keccak256("_deity")] == msg.sender);
+        self.addressVars[keccak256("_deity")] =_newDeity;
+    }
+    //Only needs to be in library
+    /**
+    * @dev This function allows the deity to upgrade the Tellor System
+    * @param _tellorContract address of new updated TellorCore contract
+    */
+    function changeTellorContract(TellorStorageStruct storage self,address _tellorContract) internal{
+        require(self.addressVars[keccak256("_deity")] == msg.sender);
+        self.addressVars[keccak256("tellorContract")]= _tellorContract;
+        emit NewTellorAddress(_tellorContract);
+    }
     /*Constructor*/
+    //Only needs to be in library
     /**
     * @dev Sets the tellor contract to the Tellor master address and owner to the Tellor master owner address
     * @param _tellorContract is the address for the tellor contract
     */
-    //Only needs to be in library
     function tellorMasterConstructor(TellorStorageStruct storage self,address _tellorContract) internal{
         self.addressVars[keccak256("_owner")] = msg.sender;
+        self.addressVars[keccak256("_deity")] = msg.sender;
         self.addressVars[keccak256("tellorContract")]= _tellorContract;
         emit NewTellorAddress(_tellorContract);
     }
@@ -149,8 +172,8 @@ library TellorGettersLibrary{
     /*Tellor Getters*/
 
     /**
-    * @param _user address
-    * @param _spender address
+    * @param _user address of party with the balance
+    * @param _spender address of spender of parties said balance
     * @return Returns the remaining allowance of tokens granted to the _spender from the _user
     */
     function allowance(TellorStorageStruct storage self,address _user, address _spender) public view returns (uint) {
@@ -160,11 +183,12 @@ library TellorGettersLibrary{
 
     /**
     * @dev This function returns whether or not a given user is allowed to trade a given amount  
-    * @param _user address 
-    * @param _amount of amount
+    * @param _user address of party trying to spend
+    * @param _amount of Tributes party is trying to spend
     * @return true if the user is alloed to trade the amount specified
     */
     function allowedToTrade(TellorStorageStruct storage self,address _user,uint _amount) internal view returns(bool){
+        //currentStatus = 0 is not staked, 1 is staked, 2 is in withdraw, 3 is in dispute
         if(self.stakerDetails[_user].currentStatus >0){
             if(balanceOf(self,_user).sub(self.uintVars[keccak256("stakeAmount")]).sub(_amount) >= 0){
                 return true;
@@ -233,7 +257,7 @@ library TellorGettersLibrary{
     /**
     * @dev Checks if an address voted in a dispute
     * @param _disputeId to look up
-    * @param _address to look up
+    * @param _address of voting party to look up
     * @return bool of whether or not party voted
     */
     function didVote(TellorStorageStruct storage self,uint _disputeId, address _address) internal view returns(bool){
@@ -314,13 +338,18 @@ library TellorGettersLibrary{
 
 
     /**
-    * @dev Retreive value from oracle based on requestId/timestamp
+    * @dev Gets the a value for the latest timestamp available
     * @param _requestId being requested
-    * @param _timestamp to retreive data/value from
-    * @return uint value for requestId/timestamp submitted
+    * @return value for timestamp of last proof of work submited
     */
-    function retrieveData(TellorStorageStruct storage self, uint _requestId, uint _timestamp) internal view returns (uint) {
-        return self.requestDetails[_requestId].finalValues[_timestamp];
+    function getLastNewValueById(TellorStorageStruct storage self,uint _requestId) internal view returns(uint,bool){
+        Request storage _request = self.requestDetails[_requestId]; 
+        if(_request.requestTimestamps.length > 0){
+            return (retrieveData(self,_requestId,_request.requestTimestamps[_request.requestTimestamps.length - 1]),true);
+        }
+        else{
+            return (0,false);
+        }
     }
 
 
@@ -343,6 +372,17 @@ library TellorGettersLibrary{
     */
     function getMinersByRequestIdAndTimestamp(TellorStorageStruct storage self, uint _requestId, uint _timestamp) internal view returns(address[5] memory){
         return self.requestDetails[_requestId].minersByValue[_timestamp];
+    }
+
+
+    /**
+    * @dev Get the name of the token
+    * return string of the token name
+    */
+    //add tests for these
+    //should I just drop these?
+    function getName(TellorStorageStruct storage self) internal view returns(string memory){
+        return self._name;
     }
 
 
@@ -449,6 +489,15 @@ library TellorGettersLibrary{
     }
 
     /**
+    * @dev Get the symbol of the token
+    * return string of the token symbol
+    */
+    function getSymbol(TellorStorageStruct storage self) internal view returns(string memory){
+        return self._symbol;
+    } 
+
+
+    /**
     * @dev Gets the timestamp for the value based on their index
     * @param _requestID is the requestId to look up
     * @param _index is the value index to look up
@@ -493,24 +542,14 @@ library TellorGettersLibrary{
     }
 
     /**
-    * @dev Get the name of the token
-    * return string of the token name
+    * @dev Retreive value from oracle based on requestId/timestamp
+    * @param _requestId being requested
+    * @param _timestamp to retreive data/value from
+    * @return uint value for requestId/timestamp submitted
     */
-    //add tests for these
-    //should I just drop these?
-    function getName(TellorStorageStruct storage self) internal view returns(string memory){
-        return self._name;
+    function retrieveData(TellorStorageStruct storage self, uint _requestId, uint _timestamp) internal view returns (uint) {
+        return self.requestDetails[_requestId].finalValues[_timestamp];
     }
-
-
-    /**
-    * @dev Get the symbol of the token
-    * return string of the token symbol
-    */
-    function getSymbol(TellorStorageStruct storage self) internal view returns(string memory){
-        return self._symbol;
-    } 
-
 
     /**
     * @dev Getter for the total_supply of oracle tokens
