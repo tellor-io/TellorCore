@@ -13,7 +13,6 @@ import '../Tellor.sol';
 contract UserContract{
 
 	address payable public owner;
-	uint public spread;//in thousands * 100.  So a 5% spread is 1000  + .05 *1000 = 1050
 	uint public tributePrice;
 	address payable public tellorStorageAddress;
 
@@ -57,11 +56,6 @@ contract UserContract{
 		require(_tellorm.balanceOf(address(this)) > _tip * tributePrice);
 		Tellor _tellor = Tellor(tellorStorageAddress); //we should delcall here
 		_tellor.addTip(_apiId,_tip);
-	}
-
-	function setSpread(uint _spread) public{
-		require(msg.sender == owner);
-		spread = _spread;
 	}
 
 	function setPrice(uint _price) public {

@@ -23,15 +23,20 @@ contract Reader is Optimistic{
 	}
 
 	function settleContracts() external{
+		bool _didGet;
+		uint _time;
 		if(getIsValue(startDateTime)){
-			startValue =  getMyValuesByTimestamp(startDateTime);
-			if(getIsValue(endDateTime)){
-				endValue = getMyValuesByTimestamp(endDateTime);
-				if(endValue > startValue){
-					longWins = true;
+			(_didGet, startValue, _time) = getFirstUndisputedValueAfter(startDateTime);
+			if(_didGet && getIsValue(endDateTime)){
+				(_didGet, endValue, _time) = getFirstUndisputedValueAfter(endDateTime);
+				if(_didGet){
+					if(endValue > startValue){
+						longWins = true;
+					}
+					contractEnded = true;
+					emit ContractSettled(startValue, endValue);
 				}
-				contractEnded = true;
-				emit ContractSettled(startValue, endValue);
+
 			}
 		}
 	}
