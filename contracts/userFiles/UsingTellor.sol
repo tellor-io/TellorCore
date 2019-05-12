@@ -29,14 +29,18 @@ contract UsingTellor{
         return(false,0,0);
 	}
 
-	function getFirstVerifiedDataAfter(uint _requestId, uint _timestamp) public view returns(bool,uint,uint _timestampRetrieved) {
+	event Print(string _s,uint _a);
+	//How can we make this one more efficient?
+	function getFirstVerifiedDataAfter(uint _requestId, uint _timestamp) public returns(bool,uint,uint _timestampRetrieved) {
 		TellorMaster _tellor = TellorMaster(tellorUserContract.tellorStorageAddress());
-		uint _count = _tellor.getNewValueCountbyRequestId(_requestId) ;
+		uint _count = _tellor.getNewValueCountbyRequestId(_requestId);
+		emit Print("Count", _count);
 		if(_count > 0){
-				for(uint i = _count - 1;i > 0;i--){
-					if(_tellor.getTimestampbyRequestIDandIndex(_requestId,i) < _timestamp && _tellor.getTimestampbyRequestIDandIndex(_requestId,i) < block.timestamp - 86400){
-						_timestampRetrieved = _tellor.getTimestampbyRequestIDandIndex(_requestId,i + 1);//will this work with a zero index? (or insta hit?)
-						i  = 0;
+				for(uint i = _count;i > 0;i--){
+					emit Print("_timestampRetrieved1",_tellor.getTimestampbyRequestIDandIndex(_requestId,i-1));
+					if(_tellor.getTimestampbyRequestIDandIndex(_requestId,i-1) > _timestamp && _tellor.getTimestampbyRequestIDandIndex(_requestId,i-1) < block.timestamp - 86400){
+						_timestampRetrieved = _tellor.getTimestampbyRequestIDandIndex(_requestId,i-1);//will this work with a zero index? (or insta hit?)
+						emit Print("_timestampRetrieved2",_timestampRetrieved);
 					}
 				}
 				if(_timestampRetrieved > 0){

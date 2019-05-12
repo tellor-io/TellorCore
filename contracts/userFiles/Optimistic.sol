@@ -44,15 +44,20 @@ contract Optimistic is UsingTellor{
 
 	}
 
+	event Print(bool _call);
+	event Print2(uint _1, uint _2);
 	function disputeOptimisticValue(uint _timestamp) external{
-		TellorMaster _tellor = TellorMaster(tellorUserContract.tellorStorageAddress());
-		require(_tellor.balanceOf(address(this)) >= disputeFee);
+		bytes memory sig = abi.encodeWithSignature("transferFrom(address,address,uint256)",msg.sender,address(this),disputeFee);
+		address addr  = tellorUserContract.tellorStorageAddress();
+		(bool success, bytes memory data) = addr.call(sig);
+		require(success);
 		require(isValue[_timestamp]);
-		require(now - now % granularity  < _timestamp + disputePeriod);
+		require(now - now % granularity  <= _timestamp + disputePeriod);// assert disputePeriod is still open
 		disputedValues[_timestamp] = true;
 		emit ValueDisputed(msg.sender,_timestamp,valuesByTimestamp[_timestamp]);
-		getTellorValues(_timestamp);
 	}
+
+
 
 
 	function getMyValuesByTimestamp(uint _timestamp) public view returns(uint value){
@@ -68,6 +73,7 @@ contract Optimistic is UsingTellor{
 		return isValue[_timestamp];
 	}
 
+	event TellorValuePlaced(uint _timestamp, uint _value);
 	function getTellorValues(uint _timestamp) public returns(uint _value, bool _didGet){
 		//We need to get the tellor value within the granularity.  If no Tellor value is available...what then?  Simply put no Value?  
 		//No basically, the dispute period for anyValue is within the granularity
@@ -75,14 +81,26 @@ contract Optimistic is UsingTellor{
 		Tellor _tellorCore = Tellor(tellorUserContract.tellorStorageAddress());
 		uint _retrievedTimestamp;
 		uint _initialBalance = _tellor.balanceOf(address(this));
-		for(uint i = 0; i < requestIds.length; i++){
+		for(uint i = 1; i <= requestIds.length; i++){
 			//Get all timestamps for that requestId
 			//Check if any is after your given timestamp
 			//If yes, return that value to the .  If no, then request that Id
 			(_didGet,_value,_retrievedTimestamp) = getFirstVerifiedDataAfter(i,_timestamp);
+			emit Print(_didGet);
+			emit Print2(_value,_retrievedTimestamp);
 			if(_didGet){
-				valuesByTimestamp[_retrievedTimestamp - _retrievedTimestamp % granularity] = (_value + valuesByTimestamp[_retrievedTimestamp - _retrievedTimestamp % granularity] * requestIdsIncluded[_timestamp].length) / (requestIdsIncluded[_timestamp].length + 1);
+				uint _newValue =(_value + valuesByTimestamp[_retrievedTimestamp - _retrievedTimestamp % granularity] * requestIdsIncluded[_timestamp].length) / (requestIdsIncluded[_timestamp].length + 1);
+				uint _newTime = _retrievedTimestamp - _retrievedTimestamp % granularity;
+				valuesByTimestamp[_newTime] = _newValue;
+				emit TellorValuePlaced(_newTime,_newValue);
 				requestIdsIncluded[_retrievedTimestamp - _retrievedTimestamp % granularity].push(i); //how do we make sure it's not called twice?
+				if(isValue[_newTime] == false){
+							timestamps.push(_newTime);
+							isValue[_newTime] = true;
+				}
+				else if(disputedValues[_newTime] == true){
+					disputedValues[_newTime] = false;
+				}
 			}
 			else{
 				if(_tellor.balanceOf(address(this)) > requestIds.length){
@@ -92,28 +110,12 @@ contract Optimistic is UsingTellor{
 		}
 	}
 
-	function getLastValueAfter(uint _timestamp) external view returns(bool,uint,uint _timestampRetrieved){
-		uint _count = timestamps.length ;
-		if(_count > 0){
-				for(uint i = _count - 1;i > 0;i--){
-					if(timestamps[i] >= _timestamp){
-						_timestampRetrieved = timestamps[i];
-					}
-				}
-				if(_timestampRetrieved > 0){
-					return(true,getMyValuesByTimestamp(_timestampRetrieved),_timestampRetrieved);
-				}
-        }
-        return(false,0,0);
-	}
-
-	function getLastUndisputedValueAfter(uint _timestamp) external view returns(bool,uint, uint _timestampRetrieved){
+	function getFirstUndisputedValueAfter(uint _timestamp) public view returns(bool,uint, uint _timestampRetrieved){
 		uint _count = timestamps.length;
 		if(_count > 0){
-				for(uint i = _count - 1;i > 0;i--){
-
-					if(timestamps[i] >= _timestamp && timestamps[i] > block.timestamp - disputePeriod){
-						_timestampRetrieved = timestamps[i];
+				for(uint i = _count;i > 0;i--){
+					if(timestamps[i-1] >= _timestamp && disputedValues[timestamps[i-1]] == false){
+						_timestampRetrieved = timestamps[i-1];
 					}
 				}
 				if(_timestampRetrieved > 0){

@@ -41,7 +41,7 @@ contract('Mining Tests', function(accounts) {
         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",1000,0).encodeABI()})
     });
 
-   /* it("Get Symbol", async function(){
+    /*it("Get Symbol", async function(){
         let symbol = await oracle.getSymbol();
         assert.equal(symbol,"TT","the Symbol should be TT");
     });
@@ -89,7 +89,7 @@ contract('Mining Tests', function(accounts) {
         res = web3.eth.abi.decodeParameters(['uint256','uint256'],logMineWatcher.data);
         assert(res[0] > 0, "value should be positive");
     });
-    */
+    
   it("Test Total Supply Increase", async function () {
         initTotalSupply = await oracle.totalSupply();
         logMineWatcher = await promisifyLogWatch(oracle2, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
@@ -99,7 +99,7 @@ contract('Mining Tests', function(accounts) {
         console.log(it,ts);
         assert(ts-it == 27.5,"Difference should equal the payout");
     });
-    /*it("Test Is Data", async function () {
+    it("Test Is Data", async function () {
         logMineWatcher = await promisifyLogWatch(oracle2, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
         res = web3.eth.abi.decodeParameters(['uint256','uint256','uint256'],logMineWatcher.data)
         data = await oracle.getMinedBlockNum(1,res[0]);
@@ -119,7 +119,6 @@ contract('Mining Tests', function(accounts) {
         res2 = await oracle.getTimestampbyRequestIDandIndex(1,0);
         assert(res2 == res[0]);
     });
-
    it("Test Miner Payout", async function () {
         balances = []
         for(var i = 0;i<6;i++){
@@ -146,6 +145,7 @@ contract('Mining Tests', function(accounts) {
         vars = await oracle.getCurrentVariables();
         assert((web3.utils.hexToNumberString(vars[2])*1) > (web3.utils.hexToNumberString(diff1[2])*1), "difficulty should continue to move up");
     });
+
     it("Test didMine ", async function () {
         vars = await oracle.getCurrentVariables();
         logMineWatcher = await promisifyLogWatch(oracle2, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
@@ -185,13 +185,14 @@ contract('Mining Tests', function(accounts) {
         logMineWatcher = await promisifyLogWatch(oracle2, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
         res = web3.eth.abi.decodeParameters(['uint256','uint256','uint256'],logMineWatcher.data)     
         balance1 = await oracle.balanceOf(accounts[2]);
-        dispBal1 = await oracle.balanceOf(accounts[1])
         blocknum = await oracle.getMinedBlockNum(1,res[0]);
+        await web3.eth.sendTransaction({to:oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.theLazyCoon(accounts[1],web3.utils.toWei('5000', 'ether')).encodeABI()})
+        dispBal1 = await oracle.balanceOf(accounts[1])
         await  web3.eth.sendTransaction({to: oracle.address,from:accounts[1],gas:7000000,data:oracle2.methods.beginDispute(1,res[0],2).encodeABI()});
         count = await oracle.getUintVar(web3.utils.keccak256("disputeCount"));
-        await web3.eth.sendTransaction({to: oracle.address,from:accounts[3],gas:7000000,data:oracle2.methods.vote(1,true).encodeABI()});  ;
+        await web3.eth.sendTransaction({to: oracle.address,from:accounts[3],gas:7000000,data:oracle2.methods.vote(1,true).encodeABI()});
         await helper.advanceTime(86400 * 22);
-        await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.tallyVotes(1).encodeABI()});  ;
+        await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.tallyVotes(1).encodeABI()});
         dispInfo = await oracle.getAllDisputeVars(1);
         assert(dispInfo[7][0] == 1)
         assert(dispInfo[7][1] == res[0])
@@ -210,12 +211,14 @@ contract('Mining Tests', function(accounts) {
         s =  await oracle.getStakerInfo(accounts[2])
         assert(s != 1, " Not staked" );
     });
+    */
     it("Ensure Miner staked after failed dispute", async function () {
         logMineWatcher = await promisifyLogWatch(oracle2, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
         res = web3.eth.abi.decodeParameters(['uint256','uint256','uint256'],logMineWatcher.data)     
         balance1 = await oracle.balanceOf(accounts[2]);
-        dispBal1 = await oracle.balanceOf(accounts[1])
         blocknum = await oracle.getMinedBlockNum(0,res[0]);
+        await web3.eth.sendTransaction({to:oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.theLazyCoon(accounts[1],web3.utils.toWei('5000', 'ether')).encodeABI()})
+        dispBal1 = await oracle.balanceOf(accounts[1])
         await  web3.eth.sendTransaction({to: oracle.address,from:accounts[1],gas:7000000,data:oracle2.methods.beginDispute(1,res[0],2).encodeABI()});
         count = await await oracle.getUintVar(web3.utils.keccak256("disputeCount"));
         await web3.eth.sendTransaction({to: oracle.address,from:accounts[3],gas:7000000,data:oracle2.methods.vote(1,false).encodeABI()});  ;
@@ -230,7 +233,7 @@ contract('Mining Tests', function(accounts) {
     });
     
 
-   it("Test time travel in data -- really long timesincelastPoof and proper difficulty adjustment", async function () {
+   /*it("Test time travel in data -- really long timesincelastPoof and proper difficulty adjustment", async function () {
         logMineWatcher = await promisifyLogWatch(oracle2, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
         vars = await oracle.getCurrentVariables()
         assert((web3.utils.hexToNumberString(vars[2])*1) > 1, "difficulty should be greater than 1");//difficulty not changing.....
@@ -331,6 +334,7 @@ contract('Mining Tests', function(accounts) {
         res = web3.eth.abi.decodeParameters(['uint256','uint256','uint256'],logMineWatcher.data)     
         balance1 = await (oracle.balanceOf(accounts[2],{from:accounts[4]}));
         blocknum = await oracle.getMinedBlockNum(1,res[0]);
+        await web3.eth.sendTransaction({to:oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.theLazyCoon(accounts[1],web3.utils.toWei('5000', 'ether')).encodeABI()})
         await  web3.eth.sendTransaction({to: oracle.address,from:accounts[1],gas:7000000,data:oracle2.methods.beginDispute(1,res[0],2).encodeABI()});
         await helper.expectThrow(web3.eth.sendTransaction({to: oracle.address,from:accounts[1],gas:7000000,data:oracle2.methods.beginDispute(1,res[0],2).encodeABI()}));
         let miners =await oracle.getMinersByRequestIdAndTimestamp(1,res[0]);
@@ -362,6 +366,7 @@ contract('Mining Tests', function(accounts) {
 	        logMineWatcher = await promisifyLogWatch(oracle2, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
 	        res = web3.eth.abi.decodeParameters(['uint256','uint256','uint256'],logMineWatcher.data)
 	        let miners =await oracle.getMinersByRequestIdAndTimestamp(1,res[0]);
+	        await web3.eth.sendTransaction({to:oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.theLazyCoon(miners[j],web3.utils.toWei('5000', 'ether')).encodeABI()})
 	        await  web3.eth.sendTransaction({to: oracle.address,from:miners[j],gas:7000000,data:oracle2.methods.beginDispute(1,res[0],i).encodeABI()});
 	        let disputeVars = await oracle.getAllDisputeVars(1);
 	        let vals = await oracle.getSubmissionsByTimestamp(1,res[0]);
@@ -418,6 +423,7 @@ contract('Mining Tests', function(accounts) {
 	        logMineWatcher = await promisifyLogWatch(oracle2, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
 	        res = web3.eth.abi.decodeParameters(['uint256','uint256','uint256'],logMineWatcher.data)
 	        let miners =await oracle.getMinersByRequestIdAndTimestamp(1,res[0]);
+	        await web3.eth.sendTransaction({to:oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.theLazyCoon(miners[j],web3.utils.toWei('5000', 'ether')).encodeABI()})
 	        await  web3.eth.sendTransaction({to: oracle.address,from:miners[j],gas:7000000,data:oracle2.methods.beginDispute(1,res[0],i).encodeABI()});
 	        let disputeVars = await oracle.getAllDisputeVars(1);
 	        balance1 = await oracle.balanceOf(miners[i]);

@@ -39,6 +39,7 @@ library TellorGettersLibrary{
             // uint keccak256("blockNumber");// the blocknumber for which votes will be calculated from
             // uint keccak256("minerSlot"); //index in dispute array
             // uint keccak256("quorum"); //quorum for dispute vote NEW
+            // uint keccak256("fee"); //fee paid corresponding to dispute
         mapping (address => bool) voted; //mapping of address to whether or not they voted
     }  
 
@@ -75,8 +76,6 @@ library TellorGettersLibrary{
     struct TellorStorageStruct{
         bytes32 currentChallenge; //current challenge to be solved
         bytes32 onDeckQueryHash; //string of current api with highest PayoutPool not currently being mined
-        string _name; //name of the Token
-        string _symbol;//Token Symbol
         uint[51]  requestQ; //uint50 array of the top50 requests by payment amount
         uint[]  newValueTimestamps; //array of all timestamps requested
         Details[5]  currentMiners; //This struct is for organizing the five mined values to find the median
@@ -136,6 +135,7 @@ library TellorGettersLibrary{
     event Transfer(address indexed _from, address indexed _to, uint256 _value);//ERC20 Transfer Event
     event Voted(uint indexed _disputeID, bool _position, address indexed _voter);//emitted when a new vote happens
     
+
     //The next two functions are onlyOwner functions.  For Tellor to be truly decentralized, we will need to transfer the Deity to the 0 address.
     //Only needs to be in library
     /**
@@ -290,9 +290,9 @@ library TellorGettersLibrary{
     * @return int count of the current tally
     * @return bool of whether vote has been tallied
     */
-    function getAllDisputeVars(TellorStorageStruct storage self,uint _disputeId) internal view returns(bytes32, bool, bool, bool, address, address, address,uint[8] memory, int){
+    function getAllDisputeVars(TellorStorageStruct storage self,uint _disputeId) internal view returns(bytes32, bool, bool, bool, address, address, address,uint[9] memory, int){
         Dispute storage disp = self.disputesById[_disputeId];
-        return(disp.hash,disp.executed, disp.disputeVotePassed, disp.isPropFork, disp.reportedMiner, disp.reportingParty,disp.proposedForkAddress,[disp.disputeUintVars[keccak256("requestId")], disp.disputeUintVars[keccak256("timestamp")], disp.disputeUintVars[keccak256("value")], disp.disputeUintVars[keccak256("minExecutionDate")], disp.disputeUintVars[keccak256("numberOfVotes")], disp.disputeUintVars[keccak256("blockNumber")], disp.disputeUintVars[keccak256("minerSlot")], disp.disputeUintVars[keccak256("quorum")]],disp.tally);
+        return(disp.hash,disp.executed, disp.disputeVotePassed, disp.isPropFork, disp.reportedMiner, disp.reportingParty,disp.proposedForkAddress,[disp.disputeUintVars[keccak256("requestId")], disp.disputeUintVars[keccak256("timestamp")], disp.disputeUintVars[keccak256("value")], disp.disputeUintVars[keccak256("minExecutionDate")], disp.disputeUintVars[keccak256("numberOfVotes")], disp.disputeUintVars[keccak256("blockNumber")], disp.disputeUintVars[keccak256("minerSlot")], disp.disputeUintVars[keccak256("quorum")],disp.disputeUintVars[keccak256("fee")]],disp.tally);
     }
 
 
@@ -382,9 +382,8 @@ library TellorGettersLibrary{
     //add tests for these
     //should I just drop these?
     function getName(TellorStorageStruct storage self) internal view returns(string memory){
-        return self._name;
+        return "Tellor Tributes";
     }
-
 
     /**
     * @dev Counts the number of values that have been submited for the request 
@@ -493,10 +492,8 @@ library TellorGettersLibrary{
     * return string of the token symbol
     */
     function getSymbol(TellorStorageStruct storage self) internal view returns(string memory){
-        return self._symbol;
+        return "TT";
     } 
-
-
     /**
     * @dev Gets the timestamp for the value based on their index
     * @param _requestID is the requestId to look up

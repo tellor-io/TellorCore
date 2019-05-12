@@ -42,9 +42,10 @@
 //         oracle = await TellorMaster.new(oracleBase.address);
 //         oracle2 = await new web3.eth.Contract(oracleAbi,oracle.address);///will this instance work for logWatch? hopefully...
 //         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000, data: web3.utils.keccak256("tellorPostConstructor()")})
-//         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",0,1000,0).encodeABI()})
+//         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",1000,0).encodeABI()})
 //         userContract = await UserContract.new(oracle.address);
-//         reader = await Reader.new(userContract.address,10,86400,[1],86400)
+//         reader = await Reader.new(userContract.address,10,86400*3,[1],86400)
+//         await reader.setUserContract(userContract.address);
 //     });
 //     it("Test Base Derivative Contract - Optimistic Up Move", async function(){
 //       await reader.testContract(7 * 86400)
@@ -54,7 +55,7 @@
 //       await reader.setValue(startTime, 1000);
 //       assert(await reader.getMyValuesByTimestamp(startTime) == 1000, "Start time should have the correct value");
 //       assert(await reader.getIsValue(startTime) == true, "get Is Value should be true");
-//       await helper.advanceTime(86400 * 10);
+//       await helper.advanceTime(86400 * 110);
 //       await reader.setValue(await reader.endDateTime.call(), 2000);
 //       await reader.settleContracts();
 //       assert(reader.getIsValue(await reader.endDateTime.call()),"endTime should have a value");
@@ -63,7 +64,7 @@
 //       assert(await reader.endValue.call() > 0, "End Value should be positive")
 //       assert(await reader.longWins.call(), "Long should win");
 //       assert(await reader.contractEnded.call(), "the contract should be ended")
-//       let vars = await reader.getLastValueAfter(startTime*1 + 1);
+//       let vars = await reader.getFirstUndisputedValueAfter(startTime*1 + 1);
 //       assert(vars[1] == 2000, "Get last value should work");
 
 //     })
@@ -71,23 +72,33 @@
 //       await reader.testContract(7 * 86400)
 //       var startTime = await reader.startDateTime.call();
 //       await reader.setValue(startTime, 1000);
-//       await helper.advanceTime(86400 * 10);
+//       await helper.advanceTime(86400 * 11);
 //       await reader.setValue(await reader.endDateTime.call(), 500);
 //       await reader.settleContracts();
 //       assert(await reader.longWins.call() == false, "long should not win")
 //       assert(await reader.contractEnded.call(), "Contract should be ended")
 //       let vars = await reader.getTimestamps()
-//       assert(vars[0] == startTime);
-//             assert(await reader.getCurrentValue() == 500, "endValue should be currentValue")
+//       assert(vars[0] * 1 == startTime * 1 , "Start time should be correct");
+//       assert(await reader.getCurrentValue() == 500, "endValue should be currentValue")
+//     })
+//     it("Test Ownership Transfer", async function(){
+//       assert(await reader.owner.call() == accounts[0]);
+//       await reader.transferOwnership(accounts[1]);
+//       assert(await reader.owner.call() == accounts[1]);
+//       assert(await userContract.owner.call() == accounts[0])
+//       await userContract.transferOwnership(accounts[1]);
+//       assert(await userContract.owner.call() == accounts[1]);
+
 //     })
 //     it("Test Base Derivative Contract - Disputed Up Move", async function(){
 //       await reader.testContract(7 * 86400)
 //       var startTime = await reader.startDateTime.call();
+//       var endTime = await reader.endDateTime.call();
 //       await reader.setValue(startTime, 1000);
 //       await helper.advanceTime(86400 * 10);
 //       await reader.setValue(await reader.endDateTime.call(), 500);
 //       assert(await reader.disputeFee.call() == 10);
-//       assert(await reader.disputePeriod.call() == 86400, "dispute Period should be correct");
+//       assert(await reader.disputePeriod.call() == 86400*3, "dispute Period should be correct");
 //       assert(await reader.granularity.call() == 86400);
 //       //launch and mine one on Tellor
 //       //set up the contracts to handle getting the value
@@ -95,46 +106,68 @@
 //       logMineWatcher = await promisifyLogWatch(oracle2, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
 //       res = web3.eth.abi.decodeParameters(['uint256','uint256'],logMineWatcher.data);
 //       assert(res[0] > 0, "value should be positive");
-//       await tellor.disputeOptimisticValue(await reader.endDateTime.call(),{from:accounts[2]})
+//       await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.approve(reader.address,10).encodeABI()})
+//       console.log('disputing')
+//       console.log(await oracle.getTimestampbyRequestIDandIndex(1,0));
+//       assert(await oracle.getNewValueCountbyRequestId(1) == 1)
+//       console.log("disputing2");
+//       await reader.disputeOptimisticValue(endTime,{from:accounts[2]})
+//       await helper.advanceTime(86400 * 10);
+//       console.log('gettingTellorVAlues');
+//       await reader.getTellorValues(await reader.endDateTime.call());
+//       let vars = await reader.getFirstUndisputedValueAfter(startTime*1 + 1);
+//       console.log(vars);
 //       await reader.settleContracts();
-//       assert(await reader.longWins.call())
+//       assert(await reader.longWins.call(),"Long should Win")
 //       assert(await reader.contractEnded.call())
 
 //     })
 //     it("Test Base Derivative Contract - Disputed Down Move", async function(){
 //             await reader.testContract(7 * 86400)
 //       var startTime = await reader.startDateTime.call();
-//       await reader.setValue(startTime, 100000);
+//       await reader.setValue(startTime, 500000000);
 //       await helper.advanceTime(86400 * 10);
 //       await reader.setValue(await reader.endDateTime.call(), 500);
-//       assert(await reader.disputeFee.call() == 10);
-//       assert(await reader.disputePeriod.call() == 86400, "dispute Period should be correct");
-//       assert(await reader.granularity.call() == 86400);
 //       //launch and mine one on Tellor
 //       //set up the contracts to handle getting the value
 //       logMineWatcher = await promisifyLogWatch(oracle2, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
 //       res = web3.eth.abi.decodeParameters(['uint256','uint256'],logMineWatcher.data);
 //       assert(res[0] > 0, "value should be positive");
-//       await tellor.disputeOptimisticValue(await reader.endDateTime.call(),{from:accounts[2]})
+//       await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.approve(reader.address,10).encodeABI()})
+//       await reader.disputeOptimisticValue(1* (await reader.endDateTime.call()),{from:accounts[2]})
+//       await helper.advanceTime(86400 * 10);
+//       await reader.getTellorValues(await reader.endDateTime.call());
+//       await reader.settleContracts();
+//       await reader.testContract(7 * 86400)
+//       assert(await reader.longWins.call() == false)
+//       assert(await reader.contractEnded.call(), "Contract should be ended")
+//     })
+
+//     it("Test No Tributes in User Contract w/Solution", async function(){
+//       await promisifyLogWatch(oracle2, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
+//       await reader.testContract(7 * 86400)
+//       var startTime = await reader.startDateTime.call();
+//       await reader.setValue(startTime, 1000);
+//       await helper.advanceTime(86400 * 10);
+//       await reader.setValue(await reader.endDateTime.call(), 2000);
+//       //launch and mine one on Tellor
+//       //set up the contracts to handle getting the value
+
+//       await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.approve(reader.address,10).encodeABI()})
+//       await reader.disputeOptimisticValue(1* (await reader.endDateTime.call()),{from:accounts[2]})
+//       await userContract.setPrice(1);
+//       assert(userContract.tributePrice.call() == 1);
+//       await reader.addTipWithEther(1,5,{value:1e18,from:accounts[3]})
+//       logMineWatcher = await promisifyLogWatch(oracle2, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
+//       await helper.advanceTime(86400 * 8);
+//       await reader.getTellorValues(await reader.endDateTime.call());
 //       await reader.settleContracts();
 //       await reader.testContract(7 * 86400)
 //       assert(await reader.longWins.call() == false)
 //       assert(await reader.contractEnded.call())
-//     })
-//     it("Test Ownership Transfer", async function(){
-//       assert(await reader.owner.call() == accounts[0]);
-//       await reader.transferOwnership(accounts[1]);
-//       assert(await reader.owner.call() == accounts[1]);
-//             assert(await userContract.owner.call() == accounts[0])
-//                   await userContract.transferOwnership(accounts[1]);
-//       assert(await userContract.owner.call() == accounts[1]);
 
 //     })
-//     it("Test No Tributes in User Contract w/Solution", async function(){
-//       assert(await userContract.tellorStorageAddress.call() == oracle.address)
-
-//     })
-//     it("Test Get Tellor VAlues after initiating mine via Optimistic", async function(){
+//     it("Test Get Tellor Values after initiating mine via Optimistic", async function(){
 
 //     })
 
@@ -142,7 +175,7 @@
 //     })
 //     it("Test 3 request ID avearge for Optimistic disputed Value", async function(){
 //       await reader.testContract(7 * 86400)
-//       assert(await reader.longWins.call())
+//       assert(await reader.longWins.call(), "Long should win")
 //       assert(await reader.contractEnded.call())
 //     })
 //     /*
@@ -158,31 +191,23 @@
 
 //   //FUNCTIONS
 //   getNumberOfValuesPerTimestamp
-//   getTellorValues
-//   getLastUndisputedValueAfter
 
 // User Contract
-//   uint public spread;//in thousands * 100.  So a 5% spread is 1000  + .05 *1000 = 1050
 //   uint public tributePrice;
 
 //   //FUNCTIONS
 //   withdrawEther
 //   requestDataWithEther
 //   addTipWithEther
-//   setSpread
-//   setPrice
 
 // UsingTellor
 
 //   //Functions
 //    getCurrentValue
-//    getFirstVerifiedDataAfter
 //    getAnyDataAfter
 //    requestData
 //    requestDataWithEther
 //    addTip
-//    addTipWithEther
-//    setUserContract
 
 //     */
 // });

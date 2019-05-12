@@ -166,11 +166,11 @@ def getAddress():
 			d = jsonParser(r);
 			tx = d['result']
 			_contract_address =tx['contractAddress']
-			if len(_contract_address)>0:
+			if len(_contract_address)>0 and tx['logs'][0]['topics'][0] == '0xc2d1449eb0b6547aa426e09d9942a77fa4fc8cd3296305b3163e22452e0bcb8d':
 				last_block = int(e['result'],16) 
 				block = 0;
 				contract_address = _contract_address
-				print('New Contract Address',contract_address)
+				print('New Contract Address',_contract_address)
 				return True;
 		except:
 			pass
