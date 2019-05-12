@@ -10,7 +10,7 @@ import "./Utilities.sol";
  * @dev Failure to do so will result in errors with the fallback proxy
  */
 library TellorLibrary{
-    using SafeMath for uint256;
+       using SafeMath for uint256;
 
     //Internal struct for use in proof-of-work submission
     struct Details {
@@ -39,6 +39,7 @@ library TellorLibrary{
             // uint keccak256("blockNumber");// the blocknumber for which votes will be calculated from
             // uint keccak256("minerSlot"); //index in dispute array
             // uint keccak256("quorum"); //quorum for dispute vote NEW
+            // uint keccak256("fee"); //fee paid corresponding to dispute
         mapping (address => bool) voted; //mapping of address to whether or not they voted
     }  
 
@@ -75,8 +76,6 @@ library TellorLibrary{
     struct TellorStorageStruct{
         bytes32 currentChallenge; //current challenge to be solved
         bytes32 onDeckQueryHash; //string of current api with highest PayoutPool not currently being mined
-        string _name; //name of the Token
-        string _symbol;//Token Symbol
         uint[51]  requestQ; //uint50 array of the top50 requests by payment amount
         uint[]  newValueTimestamps; //array of all timestamps requested
         Details[5]  currentMiners; //This struct is for organizing the five mined values to find the median
@@ -136,6 +135,7 @@ library TellorLibrary{
     event Transfer(address indexed _from, address indexed _to, uint256 _value);//ERC20 Transfer Event
     event Voted(uint indexed _disputeID, bool _position, address indexed _voter);//emitted when a new vote happens
     
+    
 
     /*Functions*/
     /*This is a cheat for demo purposes, will delete upon actual launch*/
@@ -181,14 +181,12 @@ library TellorLibrary{
         }
         //set Constants
         self.uintVars[keccak256("decimals")] = 18;
-        self.uintVars[keccak256("disputeFee")] = 1e18;
-        self.uintVars[keccak256("disputeFee")] = 1e18;
+        self.uintVars[keccak256("targetMiners")] = 200;
         self.uintVars[keccak256("stakeAmount")] = 1000e18;
-        self.uintVars[keccak256("timeTarget")]= 10 * 60;
+        updateDisputeFee(self);
+        self.uintVars[keccak256("timeTarget")]= 600;
         self.uintVars[keccak256("timeOfLastNewValue")] = now - now  % self.uintVars[keccak256("timeTarget")];
         self.uintVars[keccak256("difficulty")] = 1;
-        self._name = "Tellor Tributes";
-        self._symbol = "TT";
     }
 
 
@@ -322,6 +320,7 @@ library TellorLibrary{
         self.disputesById[disputeId].disputeUintVars[keccak256("minExecutionDate")] = now + 7 days;
         self.disputesById[disputeId].disputeUintVars[keccak256("blockNumber")] = block.number;
         self.disputesById[disputeId].disputeUintVars[keccak256("minerSlot")] = _minerIndex;
+        self.disputesById[disputeId].disputeUintVars[keccak256("fee")]  = self.uintVars[keccak256("disputeFee")];
         
         //Values are sorted as they come in and the official value is the median of the first five
         //So the "official value" miner is always minerIndex==2. If the official value is being 
@@ -350,6 +349,8 @@ library TellorLibrary{
             //this resets their stake start date to today
             startDate: now - (now % 86400)
             });
+        //self adjusting disputeFee
+        updateDisputeFee(self);
         emit NewStake(msg.sender);
     }
 
@@ -403,7 +404,7 @@ library TellorLibrary{
     * @dev Allows for a fork to be proposed
     * @param _propNewTellorAddress address for new proposed Tellor
     */
-    function proposeFork(TellorStorageStruct storage self, address _propNewTellorAddress) internal {
+    function proposeFork(TellorStorageStruct storage self, address _propNewTellorAddress) public {
         bytes32 _hash = keccak256(abi.encodePacked(_propNewTellorAddress));
         require(self.disputeIdByDisputeHash[_hash] == 0);
         doTransfer(self,msg.sender,address(this), self.uintVars[keccak256("disputeFee")]);//This is the fork fee
@@ -421,6 +422,7 @@ library TellorLibrary{
             tally: 0
             }); 
         self.disputesById[disputeId].disputeUintVars[keccak256("blockNumber")] = block.number;
+        self.disputesById[disputeId].disputeUintVars[keccak256("fee")]  = self.uintVars[keccak256("disputeFee")];
         self.disputesById[disputeId].disputeUintVars[keccak256("minExecutionDate")] = now + 7 days;
     }
 
@@ -433,7 +435,7 @@ library TellorLibrary{
     * @param _tip amount the requester is willing to pay to be get on queue. Miners
     * mine the onDeckQueryHash, or the api with the highest payout pool
     */
-    function requestData(TellorStorageStruct storage self,string memory _c_sapi,string memory _c_symbol,uint _granularity, uint _tip) internal {
+    function requestData(TellorStorageStruct storage self,string memory _c_sapi,string memory _c_symbol,uint _granularity, uint _tip) public {
         //Require at least one decimal place
         require(_granularity > 0);
         
@@ -481,7 +483,7 @@ library TellorLibrary{
     * once they lock for withdraw(stakes.currentStatus = 2) they are locked for 7 days before they 
     * can withdraw the stake
     */
-    function requestStakingWithdraw(TellorStorageStruct storage self) internal {
+    function requestStakingWithdraw(TellorStorageStruct storage self) public {
         StakeInfo storage stakes = self.stakerDetails[msg.sender];
         //Require that the miner is staked
         require(stakes.currentStatus == 1);
@@ -495,6 +497,7 @@ library TellorLibrary{
 
         //Reduce the staker count
         self.uintVars[keccak256("stakerCount")] -= 1;
+        updateDisputeFee(self);
 
         emit StakeWithdrawRequested(msg.sender);
     }
@@ -572,7 +575,7 @@ library TellorLibrary{
             emit NewValue(_requestId,self.uintVars[keccak256("timeOfLastNewValue")],a[2].value,self.uintVars[keccak256("currentTotalTips")] - self.uintVars[keccak256("currentTotalTips")] % 5,self.currentChallenge);
             
             //update the total supply
-            self.uintVars[keccak256("total_supply")] += 275e17;//can we hardcode this?
+            self.uintVars[keccak256("total_supply")] += 275e17;
             
             //pay the dev-share
             doTransfer(self,address(this),self.addressVars[keccak256("_owner")],25e17);//The ten there is the devshare
@@ -671,12 +674,13 @@ library TellorLibrary{
 
                 //Decreases the stakerCount since the miner's stake is being slashed
                 self.uintVars[keccak256("stakerCount")]--;
+                updateDisputeFee(self);
 
                 //Transfers the StakeAmount from the reporded miner to the reporting party
                 doTransfer(self,disp.reportedMiner,disp.reportingParty, self.uintVars[keccak256("stakeAmount")]);
                 
                 //Returns the dispute fee to the reportingParty
-                doTransfer(self,msg.sender,disp.reportingParty, self.uintVars[keccak256("disputeFee")]);
+                doTransfer(self,address(this),disp.reportingParty,disp.disputeUintVars[keccak256("fee")]);
                 
                 //Set the dispute state to passed/true
                 disp.disputeVotePassed = true;
@@ -691,12 +695,9 @@ library TellorLibrary{
             //dispute(currentStatus=3) to staked(currentStatus =1) and tranfer the dispute fee to the miner
             } else {
                 //Update the miner's current status to staked(currentStatus = 1)
-                stakes.currentStatus = 1;
-                //Set the dispute state to failed/false
-                disp.disputeVotePassed = false;
-                
+                stakes.currentStatus = 1;              
                 //tranfer the dispute fee to the miner
-                doTransfer(self,msg.sender,disp.reportedMiner, self.uintVars[keccak256("disputeFee")]);
+                doTransfer(self,address(this),disp.reportedMiner,disp.disputeUintVars[keccak256("fee")]);
                 if(_request.inDispute[disp.disputeUintVars[keccak256("timestamp")]] == true){
                     _request.inDispute[disp.disputeUintVars[keccak256("timestamp")]] = false;
                 }
@@ -885,13 +886,20 @@ library TellorLibrary{
     */
     function withdrawStake(TellorStorageStruct storage self) internal {
         StakeInfo storage stakes = self.stakerDetails[msg.sender];
-        uint _today = now - (now % 86400);
-
         //Require the staker has locked for withdraw(currentStatus ==2) and that 7 days have 
         //passed by since they locked for withdraw
-        require(_today - stakes.startDate >= 7 days && stakes.currentStatus == 2);
-
+        require(now - (now % 86400) - stakes.startDate >= 7 days);
+        require(stakes.currentStatus == 2);
         stakes.currentStatus = 0;
         emit StakeWithdrawn(msg.sender);
+    }
+
+    function updateDisputeFee(TellorStorageStruct storage self) internal {
+            if(self.uintVars[keccak256("stakerCount")]*1000/self.uintVars[keccak256("targetMiners")] < 1000){
+                            self.uintVars[keccak256("disputeFee")] = SafeMath.max(15e18,self.uintVars[keccak256("stakeAmount")].mul(1000 - self.uintVars[keccak256("stakerCount")]*1000/self.uintVars[keccak256("targetMiners")])/1000);
+            }
+            else{
+                self.uintVars[keccak256("disputeFee")] = 15e18;
+            }
     }
 }

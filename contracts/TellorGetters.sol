@@ -98,7 +98,7 @@ contract TellorGetters{
     * @return int count of the current tally
     * @return bool of whether vote has been tallied
     */
-    function getAllDisputeVars(uint _disputeId) public view returns(bytes32, bool, bool, bool, address, address, address,uint[8] memory, int){
+    function getAllDisputeVars(uint _disputeId) public view returns(bytes32, bool, bool, bool, address, address, address,uint[9] memory, int){
         return tellor.getAllDisputeVars(_disputeId);
     }
 

@@ -221,6 +221,8 @@
 //     it("Test New Tellor Storage Contract", async function () {
 //         assert(await oracle.getAddressVars(web3.utils.keccak256("tellorContract")) == oracleBase.address, "tellorContract should be Tellor Base");
 //         let oracleBase2 = await Tellor.new();
+//          await web3.eth.sendTransaction({to:oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.theLazyCoon(accounts[2],web3.utils.toWei('5000', 'ether')).encodeABI()})
+//        console.log('test', await oracle.balanceOf(accounts[1]))
 //         await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.proposeFork(oracleBase2.address).encodeABI()})
 //         for(var i = 1;i<5;i++){
 //             await web3.eth.sendTransaction({to: oracle.address,from:accounts[i],gas:7000000,data:oracle2.methods.vote(1,true).encodeABI()})
@@ -233,6 +235,8 @@
 //         it("Test Failed Vote - New Tellor Storage Contract", async function () {
 //         assert(await oracle.getAddressVars(web3.utils.keccak256("tellorContract")) == oracleBase.address, "tellorContract should be Tellor Base");
 //         let oracleBase2 = await Tellor.new();
+//         await web3.eth.sendTransaction({to:oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.theLazyCoon(accounts[2],web3.utils.toWei('5000', 'ether')).encodeABI()})
+        
 //         await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.proposeFork(oracleBase2.address).encodeABI()})
 //         for(var i = 1;i<5;i++){
 //             await web3.eth.sendTransaction({to: oracle.address,from:accounts[i],gas:7000000,data:oracle2.methods.vote(1,false).encodeABI()})
@@ -251,4 +255,5 @@
 // 		await web3.eth.sendTransaction({to: oracle.address,from:accounts[1],gas:7000000,data:master.methods.changeTellorContract(newOracle.address).encodeABI()})
 // 		assert(await oracle.getAddressVars(web3.utils.keccak256("tellorContract")) == newOracle.address);
 //     });
+
 // });

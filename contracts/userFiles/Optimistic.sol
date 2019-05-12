@@ -73,6 +73,7 @@ contract Optimistic is UsingTellor{
 		return isValue[_timestamp];
 	}
 
+	event TellorValuePlaced(uint _timestamp, uint _value);
 	function getTellorValues(uint _timestamp) public returns(uint _value, bool _didGet){
 		//We need to get the tellor value within the granularity.  If no Tellor value is available...what then?  Simply put no Value?  
 		//No basically, the dispute period for anyValue is within the granularity
@@ -88,9 +89,18 @@ contract Optimistic is UsingTellor{
 			emit Print(_didGet);
 			emit Print2(_value,_retrievedTimestamp);
 			if(_didGet){
-				valuesByTimestamp[_retrievedTimestamp - _retrievedTimestamp % granularity] = (_value + valuesByTimestamp[_retrievedTimestamp - _retrievedTimestamp % granularity] * requestIdsIncluded[_timestamp].length) / (requestIdsIncluded[_timestamp].length + 1);
+				uint _newValue =(_value + valuesByTimestamp[_retrievedTimestamp - _retrievedTimestamp % granularity] * requestIdsIncluded[_timestamp].length) / (requestIdsIncluded[_timestamp].length + 1);
+				uint _newTime = _retrievedTimestamp - _retrievedTimestamp % granularity;
+				valuesByTimestamp[_newTime] = _newValue;
+				emit TellorValuePlaced(_newTime,_newValue);
 				requestIdsIncluded[_retrievedTimestamp - _retrievedTimestamp % granularity].push(i); //how do we make sure it's not called twice?
-				disputedValues[_retrievedTimestamp - _retrievedTimestamp % granularity] = false;
+				if(isValue[_newTime] == false){
+							timestamps.push(_newTime);
+							isValue[_newTime] = true;
+				}
+				else if(disputedValues[_newTime] == true){
+					disputedValues[_newTime] = false;
+				}
 			}
 			else{
 				if(_tellor.balanceOf(address(this)) > requestIds.length){
