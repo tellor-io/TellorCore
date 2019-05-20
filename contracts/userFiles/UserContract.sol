@@ -46,14 +46,16 @@ contract UserContract{
 	//allow them to pay with their own Tributes (prevents us from increasing spread too high)
 	function requestDataWithEther(string calldata c_sapi, string calldata _c_symbol,uint _granularity, uint _tip) external payable{
 		TellorMaster _tellorm = TellorMaster(tellorStorageAddress);
-		require(_tellorm.balanceOf(address(this)) > _tip * tributePrice);
+		require(_tellorm.balanceOf(address(this)) >= _tip);
+		require(msg.value >= _tip * tributePrice);
 		Tellor _tellor = Tellor(tellorStorageAddress); //we should delcall here
 		_tellor.requestData(c_sapi,_c_symbol,_granularity,_tip);
 	}
 
-	function addTipWithEther(uint _apiId, uint _tip) public {
+	function addTipWithEther(uint _apiId, uint _tip) external payable {
 		TellorMaster _tellorm = TellorMaster(tellorStorageAddress);
-		require(_tellorm.balanceOf(address(this)) > _tip * tributePrice);
+		require(_tellorm.balanceOf(address(this)) >= _tip);
+		require(msg.value >= _tip * tributePrice);
 		Tellor _tellor = Tellor(tellorStorageAddress); //we should delcall here
 		_tellor.addTip(_apiId,_tip);
 	}

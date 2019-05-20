@@ -15,6 +15,7 @@ contract Optimistic is UsingTellor{
 	mapping(uint => bool) public disputedValues;
 	mapping(uint => uint[]) public requestIdsIncluded;
 	uint[] requestIds;
+	uint[] disputedValuesArray;
 	uint public granularity;
 	uint public disputeFee; //In Tributes
 	uint public disputePeriod;
@@ -54,10 +55,9 @@ contract Optimistic is UsingTellor{
 		require(isValue[_timestamp]);
 		require(now - now % granularity  <= _timestamp + disputePeriod);// assert disputePeriod is still open
 		disputedValues[_timestamp] = true;
+		disputedValuesArray.push(_timestamp);
 		emit ValueDisputed(msg.sender,_timestamp,valuesByTimestamp[_timestamp]);
 	}
-
-
 
 
 	function getMyValuesByTimestamp(uint _timestamp) public view returns(uint value){
@@ -132,11 +132,30 @@ contract Optimistic is UsingTellor{
 	function getTimestamps() external view returns(uint[] memory){
 		return timestamps;
 	}
+	function getRequestIds() external view returns(uint[] memory){
+		return requestIds;
+	}
+	function getRequestIdsIncluded(uint _time) external view returns(uint[] memory){
+		return requestIdsIncluded[_time];
+	}
+
+	function getNumberOfDisputedValues() external view returns(uint){
+		return disputedValuesArray.length;
+	}
+
+	function isDisputed(uint _time) external view returns(bool){
+		return disputedValues[_time];
+	}
+
+	function getDisputedValueByIndex(uint _index) external view returns(uint){
+		return disputedValuesArray[_index];
+	}
+
+	function getDisputedValues() external view returns(uint[] memory){
+		return disputedValuesArray;
+	}
 }
 
-//On get last query, should be by requestId
-//add a sender to each of pieces (requestData/addValuePool)
-//remove requestId from requestData
 //somehow be able to get the most recent tip (or payout) and that is the dispute Fee
 //make sure we use SafeMath
 //add usingEther
