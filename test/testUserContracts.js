@@ -123,13 +123,13 @@ contract('UserContract Tests', function(accounts) {
       assert(await reader.longWins.call(),"Long should Win")
       assert(await reader.contractEnded.call(), "Contract should be ended")
     })
-    */
+    
     it("Test Base Derivative Contract - Disputed Down Move", async function(){
             await reader.testContract(7 * 86400)
       var startTime = await reader.startDateTime.call();
       await reader.setValue(startTime, 500000000);
       await helper.advanceTime(86400 * 10);
-      await reader.setValue(await reader.endDateTime.call(), 500);
+      await reader.setValue(1 * (await reader.endDateTime.call()), 500);
       //launch and mine one on Tellor
       //set up the contracts to handle getting the value
       logMineWatcher = await promisifyLogWatch(oracle2, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
@@ -143,7 +143,6 @@ contract('UserContract Tests', function(accounts) {
       await helper.advanceTime(86400 * 10);
       await reader.getTellorValues(await reader.endDateTime.call());
       await reader.settleContracts();
-      await reader.testContract(7 * 86400)
       assert(await reader.longWins.call() == false)
       assert(await reader.contractEnded.call(), "Contract should be ended")
       await reader.getAnyDataAfter(1,startTime*1 + 1)
@@ -151,13 +150,11 @@ contract('UserContract Tests', function(accounts) {
       console.log(mynum['2']*1)
       assert(mynum['2'] == res[0], "get any data should work");
       assert(await reader.getNumberOfDisputedValues() == 1);
-      console.log(await reader.getDisputedValueByIndex(0) , await reader.endDateTime.call());
+      console.log(await reader.getDisputedValueByIndex(0) - await reader.endDateTime.call());
       assert(await reader.getDisputedValueByIndex(0) - await reader.endDateTime.call() == 0, "Disputed value should be endtime");
       mynum = await reader.getDisputedValues()
       assert(mynum['0'] - await reader.endDateTime.call() == 0, "getDisputedValues should work")
     })
-
-
     it("Test Disputed Start and End Timestamps and someone wins", async function(){
      logMineWatcher = await promisifyLogWatch(oracle2, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
       await reader.testContract(7 * 86400)
@@ -182,7 +179,6 @@ contract('UserContract Tests', function(accounts) {
       await helper.advanceTime(86400 * 10);
       await reader.getTellorValues(await reader.endDateTime.call());
       await reader.settleContracts();
-      await reader.testContract(7 * 86400)
       assert(await reader.longWins.call() == false, "long should not win")
       assert(await reader.contractEnded.call(), "Contract should be ended")
       var mynum = await reader.getAnyDataAfter.call(1,startTime*1 + 86400*9)
@@ -191,16 +187,17 @@ contract('UserContract Tests', function(accounts) {
       console.log(await reader.getNumberOfDisputedValues())
       assert(await reader.getNumberOfDisputedValues() == 2, "there should be two disputed value");
       assert(await reader.isDisputed(myend) == true, "value should be disputed");
-      console.log(await reader.getDisputedValueByIndex(1))
+      console.log(1 * (await reader.getDisputedValueByIndex(1)))
       console.log(await reader.getDisputedValueByIndex(0))
-      console.log(await reader.endDateTime.call())
+      console.log(myend);
+      console.log(1 * (await reader.endDateTime.call()))
       assert(await reader.getDisputedValueByIndex(1) == 1 * (await reader.endDateTime.call()), "getDisputedValueByIndex should work");
       mynum = await reader.getDisputedValues();
       console.log(mynum)
       assert(mynum['0'] - startTime ==0, "getDisputedValues should work")
-      assert(mynum['1'] - endTime == 0)
+      assert(mynum['1'] - myend == 0)
     })
-        /*it("Test No Tributes in User Contract w/Solution", async function(){
+    it("Test No Tributes in User Contract w/Solution", async function(){
 
       await reader.testContract(7 * 86400)
       var startTime = await reader.startDateTime.call();
@@ -275,21 +272,24 @@ contract('UserContract Tests', function(accounts) {
       assert(await oracle.getNewValueCountbyRequestId(1) == 2, "new value coulnt should be correct")
       await reader.disputeOptimisticValue(endTime,{from:accounts[2]})
       await helper.advanceTime(86400 * 10);
-      console.log('gettingTellorVAlues');
       await reader.getTellorValues(await reader.endDateTime.call());
       await reader.settleContracts();
       assert(await reader.longWins.call(), "Long should win")
       assert(await reader.contractEnded.call(), "Contract should be ended")
       console.log(res[1]*1,res[0]*1)
-      assert(await reader.getNumberOfValuesPerTimestamp(res[0]*1) == 3);
       var rIds = await reader.getRequestIds();
       assert(rIds['0'] == 1, "getRequestIds should work")
       assert(rIds['1'] == 2)
       assert(rIds['2'] == 3)
-      rIds = await reader.getRequestIdsIncluded(await reader.endDateTime.call());
-      assert(rIds['0'] == 1)
+      let vars= await reader.getTimestamps();
+      console.log(vars);
+      console.log(vars[vars.length -1] *1)
+      console.log(await reader.getNumberOfValuesPerTimestamp(vars[vars.length -1] *1))
+      assert(await reader.getNumberOfValuesPerTimestamp(vars[vars.length -1]*1) == 3, "number of values per timestamp should work");
+      rIds = await reader.getRequestIdsIncluded(vars[vars.length -1]*1);
+      assert(rIds['0'] == 1, "included Id's should be correct")
       assert(rIds['1'] == 2)
       assert(rIds['2'] == 3)
-      assert(await reader.endValue.call() < res[0], 'value should be an average')
+      assert(await reader.endValue.call() > res[1] * 1, 'value should be an average')
        })
 });

@@ -86,17 +86,17 @@ contract Optimistic is UsingTellor{
 			//Check if any is after your given timestamp
 			//If yes, return that value to the .  If no, then request that Id
 			(_didGet,_value,_retrievedTimestamp) = getFirstVerifiedDataAfter(i,_timestamp);
-			emit Print(_didGet);
-			emit Print2(_value,_retrievedTimestamp);
 			if(_didGet){
-				uint _newValue =(_value + valuesByTimestamp[_retrievedTimestamp - _retrievedTimestamp % granularity] * requestIdsIncluded[_timestamp].length) / (requestIdsIncluded[_timestamp].length + 1);
 				uint _newTime = _retrievedTimestamp - _retrievedTimestamp % granularity;
+				uint _newValue =(_value + valuesByTimestamp[_newTime] * requestIdsIncluded[_newTime].length) / (requestIdsIncluded[_newTime].length + 1);
 				valuesByTimestamp[_newTime] = _newValue;
 				emit TellorValuePlaced(_newTime,_newValue);
-				requestIdsIncluded[_retrievedTimestamp - _retrievedTimestamp % granularity].push(i); //how do we make sure it's not called twice?
+				emit Print2(_newValue,_value);
+				requestIdsIncluded[_newTime].push(i); //how do we make sure it's not called twice?
 				if(isValue[_newTime] == false){
 							timestamps.push(_newTime);
 							isValue[_newTime] = true;
+							emit NewValueSet(_newTime,_value);
 				}
 				else if(disputedValues[_newTime] == true){
 					disputedValues[_newTime] = false;

@@ -1,3 +1,8 @@
+
+var HDWalletProvider = require("truffle-hdwallet-provider");
+
+var mnemonic = "nick lucian brenda kevin sam fiscal patch fly damp ocean produce wish";
+
 module.exports = {
   // See <http://truffleframework.com/docs/advanced/configuration>
   // to customize your Truffle configuration!

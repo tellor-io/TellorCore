@@ -41,11 +41,11 @@ module.exports = {
       network_id: 3,
       gas: 4612388
     },
-      rinkeby: {
-      provider: new HDWalletProvider(mnemonic, "https://rinkeby.infura.io/zkGX3Vf8njIXiHEGRueB"),
-      network_id: 4,
-      gas: 4700000,
-      gasPrice: 17e9
-    }
+    rinkeby: {
+            provider: function() {
+        return new HDWalletProvider(mnemonic, "https://rinkeby.infura.io/v3/72bb9acde80d4a9ca803274f42f77612")
+      },
+      network_id: 4
+    }   
   }
 };
