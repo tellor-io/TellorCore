@@ -5,13 +5,18 @@ import requests,json, time,random
 import pandas as pd
 import hashlib
 from Naked.toolshed.shell import execute_js, muterun_js, run_js
-contract_address = "";
+contract_address = "0xDae06771E342fc7A8BddBe9b159bB9fa8cE4D626";
 node_url ="http://localhost:8545" #https://rinkeby.infura.io/
-net_id = 60 #eth network ID
+net_id = 4 #eth network ID
 last_block = 0
-
+challenge = '0x64966a8be800bd7d993d125a07e5fd93ae291e65f65bd53ae3a03558e4f40dc2'
+apiId = 5
+difficulty =1
+apiString =  'json(https://api.gdax.com/products/BTC-USD/ticker).price'
+granularity = 10000
 public_keys = ["0xe037ec8ec9ec423826750853899394de7f024fee","0xcdd8fa31af8475574b8909f135d510579a8087d3","0xb9dd5afd86547df817da2d0fb89334a6f8edd891","0x230570cd052f40e14c14a81038c6f3aa685d712b","0x3233afa02644ccd048587f8ba6e99b3c00a34dcc"]
 private_keys = ["4bdc16637633fa4b4854670fbb83fa254756798009f52a1d3add27fb5f5a8e16","d32132133e03be292495035cf32e0e2ce0227728ff7ec4ef5d47ec95097ceeed","d13dc98a245bd29193d5b41203a1d3a4ae564257d60e00d6f68d120ef6b796c5","4beaa6653cdcacc36e3c400ce286f2aefd59e2642c2f7f29804708a434dd7dbe","78c1c7e40057ea22a36a0185380ce04ba4f333919d1c5e2effaf0ae8d6431f14"]
+
 
 def generate_random_number():
     return random.randint(1000000,9999999)
@@ -39,11 +44,6 @@ def mine(challenge, public_address, difficulty):
 			r = requests.post(node_url, data=json.dumps(payload));
 			d = jsonParser(r);
 			_block = int(d['result'],16)
-			if(last_block != _block):
-				_challenge,_apiId,_difficulty,_apiString,_granularity = getVariables();
-				print(_challenge);
-				if challenge != _challenge:
-					return 0;
 
 def getAPIvalue(_api):
 	_api = _api.replace("'", "")
@@ -77,7 +77,6 @@ def getAPIvalue(_api):
 
 def masterMiner():
 	miners_started = 0
-	challenge,apiId,difficulty,apiString,granularity = getVariables();
 	while True:
 		nonce = mine(str(challenge),public_keys[miners_started],difficulty);
 		print('n',nonce);
@@ -89,58 +88,13 @@ def masterMiner():
 			print(arg_string)
 			#success = execute_js('testSubmitter.js',arg_string)
 			#print('WE WERE SUCCESSFUL: ', success)
-			run_js('testSubmitter.js',arg_string);
+			run_js('rinkebySubmitter.js',arg_string);
 			miners_started += 1 
 			if(miners_started == 5):
-				v = False;
-				while(v == False):
-					time.sleep(2);
-					_challenge,_apiId,_difficulty,_apiString,_granularity= getVariables();
-					if challenge == _challenge:
-						v = False
-						time.sleep(10);
-					elif _apiId > 0:
-						v = True
-						challenge = _challenge;
-						apiId = _apiId;
-						difficulty = _difficulty;
-						apiString = _apiString;
-						granularity = _granularity;
-				miners_started = 0;
+				break
 		else:
-			challenge,apiId,difficulty,apiString = getVariables(); 
+			break
 	print('Miner Stopping')
-
-def getVariables():
-	getAddress();
-	print (contract_address)
-	payload = {"jsonrpc":"2.0","id":net_id,"method":"eth_call","params":[{"to":contract_address,"data":"0xa22e407a"}, "latest"]}
-	tries = 1;
-	while tries < 5:
-		try:
-			r = requests.post(node_url, data=json.dumps(payload));
-			val = jsonParser(r);
-			val = val['result'];
-			print(val);
-			_challenge = val[:66]
-			val = val[66:]
-			_apiId = int(val[:64],16)
-			val = val[64:]
-			_difficulty = int(val[:64],16);
-			val =val[64:]
-			val =val[64:]
-			print(val[:64]);
-			_granularity = int(val[:64],16);
-			val =val[64:]
-			val =val[64:]
-			val = val[:-16]
-			_apiString =  str(binascii.unhexlify(val.strip()))
-			print('String',_challenge,_apiId,_difficulty,_apiString,_granularity)
-			return _challenge,_apiId,_difficulty,_apiString,_granularity
-		except:
-			tries += 1
-			print('Oh no...not working')
-	return 0,0,0,0,0
 
 def jsonParser(_info):
 	my_json = _info.content
@@ -148,35 +102,6 @@ def jsonParser(_info):
 	s = json.dumps(data, indent=4, sort_keys=True)
 	return json.loads(s)
 
-def getAddress():
-	global last_block, contract_address
-	payload = {"jsonrpc":"2.0","id":net_id,"method":"eth_blockNumber"}
-	r = requests.post(node_url, data=json.dumps(payload));
-	e = jsonParser(r);
-	block = int(e['result'],16)
-	while(block > last_block):
-		print('block',block);
-		try:
-			payload = {"jsonrpc":"2.0","id":net_id,"method":"eth_getTransactionByBlockNumberAndIndex","params":[hex(block),0]}
-			r = requests.post(node_url, data=json.dumps(payload));
-			d = jsonParser(r);
-			tx = d['result']
-			payload = {"jsonrpc":"2.0","id":net_id,"method":"eth_getTransactionReceipt","params":[tx['hash']]}
-			r = requests.post(node_url, data=json.dumps(payload));
-			d = jsonParser(r);
-			tx = d['result']
-			_contract_address =tx['contractAddress']
-			if len(_contract_address)>0 and tx['logs'][0]['topics'][0] == '0xc2d1449eb0b6547aa426e09d9942a77fa4fc8cd3296305b3163e22452e0bcb8d':
-				last_block = int(e['result'],16) 
-				block = 0;
-				contract_address = _contract_address
-				print('New Contract Address',_contract_address)
-				return True;
-		except:
-			pass
-		block = block - 1;
-	last_block = int(e['result'],16)
-	return False;
 
 #getVariables()
 masterMiner();

@@ -29,18 +29,14 @@ contract UsingTellor{
         return(false,0,0);
 	}
 
-	event Print(string _s,uint _a);
 	//How can we make this one more efficient?
 	function getFirstVerifiedDataAfter(uint _requestId, uint _timestamp) public returns(bool,uint,uint _timestampRetrieved) {
 		TellorMaster _tellor = TellorMaster(tellorUserContract.tellorStorageAddress());
 		uint _count = _tellor.getNewValueCountbyRequestId(_requestId);
-		emit Print("Count", _count);
 		if(_count > 0){
 				for(uint i = _count;i > 0;i--){
-					emit Print("_timestampRetrieved1",_tellor.getTimestampbyRequestIDandIndex(_requestId,i-1));
 					if(_tellor.getTimestampbyRequestIDandIndex(_requestId,i-1) > _timestamp && _tellor.getTimestampbyRequestIDandIndex(_requestId,i-1) < block.timestamp - 86400){
 						_timestampRetrieved = _tellor.getTimestampbyRequestIDandIndex(_requestId,i-1);//will this work with a zero index? (or insta hit?)
-						emit Print("_timestampRetrieved2",_timestampRetrieved);
 					}
 				}
 				if(_timestampRetrieved > 0){
@@ -50,15 +46,21 @@ contract UsingTellor{
         return(false,0,0);
 	}
 	
+	event Print(string _s,uint _num);
 
-	function getAnyDataAfter(uint _requestId, uint _timestamp) public view returns(bool _ifRetrieve, uint _value, uint _timestampRetrieved){
+	function getAnyDataAfter(uint _requestId, uint _timestamp) public  returns(bool _ifRetrieve, uint _value, uint _timestampRetrieved){
 		TellorMaster _tellor = TellorMaster(tellorUserContract.tellorStorageAddress());
 		uint _count = _tellor.getNewValueCountbyRequestId(_requestId) ;
 		if(_count > 0){
-				for(uint i = _count - 1;i > 0;i--){
-					if(_tellor.getTimestampbyRequestIDandIndex(_requestId,i) < _timestamp){
-						_timestampRetrieved = _tellor.getTimestampbyRequestIDandIndex(_requestId,i + 1);//will this work with a zero index? (or insta hit?)
-						i  = 0;
+				emit Print("count",_count);
+				for(uint i = _count;i > 0;i--){
+					emit Print('tester',_tellor.getTimestampbyRequestIDandIndex(_requestId,i-1));
+					emit Print('actual', _timestamp);
+
+					if(_tellor.getTimestampbyRequestIDandIndex(_requestId,i-1) >= _timestamp){
+						_timestampRetrieved = _tellor.getTimestampbyRequestIDandIndex(_requestId,i-1);//will this work with a zero index? (or insta hit?)
+						emit Print("_timestampRetrieved",_timestampRetrieved);
+						emit Print("value",_tellor.retrieveData(_requestId,_timestampRetrieved));
 					}
 				}
 				if(_timestampRetrieved > 0){
@@ -71,23 +73,23 @@ contract UsingTellor{
 	function requestData(string calldata _request,string calldata _symbol,uint _granularity, uint _tip) external{
 		Tellor _tellor = Tellor(tellorUserContract.tellorStorageAddress());
 		if(_tip > 0){
-			_tellor.transfer(address(this),_tip);
+			require(_tellor.transferFrom(msg.sender,address(this),_tip));
 		}
 		_tellor.requestData(_request,_symbol,_granularity,_tip);
 	}
 
 	function requestDataWithEther(string calldata _request,string calldata _symbol,uint _granularity, uint _tip) payable external{
-		tellorUserContract.requestDataWithEther(_request,_symbol,_granularity,_tip);
+		tellorUserContract.requestDataWithEther.value(msg.value)(_request,_symbol,_granularity,_tip);
 	}
 
 	function addTip(uint _requestId, uint _tip) public {
 		Tellor _tellor = Tellor(tellorUserContract.tellorStorageAddress());
-		_tellor.transfer(address(this),_tip);
+		require(_tellor.transferFrom(msg.sender,address(this),_tip));
 		_tellor.addTip(_requestId,_tip);
 	}
 
-	function addTipWithEther(uint _requestId, uint _tip) public {
-		UserContract(tellorUserContract).addTipWithEther(_requestId,_tip);
+	function addTipWithEther(uint _requestId, uint _tip) public payable {
+		UserContract(tellorUserContract).addTipWithEther.value(msg.value)(_requestId,_tip);
 	}
 
 	function setUserContract(address _userContract) public {
