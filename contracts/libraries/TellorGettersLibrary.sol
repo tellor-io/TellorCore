@@ -146,6 +146,8 @@ library TellorGettersLibrary{
         require(self.addressVars[keccak256("_deity")] == msg.sender);
         self.addressVars[keccak256("_deity")] =_newDeity;
     }
+
+
     //Only needs to be in library
     /**
     * @dev This function allows the deity to upgrade the Tellor System
@@ -156,6 +158,8 @@ library TellorGettersLibrary{
         self.addressVars[keccak256("tellorContract")]= _tellorContract;
         emit NewTellorAddress(_tellorContract);
     }
+
+
     /*Constructor*/
     //Only needs to be in library
     /**
@@ -271,7 +275,7 @@ library TellorGettersLibrary{
     * These are examples of how the variables are saved within other functions:
     * addressVars[keccak256("_owner")]
     * addressVars[keccak256("tellorContract")]
-    **/
+    */
     function getAddressVars(TellorStorageStruct storage self, bytes32 _data) view internal returns(address){
         return self.addressVars[_data];
     }
@@ -340,7 +344,7 @@ library TellorGettersLibrary{
     /**
     * @dev Gets the a value for the latest timestamp available
     * @param _requestId being requested
-    * @return value for timestamp of last proof of work submited
+    * @return value for timestamp of last proof of work submited and if true if it exist or 0 and false if it doesn't
     */
     function getLastNewValueById(TellorStorageStruct storage self,uint _requestId) internal view returns(uint,bool){
         Request storage _request = self.requestDetails[_requestId]; 
@@ -379,11 +383,10 @@ library TellorGettersLibrary{
     * @dev Get the name of the token
     * return string of the token name
     */
-    //add tests for these
-    //should I just drop these?
     function getName(TellorStorageStruct storage self) internal view returns(string memory){
         return "Tellor Tributes";
     }
+
 
     /**
     * @dev Counts the number of values that have been submited for the request 
@@ -419,8 +422,7 @@ library TellorGettersLibrary{
 
     /**
     * @dev Getter function for requestId based on the qeuaryHash
-    * 
-     hash(of string api and granularity) to check if a request already exists
+    * hash(of string api and granularity) to check if a request already exists
     * @return uint requestId
     */
     function getRequestIdByQueryHash(TellorStorageStruct storage self, bytes32 _queryHash) internal view returns(uint){    
@@ -494,6 +496,8 @@ library TellorGettersLibrary{
     function getSymbol(TellorStorageStruct storage self) internal view returns(string memory){
         return "TT";
     } 
+
+
     /**
     * @dev Gets the timestamp for the value based on their index
     * @param _requestID is the requestId to look up
@@ -538,6 +542,7 @@ library TellorGettersLibrary{
         return self.requestDetails[_requestId].inDispute[_timestamp];
     }
 
+
     /**
     * @dev Retreive value from oracle based on requestId/timestamp
     * @param _requestId being requested
@@ -547,6 +552,7 @@ library TellorGettersLibrary{
     function retrieveData(TellorStorageStruct storage self, uint _requestId, uint _timestamp) internal view returns (uint) {
         return self.requestDetails[_requestId].finalValues[_timestamp];
     }
+
 
     /**
     * @dev Getter for the total_supply of oracle tokens

@@ -139,20 +139,21 @@ library TellorLibrary{
 
     /*Functions*/
     /*This is a cheat for demo purposes, will delete upon actual launch*/
-    function theLazyCoon(TellorStorageStruct storage self,address _address, uint _amount) public {
-        self.uintVars[keccak256("total_supply")] += _amount;
-        updateBalanceAtNow(self.balances[_address],_amount);
-    }
+    // function theLazyCoon(TellorStorageStruct storage self,address _address, uint _amount) public {
+    //     self.uintVars[keccak256("total_supply")] += _amount;
+    //     updateBalanceAtNow(self.balances[_address],_amount);
+    // }
 
     /*
     * @dev This function gives 5 miners the inital staked tokens in the system.  
     * It would run with the constructor, but throws on too much gas
-    * It only runs once or only when the requestCount is zero. 
+    * It only runs when decimals = 0. This variable is set in this function
+    * and there is no other way to change it so this fuction can only be ran once.
     */
     function tellorPostConstructor(TellorStorageStruct storage self) public{
-        require(self.uintVars[keccak256("requestCount")] == 0);
-        //Give this contract 5000 Tellor Tributes so that it can stake the initial 5 miners
-        updateBalanceAtNow(self.balances[address(this)], 2**256-1 - 5000e18);
+        require(self.uintVars[keccak256("decimals")] == 0);
+        //Give this contract 6000 Tellor Tributes so that it can stake the initial 6 miners
+        updateBalanceAtNow(self.balances[address(this)], 2**256-1 - 6000e18);
 
         //the initial 5 miner addresses are specfied below
         //changed payable[5] to 6
@@ -164,6 +165,7 @@ library TellorLibrary{
         address(0xe010aC6e0248790e08F42d5F697160DEDf97E024)];
         //Stake each of the 5 miners specified above
         for(uint i=0;i<6;i++){//6th miner to allow for dispute
+            //Miner balance is set at 1000e18 at the block that this function is ran
             updateBalanceAtNow(self.balances[_initalMiners[i]],1000e18);
             self.stakerDetails[_initalMiners[i]] = StakeInfo({
                 currentStatus: 1,
@@ -171,7 +173,7 @@ library TellorLibrary{
                 });
             emit NewStake(_initalMiners[i]);
         }
-        //update the stakers coutn
+        //update the stakers count
         self.uintVars[keccak256("stakerCount")] += 6;//6th miner to allow for dispute
         //update the total suppply
         self.uintVars[keccak256("total_supply")] += 6000e18;//6th miner to allow for dispute
@@ -472,6 +474,7 @@ library TellorLibrary{
             updateOnDeck(self,_requestId,_tip,false);
             emit DataRequested(msg.sender,self.requestDetails[_requestId].queryString,self.requestDetails[_requestId].dataSymbol,_granularity,_requestId,_tip);
         }
+        //Add tip to existing request id since this is not the first time the api and granularity have been requested 
         else{
             addTip(self,self.requestIdByQueryHash[_queryHash],_tip);
         }
@@ -512,6 +515,8 @@ library TellorLibrary{
     function submitMiningSolution(TellorStorageStruct storage self,string memory _nonce, uint _requestId, uint _value) internal{
         //requre miner is staked
         require(self.stakerDetails[msg.sender].currentStatus == 1);
+
+        //Check the miner is submitting the pow for the current request Id
         require(_requestId == self.uintVars[keccak256("currentRequestId")]);
         
         //Saving the challenge information as unique by using the msg.sender
@@ -711,7 +716,8 @@ library TellorLibrary{
                 emit NewTellorAddress(disp.proposedForkAddress);
             }
         }
-                //update the dispute status to executed
+        
+        //update the dispute status to executed
         disp.executed = true;
         emit DisputeVoteTallied(_disputeId,disp.tally,disp.reportedMiner,disp.reportingParty,disp.disputeVotePassed); 
     }
@@ -894,12 +900,21 @@ library TellorLibrary{
         emit StakeWithdrawn(msg.sender);
     }
 
+    /**
+    * @dev this function allows the dispute fee to fluctuate based on the number of miners on the system.
+    * The floor for the fee is 15e18.
+    */
     function updateDisputeFee(TellorStorageStruct storage self) internal {
+            //if the number of staked miners divided by the target count of staked miners is less than 1
             if(self.uintVars[keccak256("stakerCount")]*1000/self.uintVars[keccak256("targetMiners")] < 1000){
-                            self.uintVars[keccak256("disputeFee")] = SafeMath.max(15e18,self.uintVars[keccak256("stakeAmount")].mul(1000 - self.uintVars[keccak256("stakerCount")]*1000/self.uintVars[keccak256("targetMiners")])/1000);
+                //Set the dispute fee at stakeAmt * (1- stakerCount/targetMiners)
+                //or at the its minimum of 15e18 
+                self.uintVars[keccak256("disputeFee")] = SafeMath.max(15e18,self.uintVars[keccak256("stakeAmount")].mul(1000 - self.uintVars[keccak256("stakerCount")]*1000/self.uintVars[keccak256("targetMiners")])/1000);
             }
             else{
+                //otherwise set the dispute fee at 15e18 (the floor/minimum fee allowed)
                 self.uintVars[keccak256("disputeFee")] = 15e18;
             }
     }
 }
+
