@@ -1,8 +1,8 @@
 pragma solidity ^0.5.0;
 
-//Slightly modified SafeMath library - includes a min function
+//Functions for retrieving min and Max in 51 length array (requestQ)
 library Utilities{
-  
+  /// @dev Returns the maximum value and position in an array.
   function getMax(uint[51] memory data) internal pure returns(uint256 maximal,uint maxIndex) {
             maximal = data[1];
             maxIndex;
@@ -14,7 +14,7 @@ library Utilities{
             }
   }
 
-  /// @dev Returns the minimum value in an array.
+  /// @dev Returns the minimum value and position in an array.
   function getMin(uint[51] memory data) internal pure returns(uint256 minimal,uint minIndex) {
         minIndex = data.length - 1;
         minimal = data[minIndex];

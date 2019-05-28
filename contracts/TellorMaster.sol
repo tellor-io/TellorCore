@@ -13,17 +13,26 @@ contract TellorMaster is TellorGetters{
         tellor.tellorMasterConstructor(_tellorContract);
     }
 
+    /**
+    * @dev  allows for the deity to make fast upgrades.  Deity should be 0 address if decentralized
+    * @param _tellorContract the address of the new Tellor Contract
+    */
     function changeTellorContract(address _tellorContract) external{
         tellor.changeTellorContract(_tellorContract);
     }
 
-        //Only needs to be in library
+    /**
+    * @dev Gets the 5 miners who mined the value for the specified requestId/_timestamp 
+    * @dev Only needs to be in library
+    * @param _newDeity the new Deity in the contract
+    */
+
     function changeDeity(address _newDeity) external{
         tellor.changeDeity(_newDeity);
     }
 
     /**
-    @dev this fuction allows for delegate calls to the Tellor contract.???
+    * @dev This is the fallback function that allows contracts to call the tellor contract at the address stored
     */
     function () external payable {
         address addr = tellor.addressVars[keccak256("tellorContract")];

@@ -64,7 +64,7 @@ contract TellorGetters{
     }
 
     /**
-    * @dev Checks if an address voted in a dispute
+    * @dev Checks if an address voted in a given dispute
     * @param _disputeId to look up
     * @param _address to look up
     * @return bool of whether or not party voted
@@ -104,7 +104,7 @@ contract TellorGetters{
 
     /**
     * @dev Getter function for variables for the requestId being currently mined(currentRequestId)
-    * @return current challenge, curretnRequestId, level of difficulty, api/query string, and granularity(number of decimals requested), , total tip for the request 
+    * @return current challenge, curretnRequestId, level of difficulty, api/query string, and granularity(number of decimals requested), total tip for the request 
     */
     function getCurrentVariables() external view returns(bytes32, uint, uint,string memory,uint,uint){    
         return tellor.getCurrentVariables();

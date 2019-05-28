@@ -484,7 +484,7 @@ library TellorLibrary{
     /**
     * @dev This function allows stakers to request to withdraw their stake (no longer stake) 
     * once they lock for withdraw(stakes.currentStatus = 2) they are locked for 7 days before they 
-    * can withdraw the stake
+    * can withdraw the deposit
     */
     function requestStakingWithdraw(TellorStorageStruct storage self) public {
         StakeInfo storage stakes = self.stakerDetails[msg.sender];
@@ -573,7 +573,7 @@ library TellorLibrary{
                 }
             }
             
-            //Pay the miners according to the reward distribution
+            //Pay the miners
             for (i = 0;i <5;i++){
                 doTransfer(self,address(this),a[i].miner,5e18 + self.uintVars[keccak256("currentTotalTips")]/5);
             }
