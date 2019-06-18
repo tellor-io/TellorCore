@@ -1,7 +1,7 @@
 pragma solidity ^0.5.0;
 
 import "./SafeMath.sol";
-import "./Utilities.sol";
+//import "./Utilities.sol";
 
 /**
 * @title Tellor Getters Library

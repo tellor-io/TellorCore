@@ -512,7 +512,7 @@ library TellorLibrary{
     * @param _requestId the apiId being mined
     * @param _value of api query
     */
-    function submitMiningSolution(TellorStorageStruct storage self,string memory _nonce, uint _requestId, uint _value) internal{
+    function submitMiningSolution(TellorStorageStruct storage self,string memory _nonce, uint _requestId, uint _value) public {
         //requre miner is staked
         require(self.stakerDetails[msg.sender].currentStatus == 1);
 

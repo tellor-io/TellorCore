@@ -1,7 +1,7 @@
 pragma solidity ^0.5.0;
 
 import "./libraries/SafeMath.sol";
-import "./libraries/Utilities.sol";
+//import "./libraries/Utilities.sol";
 import "./libraries/TellorLibrary.sol";
 //import "./TellorGetters.sol";
 
@@ -10,7 +10,7 @@ import "./libraries/TellorLibrary.sol";
  * @dev Oracle contract where miners can submit the proof of work along with the value.
  * The logic for this contract is in TellorLibrary.sol
  */
-contract Tellor /* is TellorGetters*/{
+contract Tellor {
 
     using SafeMath for uint256;
 
