@@ -1,6 +1,8 @@
 pragma solidity ^0.5.0;
 
-import "./libraries/SafeMath.sol"; 
+import "./libraries/SafeMath.sol";
+import "./libraries/TellorStorage.sol";
+import "./libraries/TellorTransfer.sol";
 import "./libraries/TellorGettersLibrary.sol";
 
 /**
@@ -12,8 +14,11 @@ import "./libraries/TellorGettersLibrary.sol";
 */
 contract TellorGetters{
     using SafeMath for uint256;
-    using TellorGettersLibrary for TellorGettersLibrary.TellorStorageStruct;
-    TellorGettersLibrary.TellorStorageStruct tellor;
+
+    using TellorTransfer for TellorStorage.TellorStorageStruct;
+    using TellorGettersLibrary for TellorStorage.TellorStorageStruct;
+
+    TellorStorage.TellorStorageStruct tellor;
     
     /**
     * @param _user address
