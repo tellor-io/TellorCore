@@ -35,26 +35,15 @@ contract('Mining Tests', function(accounts) {
   let logMineWatcher;
 
     beforeEach('Setup contract for each test', async function () {
-
 //         balance2 =  await web3.eth.call({to:oracle.address,data:oracle3.methods.balanceOf(accounts[2]).encodeABI()})
 //         t = web3.utils.toWei('5', 'ether');
-
         oracleBase = await Oracle.new();
         oracle = await TellorMaster.new(oracleBase.address);
         oracle2 = await new web3.eth.Contract(oracleAbi,oracle.address);///will this instance work for logWatch? hopefully...
         console.log("1");
-        //await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000, data: web3.utils.keccak256("tellorPostConstructor()")})
-        await web3.eth.sendTransaction({
-            from: accounts[0], 
-            to: oracle.address, 
-            gas: 10000000, 
-            data: oracle2.methods.requestData(api,"BTC/USD",web3.utils.numberToHex(1000), web3.utils.numberToHex(0)).encodeABI()
-        })
-        
-        //await web3.eth.sendTransaction({from: accounts[0], to: oracle.address, gas: 10000000, data: oracle2.methods.requestData(api,"BTC/USD",1000,0).encodeABI()}).then(console.log);
-        console.log("1");
-        //await oracle2.methods.requestData(api,"BTC/USD",1000,0).encodeABI().send({from: accounts[0], to: oracle.address, gas: 10000000});
-        console.log("sendTransaction");
+        await web3.eth.sendTransaction({from: accounts[0], to: oracle.address, gas: 10000000, data: oracle2.methods.requestData(api,"BTC/USD",1000,0).encodeABI()});
+        console.log("3");
+
     });
 
     it("Get Symbol", async function(){
@@ -64,10 +53,12 @@ contract('Mining Tests', function(accounts) {
         symbol1 = web3.utils.hexToString(symbol);
         console.log('test1-', symbol1,"-");
         symbol2 = web3.utils.hexToAscii(symbol);
+        symbol4= symbol2.trim();
+        console.log('symbol4-', symbol4,"-");
         console.log('test2', symbol2);
         symbol3 = web3.utils.hexToUtf8(symbol);
         console.log('test3', symbol3);
-        assert.equal(symbol2,"TT","the Symbol should be TT");
+        assert.equal(symbol2.trim(),"TT","the Symbol should be TT");
     });
 
     it("Get name", async function(){
@@ -77,20 +68,27 @@ contract('Mining Tests', function(accounts) {
         assert.equal(name1,"  Tellor Tributes ","the Symbol should be Tellor Tributes");
     });
 
-//     it("getStakersCount", async function(){
-//         let count = await oracle.getUintVar(web3.utils.keccak256("stakerCount"))
-//         assert(web3.utils.hexToNumberString(count)==6, "count is 6");//added miner
-//     });
+    it("getStakersCount", async function(){
+        let count = await web3.eth.call({to: oracle.address, data: oracle2.methods.getUintVar(web3.utils.keccak256("stakerCount")).encodeABI()});
+        console.log('count', count);
+        console.log('count', web3.utils.hexToNumberString(count));
+        assert(web3.utils.hexToNumberString(count)==6, "count is 6");//added miner
+    });
 
-//    it("getStakersInfo", async function(){
-//         let info = await oracle.getStakerInfo(accounts[1])
-//         let stake = web3.utils.hexToNumberString(info['0']);
-//         let startDate = web3.utils.hexToNumberString(info['1']);
-//         let _date = new Date();
-//         let d = (_date - (_date % 86400000))/1000;
-//         assert(d*1==startDate, "startDate is today");
-//         assert(stake*1 == 1, "Should be 1 for staked address");
-//      });
+   it("getStakersInfo", async function(){
+        let info = await  web3.eth.call({to: oracle.address, data: oracle2.methods.getStakerInfo(accounts[1]).encodeABI()});
+        infot= web3.utils.hexToString(info);
+        console.log('info', infot);
+        let stake = web3.utils.hexToNumberString(info['0']);
+        console.log('info0',info['0']);
+        console.log('info1', info['1']);
+        let startDate = web3.utils.hexToNumberString(info['1']);
+        console.log(2);
+        let _date = new Date();
+        let d = (_date - (_date % 86400000))/1000;
+        assert(d*1==startDate, "startDate is today");
+        assert(stake*1 == 1, "Should be 1 for staked address");
+     });
 //     it("getVariables", async function(){
 //         var vars = await oracle.getCurrentVariables()
 //         let miningApiId = web3.utils.hexToNumberString(vars['1']);
