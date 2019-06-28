@@ -6,14 +6,13 @@ import "./libraries/TellorTransfer.sol";
 import "./libraries/TellorDispute.sol";
 import "./libraries/TellorStake.sol";
 import "./libraries/TellorLibrary.sol";
-import "./TellorGetters.sol";
 
 /**
  * @title Tellor Oracle System
  * @dev Oracle contract where miners can submit the proof of work along with the value.
  * The logic for this contract is in TellorLibrary.sol
  */
-contract Tellor is TellorGetters {
+contract Tellor{
 
     using SafeMath for uint256;
 
@@ -35,10 +34,6 @@ contract Tellor is TellorGetters {
     * It would run with the constructor, but throws on too much gas
     * It only runs once or only when the requestCount is zero. 
     */
-    constructor() public {
-        init();
-    }
-
     function init() public{
         tellor.init();
     }

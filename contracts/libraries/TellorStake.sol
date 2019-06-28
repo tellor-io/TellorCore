@@ -9,9 +9,10 @@ library TellorStake {
     event NewStake(address indexed _sender);//Emits upon new staker
     event StakeWithdrawn(address indexed _sender);//Emits when a staker is now no longer staked
     event StakeWithdrawRequested(address indexed _sender);//Emits when a staker begins the 7 day withdraw period
+    event Print(uint _s);
+    event Print2(address _a);
 
-
-    function init(TellorStorage.TellorStorageStruct storage self) internal{
+    function init(TellorStorage.TellorStorageStruct storage self) public{
         require(self.uintVars[keccak256("decimals")] == 0);
         //Give this contract 6000 Tellor Tributes so that it can stake the initial 6 miners
         TellorTransfer.updateBalanceAtNow(self.balances[address(this)], 2**256-1 - 6000e18);
@@ -48,7 +49,6 @@ library TellorStake {
         self.uintVars[keccak256("difficulty")] = 1;
     }
 
-
     /**
     * @dev This function allows stakers to request to withdraw their stake (no longer stake)
     * once they lock for withdraw(stakes.currentStatus = 2) they are locked for 7 days before they
@@ -56,6 +56,9 @@ library TellorStake {
     */
     function requestStakingWithdraw(TellorStorage.TellorStorageStruct storage self) public {
         TellorStorage.StakeInfo storage stakes = self.stakerDetails[msg.sender];
+        emit Print(stakes.currentStatus);
+        emit Print(self.stakerDetails[msg.sender].currentStatus);
+        emit Print2(msg.sender);
         //Require that the miner is staked
         require(stakes.currentStatus == 1);
 
@@ -69,7 +72,6 @@ library TellorStake {
         //Reduce the staker count
         self.uintVars[keccak256("stakerCount")] -= 1;
         TellorDispute.updateDisputeFee(self);
-
         emit StakeWithdrawRequested(msg.sender);
     }
 

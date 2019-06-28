@@ -1,31 +1,17 @@
 pragma solidity ^0.5.0;
 
-import "./libraries/TellorTransfer.sol";
-import "./libraries/TellorGettersLibrary.sol";
-import "./libraries/TellorStake.sol";
-//import "./TellorGetters.sol";
+import "./TellorGetters.sol";
 
 
-contract TellorMaster /*is TellorGetters*/{
+contract TellorMaster is TellorGetters{
 
-    using TellorTransfer for TellorStorage.TellorStorageStruct;
-    using TellorGettersLibrary for TellorStorage.TellorStorageStruct;
-    using TellorStake for TellorStorage.TellorStorageStruct;
-
-    TellorStorage.TellorStorageStruct tellor;
-
-    event NewTellorAddress(address _newTellor); //emmited when a proposed fork is voted true
-
-    /**
+        /**
     * @dev The constructor sets the original `tellorStorageOwner` of the contract to the sender
     * account.
     */
+
     constructor (address _tellorContract)  public{
-        tellor.init();
-        tellor.addressVars[keccak256("_owner")] = msg.sender;
-        tellor.addressVars[keccak256("_deity")] = msg.sender;
-        tellor.addressVars[keccak256("tellorContract")]= _tellorContract;
-        emit NewTellorAddress(_tellorContract);
+        tellor.tellorMasterConstructor(_tellorContract);
     }
 
     /**
