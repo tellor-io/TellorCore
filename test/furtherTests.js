@@ -56,13 +56,7 @@ contract('Further Tests', function(accounts) {
         await web3.eth.sendTransaction({to:oracle.address,from:accounts[2],data:oracle2.methods.withdrawStake().encodeABI()})
    });  
    it("transferOwnership", async function () {
-
-		count = await oracle.getUintVar(web3.utils.keccak256("stakerCount"));
-		console.log('count', count);
         let checkowner = await oracle.getAddressVars(web3.utils.keccak256("_owner"));
-        console.log(await oracle.getSymbol());
-        console.log(checkowner)
-        console.log(accounts[0])
         assert(checkowner == accounts[0], "initial owner acct 0");
         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.transferOwnership(accounts[2]).encodeABI()});
         checkowner = await oracle.getAddressVars(web3.utils.keccak256("_owner"));
@@ -70,12 +64,10 @@ contract('Further Tests', function(accounts) {
    });
    it("Request data", async function () {
         let res2 = await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(api2,"ETH/USD",1000,20).encodeABI()})
-        console.log(res2);
         let res = await web3.eth.abi.decodeParameters(['string','string','uint256','uint256'],res2.logs[2].data);
         let resSapi = res['0']
         let resApiId = await web3.eth.abi.decodeParameter('uint256',res2.logs[2].topics[2])
         apiVars = await oracle.getRequestVars(resApiId);
-        console.log(apiVars)
         assert( apiVars[5] == 20, "value pool should be 20");
         res3 = await web3.eth.abi.decodeParameters(['string','bytes32','uint256'],res2.logs[1].data);
         let apiIdonQ = await web3.eth.abi.decodeParameter('uint256',res2.logs[1].topics[1])
@@ -86,7 +78,6 @@ contract('Further Tests', function(accounts) {
         vars = await oracle.getRequestVars(2);
         assert(vars[1] == "ETH/USD")
     });
-    /*
     it("several request data", async function () {
         test1 = "https://api.gdax.com/products/ETH-USD/ticker";
         test2 = "https://api.gdax.com/products/BTC-USD/ticker";
@@ -113,7 +104,7 @@ contract('Further Tests', function(accounts) {
         let resSapi = res['0']
 
         let resApiId = await web3.eth.abi.decodeParameter('uint256',res3.logs[2].topics[2])
-        apiVars = await web3.eth.call({to: oracle.address, data: oracle2.methods.getRequestVars(resApiId).encodeABI()});
+        apiVars = await oracle.getRequestVars(resApiId)
         assert( apiVars[5] == pay, "value pool should be 20");
         let res2 = await web3.eth.abi.decodeParameters(['string','bytes32','uint256'],res3.logs[1].data);
         let apiIdonQ = await web3.eth.abi.decodeParameter('uint256',res3.logs[1].topics[1])
@@ -142,7 +133,7 @@ contract('Further Tests', function(accounts) {
         let res = await web3.eth.abi.decodeParameters(['string','string','uint256','uint256'],res3.logs[2].data);
         let resSapi = res['0']
         let resApiId = await web3.eth.abi.decodeParameter('uint256',res3.logs[2].topics[2])
-        apiVars = await web3.eth.call({to: oracle.address, data: oracle2.methods.getRequestVars(resApiId).encodeABI()});
+        apiVars = await oracle.getRequestVars(resApiId)
         assert( apiVars[5] == pay, "value pool should be 20");
         let res2 = await web3.eth.abi.decodeParameters(['string','bytes32','uint256'],res3.logs[1].data);
         let apiIdonQ = await web3.eth.abi.decodeParameter('uint256',res3.logs[1].topics[1])
@@ -261,6 +252,6 @@ contract('Further Tests', function(accounts) {
 		let newOracle = await Tellor.new();
 		await web3.eth.sendTransaction({to: oracle.address,from:accounts[1],gas:7000000,data:master.methods.changeTellorContract(newOracle.address).encodeABI()})
 		assert(await oracle.getAddressVars(web3.utils.keccak256("tellorContract")) == newOracle.address);
-    });*/
+    });
 
 });

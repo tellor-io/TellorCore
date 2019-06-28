@@ -35,10 +35,6 @@ library TellorStake {
 
         //update the total suppply
         self.uintVars[keccak256("total_supply")] += 6000e18;//6th miner to allow for dispute
-        //Initiate requestQ array...is there a better way?
-        for(uint i = 49;i > 0;i--) {
-            self.requestQ[i] = 0;
-        }
         //set Constants
         self.uintVars[keccak256("decimals")] = 18;
         self.uintVars[keccak256("targetMiners")] = 200;

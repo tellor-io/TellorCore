@@ -210,6 +210,7 @@ library TellorGettersLibrary{
     * @return uint of reqeuestId
     */
     function getRequestIdByRequestQIndex(TellorStorage.TellorStorageStruct storage self, uint _index) internal view returns(uint){
+        require(_index <= 50);
         return self.requestIdByRequestQIndex[_index];
     }
 
