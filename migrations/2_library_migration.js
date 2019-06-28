@@ -61,6 +61,7 @@ module.exports = async function (deployer) {
   // deploy tellor master
   await deployer.link(TellorTransfer,TellorMaster);
   await deployer.link(TellorGettersLibrary,TellorMaster);
+    await deployer.link(TellorStake,TellorMaster);
   await deployer.deploy(Tellor).then(async function() {
     await deployer.deploy(TellorMaster, Tellor.address)
   });

@@ -1,94 +1,94 @@
-/** 
-* This tests the oracle functions, including mining.
-*/
-const Web3 = require('web3')
-const web3 = new Web3(new Web3.providers.WebsocketProvider('ws://localhost:8545'));
-const BN = require('bn.js');  
-const helper = require("./helpers/test_helpers");
-const TellorMaster = artifacts.require("./TellorMaster.sol");
-const Oracle = artifacts.require("./Tellor.sol"); // globally injected artifacts helper
-var oracleAbi = Oracle.abi;
-var oracleByte = Oracle.bytecode;
-var tellorMasterAbi = TellorMaster.abi;
+// /** 
+// * This tests the oracle functions, including mining.
+// */
+// const Web3 = require('web3')
+// const web3 = new Web3(new Web3.providers.WebsocketProvider('ws://localhost:8545'));
+// const BN = require('bn.js');  
+// const helper = require("./helpers/test_helpers");
+// const TellorMaster = artifacts.require("./TellorMaster.sol");
+// const Oracle = artifacts.require("./Tellor.sol"); // globally injected artifacts helper
+// var oracleAbi = Oracle.abi;
+// var oracleByte = Oracle.bytecode;
+// var tellorMasterAbi = TellorMaster.abi;
 
-var api = "json(https://api.gdax.com/products/BTC-USD/ticker).price";
-var api2 = "json(https://api.gdax.com/products/ETH-USD/ticker).price";
-function promisifyLogWatch(_contract,_event) {
-  return new Promise((resolve, reject) => {
-    web3.eth.subscribe('logs', {
-      address: _contract.options.address,
-      topics: [web3.utils.sha3(_event)]
-    }, (error, result) => {
-        if (error){
-          console.log('Error',error);
-          reject(error);
-        }
-        web3.eth.clearSubscriptions();
-        resolve(result);
-    })
-  });
-}
+// var api = "json(https://api.gdax.com/products/BTC-USD/ticker).price";
+// var api2 = "json(https://api.gdax.com/products/ETH-USD/ticker).price";
+// function promisifyLogWatch(_contract,_event) {
+//   return new Promise((resolve, reject) => {
+//     web3.eth.subscribe('logs', {
+//       address: _contract.options.address,
+//       topics: [web3.utils.sha3(_event)]
+//     }, (error, result) => {
+//         if (error){
+//           console.log('Error',error);
+//           reject(error);
+//         }
+//         web3.eth.clearSubscriptions();
+//         resolve(result);
+//     })
+//   });
+// }
 
-contract('Mining Tests', function(accounts) {
-  let oracle;
-  let oracle2;
-  let logMineWatcher;
+// contract('Mining Tests', function(accounts) {
+//   let oracle;
+//   let oracle2;
+//   let logMineWatcher;
 
-    beforeEach('Setup contract for each test', async function () {
-//         balance2 =  await web3.eth.call({to:oracle.address,data:oracle3.methods.balanceOf(accounts[2]).encodeABI()})
-//         t = web3.utils.toWei('5', 'ether');
-        oracleBase = await Oracle.new();
-        oracle = await TellorMaster.new(oracleBase.address);
-        oracle2 = await new web3.eth.Contract(oracleAbi,oracle.address);///will this instance work for logWatch? hopefully...
-        console.log("1");
-        await web3.eth.sendTransaction({from: accounts[0], to: oracle.address, gas: 10000000, data: oracle2.methods.requestData(api,"BTC/USD",1000,0).encodeABI()});
-        console.log("3");
+//     beforeEach('Setup contract for each test', async function () {
+// //         balance2 =  await web3.eth.call({to:oracle.address,data:oracle3.methods.balanceOf(accounts[2]).encodeABI()})
+// //         t = web3.utils.toWei('5', 'ether');
+//         oracleBase = await Oracle.new();
+//         oracle = await TellorMaster.new(oracleBase.address);
+//         oracle2 = await new web3.eth.Contract(oracleAbi,oracle.address);///will this instance work for logWatch? hopefully...
+//         console.log("1");
+//         await web3.eth.sendTransaction({from: accounts[0], to: oracle.address, gas: 10000000, data: oracle2.methods.requestData(api,"BTC/USD",1000,0).encodeABI()});
+//         console.log("3");
 
-    });
+//     });
 
-    it("Get Symbol", async function(){
-        //let symbol = await oracle.getSymbol();
-        let symbol = await web3.eth.call({to: oracle.address, data: oracle2.methods.getSymbol().encodeABI()});
-        console.log('symbol', symbol);
-        symbol1 = web3.utils.hexToString(symbol);
-        console.log('test1-', symbol1,"-");
-        symbol2 = web3.utils.hexToAscii(symbol);
-        symbol4= symbol2.trim();
-        console.log('symbol4-', symbol4,"-");
-        console.log('test2', symbol2);
-        symbol3 = web3.utils.hexToUtf8(symbol);
-        console.log('test3', symbol3);
-        assert.equal(symbol2.trim(),"TT","the Symbol should be TT");
-    });
+//     it("Get Symbol", async function(){
+//         //let symbol = await oracle.getSymbol();
+//         let symbol = await web3.eth.call({to: oracle.address, data: oracle2.methods.getSymbol().encodeABI()});
+//         console.log('symbol', symbol);
+//         symbol1 = web3.utils.hexToString(symbol);
+//         console.log('test1-', symbol1,"-");
+//         symbol2 = web3.utils.hexToAscii(symbol);
+//         symbol4= symbol2.trim();
+//         console.log('symbol4-', symbol4,"-");
+//         console.log('test2', symbol2);
+//         symbol3 = web3.utils.hexToUtf8(symbol);
+//         console.log('test3', symbol3);
+//         assert.equal(symbol2.trim(),"TT","the Symbol should be TT");
+//     });
 
-    it("Get name", async function(){
-        let name = await web3.eth.call({to: oracle.address, data: oracle2.methods.getName().encodeABI()});
-        name1 = web3.utils.hexToString(name);
-        console.log('test1-', name1,"-");
-        assert.equal(name1,"  Tellor Tributes ","the Symbol should be Tellor Tributes");
-    });
+//     it("Get name", async function(){
+//         let name = await web3.eth.call({to: oracle.address, data: oracle2.methods.getName().encodeABI()});
+//         name1 = web3.utils.hexToString(name);
+//         console.log('test1-', name1,"-");
+//         assert.equal(name1,"  Tellor Tributes ","the Symbol should be Tellor Tributes");
+//     });
 
-    it("getStakersCount", async function(){
-        let count = await web3.eth.call({to: oracle.address, data: oracle2.methods.getUintVar(web3.utils.keccak256("stakerCount")).encodeABI()});
-        console.log('count', count);
-        console.log('count', web3.utils.hexToNumberString(count));
-        assert(web3.utils.hexToNumberString(count)==6, "count is 6");//added miner
-    });
+//     it("getStakersCount", async function(){
+//         let count = await web3.eth.call({to: oracle.address, data: oracle2.methods.getUintVar(web3.utils.keccak256("stakerCount")).encodeABI()});
+//         console.log('count', count);
+//         console.log('count', web3.utils.hexToNumberString(count));
+//         assert(web3.utils.hexToNumberString(count)==6, "count is 6");//added miner
+//     });
 
-   it("getStakersInfo", async function(){
-        let info = await  web3.eth.call({to: oracle.address, data: oracle2.methods.getStakerInfo(accounts[1]).encodeABI()});
-        infot= web3.utils.hexToString(info);
-        console.log('info', infot);
-        let stake = web3.utils.hexToNumberString(info['0']);
-        console.log('info0',info['0']);
-        console.log('info1', info['1']);
-        let startDate = web3.utils.hexToNumberString(info['1']);
-        console.log(2);
-        let _date = new Date();
-        let d = (_date - (_date % 86400000))/1000;
-        assert(d*1==startDate, "startDate is today");
-        assert(stake*1 == 1, "Should be 1 for staked address");
-     });
+//    it("getStakersInfo", async function(){
+//         let info = await  web3.eth.call({to: oracle.address, data: oracle2.methods.getStakerInfo(accounts[1]).encodeABI()});
+//         infot= web3.utils.hexToString(info);
+//         console.log('info', infot);
+//         let stake = web3.utils.hexToNumberString(info['0']);
+//         console.log('info0',info['0']);
+//         console.log('info1', info['1']);
+//         let startDate = web3.utils.hexToNumberString(info['1']);
+//         console.log(2);
+//         let _date = new Date();
+//         let d = (_date - (_date % 86400000))/1000;
+//         assert(d*1==startDate, "startDate is today");
+//         assert(stake*1 == 1, "Should be 1 for staked address");
+//      });
 //     it("getVariables", async function(){
 //         var vars = await oracle.getCurrentVariables()
 //         let miningApiId = web3.utils.hexToNumberString(vars['1']);
@@ -505,4 +505,4 @@ contract('Mining Tests', function(accounts) {
 //         console.log(res['2'])
 //         assert(res['2'] == 5 , "last payout had a tip of 5")
 //     });
-});
+// });

@@ -2,6 +2,7 @@ pragma solidity ^0.5.0;
 
 import "./libraries/TellorTransfer.sol";
 import "./libraries/TellorGettersLibrary.sol";
+import "./libraries/TellorStake.sol";
 //import "./TellorGetters.sol";
 
 
@@ -9,6 +10,7 @@ contract TellorMaster /*is TellorGetters*/{
 
     using TellorTransfer for TellorStorage.TellorStorageStruct;
     using TellorGettersLibrary for TellorStorage.TellorStorageStruct;
+    using TellorStake for TellorStorage.TellorStorageStruct;
 
     TellorStorage.TellorStorageStruct tellor;
 
@@ -19,6 +21,7 @@ contract TellorMaster /*is TellorGetters*/{
     * account.
     */
     constructor (address _tellorContract)  public{
+        tellor.init();
         tellor.addressVars[keccak256("_owner")] = msg.sender;
         tellor.addressVars[keccak256("_deity")] = msg.sender;
         tellor.addressVars[keccak256("tellorContract")]= _tellorContract;
