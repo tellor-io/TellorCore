@@ -69,7 +69,6 @@ library TellorStorage {
 
     struct TellorStorageStruct {
         bytes32 currentChallenge; //current challenge to be solved
-        bytes32 onDeckQueryHash; //string of current api with highest PayoutPool not currently being mined
         uint[51]  requestQ; //uint50 array of the top50 requests by payment amount
         uint[]  newValueTimestamps; //array of all timestamps requested
         Details[5]  currentMiners; //This struct is for organizing the five mined values to find the median
@@ -92,8 +91,6 @@ library TellorStorage {
             // keccak256("stakerCount"); //number of parties currently staked
             // keccak256("timeOfLastNewValue"); // time of last challenge solved
             // keccak256("difficulty"); // Difficulty of current block
-            // keccak256("onDeckRequestId"); // apiId of the on queue request
-            // keccak256("onDeckTotalTips"); //value of highest api/timestamp PayoutPool
             // keccak256("currentTotalTips"); //value of highest api/timestamp PayoutPool
             // keccak256("currentRequestId"); //API being mined--updates with the ApiOnQ Id
             // keccak256("requestCount"); // total number of requests through the system

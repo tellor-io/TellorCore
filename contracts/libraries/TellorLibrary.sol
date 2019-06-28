@@ -158,60 +158,43 @@ library TellorLibrary{
             _request.minersByValue[self.uintVars[keccak256("timeOfLastNewValue")]] = [a[0].miner,a[1].miner,a[2].miner,a[3].miner,a[4].miner];
             _request.valuesByTimestamp[self.uintVars[keccak256("timeOfLastNewValue")]] = [a[0].value,a[1].value,a[2].value,a[3].value,a[4].value];
             _request.minedBlockNum[self.uintVars[keccak256("timeOfLastNewValue")]] = block.number;
-            //miners by challenge hash
-            
-            //Update the current request to be mined to the requestID with the highest payout
-            self.uintVars[keccak256("currentRequestId")] = self.uintVars[keccak256("onDeckRequestId")]; 
-            self.uintVars[keccak256("currentTotalTips")] = self.uintVars[keccak256("onDeckTotalTips")];
-            
-            //map the timeOfLastValue to the requestId that was just mined
-            self.requestIdByTimestamp[self.uintVars[keccak256("timeOfLastNewValue")]] = _requestId;
-            
-            //add timeOfLastValue to the newValueTimestamps array
-            self.newValueTimestamps.push(self.uintVars[keccak256("timeOfLastNewValue")]);
-            
-            //re-start the count for the slot progress to zero before the new request mining starts
-            self.uintVars[keccak256("slotProgress")] = 0;
-            
-            //Remove the currentRequestId/onDeckRequestId from the requestQ array containing the rest of the 50 requests
-            self.requestQ[self.requestDetails[self.uintVars[keccak256("onDeckRequestId")]].apiUintVars[keccak256("requestQPosition")]] = 0;
-            
-            //unmap the currentRequestId/onDeckRequestId from the requestIdByRequestQIndex
-            self.requestIdByRequestQIndex[self.requestDetails[self.uintVars[keccak256("onDeckRequestId")]].apiUintVars[keccak256("requestQPosition")]] = 0;
-            
-            //Remove the requestQposition for the currentRequestId/onDeckRequestId since it will be mined next
-            self.requestDetails[self.uintVars[keccak256("onDeckRequestId")]].apiUintVars[keccak256("requestQPosition")] = 0;
-            
-            //Reset the requestId TotalTip to 0 for the currentRequestId/onDeckRequestId since it will be mined next
-            //and the tip is going to the current timestamp miners. The tip for the API needs to be reset to zero
-            self.requestDetails[self.uintVars[keccak256("onDeckRequestId")]].apiUintVars[keccak256("totalTip")] = 0;
-            uint[2] memory nums; //reusable number array -- _amount,_paid,payoutMultiplier
-            
+            self.uintVars[keccak256("currentRequestId")] = getTopRequestID(self);
             //if the currentRequestId is not zero(currentRequestId exists/something is being mined) select the requestId with the hightest payout 
             //else wait for a new tip to mine
             if(self.uintVars[keccak256("currentRequestId")] > 0){
+                //Update the current request to be mined to the requestID with the highest payout
+                self.uintVars[keccak256("currentTotalTips")] =  self.requestDetails[self.uintVars[keccak256("currentRequestId")]].apiUintVars[keccak256("totalTip")];
+
+                //map the timeOfLastValue to the requestId that was just mined
+                self.requestIdByTimestamp[self.uintVars[keccak256("timeOfLastNewValue")]] = _requestId;
+                
+                //add timeOfLastValue to the newValueTimestamps array
+                self.newValueTimestamps.push(self.uintVars[keccak256("timeOfLastNewValue")]);
+                
+                //re-start the count for the slot progress to zero before the new request mining starts
+                self.uintVars[keccak256("slotProgress")] = 0;
+                
+                //Remove the currentRequestId/onDeckRequestId from the requestQ array containing the rest of the 50 requests
+                self.requestQ[self.requestDetails[self.uintVars[keccak256("currentRequestId")]].apiUintVars[keccak256("requestQPosition")]] = 0;
+                
+                //unmap the currentRequestId/onDeckRequestId from the requestIdByRequestQIndex
+                self.requestIdByRequestQIndex[self.requestDetails[self.uintVars[keccak256("currentRequestId")]].apiUintVars[keccak256("requestQPosition")]] = 0;
+                
+                //Remove the requestQposition for the currentRequestId/onDeckRequestId since it will be mined next
+                self.requestDetails[self.uintVars[keccak256("currentRequestId")]].apiUintVars[keccak256("requestQPosition")] = 0;
+                
+                //Reset the requestId TotalTip to 0 for the currentRequestId/onDeckRequestId since it will be mined next
+                //and the tip is going to the current timestamp miners. The tip for the API needs to be reset to zero
+                self.requestDetails[self.uintVars[keccak256("currentRequestId")]].apiUintVars[keccak256("totalTip")] = 0;
                 
                 //gets the max tip in the in the requestQ[51] array and its index within the array??
-                (nums[0],nums[1]) = Utilities.getMax(self.requestQ);
-                
-                //map the onDeckRequestId(select the requestId with highest payout)to the index of highest tip in the requestQ[51] 
-                self.uintVars[keccak256("onDeckRequestId")] = self.requestIdByRequestQIndex[nums[1]];
-                
-                //Set the OnDeckQueryHas to the querHash(api hash) of the selected request
-                self.onDeckQueryHash = self.requestDetails[self.uintVars[keccak256("onDeckRequestId")]].queryHash;
-                
-                //set the totalTips for the OnDeckRequestId to the current total tips for the highest tip request
-                self.uintVars[keccak256("onDeckTotalTips")] = nums[0];
-                
+                uint newRequestId = getTopRequestID(self);
                 //Issue the the next challenge
                 self.currentChallenge = keccak256(abi.encodePacked(_nonce,self.currentChallenge, blockhash(block.number - 1))); // Save hash for next proof
-                emit NewChallenge(self.currentChallenge,self.uintVars[keccak256("currentRequestId")],self.uintVars[keccak256("difficulty")],self.requestDetails[self.uintVars[keccak256("currentRequestId")]].apiUintVars[keccak256("granularity")],self.requestDetails[self.uintVars[keccak256("currentRequestId")]].queryString,self.uintVars[keccak256("currentTotalTips")]);   
-                emit NewRequestOnDeck(self.uintVars[keccak256("onDeckRequestId")],self.requestDetails[self.uintVars[keccak256("onDeckRequestId")]].queryString,self.onDeckQueryHash,self.uintVars[keccak256("onDeckTotalTips")]);    
+                emit NewChallenge(self.currentChallenge,self.uintVars[keccak256("currentRequestId")],self.uintVars[keccak256("difficulty")],self.requestDetails[self.uintVars[keccak256("currentRequestId")]].apiUintVars[keccak256("granularity")],self.requestDetails[self.uintVars[keccak256("currentRequestId")]].queryString,self.uintVars[keccak256("currentTotalTips")]);
+                emit NewRequestOnDeck(newRequestId,self.requestDetails[newRequestId].queryString,self.requestDetails[newRequestId].queryHash self.requestDetails[newRequestId].apiUintVars[keccak256("totalTip")]);
             }
             else{
-                self.uintVars[keccak256("onDeckRequestId")] = 0;
-                self.uintVars[keccak256("onDeckTotalTips")] = 0;
-                self.onDeckQueryHash = "";
                 self.currentChallenge = "";
             }
     }
@@ -271,6 +254,7 @@ library TellorLibrary{
     */
     function updateOnDeck(TellorStorage.TellorStorageStruct storage self,uint _requestId, uint _tip,bool _mine) internal {
         TellorStorage.Request storage _request = self.requestDetails[_requestId];
+        uint onDeckRequestId = getTopRequestID(self);
         //If the tip >0 update the tip for the requestId
         if (_tip > 0){
             _request.apiUintVars[keccak256("totalTip")] = _request.apiUintVars[keccak256("totalTip")].add(_tip);
@@ -289,23 +273,12 @@ library TellorLibrary{
             emit NewChallenge(self.currentChallenge,self.uintVars[keccak256("currentRequestId")],self.uintVars[keccak256("difficulty")],self.requestDetails[self.uintVars[keccak256("currentRequestId")]].apiUintVars[keccak256("granularity")],self.requestDetails[self.uintVars[keccak256("currentRequestId")]].queryString,self.uintVars[keccak256("currentTotalTips")]);
         }
         else{
-
-            //If a request is being mined and the _requestId submitted is the request next in line to be mined(OnDeckRequestId)
-            // then add the _payout to the OnDeckRequestId 
-            if(_requestId == self.uintVars[keccak256("onDeckRequestId")]){
-                self.uintVars[keccak256("onDeckTotalTips")] = _payout;
-            }
-            
-            //if the _payout/tip for the submitted request is higher than the OnDecktotaltips
-            //or the there is no OnDeckRequestId  && _mine ==false
+            //If there is no OnDeckRequestId  && _mine ==false
             //then replace/add the requestId to be the OnDeckRequestId, queryHash and OnDeckTotalTips(current highest payout, aside from what
             //is being currently mined)
-            else if (_payout > self.uintVars[keccak256("onDeckTotalTips")] || (self.uintVars[keccak256("onDeckRequestId")] == 0) && _mine == false) {
-                    self.uintVars[keccak256("onDeckRequestId")] = _requestId;
-                    self.onDeckQueryHash = _request.queryHash;
-                    self.uintVars[keccak256("onDeckTotalTips")] = _payout;
+            if (_payout > self.requestDetails[_requestId]].apiUintVars[keccak256("totalTip")]  || (onDeckRequestId == 0) && _mine == false) {
                     //let everyone know the next on queue has been replaced
-                    emit NewRequestOnDeck(_requestId,_request.queryString,self.onDeckQueryHash,_payout);
+                    emit NewRequestOnDeck(_requestId,_request.queryString,_request.queryHash ,_payout);
             }
             
             //if the request is not part of the requestQ[51] array and _mine ==false
@@ -327,6 +300,13 @@ library TellorLibrary{
                 self.requestQ[_request.apiUintVars[keccak256("requestQPosition")]] += _tip;
             }
         }
+    }
+
+    function getTopRequestID(TellorStorage.TellorStorageStruct storage self) internal returns(uint _requestid){
+            uint _min;
+            uint _index;
+            (_max,_index) = Utilities.getMax(self.requestQ);
+             _requestId = self.requestIdByRequestQIndex[_index];
     }
 }
 
