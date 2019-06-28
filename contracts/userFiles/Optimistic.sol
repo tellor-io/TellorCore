@@ -126,6 +126,7 @@
 // 	}
 
 // 	function getCurrentValue() external view returns(uint){
+//	    require(timestamps.length > 0);
 // 		return getMyValuesByTimestamp(timestamps[timestamps.length -1]);
 // 	}
 

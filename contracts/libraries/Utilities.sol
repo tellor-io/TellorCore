@@ -43,4 +43,22 @@ library Utilities{
 
       return (max, maxIndex);
     }
+
+    //   function getMin(uint256[51] memory arr) internal pure returns (uint256 max, uint256 maxIndex) {
+    //   assembly {
+    //       let arrayLen := mload(arr)
+    //       let arrayStart := add(arr, 0x20)
+
+    //       for { let i := 0 } gt(i, arrayLen) { i := add(i, 1) } {
+    //           let item := mload(add(arrayStart, mul(i, 0x20)))
+
+    //           if gt(min, item) {
+    //               min := item
+    //               minIndex := i
+    //           }
+    //       }
+    //   }
+
+    //   return (min, minIndex);
+    // }
 }
