@@ -29,10 +29,6 @@ def mine(challenge, public_address, difficulty):
 		n = "0x" + hashlib.new('sha256',bytes.fromhex(z)).hexdigest()
 		hash1 = int(n,16);
 		if hash1 % difficulty == 0:
-			print(j)
-			print(challenge)
-			print(_string)
-			print(hash1)
 			return j;
 		if x % 10000 == 0:
 			payload = {"jsonrpc":"2.0","id":net_id,"method":"eth_blockNumber"}
@@ -41,7 +37,6 @@ def mine(challenge, public_address, difficulty):
 			_block = int(d['result'],16)
 			if(last_block != _block):
 				_challenge,_apiId,_difficulty,_apiString,_granularity = getVariables();
-				print(_challenge);
 				if challenge != _challenge:
 					return 0;
 
@@ -49,7 +44,6 @@ def getAPIvalue(_api):
 	_api = _api.replace("'", "")
 	print('Getting : ',_api)
 	json = _api.split('(')[0]
-	print(json)
 	if('json' in json):
 		_api = _api.split('(')[1]
 		filter = _api.split(').')[1]
@@ -80,11 +74,11 @@ def masterMiner():
 	challenge,apiId,difficulty,apiString,granularity = getVariables();
 	while True:
 		nonce = mine(str(challenge),public_keys[miners_started],difficulty);
-		print('n',nonce);
 		if(nonce > 0):
 			print ("You guessed the hash!");
 			#value = max(0,(5000- miners_started*10) * granularity);
 			value = max(0,(getAPIvalue(apiString) - miners_started*10) * granularity); #account 2 should always be winner
+			print('Value',value);
 			arg_string =""+ str(nonce) + " "+ str(apiId) +" " + str(value)+" "+str(contract_address)+" "+str(public_keys[miners_started])+" "+str(private_keys[miners_started])
 			print(arg_string)
 			#success = execute_js('testSubmitter.js',arg_string)
@@ -113,7 +107,6 @@ def masterMiner():
 
 def getVariables():
 	getAddress();
-	print (contract_address)
 	payload = {"jsonrpc":"2.0","id":net_id,"method":"eth_call","params":[{"to":contract_address,"data":"0xa22e407a"}, "latest"]}
 	tries = 1;
 	while tries < 5:
@@ -121,7 +114,6 @@ def getVariables():
 			r = requests.post(node_url, data=json.dumps(payload));
 			val = jsonParser(r);
 			val = val['result'];
-			print(val);
 			_challenge = val[:66]
 			val = val[66:]
 			_apiId = int(val[:64],16)
@@ -129,7 +121,6 @@ def getVariables():
 			_difficulty = int(val[:64],16);
 			val =val[64:]
 			val =val[64:]
-			print(val[:64]);
 			_granularity = int(val[:64],16);
 			val =val[64:]
 			val =val[64:]

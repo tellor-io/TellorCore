@@ -12,18 +12,21 @@ var oracleByte = Oracle.bytecode;
 
 var api = "json(https://api.gdax.com/products/BTC-USD/ticker).price";
 var api2 = "json(https://api.gdax.com/products/ETH-USD/ticker).price";
-function promisifyLogWatch(_contract,_event) {
+function promisifyLogWatch(_address,_event) {
   return new Promise((resolve, reject) => {
     web3.eth.subscribe('logs', {
-      address: _contract.options.address,
+
+      address: _address,
       topics: [web3.utils.sha3(_event)]
     }, (error, result) => {
         if (error){
           console.log('Error',error);
           reject(error);
         }
+        else{
         web3.eth.clearSubscriptions();
         resolve(result);
+    	}
     })
   });
 }
@@ -41,7 +44,7 @@ contract('Mining Tests', function(accounts) {
         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",1000,0).encodeABI()})
     });
 
-    it("Get Symbol", async function(){
+    /*it("Get Symbol", async function(){
         let symbol = await oracle.getSymbol();
         assert.equal(symbol,"TT","the Symbol should be TT");
     });
@@ -73,22 +76,22 @@ contract('Mining Tests', function(accounts) {
         assert(miningApiId == 1, "miningApiId should be 1");
         assert(difficulty == 1, "Difficulty should be 1");
         assert.equal(sapi,api, "sapi = api");  
-    });
+    });*/
 
-  /*it("Test miner", async function () {
+  it("Test miner", async function () {
         console.log('START MINING RIG!!');
-        logMineWatcher = await promisifyLogWatch(oracle2, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
+        logMineWatcher = await promisifyLogWatch(oracle.address, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
         res = web3.eth.abi.decodeParameters(['uint256','uint256'],logMineWatcher.data);
         assert(res[0] > 0, "value should be positive");
    });
- it("Test 5 Mines", async function () {
+ 	/*it("Test 5 Mines", async function () {
         for(var i = 0;i < 5;i++){
-            logMineWatcher = await promisifyLogWatch(oracle2, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
+            logMineWatcher = await promisifyLogWatch(oracle.address, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
             await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",1000,0).encodeABI()});
         }
         res = web3.eth.abi.decodeParameters(['uint256','uint256'],logMineWatcher.data);
         assert(res[0] > 0, "value should be positive");
-    });
+    });*/
     
   it("Test Total Supply Increase", async function () {
         initTotalSupply = await oracle.totalSupply();
@@ -480,5 +483,5 @@ contract('Mining Tests', function(accounts) {
 		res = web3.eth.abi.decodeParameters(['uint256','uint256','uint256'],logMineWatcher.data)
         console.log(res['2'])
         assert(res['2'] == 5 , "last payout had a tip of 5")
-    });*/
+    });
 });

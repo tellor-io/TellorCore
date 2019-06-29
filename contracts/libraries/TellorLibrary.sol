@@ -49,7 +49,7 @@ library TellorLibrary{
         }
 
         //Update the information for the request that should be mined next based on the tip submitted
-        updateOnDeck(self,_requestId,_tip,false);
+        updateOnDeck(self,_requestId,_tip);
         emit TipAdded(msg.sender,_requestId,_tip,self.requestDetails[_requestId].apiUintVars[keccak256("totalTip")]);
     }
 
@@ -96,7 +96,7 @@ library TellorLibrary{
             if(_tip > 0){
                 TellorTransfer.doTransfer(self, msg.sender,address(this),_tip);
             }
-            updateOnDeck(self,_requestId,_tip,false);
+            updateOnDeck(self,_requestId,_tip);
             emit DataRequested(msg.sender,self.requestDetails[_requestId].queryString,self.requestDetails[_requestId].dataSymbol,_granularity,_requestId,_tip);
         }
         //Add tip to existing request id since this is not the first time the api and granularity have been requested 
@@ -158,22 +158,20 @@ library TellorLibrary{
             _request.minersByValue[self.uintVars[keccak256("timeOfLastNewValue")]] = [a[0].miner,a[1].miner,a[2].miner,a[3].miner,a[4].miner];
             _request.valuesByTimestamp[self.uintVars[keccak256("timeOfLastNewValue")]] = [a[0].value,a[1].value,a[2].value,a[3].value,a[4].value];
             _request.minedBlockNum[self.uintVars[keccak256("timeOfLastNewValue")]] = block.number;
+             //map the timeOfLastValue to the requestId that was just mined
+                
+                
+            self.requestIdByTimestamp[self.uintVars[keccak256("timeOfLastNewValue")]] = _requestId;
+            //add timeOfLastValue to the newValueTimestamps array
+            self.newValueTimestamps.push(self.uintVars[keccak256("timeOfLastNewValue")]);
+            //re-start the count for the slot progress to zero before the new request mining starts
+            self.uintVars[keccak256("slotProgress")] = 0;
             self.uintVars[keccak256("currentRequestId")] = getTopRequestID(self);
             //if the currentRequestId is not zero(currentRequestId exists/something is being mined) select the requestId with the hightest payout 
             //else wait for a new tip to mine
             if(self.uintVars[keccak256("currentRequestId")] > 0){
                 //Update the current request to be mined to the requestID with the highest payout
                 self.uintVars[keccak256("currentTotalTips")] =  self.requestDetails[self.uintVars[keccak256("currentRequestId")]].apiUintVars[keccak256("totalTip")];
-
-                //map the timeOfLastValue to the requestId that was just mined
-                self.requestIdByTimestamp[self.uintVars[keccak256("timeOfLastNewValue")]] = _requestId;
-                
-                //add timeOfLastValue to the newValueTimestamps array
-                self.newValueTimestamps.push(self.uintVars[keccak256("timeOfLastNewValue")]);
-                
-                //re-start the count for the slot progress to zero before the new request mining starts
-                self.uintVars[keccak256("slotProgress")] = 0;
-                
                 //Remove the currentRequestId/onDeckRequestId from the requestQ array containing the rest of the 50 requests
                 self.requestQ[self.requestDetails[self.uintVars[keccak256("currentRequestId")]].apiUintVars[keccak256("requestQPosition")]] = 0;
                 
@@ -195,6 +193,7 @@ library TellorLibrary{
                 emit NewRequestOnDeck(newRequestId,self.requestDetails[newRequestId].queryString,self.requestDetails[newRequestId].queryHash, self.requestDetails[newRequestId].apiUintVars[keccak256("totalTip")]);
             }
             else{
+                self.uintVars[keccak256("currentTotalTips")] = 0;
                 self.currentChallenge = "";
             }
     }
@@ -249,9 +248,8 @@ library TellorLibrary{
     @dev This function updates APIonQ and the requestQ when requestData or addTip are ran
     @param _requestId being requested
     @param _tip is the tip to add
-    @param _mine is whether this is being called from the proofOfWork Submission function
     */
-    function updateOnDeck(TellorStorage.TellorStorageStruct storage self,uint _requestId, uint _tip,bool _mine) internal {
+    function updateOnDeck(TellorStorage.TellorStorageStruct storage self,uint _requestId, uint _tip) internal {
         TellorStorage.Request storage _request = self.requestDetails[_requestId];
         uint onDeckRequestId = getTopRequestID(self);
         //If the tip >0 update the tip for the requestId
@@ -272,17 +270,17 @@ library TellorLibrary{
             emit NewChallenge(self.currentChallenge,self.uintVars[keccak256("currentRequestId")],self.uintVars[keccak256("difficulty")],self.requestDetails[self.uintVars[keccak256("currentRequestId")]].apiUintVars[keccak256("granularity")],self.requestDetails[self.uintVars[keccak256("currentRequestId")]].queryString,self.uintVars[keccak256("currentTotalTips")]);
         }
         else{
-            //If there is no OnDeckRequestId  && _mine ==false
+            //If there is no OnDeckRequestId
             //then replace/add the requestId to be the OnDeckRequestId, queryHash and OnDeckTotalTips(current highest payout, aside from what
             //is being currently mined)
-            if (_payout > self.requestDetails[onDeckRequestId].apiUintVars[keccak256("totalTip")]  || (onDeckRequestId == 0) && _mine == false) {
+            if (_payout > self.requestDetails[onDeckRequestId].apiUintVars[keccak256("totalTip")]  || (onDeckRequestId == 0)) {
                     //let everyone know the next on queue has been replaced
                     emit NewRequestOnDeck(_requestId,_request.queryString,_request.queryHash ,_payout);
             }
             
-            //if the request is not part of the requestQ[51] array and _mine ==false
+            //if the request is not part of the requestQ[51] array
             //then add to the requestQ[51] only if the _payout/tip is greater than the minimum(tip) in the requestQ[51] array
-            if(_request.apiUintVars[keccak256("requestQPosition")] == 0 && _mine == false){
+            if(_request.apiUintVars[keccak256("requestQPosition")] == 0){
                 uint _min;
                 uint _index;
                 (_min,_index) = Utilities.getMin(self.requestQ);
@@ -297,7 +295,7 @@ library TellorLibrary{
                 }
             }
             //else if the requestid is part of the requestQ[51] then update the tip for it
-            else if (_tip > 0 && _mine == false){
+            else if (_tip > 0){
                 self.requestQ[_request.apiUintVars[keccak256("requestQPosition")]] += _tip;
             }
         }
