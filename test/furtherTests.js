@@ -55,7 +55,7 @@ contract('Further Tests', function(accounts) {
         await helper.advanceTime(86400 * 8);
         await web3.eth.sendTransaction({to:oracle.address,from:accounts[2],data:oracle2.methods.withdrawStake().encodeABI()})
    });  
-   /*it("transferOwnership", async function () {
+   it("transferOwnership", async function () {
         let checkowner = await oracle.getAddressVars(web3.utils.keccak256("_owner"));
         assert(checkowner == accounts[0], "initial owner acct 0");
         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.transferOwnership(accounts[2]).encodeABI()});
@@ -82,7 +82,6 @@ contract('Further Tests', function(accounts) {
         test1 = "https://api.gdax.com/products/ETH-USD/ticker";
         test2 = "https://api.gdax.com/products/BTC-USD/ticker";
         let req1 = await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(test1,"ETH/USD",1000,20).encodeABI()})
-        console.log(req1.logs)
         onQ = await web3.eth.abi.decodeParameter('uint256',req1.logs[1].topics[1])
         assert(web3.utils.hexToNumberString(onQ) == 2, "should be 2");
        req1 = await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(api2,"ETH/USD",1000,40).encodeABI()})
@@ -201,7 +200,6 @@ contract('Further Tests', function(accounts) {
        	let s =  await oracle.getStakerInfo(accounts[6])
         assert(s[0] == 1, "Staked" );
     });
-    */
     it("Test competing API requests - multiple switches in API on Queue", async function () {
     	 await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",1000,0).encodeABI()})
 		await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(api2,"ETH/USD",1000,0).encodeABI()})
@@ -218,7 +216,7 @@ contract('Further Tests', function(accounts) {
         assert(sapi == api2, "API on Q string should be correct"); 
         assert(apiPayout == 6, "API on Q payout should be 6"); 
     });
-    /*it("Test New Tellor Storage Contract", async function () {
+    it("Test New Tellor Storage Contract", async function () {
         assert(await oracle.getAddressVars(web3.utils.keccak256("tellorContract")) == oracleBase.address, "tellorContract should be Tellor Base");
         let oracleBase2 = await Tellor.new();
          await web3.eth.sendTransaction({to:oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.theLazyCoon(accounts[2],web3.utils.toWei('5000', 'ether')).encodeABI()})
@@ -254,6 +252,5 @@ contract('Further Tests', function(accounts) {
 		let newOracle = await Tellor.new();
 		await web3.eth.sendTransaction({to: oracle.address,from:accounts[1],gas:7000000,data:master.methods.changeTellorContract(newOracle.address).encodeABI()})
 		assert(await oracle.getAddressVars(web3.utils.keccak256("tellorContract")) == newOracle.address);
-    });*/
-
+    });
 });

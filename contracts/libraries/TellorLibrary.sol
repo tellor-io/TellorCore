@@ -245,7 +245,6 @@ library TellorLibrary{
             emit OwnershipTransferred(self.addressVars[keccak256("_owner")], _newOwner);
             self.addressVars[keccak256("_owner")] = _newOwner;
     }
-    event Print(uint _a);
     /**
     @dev This function updates APIonQ and the requestQ when requestData or addTip are ran
     @param _requestId being requested
@@ -287,12 +286,12 @@ library TellorLibrary{
                 uint _min;
                 uint _index;
                 (_min,_index) = Utilities.getMin(self.requestQ);
-                emit Print(_min);
-                emit Print(_index);
+                //we have to zero out the oldOne
                 //if the _payout is greater than the current minimum payout in the requestQ[51] or if the minimum is zero
                 //then add it to the requestQ array aand map its index information to the requestId and the apiUintvars
                 if(_payout > _min || _min == 0){
                     self.requestQ[_index] = _payout;
+                    self.requestDetails[self.requestIdByRequestQIndex[_index]].apiUintVars[keccak256("requestQPosition")] = 0;
                     self.requestIdByRequestQIndex[_index] = _requestId;
                     _request.apiUintVars[keccak256("requestQPosition")] = _index;
                 }
