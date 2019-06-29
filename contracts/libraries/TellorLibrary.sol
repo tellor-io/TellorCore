@@ -302,7 +302,7 @@ library TellorLibrary{
         }
     }
 
-    function getTopRequestID(TellorStorage.TellorStorageStruct storage self) internal returns(uint _requestId){
+    function getTopRequestID(TellorStorage.TellorStorageStruct storage self) internal view returns(uint _requestId){
             uint _max;
             uint _index;
             (_max,_index) = Utilities.getMax(self.requestQ);

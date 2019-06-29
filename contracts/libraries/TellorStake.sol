@@ -9,16 +9,14 @@ library TellorStake {
     event NewStake(address indexed _sender);//Emits upon new staker
     event StakeWithdrawn(address indexed _sender);//Emits when a staker is now no longer staked
     event StakeWithdrawRequested(address indexed _sender);//Emits when a staker begins the 7 day withdraw period
-    event Print(uint _s);
-    event Print2(address _a);
 
     function init(TellorStorage.TellorStorageStruct storage self) public{
         require(self.uintVars[keccak256("decimals")] == 0);
         //Give this contract 6000 Tellor Tributes so that it can stake the initial 6 miners
         TellorTransfer.updateBalanceAtNow(self.balances[address(this)], 2**256-1 - 6000e18);
 
-        //the initial 5 miner addresses are specfied below
-        //changed payable[5] to 6
+        // //the initial 5 miner addresses are specfied below
+        // //changed payable[5] to 6
         address payable[6] memory _initalMiners = [address(0xE037EC8EC9ec423826750853899394dE7F024fee),
         address(0xcdd8FA31AF8475574B8909F135d510579a8087d3),
         address(0xb9dD5AfD86547Df817DA2d0Fb89334A6F8eDd891),
@@ -52,9 +50,6 @@ library TellorStake {
     */
     function requestStakingWithdraw(TellorStorage.TellorStorageStruct storage self) public {
         TellorStorage.StakeInfo storage stakes = self.stakerDetails[msg.sender];
-        emit Print(stakes.currentStatus);
-        emit Print(self.stakerDetails[msg.sender].currentStatus);
-        emit Print2(msg.sender);
         //Require that the miner is staked
         require(stakes.currentStatus == 1);
 
@@ -93,9 +88,8 @@ library TellorStake {
       TellorDispute.updateDisputeFee(self);
     }
 
-    function newStake(TellorStorage.TellorStorageStruct storage self, address staker) public {
+    function newStake(TellorStorage.TellorStorageStruct storage self, address staker) internal {
         require(TellorTransfer.balanceOf(self,staker) >= self.uintVars[keccak256("stakeAmount")]);
-
         //Ensure they can only stake if they are not currrently staked or if their stake time frame has ended
         //and they are currently locked for witdhraw
         require(self.stakerDetails[staker].currentStatus == 0 || self.stakerDetails[staker].currentStatus == 2);

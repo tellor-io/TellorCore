@@ -322,7 +322,7 @@ contract TellorGetters{
     * @dev Getter function for next requestId on queue
     * @return onDeckRequestId, onDeckTotaltips, , and API query string
     */
-    function getVariablesOnDeck() external  returns(uint, uint,string memory){    
+    function getVariablesOnDeck() external view returns(uint, uint,string memory){    
         return tellor.getVariablesOnDeck();
     }
     

@@ -188,7 +188,7 @@ library TellorGettersLibrary{
     * @dev Get the name of the token
     * return string of the token name
     */
-    function getName(TellorStorage.TellorStorageStruct storage self) internal view returns(string memory){
+    function getName(TellorStorage.TellorStorageStruct storage self) internal pure returns(string memory){
         return "Tellor Tributes";
     }
 
@@ -299,7 +299,7 @@ library TellorGettersLibrary{
     * @dev Get the symbol of the token
     * return string of the token symbol
     */
-    function getSymbol(TellorStorage.TellorStorageStruct storage self) internal view returns(string memory){
+    function getSymbol(TellorStorage.TellorStorageStruct storage self) internal pure returns(string memory){
         return "TT";
     } 
 
@@ -333,7 +333,7 @@ library TellorGettersLibrary{
     * @dev Getter function for next requestId on queue
     * @return onDeckRequestId, onDeckTotaltips, and API query string
     */
-    function getVariablesOnDeck(TellorStorage.TellorStorageStruct storage self) internal returns(uint, uint,string memory){ 
+    function getVariablesOnDeck(TellorStorage.TellorStorageStruct storage self) internal view returns(uint, uint,string memory){ 
         uint newRequestId = getTopRequestID(self);
         return (newRequestId,self.requestDetails[newRequestId].apiUintVars[keccak256("totalTip")],self.requestDetails[newRequestId].queryString);
     }
