@@ -4,15 +4,21 @@ import "./TellorGetters.sol";
 
 
 contract TellorMaster is TellorGetters{
-
+    
+    event NewTellorAddress(address _newTellor);
         /**
     * @dev The constructor sets the original `tellorStorageOwner` of the contract to the sender
     * account.
     */
 
     constructor (address _tellorContract)  public{
-        tellor.tellorMasterConstructor(_tellorContract);
+        tellor.init();
+        tellor.addressVars[keccak256("_owner")] = msg.sender;
+        tellor.addressVars[keccak256("_deity")] = msg.sender;
+        tellor.addressVars[keccak256("tellorContract")]= _tellorContract;
+        emit NewTellorAddress(_tellorContract);
     }
+    
 
     /**
     * @dev  allows for the deity to make fast upgrades.  Deity should be 0 address if decentralized

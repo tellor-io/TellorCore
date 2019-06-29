@@ -35,62 +35,40 @@
 //   let logMineWatcher;
 
 //     beforeEach('Setup contract for each test', async function () {
-// //         balance2 =  await web3.eth.call({to:oracle.address,data:oracle3.methods.balanceOf(accounts[2]).encodeABI()})
-// //         t = web3.utils.toWei('5', 'ether');
 //         oracleBase = await Oracle.new();
 //         oracle = await TellorMaster.new(oracleBase.address);
 //         oracle2 = await new web3.eth.Contract(oracleAbi,oracle.address);///will this instance work for logWatch? hopefully...
-//         console.log("1");
-//         await web3.eth.sendTransaction({from: accounts[0], to: oracle.address, gas: 10000000, data: oracle2.methods.requestData(api,"BTC/USD",1000,0).encodeABI()});
-//         console.log("3");
-
+//         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",1000,0).encodeABI()});
 //     });
 
 //     it("Get Symbol", async function(){
-//         //let symbol = await oracle.getSymbol();
-//         let symbol = await web3.eth.call({to: oracle.address, data: oracle2.methods.getSymbol().encodeABI()});
-//         console.log('symbol', symbol);
-//         symbol1 = web3.utils.hexToString(symbol);
-//         console.log('test1-', symbol1,"-");
-//         symbol2 = web3.utils.hexToAscii(symbol);
-//         symbol4= symbol2.trim();
-//         console.log('symbol4-', symbol4,"-");
-//         console.log('test2', symbol2);
-//         symbol3 = web3.utils.hexToUtf8(symbol);
-//         console.log('test3', symbol3);
-//         assert.equal(symbol2.trim(),"TT","the Symbol should be TT");
+//         let symbol = await oracle.getSymbol();
+//         assert.equal(symbol,"TT","the Symbol should be TT");
 //     });
 
 //     it("Get name", async function(){
-//         let name = await web3.eth.call({to: oracle.address, data: oracle2.methods.getName().encodeABI()});
-//         name1 = web3.utils.hexToString(name);
-//         console.log('test1-', name1,"-");
-//         assert.equal(name1,"  Tellor Tributes ","the Symbol should be Tellor Tributes");
+//         let name = await oracle.getName();
+//         assert.equal(name,"Tellor Tributes","the Symbol should be Tellor Tributes");
 //     });
 
 //     it("getStakersCount", async function(){
-//         let count = await web3.eth.call({to: oracle.address, data: oracle2.methods.getUintVar(web3.utils.keccak256("stakerCount")).encodeABI()});
-//         console.log('count', count);
-//         console.log('count', web3.utils.hexToNumberString(count));
+//         let count = await oracle.getUintVar(web3.utils.keccak256("stakerCount"));
 //         assert(web3.utils.hexToNumberString(count)==6, "count is 6");//added miner
 //     });
 
 //    it("getStakersInfo", async function(){
-//         let info = await  web3.eth.call({to: oracle.address, data: oracle2.methods.getStakerInfo(accounts[1]).encodeABI()});
-//         infot= web3.utils.hexToString(info);
-//         console.log('info', infot);
-//         let stake = web3.utils.hexToNumberString(info['0']);
-//         console.log('info0',info['0']);
-//         console.log('info1', info['1']);
+//         let info = await oracle.getStakerInfo(accounts[1]);
+//         let status = web3.utils.hexToNumberString(info['0']);
 //         let startDate = web3.utils.hexToNumberString(info['1']);
-//         console.log(2);
 //         let _date = new Date();
 //         let d = (_date - (_date % 86400000))/1000;
-//         assert(d*1==startDate, "startDate is today");
-//         assert(stake*1 == 1, "Should be 1 for staked address");
+//         console.log('d',d);
+//         assert(d==startDate, "startDate is today");
+//         assert(status == 1, "Should be 1 for staked address");
 //      });
+
 //     it("getVariables", async function(){
-//         var vars = await oracle.getCurrentVariables()
+//         var vars = await oracle.getCurrentVariables();
 //         let miningApiId = web3.utils.hexToNumberString(vars['1']);
 //         let difficulty = web3.utils.hexToNumberString(vars['2']);
 //         let sapi = vars['3'];
@@ -98,6 +76,7 @@
 //         assert(difficulty == 1, "Difficulty should be 1");
 //         assert.equal(sapi,api, "sapi = api");  
 //     });
+
 
 //   it("Test miner", async function () {
 //         console.log('START MINING RIG!!');

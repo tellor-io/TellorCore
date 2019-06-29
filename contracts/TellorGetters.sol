@@ -4,6 +4,7 @@ import "./libraries/SafeMath.sol";
 import "./libraries/TellorStorage.sol";
 import "./libraries/TellorTransfer.sol";
 import "./libraries/TellorGettersLibrary.sol";
+import "./libraries/TellorStake.sol";
 
 /**
 * @title Tellor Getters
@@ -17,6 +18,7 @@ contract TellorGetters{
 
     using TellorTransfer for TellorStorage.TellorStorageStruct;
     using TellorGettersLibrary for TellorStorage.TellorStorageStruct;
+    using TellorStake for TellorStorage.TellorStorageStruct;
 
     TellorStorage.TellorStorageStruct tellor;
     
@@ -320,7 +322,7 @@ contract TellorGetters{
     * @dev Getter function for next requestId on queue
     * @return onDeckRequestId, onDeckTotaltips, , and API query string
     */
-    function getVariablesOnDeck() external view returns(uint, uint,string memory){    
+    function getVariablesOnDeck() external  returns(uint, uint,string memory){    
         return tellor.getVariablesOnDeck();
     }
     

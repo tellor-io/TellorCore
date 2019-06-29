@@ -192,7 +192,7 @@ library TellorLibrary{
                 //Issue the the next challenge
                 self.currentChallenge = keccak256(abi.encodePacked(_nonce,self.currentChallenge, blockhash(block.number - 1))); // Save hash for next proof
                 emit NewChallenge(self.currentChallenge,self.uintVars[keccak256("currentRequestId")],self.uintVars[keccak256("difficulty")],self.requestDetails[self.uintVars[keccak256("currentRequestId")]].apiUintVars[keccak256("granularity")],self.requestDetails[self.uintVars[keccak256("currentRequestId")]].queryString,self.uintVars[keccak256("currentTotalTips")]);
-                emit NewRequestOnDeck(newRequestId,self.requestDetails[newRequestId].queryString,self.requestDetails[newRequestId].queryHash self.requestDetails[newRequestId].apiUintVars[keccak256("totalTip")]);
+                emit NewRequestOnDeck(newRequestId,self.requestDetails[newRequestId].queryString,self.requestDetails[newRequestId].queryHash, self.requestDetails[newRequestId].apiUintVars[keccak256("totalTip")]);
             }
             else{
                 self.currentChallenge = "";
@@ -276,7 +276,7 @@ library TellorLibrary{
             //If there is no OnDeckRequestId  && _mine ==false
             //then replace/add the requestId to be the OnDeckRequestId, queryHash and OnDeckTotalTips(current highest payout, aside from what
             //is being currently mined)
-            if (_payout > self.requestDetails[_requestId]].apiUintVars[keccak256("totalTip")]  || (onDeckRequestId == 0) && _mine == false) {
+            if (_payout > self.requestDetails[_requestId].apiUintVars[keccak256("totalTip")]  || (onDeckRequestId == 0) && _mine == false) {
                     //let everyone know the next on queue has been replaced
                     emit NewRequestOnDeck(_requestId,_request.queryString,_request.queryHash ,_payout);
             }
@@ -302,8 +302,8 @@ library TellorLibrary{
         }
     }
 
-    function getTopRequestID(TellorStorage.TellorStorageStruct storage self) internal returns(uint _requestid){
-            uint _min;
+    function getTopRequestID(TellorStorage.TellorStorageStruct storage self) internal returns(uint _requestId){
+            uint _max;
             uint _index;
             (_max,_index) = Utilities.getMax(self.requestQ);
              _requestId = self.requestIdByRequestQIndex[_index];

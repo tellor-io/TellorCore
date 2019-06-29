@@ -2,6 +2,7 @@ pragma solidity ^0.5.0;
 
 import "./SafeMath.sol";
 import "./TellorStorage.sol";
+import "./Utilities.sol";
 
 /**
 * @title Tellor Getters Library
@@ -19,12 +20,12 @@ library TellorGettersLibrary{
     * @dev Sets the tellor contract to the Tellor master address and owner to the Tellor master owner address
     * @param _tellorContract is the address for the tellor contract
     */
-    function tellorMasterConstructor(TellorStorage.TellorStorageStruct storage self,address _tellorContract) internal{
+/*    function tellorMasterConstructor(TellorStorage.TellorStorageStruct storage self,address _tellorContract) internal{
         self.addressVars[keccak256("_owner")] = msg.sender;
         self.addressVars[keccak256("_deity")] = msg.sender;
         self.addressVars[keccak256("tellorContract")]= _tellorContract;
         emit NewTellorAddress(_tellorContract);
-    }
+    }*/
     //The next two functions are onlyOwner functions.  For Tellor to be truly decentralized, we will need to transfer the Deity to the 0 address.
     //Only needs to be in library
     /**
@@ -332,14 +333,14 @@ library TellorGettersLibrary{
     * @dev Getter function for next requestId on queue
     * @return onDeckRequestId, onDeckTotaltips, and API query string
     */
-    function getVariablesOnDeck(TellorStorage.TellorStorageStruct storage self) internal view returns(uint, uint,string memory){ 
+    function getVariablesOnDeck(TellorStorage.TellorStorageStruct storage self) internal returns(uint, uint,string memory){ 
         uint newRequestId = getTopRequestID(self);
         return (newRequestId,self.requestDetails[newRequestId].apiUintVars[keccak256("totalTip")],self.requestDetails[newRequestId].queryString);
     }
 
 
-    function getTopRequestID(TellorStorage.TellorStorageStruct storage self) internal returns(uint _requestid){
-            uint _min;
+    function getTopRequestID(TellorStorage.TellorStorageStruct storage self) internal view returns(uint _requestId){
+            uint _max;
             uint _index;
             (_max,_index) = Utilities.getMax(self.requestQ);
              _requestId = self.requestIdByRequestQIndex[_index];
