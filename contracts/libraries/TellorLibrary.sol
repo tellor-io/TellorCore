@@ -245,7 +245,7 @@ library TellorLibrary{
             emit OwnershipTransferred(self.addressVars[keccak256("_owner")], _newOwner);
             self.addressVars[keccak256("_owner")] = _newOwner;
     }
-
+    event Print(uint _a);
     /**
     @dev This function updates APIonQ and the requestQ when requestData or addTip are ran
     @param _requestId being requested
@@ -276,7 +276,7 @@ library TellorLibrary{
             //If there is no OnDeckRequestId  && _mine ==false
             //then replace/add the requestId to be the OnDeckRequestId, queryHash and OnDeckTotalTips(current highest payout, aside from what
             //is being currently mined)
-            if (_payout > self.requestDetails[_requestId].apiUintVars[keccak256("totalTip")]  || (onDeckRequestId == 0) && _mine == false) {
+            if (_payout > self.requestDetails[onDeckRequestId].apiUintVars[keccak256("totalTip")]  || (onDeckRequestId == 0) && _mine == false) {
                     //let everyone know the next on queue has been replaced
                     emit NewRequestOnDeck(_requestId,_request.queryString,_request.queryHash ,_payout);
             }
@@ -287,6 +287,8 @@ library TellorLibrary{
                 uint _min;
                 uint _index;
                 (_min,_index) = Utilities.getMin(self.requestQ);
+                emit Print(_min);
+                emit Print(_index);
                 //if the _payout is greater than the current minimum payout in the requestQ[51] or if the minimum is zero
                 //then add it to the requestQ array aand map its index information to the requestId and the apiUintvars
                 if(_payout > _min || _min == 0){

@@ -36,12 +36,12 @@ contract('Mining Tests', function(accounts) {
     beforeEach('Setup contract for each test', async function () {
         oracleBase = await Oracle.new();
         oracle = await TellorMaster.new(oracleBase.address);
-        oracle2 = await new web3.eth.Contract(oracleAbi,oracle.address);///will this instance work for logWatch? hopefully...
-        await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000, data: web3.utils.keccak256("tellorPostConstructor()")})
+        oracle2 = await new web3.eth.Contract(oracleAbi,oracleBase.address);///will this instance work for logWatch? hopefully...
+        await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.init().encodeABI()})
         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",1000,0).encodeABI()})
     });
 
-    it("Get Symbol", async function(){
+    /*it("Get Symbol", async function(){
         let symbol = await oracle.getSymbol();
         assert.equal(symbol,"TT","the Symbol should be TT");
     });
@@ -55,13 +55,14 @@ contract('Mining Tests', function(accounts) {
         let count = await oracle.getUintVar(web3.utils.keccak256("stakerCount"))
         assert(web3.utils.hexToNumberString(count)==6, "count is 6");//added miner
     });
-
-   /*it("getStakersInfo", async function(){
+	*/
+   it("getStakersInfo", async function(){
         let info = await oracle.getStakerInfo(accounts[1])
         let stake = web3.utils.hexToNumberString(info['0']);
         let startDate = web3.utils.hexToNumberString(info['1']);
         let _date = new Date();
         let d = (_date - (_date % 86400000))/1000;
+        console.log(d,startDate);
         assert(d*1==startDate, "startDate is today");
         assert(stake*1 == 1, "Should be 1 for staked address");
      });
@@ -75,7 +76,7 @@ contract('Mining Tests', function(accounts) {
         assert.equal(sapi,api, "sapi = api");  
     });
 
-  it("Test miner", async function () {
+  /*it("Test miner", async function () {
         console.log('START MINING RIG!!');
         logMineWatcher = await promisifyLogWatch(oracle2, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
         res = web3.eth.abi.decodeParameters(['uint256','uint256'],logMineWatcher.data);
