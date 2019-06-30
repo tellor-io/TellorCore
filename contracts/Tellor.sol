@@ -31,19 +31,7 @@ contract Tellor{
         tellor.theLazyCoon(_address,_amount);
     }
 
-    /*
-    * @dev This function gives 5 miners the inital staked tokens in the system.  
-    * It would run with the constructor, but throws on too much gas
-    * It only runs once or only when the requestCount is zero. 
-    * The function stakes the five initial miners, sets the supply and all the 
-    * constant variables.
-    */
-    function init() public{
-        tellor.init();
-    }
-
-
-    /**
+   /**
     * @dev Add tip to Request value from oracle
     * @param _requestId being requested to be mined
     * @param _tip amount the requester is willing to pay to be get on queue. Miners
