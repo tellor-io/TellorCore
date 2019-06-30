@@ -26,6 +26,7 @@ library TellorLibrary{
 
 
     /*Functions*/
+    
     /*This is a cheat for demo purposes, will delete upon actual launch*/
 /*    function theLazyCoon(TellorStorage.TellorStorageStruct storage self,address _address, uint _amount) public {
         self.uintVars[keccak256("total_supply")] += _amount;

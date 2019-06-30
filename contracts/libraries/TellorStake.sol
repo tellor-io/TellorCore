@@ -15,7 +15,8 @@ library TellorStake {
     event StakeWithdrawn(address indexed _sender);//Emits when a staker is now no longer staked
     event StakeWithdrawRequested(address indexed _sender);//Emits when a staker begins the 7 day withdraw period
 
-
+    /*Functions*/
+    
     /**
     * @dev This function stakes the five initial miners, sets the supply and all the constant variables.
     */

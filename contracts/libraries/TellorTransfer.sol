@@ -15,6 +15,8 @@ library TellorTransfer {
     event Approval(address indexed _owner, address indexed _spender, uint256 _value);//ERC20 Approval event
     event Transfer(address indexed _from, address indexed _to, uint256 _value);//ERC20 Transfer Event
 
+    /*Functions*/
+    
     /**
     * @dev Allows for a transfer of tokens to _to
     * @param _to The address to send tokens to

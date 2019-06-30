@@ -17,6 +17,8 @@ library TellorDispute {
     event DisputeVoteTallied(uint indexed _disputeID, int _result,address indexed _reportedMiner,address _reportingParty, bool _active);//emitted upon dispute tally
     event NewTellorAddress(address _newTellor); //emmited when a proposed fork is voted true
 
+    /*Functions*/
+    
     /**
     * @dev Helps initialize a dispute by assigning it a disputeId
     * when a miner returns a false on the validate array(in Tellor.ProofOfWork) it sends the

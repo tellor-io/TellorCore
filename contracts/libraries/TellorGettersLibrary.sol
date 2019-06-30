@@ -14,20 +14,7 @@ library TellorGettersLibrary{
 
     event NewTellorAddress(address _newTellor); //emmited when a proposed fork is voted true
 
-    /*Constructor*/
-
-    //Only needs to be in library
-    /**
-    * @dev Sets the tellor contract to the Tellor master address and owner to the Tellor master owner address
-    * @param _tellorContract is the address for the tellor contract
-    */
-/*    function tellorMasterConstructor(TellorStorage.TellorStorageStruct storage self,address _tellorContract) internal{
-        self.addressVars[keccak256("_owner")] = msg.sender;
-        self.addressVars[keccak256("_deity")] = msg.sender;
-        self.addressVars[keccak256("tellorContract")]= _tellorContract;
-        emit NewTellorAddress(_tellorContract);
-    }*/
-
+    /*Functions*/
 
     //The next two functions are onlyOwner functions.  For Tellor to be truly decentralized, we will need to transfer the Deity to the 0 address.
     //Only needs to be in library
