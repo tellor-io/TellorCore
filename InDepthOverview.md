@@ -1,6 +1,6 @@
 <p align="center">
   <a href='https://www.tellor.io/'>
-    <img src= './public/Tellor.png' width="200" height="200" alt='tellor.io' />
+    <img src= './public/Tellor.png' width="250" height="200" alt='tellor.io' />
   </a>
 </p>
 
