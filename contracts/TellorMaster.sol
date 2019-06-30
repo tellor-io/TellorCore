@@ -6,7 +6,7 @@ import "./TellorGetters.sol";
 contract TellorMaster is TellorGetters{
     
     event NewTellorAddress(address _newTellor);
-        /**
+    /**
     * @dev The constructor sets the original `tellorStorageOwner` of the contract to the sender
     * account.
     */
@@ -27,6 +27,7 @@ contract TellorMaster is TellorGetters{
         tellor.changeTellorContract(_tellorContract);
     }
 
+
     /**
     * @dev Gets the 5 miners who mined the value for the specified requestId/_timestamp 
     * @dev Only needs to be in library
@@ -36,6 +37,7 @@ contract TellorMaster is TellorGetters{
     function changeDeity(address _newDeity) external{
         tellor.changeDeity(_newDeity);
     }
+    
 
     /**
     * @dev This is the fallback function that allows contracts to call the tellor contract at the address stored

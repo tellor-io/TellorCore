@@ -14,6 +14,7 @@ library TellorGettersLibrary{
     using SafeMath for uint256;
 
     event NewTellorAddress(address _newTellor); //emmited when a proposed fork is voted true
+    
     /*Constructor*/
     //Only needs to be in library
     /**
@@ -89,15 +90,23 @@ library TellorGettersLibrary{
     /**
     * @dev Gets all dispute variables
     * @param _disputeId to look up
-    * @return address of reported miner
-    * @return address of reporting party
-    * @return disputed apiId
-    * @return disputed minimum execution date
-    * @return uint number of votes
-    * @return uint blockNumber of vote
-    * @return uint index in disputeId array
+    * @return bytes32 hash of dispute 
+    * @return bool executed where true if it has been voted on
+    * @return bool disputeVotePassed
+    * @return bool isPropFork true if the dispute is a proposed fork
+    * @return address of reportedMiner
+    * @return address of reportingParty
+    * @return address of proposedForkAddress
+    * @return uint of requestId
+    * @return uint of timestamp
+    * @return uint of value
+    * @return uint of minExecutionDate
+    * @return uint of numberOfVotes
+    * @return uint of blocknumber
+    * @return uint of minerSlot
+    * @return uint of quorum
+    * @return uint of fee
     * @return int count of the current tally
-    * @return bool of whether vote has been tallied
     */
     function getAllDisputeVars(TellorStorage.TellorStorageStruct storage self,uint _disputeId) internal view returns(bytes32, bool, bool, bool, address, address, address,uint[9] memory, int){
         TellorStorage.Dispute storage disp = self.disputesById[_disputeId];
@@ -140,6 +149,7 @@ library TellorGettersLibrary{
     /**
     * @dev Gets the a value for the latest timestamp available
     * @return value for timestamp of last proof of work submited
+    * @return true if the is a timestamp for the lastNewValue
     */
     function getLastNewValue(TellorStorage.TellorStorageStruct storage self) internal view returns(uint,bool){
         return (retrieveData(self,self.requestIdByTimestamp[self.uintVars[keccak256("timeOfLastNewValue")]], self.uintVars[keccak256("timeOfLastNewValue")]),true);
@@ -186,7 +196,7 @@ library TellorGettersLibrary{
 
     /**
     * @dev Get the name of the token
-    * return string of the token name
+    * @return string of the token name
     */
     function getName(TellorStorage.TellorStorageStruct storage self) internal pure returns(string memory){
         return "Tellor Tributes";
@@ -228,7 +238,7 @@ library TellorGettersLibrary{
 
     /**
     * @dev Getter function for requestId based on the qeuaryHash
-    * hash(of string api and granularity) to check if a request already exists
+    * @param _queryHash hash(of string api and granularity) to check if a request already exists
     * @return uint requestId
     */
     function getRequestIdByQueryHash(TellorStorage.TellorStorageStruct storage self, bytes32 _queryHash) internal view returns(uint){    
@@ -252,6 +262,7 @@ library TellorGettersLibrary{
     * @param _data the variable to pull from the mapping. _data = keccak256("variable_name") where variable_name is 
     * the variables/strings used to save the data in the mapping. The variables names are  
     * commented out under the apiUintVars under the requestDetails struct
+    * @return uint value of the apiUintVars specified in _data for the requestId specified
     */
     function getRequestUintVars(TellorStorage.TellorStorageStruct storage self,uint _requestId,bytes32 _data) internal view returns(uint){
         return self.requestDetails[_requestId].apiUintVars[_data];
@@ -297,7 +308,7 @@ library TellorGettersLibrary{
 
     /**
     * @dev Get the symbol of the token
-    * return string of the token symbol
+    * @return string of the token symbol
     */
     function getSymbol(TellorStorage.TellorStorageStruct storage self) internal pure returns(string memory){
         return "TT";
@@ -330,8 +341,8 @@ library TellorGettersLibrary{
 
 
     /**
-    * @dev Getter function for next requestId on queue
-    * @return onDeckRequestId, onDeckTotaltips, and API query string
+    * @dev Getter function for next requestId on queue/request with highest payout at time the function is called
+    * @return onDeck/info on request with highest payout-- RequestId, Totaltips, and API query string
     */
     function getVariablesOnDeck(TellorStorage.TellorStorageStruct storage self) internal view returns(uint, uint,string memory){ 
         uint newRequestId = getTopRequestID(self);
@@ -339,12 +350,17 @@ library TellorGettersLibrary{
     }
 
 
+    /**
+    * @dev Getter function for the request with highest payout. This function is used withing the getVariablesOnDeck function
+    * @return uint _requestId of request with highest payout at the time the function is called
+    */
     function getTopRequestID(TellorStorage.TellorStorageStruct storage self) internal view returns(uint _requestId){
             uint _max;
             uint _index;
             (_max,_index) = Utilities.getMax(self.requestQ);
              _requestId = self.requestIdByRequestQIndex[_index];
     }
+
 
     /**
     * @dev Gets the 5 miners who mined the value for the specified requestId/_timestamp 

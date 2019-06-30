@@ -10,7 +10,8 @@ import "./libraries/TellorLibrary.sol";
 /**
  * @title Tellor Oracle System
  * @dev Oracle contract where miners can submit the proof of work along with the value.
- * The logic for this contract is in TellorLibrary.sol
+ * The logic for this contract is in TellorLibrary.sol, TellorDispute.sol, TellorStake.sol, 
+ * and TellorTransfer.sol
  */
 contract Tellor{
 
@@ -25,9 +26,11 @@ contract Tellor{
 
     /*Functions*/
     /*This is a cheat for demo purposes, will delete upon actual launch*/
-    function theLazyCoon(address _address, uint _amount) public {
+/*    function theLazyCoon(address _address, uint _amount) public {
         tellor.theLazyCoon(_address,_amount);
-    }
+    }*/
+
+
     /*
     * @dev This function gives 5 miners the inital staked tokens in the system.  
     * It would run with the constructor, but throws on too much gas
@@ -36,6 +39,8 @@ contract Tellor{
     function init() public{
         tellor.init();
     }
+
+
     /**
     * @dev Add tip to Request value from oracle
     * @param _requestId being requested to be mined
@@ -45,6 +50,7 @@ contract Tellor{
     function addTip(uint _requestId, uint _tip) external {
         tellor.addTip(_requestId,_tip);
     }
+
 
     /**
     * @dev This function approves a _spender an _amount of tokens to use

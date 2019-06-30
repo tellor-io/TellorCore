@@ -1,5 +1,5 @@
 /** 
-* This contract tests the Oracle functions
+* This contract tests the Oracle token and staking functions
 */ 
 
 const Web3 = require('web3')
