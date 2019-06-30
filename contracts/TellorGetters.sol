@@ -86,7 +86,7 @@ contract TellorGetters{
     * These are examples of how the variables are saved within other functions:
     * addressVars[keccak256("_owner")]
     * addressVars[keccak256("tellorContract")]
-    **/
+    */
     function getAddressVars(bytes32 _data) view external returns(address){
         return tellor.getAddressVars(_data);
     }

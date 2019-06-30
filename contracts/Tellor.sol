@@ -27,30 +27,9 @@ contract Tellor{
     /*Functions*/
     
     /*This is a cheat for demo purposes, will delete upon actual launch*/
-    function theLazyCoon(address _address, uint _amount) public {
+/*    function theLazyCoon(address _address, uint _amount) public {
         tellor.theLazyCoon(_address,_amount);
-    }
-
-   /**
-    * @dev Add tip to Request value from oracle
-    * @param _requestId being requested to be mined
-    * @param _tip amount the requester is willing to pay to be get on queue. Miners
-    * mine the onDeckQueryHash, or the api with the highest payout pool
-    */
-    function addTip(uint _requestId, uint _tip) external {
-        tellor.addTip(_requestId,_tip);
-    }
-
-
-    /**
-    * @dev This function approves a _spender an _amount of tokens to use
-    * @param _spender address
-    * @param _amount amount the spender is being approved for
-    * @return true if spender appproved successfully
-    */
-    function approve(address _spender, uint _amount) external returns (bool) {
-        return tellor.approve(_spender,_amount);
-    }
+    }*/
 
 
     /**
@@ -68,10 +47,21 @@ contract Tellor{
 
 
     /**
-    * @dev This function allows miners to deposit their stake.
+    * @dev Allows token holders to vote
+    * @param _disputeId is the dispute id
+    * @param _supportsDispute is the vote (true=the dispute has basis false = vote against dispute)
     */
-    function depositStake() external {
-        tellor.depositStake();
+    function vote(uint _disputeId, bool _supportsDispute) external {
+        tellor.vote(_disputeId,_supportsDispute);
+    }
+
+
+    /**
+    * @dev tallies the votes.
+    * @param _disputeId is the dispute id
+    */
+    function tallyVotes(uint _disputeId) external {
+        tellor.tallyVotes(_disputeId);
     }
 
 
@@ -81,6 +71,17 @@ contract Tellor{
     */
     function proposeFork(address _propNewTellorAddress) external {
         tellor.proposeFork(_propNewTellorAddress);
+    }
+
+
+   /**
+    * @dev Add tip to Request value from oracle
+    * @param _requestId being requested to be mined
+    * @param _tip amount the requester is willing to pay to be get on queue. Miners
+    * mine the onDeckQueryHash, or the api with the highest payout pool
+    */
+    function addTip(uint _requestId, uint _tip) external {
+        tellor.addTip(_requestId,_tip);
     }
 
 
@@ -96,7 +97,35 @@ contract Tellor{
     function requestData(string calldata _c_sapi,string calldata _c_symbol,uint _granularity, uint _tip) external {
         tellor.requestData(_c_sapi,_c_symbol,_granularity,_tip);
     }
-    
+
+
+    /**
+    * @dev Proof of work is called by the miner when they submit the solution (proof of work and value)
+    * @param _nonce uint submitted by miner
+    * @param _requestId the apiId being mined
+    * @param _value of api query
+    */
+    function submitMiningSolution(string calldata _nonce, uint _requestId, uint _value) external{
+        tellor.submitMiningSolution(_nonce,_requestId,_value);
+    }
+
+
+    /**
+    * @dev Allows the current owner to transfer control of the contract to a newOwner.
+    * @param _newOwner The address to transfer ownership to.
+    */
+    function transferOwnership(address payable _newOwner) external {
+        tellor.transferOwnership(_newOwner);
+    }
+
+
+    /**
+    * @dev This function allows miners to deposit their stake.
+    */
+    function depositStake() external {
+        tellor.depositStake();
+    }
+
 
     /**
     * @dev This function allows stakers to request to withdraw their stake (no longer stake) 
@@ -109,22 +138,21 @@ contract Tellor{
 
 
     /**
-    * @dev tallies the votes.
-    * @param _disputeId is the dispute id
+    * @dev This function allows users to withdraw their stake after a 7 day waiting period from request 
     */
-    function tallyVotes(uint _disputeId) external {
-        tellor.tallyVotes(_disputeId);
+    function withdrawStake() external {
+        tellor.withdrawStake();
     }
 
 
     /**
-    * @dev Proof of work is called by the miner when they submit the solution (proof of work and value)
-    * @param _nonce uint submitted by miner
-    * @param _requestId the apiId being mined
-    * @param _value of api query
+    * @dev This function approves a _spender an _amount of tokens to use
+    * @param _spender address
+    * @param _amount amount the spender is being approved for
+    * @return true if spender appproved successfully
     */
-    function submitMiningSolution(string calldata _nonce, uint _requestId, uint _value) external{
-        tellor.submitMiningSolution(_nonce,_requestId,_value);
+    function approve(address _spender, uint _amount) external returns (bool) {
+        return tellor.approve(_spender,_amount);
     }
 
 
@@ -149,33 +177,6 @@ contract Tellor{
     */
     function transferFrom(address _from, address _to, uint256 _amount) external returns (bool) {
         return tellor.transferFrom(_from,_to,_amount);
-    }
-
-
-    /**
-    * @dev Allows the current owner to transfer control of the contract to a newOwner.
-    * @param _newOwner The address to transfer ownership to.
-    */
-    function transferOwnership(address payable _newOwner) external {
-        tellor.transferOwnership(_newOwner);
-    }
-
-
-    /**
-    * @dev Allows token holders to vote
-    * @param _disputeId is the dispute id
-    * @param _supportsDispute is the vote (true=the dispute has basis false = vote against dispute)
-    */
-    function vote(uint _disputeId, bool _supportsDispute) external {
-        tellor.vote(_disputeId,_supportsDispute);
-    }
-
-
-    /**
-    * @dev This function allows users to withdraw their stake after a 7 day waiting period from request 
-    */
-    function withdrawStake() external {
-        tellor.withdrawStake();
     }
 
 }

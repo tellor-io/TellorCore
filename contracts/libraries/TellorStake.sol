@@ -19,6 +19,7 @@ library TellorStake {
     
     /**
     * @dev This function stakes the five initial miners, sets the supply and all the constant variables.
+    * This function is called by the constructor function on TellorMaster.sol
     */
     function init(TellorStorage.TellorStorageStruct storage self) public{
         require(self.uintVars[keccak256("decimals")] == 0);
