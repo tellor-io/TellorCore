@@ -1,6 +1,6 @@
 <p align="center">
   <a href='https://www.tellor.io/'>
-    <img src= './public/Tellor.png' width="200" height="200" alt='tellor.io' />
+    <img src= './public/Tellor.png' width="250" height="200" alt='tellor.io' />
   </a>
 </p>
 
@@ -8,11 +8,11 @@
   <a href='https://deriveth.slack.com/'>
     <img src= ./public/Chat-Slack-blue.svg alt='Slack' />
   </a>
-  <a href='https://t.me/daxiachat'>
-    <img src= ./public/Chat-Telegram-blue.svg alt='Telegram DaxiaChat' />
+  <a href='https://t.me/tellor'>
+    <img src= ./public/Chat-Telegram-blue.svg alt='Telegram Tellor' />
   </a>
-  <a href='https://twitter.com/DaxiaOfficial'>
-    <img src= 'https://img.shields.io/twitter/url/http/shields.io.svg?style=social' alt='Twitter DaxiaOfficial' />
+  <a href='https://twitter.com/WeAreTellor'>
+    <img src= 'https://img.shields.io/twitter/url/http/shields.io.svg?style=social' alt='Twitter We Are Tellor' />
   </a> 
 </p>
 
@@ -158,7 +158,11 @@ where
 ### Contracts Description <a name="Contracts-Description"> </a>
 * <b>Tellor.sol</b> -- is the Tellor oracle contract and it allows miners to submit the proof of work, requestId, and value, sorts the values, pays the miners, allows the data users to request data and "tip" the miners to incentivize them to provide values, allows the users to retrieve and dispute the values.
     * <b>Tellor.sol</b> --contains all the functions
-       * <b>TellorLibrary.sol</b> --contains the logic for the functions in Tellor.sol
+       * <b>TellorDispute.sol</b> --contains the dispute functions' logic for the functions in Tellor.sol
+       * <b>TellorLibrary.sol</b> --contains the logic for the functions in Tellor.sol relating to requesting data and submitting mined values.
+       * <b>TellorStake.sol</b> --contains the staking functions' logic for the functions in Tellor.sol
+       * <b>TellorStorage.sol</b> --contains the storage variables used in Tellor.sol
+       * <b>TellorTransfer.sol</b> --contains the transfer and ERC20 functions' logic for the functions in Tellor.sol
     * <b>TellorMaster.sol</b> -- contains the delegate calls to allow Tellor.sol to write to the TellorGetters.sol. TellorMaster is TellorGetters.sol
        * <b>TellorGetters.sol</b> -- stores all the Tellor.sol variables 
        * <b>TellorGettersLibrary.sol</b> --contains the logic for the functions in TellorGetters.sol

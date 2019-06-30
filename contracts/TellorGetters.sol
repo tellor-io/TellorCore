@@ -1,19 +1,24 @@
 pragma solidity ^0.5.0;
 
-import "./libraries/SafeMath.sol"; 
+import "./libraries/SafeMath.sol";
+import "./libraries/TellorStorage.sol";
+import "./libraries/TellorTransfer.sol";
 import "./libraries/TellorGettersLibrary.sol";
+import "./libraries/TellorStake.sol";
 
 /**
 * @title Tellor Getters
 * @dev Oracle contract with all tellor getter functions. The logic for the functions on this contract 
-* is saved on the TellorGettersLibrary.sol
-* @dev Note at the top is the struct.  THE STRUCT SHOULD ALWAYS BE THE SAME AS TellorLibrary.SOL
-* @dev Failure to do so will result in errors with the fallback proxy
+* is saved on the TellorGettersLibrary, TellorTransfer, TellorGettersLibrary, and TellorStake
 */
 contract TellorGetters{
     using SafeMath for uint256;
-    using TellorGettersLibrary for TellorGettersLibrary.TellorStorageStruct;
-    TellorGettersLibrary.TellorStorageStruct tellor;
+
+    using TellorTransfer for TellorStorage.TellorStorageStruct;
+    using TellorGettersLibrary for TellorStorage.TellorStorageStruct;
+    using TellorStake for TellorStorage.TellorStorageStruct;
+
+    TellorStorage.TellorStorageStruct tellor;
     
     /**
     * @param _user address
@@ -59,9 +64,10 @@ contract TellorGetters{
     * @param _miner address that you want to know if they solved the challenge
     * @return true if the _miner address provided solved the 
     */
-    function didMine(bytes32 _challenge,address _miner) external view returns(bool){
+    function didMine(bytes32 _challenge, address _miner) external view returns(bool){
         return tellor.didMine(_challenge,_miner);
     }
+
 
     /**
     * @dev Checks if an address voted in a given dispute
@@ -80,27 +86,37 @@ contract TellorGetters{
     * These are examples of how the variables are saved within other functions:
     * addressVars[keccak256("_owner")]
     * addressVars[keccak256("tellorContract")]
-    **/
+    */
     function getAddressVars(bytes32 _data) view external returns(address){
         return tellor.getAddressVars(_data);
     }
 
+
     /**
     * @dev Gets all dispute variables
     * @param _disputeId to look up
-    * @return address of reported miner
-    * @return address of reporting party
-    * @return disputed apiId
-    * @return disputed minimum execution date
-    * @return uint number of votes
-    * @return uint blockNumber of vote
-    * @return uint index in disputeId array
+    * @return bytes32 hash of dispute 
+    * @return bool executed where true if it has been voted on
+    * @return bool disputeVotePassed
+    * @return bool isPropFork true if the dispute is a proposed fork
+    * @return address of reportedMiner
+    * @return address of reportingParty
+    * @return address of proposedForkAddress
+    * @return uint of requestId
+    * @return uint of timestamp
+    * @return uint of value
+    * @return uint of minExecutionDate
+    * @return uint of numberOfVotes
+    * @return uint of blocknumber
+    * @return uint of minerSlot
+    * @return uint of quorum
+    * @return uint of fee
     * @return int count of the current tally
-    * @return bool of whether vote has been tallied
     */
     function getAllDisputeVars(uint _disputeId) public view returns(bytes32, bool, bool, bool, address, address, address,uint[9] memory, int){
         return tellor.getAllDisputeVars(_disputeId);
     }
+    
 
     /**
     * @dev Getter function for variables for the requestId being currently mined(currentRequestId)
@@ -119,6 +135,7 @@ contract TellorGetters{
         return  tellor.getDisputeIdByDisputeHash(_hash);
     }
     
+
     /**
     * @dev Checks for uint variables in the disputeUintVars mapping based on the disuputeId
     * @param _disputeId is the dispute id;
@@ -131,17 +148,21 @@ contract TellorGetters{
         return tellor.getDisputeUintVars(_disputeId,_data);
     }
 
+
     /**
     * @dev Gets the a value for the latest timestamp available
     * @return value for timestamp of last proof of work submited
+    * @return true if the is a timestamp for the lastNewValue
     */
     function getLastNewValue() external view returns(uint,bool){
         return tellor.getLastNewValue();
     }
 
-    /* @dev Gets the a value for the latest timestamp available
+
+    /**
+    * @dev Gets the a value for the latest timestamp available
     * @param _requestId being requested
-    * @return value for timestamp of last proof of work submited
+    * @return value for timestamp of last proof of work submited and if true if it exist or 0 and false if it doesn't
     */
     function getLastNewValueById(uint _requestId) external view returns(uint,bool){
         return tellor.getLastNewValueById(_requestId);
@@ -236,6 +257,7 @@ contract TellorGetters{
     * @param _data the variable to pull from the mapping. _data = keccak256("variable_name") where variable_name is 
     * the variables/strings used to save the data in the mapping. The variables names are  
     * commented out under the apiUintVars under the requestDetails struct
+    * @return uint value of the apiUintVars specified in _data for the requestId specified
     */
     function getRequestUintVars(uint _requestId,bytes32 _data) external view returns(uint){
         return tellor.getRequestUintVars(_requestId,_data);
@@ -310,14 +332,14 @@ contract TellorGetters{
     }
 
 
-
     /**
-    * @dev Getter function for next requestId on queue
-    * @return onDeckRequestId, onDeckTotaltips, , and API query string
+    * @dev Getter function for next requestId on queue/request with highest payout at time the function is called
+    * @return onDeck/info on request with highest payout-- RequestId, Totaltips, and API query string
     */
     function getVariablesOnDeck() external view returns(uint, uint,string memory){    
         return tellor.getVariablesOnDeck();
     }
+
     
     /**
     * @dev Gets the 5 miners who mined the value for the specified requestId/_timestamp 

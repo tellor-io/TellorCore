@@ -35,7 +35,7 @@ web3.eth.getTransactionCount(account, function (err, nonce) {
     var raw = '0x' + tx.serialize().toString('hex');
     web3.eth.sendSignedTransaction(raw).on('transactionHash', function (txHash) {
       }).on('receipt', function (receipt) {
-          //console.log("receipt:" + receipt);
+          console.log("receipt:" + receipt);
       }).on('confirmation', function (confirmationNumber, receipt) {
           //console.log("confirmationNumber:" + confirmationNumber + " receipt:" + receipt);
       }).on('error', function (error) {

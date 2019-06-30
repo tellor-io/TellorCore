@@ -1,25 +1,30 @@
 pragma solidity ^0.5.0;
 
 import "./TellorGetters.sol";
-import "./libraries/TellorLibrary.sol";
-import "./libraries/TellorGettersLibrary.sol";
 
+/**
+* @title Tellor Master
+* @dev This is the Master contract with all tellor getter functions and delegate call to Tellor. 
+* The logic for the functions on this contract is saved on the TellorGettersLibrary, TellorTransfer, 
+* TellorGettersLibrary, and TellorStake
+*/
 contract TellorMaster is TellorGetters{
+    
+    event NewTellorAddress(address _newTellor);
+
     /**
     * @dev The constructor sets the original `tellorStorageOwner` of the contract to the sender
-    * account.
+    * account, the tellor contract to the Tellor master address and owner to the Tellor master owner address 
+    * @param _tellorContract is the address for the tellor contract
     */
     constructor (address _tellorContract)  public{
-        tellor.tellorMasterConstructor(_tellorContract);
+        tellor.init();
+        tellor.addressVars[keccak256("_owner")] = msg.sender;
+        tellor.addressVars[keccak256("_deity")] = msg.sender;
+        tellor.addressVars[keccak256("tellorContract")]= _tellorContract;
+        emit NewTellorAddress(_tellorContract);
     }
-
-    /**
-    * @dev  allows for the deity to make fast upgrades.  Deity should be 0 address if decentralized
-    * @param _tellorContract the address of the new Tellor Contract
-    */
-    function changeTellorContract(address _tellorContract) external{
-        tellor.changeTellorContract(_tellorContract);
-    }
+    
 
     /**
     * @dev Gets the 5 miners who mined the value for the specified requestId/_timestamp 
@@ -30,6 +35,16 @@ contract TellorMaster is TellorGetters{
     function changeDeity(address _newDeity) external{
         tellor.changeDeity(_newDeity);
     }
+
+
+    /**
+    * @dev  allows for the deity to make fast upgrades.  Deity should be 0 address if decentralized
+    * @param _tellorContract the address of the new Tellor Contract
+    */
+    function changeTellorContract(address _tellorContract) external{
+        tellor.changeTellorContract(_tellorContract);
+    }
+  
 
     /**
     * @dev This is the fallback function that allows contracts to call the tellor contract at the address stored
