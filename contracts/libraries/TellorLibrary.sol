@@ -6,6 +6,7 @@ import "./TellorStorage.sol";
 import "./TellorTransfer.sol";
 import "./TellorDispute.sol";
 import "./TellorStake.sol";
+import "./TellorGettersLibrary.sol";
 
 
 /**
@@ -28,11 +29,10 @@ library TellorLibrary{
     /*Functions*/
     
     /*This is a cheat for demo purposes, will delete upon actual launch*/
-/*    function theLazyCoon(TellorStorage.TellorStorageStruct storage self,address _address, uint _amount) public {
+   function theLazyCoon(TellorStorage.TellorStorageStruct storage self,address _address, uint _amount) public {
         self.uintVars[keccak256("total_supply")] += _amount;
         TellorTransfer.updateBalanceAtNow(self.balances[_address],_amount);
     }
-*/
 
 
     /**
@@ -173,7 +173,7 @@ library TellorLibrary{
             self.newValueTimestamps.push(self.uintVars[keccak256("timeOfLastNewValue")]);
             //re-start the count for the slot progress to zero before the new request mining starts
             self.uintVars[keccak256("slotProgress")] = 0;
-            self.uintVars[keccak256("currentRequestId")] = getTopRequestID(self);
+            self.uintVars[keccak256("currentRequestId")] = TellorGettersLibrary.getTopRequestID(self);
             //if the currentRequestId is not zero(currentRequestId exists/something is being mined) select the requestId with the hightest payout 
             //else wait for a new tip to mine
             if(self.uintVars[keccak256("currentRequestId")] > 0){
@@ -193,7 +193,7 @@ library TellorLibrary{
                 self.requestDetails[self.uintVars[keccak256("currentRequestId")]].apiUintVars[keccak256("totalTip")] = 0;
                 
                 //gets the max tip in the in the requestQ[51] array and its index within the array??
-                uint newRequestId = getTopRequestID(self);
+                uint newRequestId = TellorGettersLibrary.getTopRequestID(self);
                 //Issue the the next challenge
                 self.currentChallenge = keccak256(abi.encodePacked(_nonce,self.currentChallenge, blockhash(block.number - 1))); // Save hash for next proof
                 emit NewChallenge(self.currentChallenge,self.uintVars[keccak256("currentRequestId")],self.uintVars[keccak256("difficulty")],self.requestDetails[self.uintVars[keccak256("currentRequestId")]].apiUintVars[keccak256("granularity")],self.requestDetails[self.uintVars[keccak256("currentRequestId")]].queryString,self.uintVars[keccak256("currentTotalTips")]);
@@ -261,7 +261,7 @@ library TellorLibrary{
     */
     function updateOnDeck(TellorStorage.TellorStorageStruct storage self,uint _requestId, uint _tip) internal {
         TellorStorage.Request storage _request = self.requestDetails[_requestId];
-        uint onDeckRequestId = getTopRequestID(self);
+        uint onDeckRequestId = TellorGettersLibrary.getTopRequestID(self);
         //If the tip >0 update the tip for the requestId
         if (_tip > 0){
             _request.apiUintVars[keccak256("totalTip")] = _request.apiUintVars[keccak256("totalTip")].add(_tip);
@@ -309,17 +309,6 @@ library TellorLibrary{
                 self.requestQ[_request.apiUintVars[keccak256("requestQPosition")]] += _tip;
             }
         }
-    }
-
-    /**
-    * @dev This function gets the request that currently has the highest payout.
-    * @return uint of _requestId for request with current highest payout
-    */
-    function getTopRequestID(TellorStorage.TellorStorageStruct storage self) internal view returns(uint _requestId){
-            uint _max;
-            uint _index;
-            (_max,_index) = Utilities.getMax(self.requestQ);
-             _requestId = self.requestIdByRequestQIndex[_index];
     }
 }
 

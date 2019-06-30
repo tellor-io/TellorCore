@@ -94,6 +94,7 @@ def getVariables():
 	payload = {"jsonrpc":"2.0","id":net_id,"method":"eth_call","params":[{"to":contract_address,"data":"0x94aef022"}, "latest"]}
 	r = requests.post(node_url, data=json.dumps(payload));
 	val = jsonParser(r);
+	print(val)
 	val = val['result'];
 	_challenge = val[:66]
 	val = val[66:]
