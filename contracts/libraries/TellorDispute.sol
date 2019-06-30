@@ -4,8 +4,8 @@ import "./TellorStorage.sol";
 import "./TellorTransfer.sol";
 
 /**
- @title Tellor Dispute
- @dev Contais the methods related to disputes. Tellor.sol references this library for function's logic.
+* @title Tellor Dispute
+* @dev Contais the methods related to disputes. Tellor.sol references this library for function's logic.
 */
 
 
@@ -81,6 +81,7 @@ library TellorDispute {
         emit NewDispute(disputeId,_requestId,_timestamp,_miner);
     }
 
+
     /**
     * @dev Allows token holders to vote
     * @param _disputeId is the dispute id
@@ -121,6 +122,7 @@ library TellorDispute {
         //Let the network know the user has voted on the dispute and their casted vote
         emit Voted(_disputeId,_supportsDispute,msg.sender);
     }
+
 
     /**
     * @dev tallies the votes.
@@ -193,6 +195,7 @@ library TellorDispute {
         emit DisputeVoteTallied(_disputeId,disp.tally,disp.reportedMiner,disp.reportingParty,disp.disputeVotePassed);
     }
 
+
     /**
     * @dev Allows for a fork to be proposed
     * @param _propNewTellorAddress address for new proposed Tellor
@@ -218,6 +221,7 @@ library TellorDispute {
         self.disputesById[disputeId].disputeUintVars[keccak256("fee")]  = self.uintVars[keccak256("disputeFee")];
         self.disputesById[disputeId].disputeUintVars[keccak256("minExecutionDate")] = now + 7 days;
     }
+    
 
     /**
     * @dev this function allows the dispute fee to fluctuate based on the number of miners on the system.

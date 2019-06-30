@@ -4,12 +4,21 @@ import "./TellorStorage.sol";
 import "./TellorTransfer.sol";
 import "./TellorDispute.sol";
 
-// methods related to stake
+/**
+* itle Tellor Dispute
+* @dev Contais the methods related to miners staking and unstaking. Tellor.sol 
+* references this library for function's logic.
+*/
+
 library TellorStake {
     event NewStake(address indexed _sender);//Emits upon new staker
     event StakeWithdrawn(address indexed _sender);//Emits when a staker is now no longer staked
     event StakeWithdrawRequested(address indexed _sender);//Emits when a staker begins the 7 day withdraw period
 
+
+    /**
+    * @dev This function stakes the five initial miners, sets the supply and all the constant variables.
+    */
     function init(TellorStorage.TellorStorageStruct storage self) public{
         require(self.uintVars[keccak256("decimals")] == 0);
         //Give this contract 6000 Tellor Tributes so that it can stake the initial 6 miners
@@ -43,6 +52,7 @@ library TellorStake {
         self.uintVars[keccak256("difficulty")] = 1;
     }
 
+
     /**
     * @dev This function allows stakers to request to withdraw their stake (no longer stake)
     * once they lock for withdraw(stakes.currentStatus = 2) they are locked for 7 days before they
@@ -66,6 +76,7 @@ library TellorStake {
         emit StakeWithdrawRequested(msg.sender);
     }
 
+
     /**
     * @dev This function allows users to withdraw their stake after a 7 day waiting period from request 
     */
@@ -79,6 +90,7 @@ library TellorStake {
         emit StakeWithdrawn(msg.sender);
     }
 
+
     /**
     * @dev This function allows miners to deposit their stake.
     */
@@ -88,6 +100,11 @@ library TellorStake {
       TellorDispute.updateDisputeFee(self);
     }
 
+    /**
+    * @dev This function is used by the init function to succesfully stake the initial 5 miners.
+    * The function updates their status/state and status start date so they are locked it so they can't withdraw
+    * and updates the number of stakers in the system.
+    */
     function newStake(TellorStorage.TellorStorageStruct storage self, address staker) internal {
         require(TellorTransfer.balanceOf(self,staker) >= self.uintVars[keccak256("stakeAmount")]);
         //Ensure they can only stake if they are not currrently staked or if their stake time frame has ended

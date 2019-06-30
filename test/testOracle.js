@@ -12,6 +12,7 @@ var oracleByte = Oracle.bytecode;
 
 var api = "json(https://api.gdax.com/products/BTC-USD/ticker).price";
 var api2 = "json(https://api.gdax.com/products/ETH-USD/ticker).price";
+
 function promisifyLogWatch(_address,_event) {
   return new Promise((resolve, reject) => {
     web3.eth.subscribe('logs', {

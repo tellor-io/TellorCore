@@ -3,7 +3,12 @@ pragma solidity ^0.5.0;
 import "./SafeMath.sol";
 import "./TellorStorage.sol";
 
-// methods related to transfer
+
+/**
+* @title Tellor Transfer
+* @dev Contais the methods related to transfers and ERC20. Tellor.sol and TellorGetters.sol
+* reference this library for function's logic.
+*/
 library TellorTransfer {
     using SafeMath for uint256;
 
@@ -21,6 +26,7 @@ library TellorTransfer {
         return true;
     }
 
+
     /**
     * @notice Send _amount tokens to _to from _from on the condition it
     * is approved by _from
@@ -36,6 +42,7 @@ library TellorTransfer {
         return true;
     }
 
+
     /**
     * @dev This function approves a _spender an _amount of tokens to use
     * @param _spender address
@@ -50,6 +57,7 @@ library TellorTransfer {
         return true;
     }
 
+
     /**
     * @param _user address of party with the balance
     * @param _spender address of spender of parties said balance
@@ -58,6 +66,7 @@ library TellorTransfer {
     function allowance(TellorStorage.TellorStorageStruct storage self,address _user, address _spender) public view returns (uint) {
        return self.allowed[_user][_spender]; 
     }
+
 
     /**
     * @dev Completes POWO transfers by updating the balances on the current block number
@@ -76,6 +85,7 @@ library TellorTransfer {
         updateBalanceAtNow(self.balances[_to], previousBalance + _amount);
         emit Transfer(_from, _to, _amount);
     }
+
 
     /**
     * @dev Gets balance of owner specified
@@ -102,6 +112,7 @@ library TellorTransfer {
      }
     }
 
+
     /**
     * @dev Getter for balance for owner on the specified _block number
     * @param checkpoints gets the mapping for the balances[owner]
@@ -127,6 +138,7 @@ library TellorTransfer {
         return checkpoints[min].value;
     }
 
+
     /**
     * @dev This function returns whether or not a given user is allowed to trade a given amount 
     * and removing the staked amount from their balance if they are staked
@@ -146,6 +158,7 @@ library TellorTransfer {
         }
         return false;
     }
+    
 
     /**
     * @dev Updates balance for from and to on the current block number via doTransfer

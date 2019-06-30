@@ -35,6 +35,8 @@ contract Tellor{
     * @dev This function gives 5 miners the inital staked tokens in the system.  
     * It would run with the constructor, but throws on too much gas
     * It only runs once or only when the requestCount is zero. 
+    * The function stakes the five initial miners, sets the supply and all the 
+    * constant variables.
     */
     function init() public{
         tellor.init();

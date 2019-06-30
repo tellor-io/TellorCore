@@ -254,9 +254,9 @@ library TellorLibrary{
 
 
     /**
-    @dev This function updates APIonQ and the requestQ when requestData or addTip are ran
-    @param _requestId being requested
-    @param _tip is the tip to add
+    * @dev This function updates APIonQ and the requestQ when requestData or addTip are ran
+    * @param _requestId being requested
+    * @param _tip is the tip to add
     */
     function updateOnDeck(TellorStorage.TellorStorageStruct storage self,uint _requestId, uint _tip) internal {
         TellorStorage.Request storage _request = self.requestDetails[_requestId];
