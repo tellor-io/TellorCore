@@ -6,7 +6,8 @@ import "./Utilities.sol";
 
 /**
 * @title Tellor Getters Library
-* @dev This is the getter library for all variables in the Tellor Tributes system
+* @dev This is the getter library for all variables in the Tellor Tributes system. TellorGetters references this 
+* libary for the getters logic
 */
 library TellorGettersLibrary{
     using SafeMath for uint256;

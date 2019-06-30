@@ -10,9 +10,8 @@ import "./TellorStake.sol";
 
 /**
  * @title Tellor Oracle System Library
- * @dev Contains the functions' logic for the Tellor contract where miners can submit the proof of work along with the value.
- * @dev Note at the top is the struct.  THE STRUCT SHOULD ALWAYS BE THE SAME AS TellorGettersLibrary.SOL
- * @dev Failure to do so will result in errors with the fallback proxy
+ * @dev Contains the functions' logic for the Tellor contract where miners can submit the proof of work 
+ * along with the value and smart contracts can requestData and tip miners.
  */
 library TellorLibrary{
     using SafeMath for uint256;
@@ -28,10 +27,11 @@ library TellorLibrary{
 
     /*Functions*/
     /*This is a cheat for demo purposes, will delete upon actual launch*/
-    function theLazyCoon(TellorStorage.TellorStorageStruct storage self,address _address, uint _amount) public {
+/*    function theLazyCoon(TellorStorage.TellorStorageStruct storage self,address _address, uint _amount) public {
         self.uintVars[keccak256("total_supply")] += _amount;
         TellorTransfer.updateBalanceAtNow(self.balances[_address],_amount);
     }
+*/
 
 
     /**
@@ -105,6 +105,12 @@ library TellorLibrary{
         }
     }
 
+    /**
+    * @dev This fucntion is called by submitMiningSolution and adjusts the difficulty, sorts and stores the first 
+    * 5 values received, pays the miners, the dev share and assigns a new challenge
+    * @param _nonce or solution for the PoW  for the requestId
+    * @param _requestId for the current request being mined
+    */
     function newBlock(TellorStorage.TellorStorageStruct storage self,string memory _nonce, uint _requestId) internal{
         TellorStorage.Request storage _request = self.requestDetails[_requestId];
             
@@ -235,6 +241,7 @@ library TellorLibrary{
         }
     }
 
+
     /**
     * @dev Allows the current owner to transfer control of the contract to a newOwner.
     * @param _newOwner The address to transfer ownership to.
@@ -244,6 +251,8 @@ library TellorLibrary{
             emit OwnershipTransferred(self.addressVars[keccak256("_owner")], _newOwner);
             self.addressVars[keccak256("_owner")] = _newOwner;
     }
+
+
     /**
     @dev This function updates APIonQ and the requestQ when requestData or addTip are ran
     @param _requestId being requested
@@ -301,6 +310,10 @@ library TellorLibrary{
         }
     }
 
+    /**
+    * @dev This function gets the request that currently has the highest payout.
+    * @return uint of _requestId for request with current highest payout
+    */
     function getTopRequestID(TellorStorage.TellorStorageStruct storage self) internal view returns(uint _requestId){
             uint _max;
             uint _index;

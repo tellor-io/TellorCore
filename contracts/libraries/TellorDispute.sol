@@ -3,7 +3,12 @@ pragma solidity ^0.5.0;
 import "./TellorStorage.sol";
 import "./TellorTransfer.sol";
 
-// methods related to dispute
+/**
+ @title Tellor Dispute
+ @dev Contais the methods related to disputes. Tellor.sol references this library for function's logic.
+*/
+
+
 library TellorDispute {
     using SafeMath for uint256;
 

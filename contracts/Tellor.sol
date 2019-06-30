@@ -28,8 +28,8 @@ contract Tellor{
     /*This is a cheat for demo purposes, will delete upon actual launch*/
 /*    function theLazyCoon(address _address, uint _amount) public {
         tellor.theLazyCoon(_address,_amount);
-    }*/
-
+    }
+*/
 
     /*
     * @dev This function gives 5 miners the inital staked tokens in the system.  
