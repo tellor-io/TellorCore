@@ -2,15 +2,21 @@ pragma solidity ^0.5.0;
 
 import "./TellorGetters.sol";
 
-
+/**
+* @title Tellor Master
+* @dev This is the Master contract with all tellor getter functions and delegate call to Tellor. 
+* The logic for the functions on this contract is saved on the TellorGettersLibrary, TellorTransfer, 
+* TellorGettersLibrary, and TellorStake
+*/
 contract TellorMaster is TellorGetters{
     
     event NewTellorAddress(address _newTellor);
+
     /**
     * @dev The constructor sets the original `tellorStorageOwner` of the contract to the sender
-    * account.
+    * account, the tellor contract to the Tellor master address and owner to the Tellor master owner address 
+    * @param _tellorContract is the address for the tellor contract
     */
-
     constructor (address _tellorContract)  public{
         tellor.addressVars[keccak256("_owner")] = msg.sender;
         tellor.addressVars[keccak256("_deity")] = msg.sender;

@@ -7,15 +7,14 @@ import "./Utilities.sol";
 /**
 * @title Tellor Getters Library
 * @dev This is the getter library for all variables in the Tellor Tributes system
-* @dev Note at the top are the structs.  THE STRUCTS AND ORDER SHOULD ALWAYS BE THE SAME AS TellorLibrary.SOL
-* @dev Failure to do so will result in errors with the fallback proxy
 */
 library TellorGettersLibrary{
     using SafeMath for uint256;
 
     event NewTellorAddress(address _newTellor); //emmited when a proposed fork is voted true
-    
+
     /*Constructor*/
+
     //Only needs to be in library
     /**
     * @dev Sets the tellor contract to the Tellor master address and owner to the Tellor master owner address
@@ -27,6 +26,8 @@ library TellorGettersLibrary{
         self.addressVars[keccak256("tellorContract")]= _tellorContract;
         emit NewTellorAddress(_tellorContract);
     }*/
+
+
     //The next two functions are onlyOwner functions.  For Tellor to be truly decentralized, we will need to transfer the Deity to the 0 address.
     //Only needs to be in library
     /**

@@ -9,9 +9,7 @@ import "./libraries/TellorStake.sol";
 /**
 * @title Tellor Getters
 * @dev Oracle contract with all tellor getter functions. The logic for the functions on this contract 
-* is saved on the TellorGettersLibrary.sol
-* @dev Note at the top is the struct.  THE STRUCT SHOULD ALWAYS BE THE SAME AS TellorLibrary.SOL
-* @dev Failure to do so will result in errors with the fallback proxy
+* is saved on the TellorGettersLibrary, TellorTransfer, TellorGettersLibrary, and TellorStake
 */
 contract TellorGetters{
     using SafeMath for uint256;
@@ -69,6 +67,7 @@ contract TellorGetters{
     function didMine(bytes32 _challenge, address _miner) external view returns(bool){
         return tellor.didMine(_challenge,_miner);
     }
+
 
     /**
     * @dev Checks if an address voted in a given dispute
