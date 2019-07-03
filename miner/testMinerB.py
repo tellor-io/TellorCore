@@ -19,6 +19,7 @@ def generate_random_number():
 def mine(challenge, public_address, difficulty):
 	global last_block, contract_address
 	x = 0;
+	print('starting to mine')
 	while True:
 		x += 1;
 		j = generate_random_number()
@@ -29,6 +30,7 @@ def mine(challenge, public_address, difficulty):
 		n = "0x" + hashlib.new('sha256',bytes.fromhex(z)).hexdigest()
 		hash1 = int(n,16);
 		if hash1 % difficulty == 0:
+			print('solution found')
 			return j;
 		if x % 10000 == 0:
 			payload = {"jsonrpc":"2.0","id":net_id,"method":"eth_blockNumber"}
@@ -83,7 +85,7 @@ def masterMiner():
 			print(arg_string)
 			#success = execute_js('testSubmitter.js',arg_string)
 			#print('WE WERE SUCCESSFUL: ', success)
-			run_js('testSubmitter.js',arg_string);
+			execute_js('testSubmitter.js',arg_string);
 			miners_started += 1 
 			if(miners_started == 5):
 				v = False;
@@ -92,7 +94,7 @@ def masterMiner():
 					_challenge,_apiId,_difficulty,_apiString,_granularity= getVariables();
 					if challenge == _challenge:
 						v = False
-						time.sleep(10);
+						t16637633fa4b4854670fbb83fa254756798009f52a1d3add27fb5f5a8e16ime.sleep(10);
 					elif _apiId > 0:
 						v = True
 						challenge = _challenge;
@@ -103,6 +105,7 @@ def masterMiner():
 				miners_started = 0;
 		else:
 			challenge,apiId,difficulty,apiString = getVariables(); 
+			print('variables grabbed')
 	print('Miner Stopping')
 
 def getVariables():

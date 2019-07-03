@@ -2,6 +2,7 @@ pragma solidity ^0.5.0;
 
 import '../TellorMaster.sol';
 import '../Tellor.sol';
+
 /**
 * @title UsingTellor
 * This contracts creates for easy integration to the Tellor Tellor System
@@ -30,7 +31,7 @@ contract UserContract{
     	owner = msg.sender;
     }
 
-
+    /*Functions*/
     /**
     * @dev Allows the current owner to transfer control of the contract to a newOwner.
     * @param newOwner The address to transfer ownership to.

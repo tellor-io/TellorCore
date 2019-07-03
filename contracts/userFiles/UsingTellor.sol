@@ -16,10 +16,10 @@ contract UsingTellor{
     /*Constructor*/
     /**
     * @dev This function sents the owner and userContract address
-    * @param _user is the UserContract.sol address
+    * @param _userContract is the UserContract.sol address
     */
-    constructor(address _user)public {
-    	tellorUserContract = UserContract(_user);
+    constructor(address _userContract)public {
+    	tellorUserContract = UserContract(_userContract);
     	owner = msg.sender;
     }
 
@@ -65,8 +65,6 @@ contract UsingTellor{
         return(false,0,0);
 	}
 	
-	event Print(string _s,uint _num);
-
 
 	/**
     * @dev Allows the user to get the first value for the requestId after the specified timestamp
