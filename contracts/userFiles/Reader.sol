@@ -21,7 +21,7 @@ contract Reader is Optimistic{
     * @param _userContract address for UserContract
     * @param _disputeFeeRequired the fee to dispute the optimistic price(price sumbitted by known trusted party)
     * @param _disputePeriod is the time frame a value can be disputed after being imputed
-    * @param _requestsIds are the requests Id's on the Tellor System corresponding to the data types used on this contract.
+    * @param _requestIds are the requests Id's on the Tellor System corresponding to the data types used on this contract.
     * It is recommended to use several requestId's that pull from several API's. If requestsId's don't exist in the Tellor 
     * System be sure to create some.
     * @param _granularity is the amount of decimals desired on the requested value

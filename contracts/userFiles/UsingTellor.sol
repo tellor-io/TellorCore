@@ -12,6 +12,7 @@ contract UsingTellor{
 	address public owner;
 	
 	event OwnershipTransferred(address _previousOwner,address _newOwner);
+    event Print(string _s,uint _num);
 
     /*Constructor*/
     /**
