@@ -82,6 +82,17 @@ contract UserContract{
 		_tellor.addTip(_apiId,_tip);
 	}
 
+    
+    /** 
+    * @dev Allows the user get the latest tip paid to miners to mine
+    * @return uint of latest tip amount paid
+    */
+    function getLatestTip() public returns(uint latestTip) {
+        TellorMaster _tellorm = TellorMaster(tellorStorageAddress);
+        latestTip = _tellorm.getUintVar(keccak256("currentTotalTips"));
+        return latestTip;
+    }
+
 
     /**
     * @dev Allows the owner to set the Tribute token price.

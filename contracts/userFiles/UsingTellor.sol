@@ -140,6 +140,7 @@ contract UsingTellor{
 	}
 
 
+
     /**
     * @dev Allows user to add tip with Ether by sending the ETH to the userContract and exchanging it for Tributes
     * at the price specified by the userContract owner.

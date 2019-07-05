@@ -82,9 +82,11 @@ contract Optimistic is UsingTellor{
     * @param _timestamp is the timestamp for the value to be disputed
     */
 	function disputeOptimisticValue(uint _timestamp) external{
-		//Prepares the signed transaction info to transfer the dispute fee from the party calling this function
+		TellorMaster _tellor = TellorMaster(tellorUserContract.tellorStorageAddress());
+        uint _disputeFee = _tellor.getUintVar(keccak256("currentTotalTips"));//get latest tip paid to mine
+    	//Prepares the signed transaction info to transfer the dispute fee from the party calling this function
 		//(msg.sender) to this contract
-		bytes memory sig = abi.encodeWithSignature("transferFrom(address,address,uint256)",msg.sender,address(this),disputeFee);
+		bytes memory sig = abi.encodeWithSignature("transferFrom(address,address,uint256)",msg.sender,address(this),_disputeFee);
 		//sets the TellorUserContract
 		address addr  = tellorUserContract.tellorStorageAddress();
 		//transfers the dispute fee from the party calling this function(msg.sender) to this contract
@@ -107,6 +109,7 @@ contract Optimistic is UsingTellor{
     * @dev This function gets the Tellor requestIds values for the disputed timestamp. It averages the values on the 
     * requestsIds and replaces the value set by the contract owner, centralized party.
     * @param _timestamp to get Tellor data from
+    * @return uint of new value and true if it was able to get Tellor data
 	*/
 	function getTellorValues(uint _timestamp) public returns(uint _value, bool _didGet){
 		//We need to get the tellor value within the granularity.  If no Tellor value is available...what then?  Simply put no Value?  
@@ -119,15 +122,21 @@ contract Optimistic is UsingTellor{
 		for(uint i = 1; i <= requestIds.length; i++){
 			//Get all values for that requestIds' timestamp
 			//Check if any is after your given timestamp
-			//If yes, return that value to the .  If no, then request that Id
+			//If yes, return that value. If no, then request that Id
 			(_didGet,_value,_retrievedTimestamp) = getFirstVerifiedDataAfter(i,_timestamp);
 			if(_didGet){
-				uint _newTime = _retrievedTimestamp - _retrievedTimestamp % granularity;
+				uint _newTime = _retrievedTimestamp - _retrievedTimestamp % granularity; //why are we using the mod granularity???
+				//provides the average of the requests Ids' associated with this price feed
 				uint _newValue =(_value + valuesByTimestamp[_newTime] * requestIdsIncluded[_newTime].length) / (requestIdsIncluded[_newTime].length + 1);
+				//Add the new timestamp and value (we don't replace???)
 				valuesByTimestamp[_newTime] = _newValue;
 				emit TellorValuePlaced(_newTime,_newValue);
 				emit Print2(_newValue,_value);
+				//records the requests Ids included on the price average where all prices came from Tellor requests Ids
 				requestIdsIncluded[_newTime].push(i); //how do we make sure it's not called twice?
+				//if the value for the newTime does not exist, then push the value, update the isValue to true
+				//otherwise if the newTime is under dsipute then update the dispute status to false
+				// ??? should the else be an "and"
 				if(isValue[_newTime] == false){
 							timestamps.push(_newTime);
 							isValue[_newTime] = true;
@@ -137,6 +146,8 @@ contract Optimistic is UsingTellor{
 					disputedValues[_newTime] = false;
 				}
 			}
+			//otherwise request the ID and split the contracts initial tributes balance to equally tip all 
+			//requests Ids associated with this price feed
 			else{
 				if(_tellor.balanceOf(address(this)) > requestIds.length){
 					//Request Id to be mined by adding to it's tip
@@ -145,6 +156,7 @@ contract Optimistic is UsingTellor{
 			}
 		}
 	}
+
 
     /**
     * @dev Get the first undisputed value after the timestamp specified. This function is used within the getTellorValues
@@ -176,6 +188,7 @@ contract Optimistic is UsingTellor{
 		return valuesByTimestamp[_timestamp];
 	}
 
+
     /**
     * @dev Getter function for the number of RequestIds associated with a timestamp, based on the timestamp specified
     * @param _timestamp to retreive number of requestIds
@@ -195,6 +208,7 @@ contract Optimistic is UsingTellor{
 		return isValue[_timestamp];
 	}
 
+
     /**
     * @dev Getter function for latest value available
     * @return latest value available
@@ -204,44 +218,77 @@ contract Optimistic is UsingTellor{
 		return getMyValuesByTimestamp(timestamps[timestamps.length -1]);
 	}
 
-
+    /**
+    * @dev Getter function for the timestamps available
+    * @return uint array of timestamps available
+    */
 	function getTimestamps() external view returns(uint[] memory){
 		return timestamps;
 	}
 
 
+    /**
+    * @dev Getter function for the requests Ids' from Tellor associated with this price feed
+    * @return uint array of requests Ids'
+    */
 	function getRequestIds() external view returns(uint[] memory){
 		return requestIds;
 	}
 
 
+    /**
+    * @dev Getter function for the requests Ids' from Tellor associated with this price feed
+    * at the specified timestamp. This only gets populated after a dispute is initiated and the 
+    * function getTellorValues is ran.
+    * @param _timestamp to retreive the requestIds
+    * @return uint array of requests Ids' included in the calcluation of the value
+    */
 	function getRequestIdsIncluded(uint _timestamp) external view returns(uint[] memory){
 		return requestIdsIncluded[_timestamp];
 	}
 
 
+    /**
+    * @dev Getter function for the number of disputed values 
+    * @return uint count of number of values for the spedified timestamp
+    */
 	function getNumberOfDisputedValues() external view returns(uint){
 		return disputedValuesArray.length;
 	}
 
 
-	function isDisputed(uint _timestamp) external view returns(bool){
-		return disputedValues[_timestamp];
-	}
-
-
-	function getDisputedValueByIndex(uint _index) external view returns(uint){
-		return disputedValuesArray[_index];
-	}
-
-
+    /**
+    * @dev Getter function for all disputed values
+    * @return the array with all values under dispute
+    */
 	function getDisputedValues() external view returns(uint[] memory){
 		return disputedValuesArray;
 	}
 
 
+    /**
+    * @dev This checks if the value for the specified timestamp is under dispute 
+    * @param _timestamp to check if it is under dispute
+    * @return true if it is under dispute
+    */
+	function isDisputed(uint _timestamp) external view returns(bool){
+		return disputedValues[_timestamp];
+	}
+
+
+    /**
+    * @dev Getter function for the dispute value by index
+    * @return the value
+    */
+	function getDisputedValueByIndex(uint _index) external view returns(uint){
+		return disputedValuesArray[_index];
+	}
+
+
+
+
 }
 
-//somehow be able to get the most recent tip (or payout) and that is the dispute Fee
-//make sure we use SafeMath
+//somehow be able to get the most recent tip (or payout) and that is the dispute Fee--need to test BL
+//make sure we use SafeMath--
 //add usingEther

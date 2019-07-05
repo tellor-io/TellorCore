@@ -340,7 +340,7 @@ library TellorGettersLibrary{
 
 
     /**
-    * @dev Getter function for the request with highest payout. This function is used withing the getVariablesOnDeck function
+    * @dev Getter function for the request with highest payout. This function is used within the getVariablesOnDeck function
     * @return uint _requestId of request with highest payout at the time the function is called
     */
     function getTopRequestID(TellorStorage.TellorStorageStruct storage self) internal view returns(uint _requestId){
