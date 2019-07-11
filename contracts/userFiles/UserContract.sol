@@ -4,7 +4,7 @@ import '../TellorMaster.sol';
 import '../Tellor.sol';
 
 /**
-* @title UsingTellor
+* @title UserContract
 * This contracts creates for easy integration to the Tellor Tellor System
 * This contract holds the Ether and Tributes for interacting with the system
 * Note it is centralized (we can set the price of Tellor Tributes)

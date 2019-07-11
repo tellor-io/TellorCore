@@ -13,6 +13,18 @@ var oracleByte = Oracle.bytecode;
 var api = "json(https://api.gdax.com/products/BTC-USD/ticker).price";
 var api2 = "json(https://api.gdax.com/products/ETH-USD/ticker).price";
 
+//XZDBFVORC4XNI483
+//json(https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=GSPC&apikey=XZDBFVORC4XNI483).price"
+//json(https://api.pro.coinbase.com/products/ZRX-USD/ticker).price
+//json(https://api.pro.coinbase.com/products/LTC-USD/ticker).price
+// https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=BNB&APIKEY=d2c47c82-a3d4-4ee8-8db3-5bccbdbd038a
+//d2c47c82-a3d4-4ee8-8db3-5bccbdbd038a
+
+// json(https://api.binance.com/api/v3/ticker/price?symbol=BNBUSDT).price
+// json(https://api.binance.com/api/v3/ticker/price?symbol=XMRUSDT).price
+//https://stooq.com/t/d/l/?s=SPX.US&i=d
+
+
 function promisifyLogWatch(_address,_event) {
   return new Promise((resolve, reject) => {
     web3.eth.subscribe('logs', {
