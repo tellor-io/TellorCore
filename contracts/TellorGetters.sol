@@ -371,4 +371,12 @@ contract TellorGetters{
        return tellor.totalSupply();
     }
 
+    function testgetMax() external view returns(uint _max, uint _index){
+       return tellor.testgetMax();
+    }
+
+    function testgetMin() external view returns(uint _min, uint _index){
+       return tellor.testgetMin();
+    }
+
 }

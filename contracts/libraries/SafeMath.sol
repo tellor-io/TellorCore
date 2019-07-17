@@ -9,6 +9,12 @@ library SafeMath {
     return c;
   }
 
+  function add(int256 a, int256 b) internal pure returns (int256) {
+    int256 c = a + b;
+    assert(c >= a);
+    return c;
+  }
+
   function max(uint a, uint b) internal pure returns (uint256) {
     return a > b ? a : b;
   }
@@ -28,6 +34,11 @@ library SafeMath {
   }
 
   function sub(uint256 a, uint256 b) internal pure returns (uint256) {
+    assert(b <= a);
+    return a - b;
+  }
+
+  function sub(int256 a, int256 b) internal pure returns (int256) {
     assert(b <= a);
     return a - b;
   }

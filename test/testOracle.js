@@ -24,7 +24,7 @@ var api2 = "json(https://api.gdax.com/products/ETH-USD/ticker).price";
 // json(https://api.binance.com/api/v3/ticker/price?symbol=XMRUSDT).price
 //https://stooq.com/t/d/l/?s=SPX.US&i=d
 
-
+/*
 function promisifyLogWatch(_address,_event) {
   return new Promise((resolve, reject) => {
     web3.eth.subscribe('logs', {
@@ -91,15 +91,15 @@ contract('Mining Tests', function(accounts) {
         assert(difficulty == 1, "Difficulty should be 1");
         assert.equal(sapi,api, "sapi = api");  
     });
-
-  it("Test miner", async function () {
+*/
+/*  it("Test miner", async function () {
         console.log('START MINING RIG!!');
         var logMineWatcher = await promisifyLogWatch(oracle.address, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
         console.log('print log',logMineWatcher)
         res = web3.eth.abi.decodeParameters(['uint256','uint256'],logMineWatcher.data);
         console.log(res)
         assert(res['1'] > 0, "value should be positive");
-   });
+   });*/
  	/*	it("Test 5 Mines", async function () {
         for(var i = 0;i < 5;i++){
             logMineWatcher = await promisifyLogWatch(oracle.address, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
@@ -476,7 +476,7 @@ contract('Mining Tests', function(accounts) {
         vars = await oracle.getUintVar(web3.utils.keccak256("currentTotalTips"))
         assert(vars == 0, "api payout should be zero")
     });
-    */
+
     it("Test Same ID mining and OnQ", async function () {
     	logMineWatcher = await promisifyLogWatch(oracle.address, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
         await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.addTip(1,3).encodeABI()});
@@ -499,4 +499,4 @@ contract('Mining Tests', function(accounts) {
         assert(res['2'] == 5 , "last payout had a tip of 5")
     });
     
-});
+});    */
