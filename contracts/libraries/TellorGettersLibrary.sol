@@ -350,13 +350,6 @@ library TellorGettersLibrary{
              _requestId = self.requestIdByRequestQIndex[_index];
     }
 
-    function testgetMax(TellorStorage.TellorStorageStruct storage self) internal view returns(uint _max, uint _index){
-            (_max,_index) = Utilities.getMax(self.requestQ);
-    }
-
-    function testgetMin(TellorStorage.TellorStorageStruct storage self) internal view returns(uint _min, uint _index){
-            (_min,_index) = Utilities.getMin(self.requestQ);
-    }
 
     /**
     * @dev Gets the 5 miners who mined the value for the specified requestId/_timestamp 
