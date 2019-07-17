@@ -8,7 +8,7 @@ const BN = require('bn.js');
 const helper = require("./helpers/test_helpers");
 //const ethers = require('ethers');
 const Utilities = artifacts.require("./libraries/Utilities.sol");
-//const UtilitiesTests = artifacts.require("./UtilitiesTests.sol");
+const UtilitiesTests = artifacts.require("./UtilitiesTests.sol");
 const TellorMaster = artifacts.require("./TellorMaster.sol");
 const TellorGetters = artifacts.require("./TellorGetters.sol");
 const TellorGettersLibrary = artifacts.require(".libraries/TellorGettersLibrary.sol");
@@ -166,7 +166,7 @@ contract('Further Tests', function(accounts) {
 
 /**split to min and max assembly testing functions to their own contract**/
 /**test min**/
-    it("Test getMax payout and index", async function () {
+/*    it("Test getMax payout and index 51 req with overlapping tips and requests", async function () {
    	    apiVars= await oracle.getRequestVars(1);
         apiIdforpayoutPoolIndex = await oracle.getRequestIdByRequestQIndex(0);
         apiId = await oracle.getRequestIdByQueryHash(apiVars[2]);
@@ -183,11 +183,9 @@ contract('Further Tests', function(accounts) {
         } 
 
         req = await oracle.getRequestQ();
-        console.log("req", req);
         max = await oracle.testgetMax();
-        console.log("max",web3.utils.hexToNumberString(max[0]));
-        console.log("index",web3.utils.hexToNumberString(max[1]));
-        console.log("max,index", max)
+        assert(web3.utils.hexToNumberString(max[0])== 45, "Max should be 45")
+        assert(web3.utils.hexToNumberString(max[1])== 6, "Max should be 6")
     });
 
     it("Test getMax payout and index 55 requests", async function () {
@@ -198,11 +196,9 @@ contract('Further Tests', function(accounts) {
         }
 
         req = await oracle.getRequestQ();
-        console.log("req", req);
         max = await oracle.testgetMax();
-        console.log("max55",web3.utils.hexToNumberString(max[0]));
-        console.log("index55",web3.utils.hexToNumberString(max[1]));
-        console.log("max,index55", max)
+        assert(web3.utils.hexToNumberString(max[0])== 55, "Max should be 55")
+        assert(web3.utils.hexToNumberString(max[1])== 46, "Max should be 46")    
     });
 
     it("Test getMax payout and index 100 requests", async function () {
@@ -218,14 +214,97 @@ contract('Further Tests', function(accounts) {
         } 
 
         req = await oracle.getRequestQ();
-        console.log("req", req);
         max = await oracle.testgetMax();
-        console.log("max100",web3.utils.hexToNumberString(max[0]));
-        console.log("index100",web3.utils.hexToNumberString(max[1]));
-        console.log("max,index100", max)
+        assert(web3.utils.hexToNumberString(max[0])== 110, "Max should be 110")
+        assert(web3.utils.hexToNumberString(max[1])== 46, "Max should be 46") 
+    });*/
+
+
+    it("Test getMin payout and index 10 req with overlapping tips and requests", async function () {
+   	    apiVars= await oracle.getRequestVars(1);
+        apiIdforpayoutPoolIndex = await oracle.getRequestIdByRequestQIndex(0);
+        apiId = await oracle.getRequestIdByQueryHash(apiVars[2]);
+        assert(web3.utils.hexToNumberString(apiId) == 1, "timestamp on Q should be 1");
+        console.log("10 equests....");
+         for(var i = 10;i >=1 ;i--){
+        	apix= ("api" + i);
+        	await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(apix,"",1000,i).encodeABI()})
+        }
+
+        req = await oracle.getRequestQ();
+        min = await oracle.testgetMin();
+        assert(web3.utils.hexToNumberString(min[0])== 0, "Min should be 0")
+        assert(web3.utils.hexToNumberString(min[1])== 40, "Min should be 40")
     });
 
+    it("Test getMin payout and index 51 req count down with overlapping tips and requests", async function () {
+   	    apiVars= await oracle.getRequestVars(1);
+        apiIdforpayoutPoolIndex = await oracle.getRequestIdByRequestQIndex(0);
+        apiId = await oracle.getRequestIdByQueryHash(apiVars[2]);
+        assert(web3.utils.hexToNumberString(apiId) == 1, "timestamp on Q should be 1");
+        console.log("51 requests....");
+         for(var i = 21;i >=1 ;i--){
+        	apix= ("api" + i);
+        	await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(apix,"",1000,i).encodeABI()})
+        }
 
+        for(var j = 45;j >= 15 ;j--){
+        	apix= ("api" + j);
+        	await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(apix,"",1000,j).encodeABI()})
+        } 
+
+        req = await oracle.getRequestQ();
+        console.log("req", req);
+        min = await oracle.testgetMin();
+        assert(web3.utils.hexToNumberString(min[0])== 0, "Min should be 0")
+        assert(web3.utils.hexToNumberString(min[1])== 5, "Min should be 5")
+        assert(web3.utils.hexToNumberString(req[44])==30, "request 15 is submitted twice this should be 30")
+        assert(web3.utils.hexToNumberString(req[50])==42, "request 21 is submitted twice this should be 42")
+      
+    });
+
+    it("Test getMin payout and index 56 req with overlapping tips and requests", async function () {
+   	    apiVars= await oracle.getRequestVars(1);
+        apiIdforpayoutPoolIndex = await oracle.getRequestIdByRequestQIndex(0);
+        apiId = await oracle.getRequestIdByQueryHash(apiVars[2]);
+        assert(web3.utils.hexToNumberString(apiId) == 1, "timestamp on Q should be 1");
+        console.log("56 requests....");
+         for(var i = 21;i >=1 ;i--){
+        	apix= ("api" + i);
+        	await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(apix,"",1000,i).encodeABI()})
+        }
+
+        for(var j = 50;j >= 15 ;j--){
+        	apix= ("api" + j);
+        	await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(apix,"",1000,j).encodeABI()})
+        } 
+
+        req = await oracle.getRequestQ();
+        console.log("req", req);
+        min = await oracle.testgetMin();
+        assert(web3.utils.hexToNumberString(min[0])== 1, "Min should be 1")
+        assert(web3.utils.hexToNumberString(min[1])== 30, "Min should be 30")
+        console.log("min",web3.utils.hexToNumberString(min[0]));
+        console.log("index",web3.utils.hexToNumberString(min[1]));
+        console.log("min,index", min)
+    });
+
+/*    it("Test getMin payout and index 55 requests", async function () {
+        console.log("55 requests....");
+         for(var i = 1;i <=55 ;i++){
+        	apix= ("api" + i);
+        	await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(apix,"",1000,i).encodeABI()})
+        }
+
+        req = await oracle.getRequestQ();
+        console.log("req", req);
+        min = await oracle.testgetMin();
+        assert(web3.utils.hexToNumberString(min[0])== 6, "Min should be 6")
+        assert(web3.utils.hexToNumberString(min[1])== 45, "Min should be 45")    
+        console.log("min55",web3.utils.hexToNumberString(min[0]));
+        console.log("index55",web3.utils.hexToNumberString(min[1]));
+        console.log("min,index55", min)
+    });*/
 
   //  it("Test 51 request and lowest is kicked out", async function () {
   //  	       apiVars= await oracle.getRequestVars(1)
