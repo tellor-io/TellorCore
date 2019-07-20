@@ -371,4 +371,5 @@ contract TellorGetters{
        return tellor.totalSupply();
     }
 
+
 }

@@ -21,16 +21,7 @@ library Utilities{
       }
     }
 
-  // function getMin(uint[51] memory data) internal pure returns(uint256 minimal,uint minIndex) {
-  //       minIndex = data.length - 1;
-  //       minimal = data[minIndex];
-  //       for(uint i = data.length-1;i > 0;i--) {
-  //           if(data[i] < minimal) {
-  //               minimal = data[i];
-  //               minIndex = i;
-  //           }
-  //       }
-  // }
+
   
   function getMax(uint256[51] memory arr) internal pure returns (uint256 max, uint256 maxIndex) {
       assembly {

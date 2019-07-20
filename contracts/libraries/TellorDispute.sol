@@ -2,6 +2,7 @@ pragma solidity ^0.5.0;
 
 import "./TellorStorage.sol";
 import "./TellorTransfer.sol";
+//import "./SafeMath.sol";
 
 /**
 * @title Tellor Dispute
@@ -11,6 +12,7 @@ import "./TellorTransfer.sol";
 
 library TellorDispute {
     using SafeMath for uint256;
+    using SafeMath for int256;
 
     event NewDispute(uint indexed _disputeId, uint indexed _requestId, uint _timestamp, address _miner);//emitted when a new dispute is initialized
     event Voted(uint indexed _disputeID, bool _position, address indexed _voter);//emitted when a new vote happens
@@ -116,9 +118,9 @@ library TellorDispute {
         //If the user supports the dispute increase the tally for the dispute by the voteWeight
         //otherwise decrease it
         if (_supportsDispute) {
-            disp.tally = disp.tally + int(voteWeight);
+            disp.tally = disp.tally.add(int(voteWeight));
         } else {
-            disp.tally = disp.tally - int(voteWeight);
+            disp.tally = disp.tally.sub(int(voteWeight));
         }
         
         //Let the network know the user has voted on the dispute and their casted vote

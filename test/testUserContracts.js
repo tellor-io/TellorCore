@@ -5,10 +5,12 @@
 // const web3 = new Web3(new Web3.providers.WebsocketProvider('ws://localhost:8545'));
 // const BN = require('bn.js');  
 // const helper = require("./helpers/test_helpers");
+// const UserContract = artifacts.require("./UserCOntract.sol");
+// const Reader = artifacts.require("./Reader.sol");
 // const TellorMaster = artifacts.require("./TellorMaster.sol");
 // const Oracle = artifacts.require("./Tellor.sol"); // globally injected artifacts helper
-// //const Reader = artifacts.require("./userFiles/Reader.sol"); // globally injected artifacts helper
-// //const UserContract = artifacts.require("./userFiles/UserContract.sol"); // globally injected artifacts helper
+// //const Reader = artifacts.require("./Reader.sol"); // globally injected artifacts helper
+// //const UserContract = artifacts.require("./UserContract.sol"); // globally injected artifacts helper
 // var oracleAbi = Oracle.abi;
 // var oracleByte = Oracle.bytecode;
 
@@ -42,7 +44,6 @@
 //         oracleBase = await Oracle.new();
 //         oracle = await TellorMaster.new(oracleBase.address);
 //         oracle2 = await new web3.eth.Contract(oracleAbi,oracle.address);///will this instance work for logWatch? hopefully...
-//         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000, data: web3.utils.keccak256("tellorPostConstructor()")})
 //         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",1000,0).encodeABI()})
 //         userContract = await UserContract.new(oracle.address);
 //         reader = await Reader.new(userContract.address,10,86400*3,[1],86400)
