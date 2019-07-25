@@ -60,12 +60,20 @@ contract('Further Tests', function(accounts) {
         utilities = await UtilitiesTests.new();
         await utilities.setTellorMaster(oracle.address);
    });  
+
    it("transferOwnership", async function () {
         let checkowner = await oracle.getAddressVars(web3.utils.keccak256("_owner"));
         assert(checkowner == accounts[0], "initial owner acct 0");
-        await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.transferOwnership(accounts[2]).encodeABI()});
+
+        await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.proposeOwnership(accounts[2]).encodeABI()});
+        let pendingOwner = await oracle.getAddressVars(web3.utils.keccak256("pending_owner"));
+        assert(pendingOwner == accounts[2], "pending owner acct 2");
         checkowner = await oracle.getAddressVars(web3.utils.keccak256("_owner"));
-        assert(checkowner == accounts[2], "initial owner acct 2");
+        assert(checkowner == accounts[0], "initial owner acct 0");
+
+        await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.claimOwnership().encodeABI()});
+        checkowner = await oracle.getAddressVars(web3.utils.keccak256("_owner"));
+        assert(checkowner == accounts[2], "new owner acct 2");
    });
    it("Request data", async function () {
         let res2 = await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(api2,"ETH/USD",1000,20).encodeABI()})
@@ -298,6 +306,8 @@ contract('Further Tests', function(accounts) {
         assert(web3.utils.hexToNumberString(min[0])== 6, "Min should be 6")
         assert(web3.utils.hexToNumberString(min[1])== 45, "Min should be 45")    
     });
+
+
 
   //  it("Test 51 request and lowest is kicked out", async function () {
   //  	       apiVars= await oracle.getRequestVars(1)
