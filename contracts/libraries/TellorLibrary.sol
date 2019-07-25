@@ -24,7 +24,7 @@ library TellorLibrary{
     event NewValue(uint indexed _requestId, uint _time, uint _value,uint _totalTips,bytes32 _currentChallenge);//Emits upon a successful Mine, indicates the blocktime at point of the mine and the value mined
     event NonceSubmitted(address indexed _miner, string _nonce, uint indexed _requestId, uint _value,bytes32 _currentChallenge);//Emits upon each mine (5 total) and shows the miner, nonce, and value submitted
     event OwnershipTransferred(address indexed _previousOwner, address indexed _newOwner);
-
+    event OwnershipProposed(address indexed _previousOwner, address indexed _newOwner);
 
     /*Functions*/
     
@@ -245,13 +245,25 @@ library TellorLibrary{
 
 
     /**
-    * @dev Allows the current owner to transfer control of the contract to a newOwner.
-    * @param _newOwner The address to transfer ownership to.
+    * @dev Allows the current owner to propose transfer control of the contract to a 
+    * newOwner and the ownership is pending until the new owner calls the claimOwnership 
+    * function
+    * @param _pendingOwner The address to transfer ownership to.
     */
-    function transferOwnership(TellorStorage.TellorStorageStruct storage self,address payable _newOwner) internal {
-            require(msg.sender == self.addressVars[keccak256("_owner")]);
-            emit OwnershipTransferred(self.addressVars[keccak256("_owner")], _newOwner);
-            self.addressVars[keccak256("_owner")] = _newOwner;
+    function proposeOwnership(TellorStorage.TellorStorageStruct storage self,address payable _pendingOwner) internal {
+        require(msg.sender == self.addressVars[keccak256("_owner")]);
+        emit OwnershipProposed(self.addressVars[keccak256("_owner")], _pendingOwner);
+        self.addressVars[keccak256("pending_owner")] = _pendingOwner;
+    }
+
+
+    /**
+    * @dev Allows the new owner to claim control of the contract
+    */
+    function claimOwnership(TellorStorage.TellorStorageStruct storage self) internal {
+        require(msg.sender == self.addressVars[keccak256("pending_owner")]);
+        emit OwnershipTransferred(self.addressVars[keccak256("_owner")], self.addressVars[keccak256("pending_owner")]);
+        self.addressVars[keccak256("_owner")] = self.addressVars[keccak256("pending_owner")];
     }
 
 
