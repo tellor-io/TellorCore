@@ -54,9 +54,11 @@ console.log(i, web3.utils.fromWei(bal));*/
             let pendnonce = await web3.eth.getTransactionCount(minerAddress, 'pending');
             console.log("tx", i,minerAddress,txnonce );
             console.log("tx pending",i,minerAddress,pendnonce );
+            _nowUTC  = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
             var name = "miner" + i;
             name = {miner: i,
-                    txnonce: txnonce}
+                    txnonce: txnonce
+                    nonceTime: _nowUTC}
             var jsonName = JSON.stringify(name);
             console.log("jsonName", jsonName);
             let filename = "./scripts/miner" + i + ".json";
@@ -74,12 +76,14 @@ console.log(i, web3.utils.fromWei(bal));*/
         try{
             let minerAddress = miners[b];
             let txnonceNow = await web3.eth.getTransactionCount(minerAddress);
-            let filename = "./scripts/miner" + b + ".json";
-            fs.readFile(filename,'utf8', jsonName, function(err, data) {
-                if (err) throw err;
-                let minerInfo = JSON.parse(data);
-                console.log("minerInfo", minerInfo);
-            });
+            let filename = "./miner" + b + ".json";
+            var psr = require(filename);
+            console.log(psr.txnonce);
+            //compare txnonce to txnonceNow
+            //if txnonce not chaged compare time
+            //if txnoncenow<>txnonce then update txnonce and time
+
+
         
         } catch(error) {
         console.error(error);
