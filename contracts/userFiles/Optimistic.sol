@@ -284,11 +284,4 @@ contract Optimistic is UsingTellor{
 		return disputedValuesArray[_index];
 	}
 
-
-
-
 }
-
-//somehow be able to get the most recent tip (or payout) and that is the dispute Fee--need to test BL
-//make sure we use SafeMath--
-//add usingEther

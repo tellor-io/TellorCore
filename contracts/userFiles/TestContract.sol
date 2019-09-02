@@ -5,7 +5,7 @@ import './Optimistic.sol';
 * @title Reader
 * This contracts is a pretend contract using Tellor that compares two time values
 */
-contract Reader is Optimistic{
+contract TestContract is Optimistic{
 
 	uint public startDateTime;
 	uint public endDateTime;
@@ -49,19 +49,17 @@ contract Reader is Optimistic{
 	function settleContracts() external{
 		bool _didGet;
 		uint _time;
-		if(getIsValue(startDateTime)){
-			(_didGet, startValue, _time) = getFirstUndisputedValueAfter(startDateTime);
-			if(_didGet && getIsValue(endDateTime)){
+		(_didGet, startValue, _time) = getFirstUndisputedValueAfter(startDateTime);
+			if(_didGet){
 				(_didGet, endValue, _time) = getFirstUndisputedValueAfter(endDateTime);
 				if(_didGet){
 					if(endValue > startValue){
 						longWins = true;
-					}
-					contractEnded = true;
-					emit ContractSettled(startValue, endValue);
 				}
-
+				contractEnded = true;
+				emit ContractSettled(startValue, endValue);
 			}
+
 		}
 	}
 }

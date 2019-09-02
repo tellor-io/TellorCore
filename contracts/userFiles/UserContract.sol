@@ -16,10 +16,12 @@ contract UserContract{
 	address payable public owner;
 	uint public tributePrice;
 	address payable public tellorStorageAddress;
+    Tellor _tellor;
+    TellorMaster _tellorm;
 
 	event OwnershipTransferred(address _previousOwner,address _newOwner);
 	event NewPriceSet(uint _newPrice);
-
+    event Print(string _s,uint _num);
 
     /*Constructor*/
     /**
@@ -28,6 +30,8 @@ contract UserContract{
     */
     constructor(address payable _storage) public{
     	tellorStorageAddress = _storage;
+        _tellor = Tellor(tellorStorageAddress); //we should delcall here
+        _tellorm = TellorMaster(tellorStorageAddress);
     	owner = msg.sender;
     }
 
@@ -52,6 +56,14 @@ contract UserContract{
 
 	}
 
+        /**
+    * @dev Allows the contract owner(Tellor) to withdraw any Tributes left on this contract
+    */
+    function withdrawTokens() external{
+        require(msg.sender == owner);
+        _tellor.transfer(owner,_tellorm.balanceOf(address(this)));
+    }
+
 	/**
     * @dev Allows the user to submit a request for data to the oracle using ETH
     * @param c_sapi string API being requested to be mined
@@ -61,10 +73,8 @@ contract UserContract{
     * mine the onDeckQueryHash, or the api with the highest payout pool
     */
 	function requestDataWithEther(string calldata c_sapi, string calldata _c_symbol,uint _granularity, uint _tip) external payable{
-		TellorMaster _tellorm = TellorMaster(tellorStorageAddress);
 		require(_tellorm.balanceOf(address(this)) >= _tip);
 		require(msg.value >= _tip * tributePrice);
-		Tellor _tellor = Tellor(tellorStorageAddress); //we should delcall here
 		_tellor.requestData(c_sapi,_c_symbol,_granularity,_tip);
 	}
 
@@ -75,24 +85,10 @@ contract UserContract{
     * @param _tip amount
     */
 	function addTipWithEther(uint _apiId, uint _tip) external payable {
-		TellorMaster _tellorm = TellorMaster(tellorStorageAddress);
 		require(_tellorm.balanceOf(address(this)) >= _tip);
 		require(msg.value >= _tip * tributePrice);
-		Tellor _tellor = Tellor(tellorStorageAddress); //we should delcall here
 		_tellor.addTip(_apiId,_tip);
 	}
-
-    
-    /** 
-    * @dev Allows the user get the latest tip paid to miners to mine
-    * @return uint of latest tip amount paid
-    */
-    function getLatestTip() public returns(uint latestTip) {
-        TellorMaster _tellorm = TellorMaster(tellorStorageAddress);
-        latestTip = _tellorm.getUintVar(keccak256("currentTotalTips"));
-        return latestTip;
-    }
-
 
     /**
     * @dev Allows the owner to set the Tribute token price.
@@ -104,9 +100,69 @@ contract UserContract{
 		emit NewPriceSet(_price);
 	}
 
-}
+        /**
+    * @dev Allows the user to get the latest value for the requestId specified
+    * @param _requestId is the requestId to look up the value for
+    * @return bool true if it is able to retreive a value, the value, and the value's timestamp
+    */
+    function getCurrentValue(uint _requestId) public view returns(bool ifRetrieve, uint value, uint _timestampRetrieved) {
+        uint _count = _tellorm.getNewValueCountbyRequestId(_requestId) ;
+        if(_count > 0){
+                _timestampRetrieved = _tellorm.getTimestampbyRequestIDandIndex(_requestId,_count -1);//will this work with a zero index? (or insta hit?)
+                return(true,_tellorm.retrieveData(_requestId,_timestampRetrieved),_timestampRetrieved);
+        }
+        return(false,0,0);
+    }
 
-//Cryptic Nick notes about UsingTellor
-//On get last query, we should remove the bool return---sure, why not, BL
-// //On get last query, should be by requestId---you already did this, BL
-// //remove requestId from requestData---you already did this, BL
+    //How can we make this one more efficient?
+    /**
+    * @dev Allows the user to get the first verified value for the requestId after the specified timestamp
+    * @param _requestId is the requestId to look up the value for
+    * @param _timestamp after which to search for first verified value
+    * @return bool true if it is able to retreive a value, the value, and the value's timestamp, the timestamp after
+    * which it searched for the first verified value
+    */
+    function getFirstVerifiedDataAfter(uint _requestId, uint _timestamp) public returns(bool,uint,uint _timestampRetrieved) {
+        uint _count = _tellorm.getNewValueCountbyRequestId(_requestId);
+        if(_count > 0){
+                for(uint i = _count;i > 0;i--){
+                    if(_tellorm.getTimestampbyRequestIDandIndex(_requestId,i-1) > _timestamp && _tellorm.getTimestampbyRequestIDandIndex(_requestId,i-1) < block.timestamp - 86400){
+                        _timestampRetrieved = _tellorm.getTimestampbyRequestIDandIndex(_requestId,i-1);//will this work with a zero index? (or insta hit?)
+                    }
+                }
+                if(_timestampRetrieved > 0){
+                    return(true,_tellorm.retrieveData(_requestId,_timestampRetrieved),_timestampRetrieved);
+                }
+        }
+        return(false,0,0);
+    }
+    
+
+    /**
+    * @dev Allows the user to get the first value for the requestId after the specified timestamp
+    * @param _requestId is the requestId to look up the value for
+    * @param _timestamp after which to search for first verified value
+    * @return bool true if it is able to retreive a value, the value, and the value's timestamp
+    */
+    function getAnyDataAfter(uint _requestId, uint _timestamp) public  returns(bool _ifRetrieve, uint _value, uint _timestampRetrieved){
+        uint _count = _tellorm.getNewValueCountbyRequestId(_requestId) ;
+        if(_count > 0){
+                emit Print("count",_count);
+                for(uint i = _count;i > 0;i--){
+                    emit Print('tester',_tellorm.getTimestampbyRequestIDandIndex(_requestId,i-1));
+                    emit Print('actual', _timestamp);
+
+                    if(_tellorm.getTimestampbyRequestIDandIndex(_requestId,i-1) >= _timestamp){
+                        _timestampRetrieved = _tellorm.getTimestampbyRequestIDandIndex(_requestId,i-1);//will this work with a zero index? (or insta hit?)
+                        emit Print("_timestampRetrieved",_timestampRetrieved);
+                        emit Print("value",_tellorm.retrieveData(_requestId,_timestampRetrieved));
+                    }
+                }
+                if(_timestampRetrieved > 0){
+                    return(true,_tellorm.retrieveData(_requestId,_timestampRetrieved),_timestampRetrieved);
+                }
+        }
+        return(false,0,0);
+    }
+
+}
