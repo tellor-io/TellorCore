@@ -14,7 +14,6 @@ contract TestContract is Optimistic{
 	bool public longWins;
 	bool public contractEnded;
 	event ContractSettled(uint _svalue, uint _evalue);
-
     /**
     * @dev This constructor function is used to pass variables to the optimistic contract's constructor
     * and the function is blank
@@ -28,7 +27,6 @@ contract TestContract is Optimistic{
     */
 	constructor(address _userContract, uint _disputeFeeRequired, uint _disputePeriod, uint[] memory _requestIds, uint _granularity) 
 	Optimistic(_userContract,_disputeFeeRequired,_disputePeriod, _requestIds,_granularity) public {
-
 	}
 
 

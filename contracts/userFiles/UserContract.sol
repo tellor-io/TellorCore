@@ -21,7 +21,6 @@ contract UserContract{
 
 	event OwnershipTransferred(address _previousOwner,address _newOwner);
 	event NewPriceSet(uint _newPrice);
-    event Print(string _s,uint _num);
 
     /*Constructor*/
     /**
@@ -147,15 +146,9 @@ contract UserContract{
     function getAnyDataAfter(uint _requestId, uint _timestamp) public  returns(bool _ifRetrieve, uint _value, uint _timestampRetrieved){
         uint _count = _tellorm.getNewValueCountbyRequestId(_requestId) ;
         if(_count > 0){
-                emit Print("count",_count);
                 for(uint i = _count;i > 0;i--){
-                    emit Print('tester',_tellorm.getTimestampbyRequestIDandIndex(_requestId,i-1));
-                    emit Print('actual', _timestamp);
-
                     if(_tellorm.getTimestampbyRequestIDandIndex(_requestId,i-1) >= _timestamp){
                         _timestampRetrieved = _tellorm.getTimestampbyRequestIDandIndex(_requestId,i-1);//will this work with a zero index? (or insta hit?)
-                        emit Print("_timestampRetrieved",_timestampRetrieved);
-                        emit Print("value",_tellorm.retrieveData(_requestId,_timestampRetrieved));
                     }
                 }
                 if(_timestampRetrieved > 0){

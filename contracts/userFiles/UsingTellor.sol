@@ -9,7 +9,7 @@ import './UserContract.sol';
 */
 contract UsingTellor{
 	UserContract tellorUserContract;
-	address public owner;
+	address payable public owner;
 	
 	event OwnershipTransferred(address _previousOwner,address _newOwner);
 
