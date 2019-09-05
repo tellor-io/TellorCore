@@ -14,6 +14,7 @@ import '../Tellor.sol';
 contract UserContract{
 
 	address payable public owner;
+    //in Loyas per ETH.  so at 200$ ETH price and 3$ Trib price -- (3/200 * 1e18)
 	uint public tributePrice;
 	address payable public tellorStorageAddress;
     Tellor _tellor;
@@ -73,7 +74,7 @@ contract UserContract{
     */
 	function requestDataWithEther(string calldata c_sapi, string calldata _c_symbol,uint _granularity, uint _tip) external payable{
 		require(_tellorm.balanceOf(address(this)) >= _tip);
-		require(msg.value >= _tip * tributePrice);
+		require(msg.value >= (_tip * tributePrice)/1e18);
 		_tellor.requestData(c_sapi,_c_symbol,_granularity,_tip);
 	}
 
@@ -85,7 +86,7 @@ contract UserContract{
     */
 	function addTipWithEther(uint _apiId, uint _tip) external payable {
 		require(_tellorm.balanceOf(address(this)) >= _tip);
-		require(msg.value >= _tip * tributePrice);
+		require(msg.value >= (_tip * tributePrice)/1e18);
 		_tellor.addTip(_apiId,_tip);
 	}
 

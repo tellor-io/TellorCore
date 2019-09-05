@@ -204,10 +204,10 @@ contract('UserContract Tests', function(accounts) {
       await web3.eth.sendTransaction({to:oa,from:accounts[0],gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",1000,0).encodeABI()})
       await web3.eth.sendTransaction({to:oa,from:accounts[2],gas:7000000,data:oracle2.methods.approve(reader.address,10).encodeABI()})
       await reader.disputeOptimisticValue(await reader.endDateTime.call(),{from:accounts[2],value:10})
-      await userContract.setPrice(1);
-      assert(await userContract.tributePrice.call() == 1);
-       await web3.eth.sendTransaction({to: oa,from:accounts[2],gas:7000000,data:oracle2.methods.transfer(userContract.address,10).encodeABI()})
-      await reader.addTipWithEther(1,5,{value:1e18,from:accounts[3]})
+      await userContract.setPrice(web3.utils.toWei("1","ether"));
+      assert(await userContract.tributePrice.call() == web3.utils.toWei("1","ether"), "Tribute Price should be correct");
+       await web3.eth.sendTransaction({to: oa,from:accounts[2],gas:7000000,data:oracle2.methods.transfer(userContract.address,web3.utils.toWei("1","ether")).encodeABI()})
+      await reader.addTipWithEther(1,web3.utils.toWei("1","ether"),{value:web3.utils.toWei("1","ether"),from:accounts[3]})
       logMineWatcher = await promisifyLogWatch(oa, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
       await helper.advanceTime(86400 * 8);
       await reader.getTellorValues(await reader.endDateTime.call());
@@ -225,15 +225,16 @@ contract('UserContract Tests', function(accounts) {
       logMineWatcher = await promisifyLogWatch(oa, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
       res = web3.eth.abi.decodeParameters(['uint256','uint256'],logMineWatcher.data);
       assert(res[0] > 0, "value should be positive");
-      await userContract.setPrice(1);
-      await userContract.requestDataWithEther(api2,"ETH-USD",1000,0,{from:accounts[1], value:web3.utils.toWei('1','ether')});
+      await userContract.setPrice(web3.utils.toWei("1","ether"));
+       await web3.eth.sendTransaction({to: oa,from:accounts[2],gas:7000000,data:oracle2.methods.transfer(userContract.address,web3.utils.toWei("1","ether")).encodeABI()})
+      await userContract.requestDataWithEther(api2,"ETH-USD",1000,web3.utils.toWei("1","ether"),{from:accounts[1], value:web3.utils.toWei('1','ether')});
       logMineWatcher = await promisifyLogWatch(oa, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
       res = web3.eth.abi.decodeParameters(['uint256','uint256'],logMineWatcher.data);
       assert(res[0] > 0, "value should be positive");
-      await web3.eth.sendTransaction({to: oa,from:accounts[2],gas:7000000,data:oracle2.methods.transfer(userContract.address,10).encodeABI()})
-      await userContract.addTipWithEther(1,5,{value:5,from:accounts[2]});
-            await web3.eth.sendTransaction({to: oa,from:accounts[1],gas:7000000,data:oracle2.methods.approve(reader.address,5).encodeABI()})
-      await reader.addTip(2,5,{from:accounts[1]});
+      await web3.eth.sendTransaction({to: oa,from:accounts[2],gas:7000000,data:oracle2.methods.transfer(userContract.address,web3.utils.toWei("5","ether")).encodeABI()})
+      await userContract.addTipWithEther(1,web3.utils.toWei("5","ether"),{value:web3.utils.toWei("5","ether"),from:accounts[2]});
+      await web3.eth.sendTransaction({to: oa,from:accounts[1],gas:7000000,data:oracle2.methods.approve(reader.address,web3.utils.toWei("5","ether")).encodeABI()})
+      await reader.addTip(2,web3.utils.toWei("5","ether"),{from:accounts[1]});
       vars = await oracle.getVariablesOnDeck();
       let apiOnQ = web3.utils.hexToNumberString(vars['0']);
       assert(apiOnQ == 2,"ApiID on Q should be 2");
@@ -277,5 +278,16 @@ contract('UserContract Tests', function(accounts) {
       assert(rIds['1'] == 2)
       assert(rIds['2'] == 3)
       assert(await reader.endValue.call() > res[1] * 1, 'value should be an average')
-       })
+       });
+      it("Test Real Value", async function(){
+      await reader.testContract(7 * 86400)
+      var startTime = await reader.startDateTime.call();
+      await reader.setValue(startTime, 1000);
+      await helper.advanceTime(86400 * 10);
+      await reader.setValue(await reader.endDateTime.call(), 2000);
+      await userContract.setPrice(web3.utils.toWei(".015",'ether'));
+      await web3.eth.sendTransaction({to:oa,from:accounts[2],gas:7000000,data:oracle2.methods.transfer(userContract.address,web3.utils.toWei("10",'ether')).encodeABI()})
+      await helper.expectThrow(reader.addTipWithEther(1,web3.utils.toWei("10",'ether'),{value:web3.utils.toWei(".14",'ether'),from:accounts[3]}));
+      await reader.addTipWithEther(1,web3.utils.toWei("10",'ether'),{value:web3.utils.toWei(".15",'ether'),from:accounts[3]})
+    })
 });
