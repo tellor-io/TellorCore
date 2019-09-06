@@ -30,7 +30,7 @@ contract UsingTellor{
     * @param _requestId is the requestId to look up the value for
     * @return bool true if it is able to retreive a value, the value, and the value's timestamp
     */
-	function getCurrentValue(uint _requestId) public returns(bool ifRetrieve, uint value, uint _timestampRetrieved) {
+	function getCurrentValue(uint _requestId) public view returns(bool ifRetrieve, uint value, uint _timestampRetrieved) {
         return tellorUserContract.getCurrentValue(_requestId);
     }
 
@@ -43,7 +43,7 @@ contract UsingTellor{
     * @return bool true if it is able to retreive a value, the value, and the value's timestamp, the timestamp after
     * which it searched for the first verified value
     */
-	function getFirstVerifiedDataAfter(uint _requestId, uint _timestamp) public returns(bool,uint,uint _timestampRetrieved) {
+	function getFirstVerifiedDataAfter(uint _requestId, uint _timestamp) public view returns(bool,uint,uint _timestampRetrieved) {
         return tellorUserContract.getFirstVerifiedDataAfter(_requestId,_timestamp);
 	}
 	
@@ -54,7 +54,7 @@ contract UsingTellor{
     * @param _timestamp after which to search for first verified value
     * @return bool true if it is able to retreive a value, the value, and the value's timestamp
     */
-	function getAnyDataAfter(uint _requestId, uint _timestamp) public returns(bool _ifRetrieve, uint _value, uint _timestampRetrieved){
+	function getAnyDataAfter(uint _requestId, uint _timestamp) public view returns(bool _ifRetrieve, uint _value, uint _timestampRetrieved){
         return tellorUserContract.getAnyDataAfter(_requestId,_timestamp);
 	}
 

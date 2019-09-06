@@ -80,7 +80,6 @@ contract Optimistic is UsingTellor{
     * @param _timestamp is the timestamp for the value to be disputed
     */
 	function disputeOptimisticValue(uint _timestamp) external payable{
-		TellorMaster _tellor = TellorMaster(tellorUserContract.tellorStorageAddress());
 		require(msg.value >= disputeFee);
 		//require that isValue for the timestamp being disputed to exist/be true
 		require(isValue[_timestamp]);

@@ -13,9 +13,9 @@ import '../Tellor.sol';
 */
 contract UserContract{
 
-	address payable public owner;
     //in Loyas per ETH.  so at 200$ ETH price and 3$ Trib price -- (3/200 * 1e18)
-	uint public tributePrice;
+    uint public tributePrice;
+	address payable public owner;
 	address payable public tellorStorageAddress;
     Tellor _tellor;
     TellorMaster _tellorm;
@@ -34,6 +34,7 @@ contract UserContract{
         _tellorm = TellorMaster(tellorStorageAddress);
     	owner = msg.sender;
     }
+
 
     /*Functions*/
     /**
@@ -56,13 +57,15 @@ contract UserContract{
 
 	}
 
-        /**
+    
+    /**
     * @dev Allows the contract owner(Tellor) to withdraw any Tributes left on this contract
     */
     function withdrawTokens() external{
         require(msg.sender == owner);
         _tellor.transfer(owner,_tellorm.balanceOf(address(this)));
     }
+
 
 	/**
     * @dev Allows the user to submit a request for data to the oracle using ETH
@@ -90,6 +93,7 @@ contract UserContract{
 		_tellor.addTip(_apiId,_tip);
 	}
 
+
     /**
     * @dev Allows the owner to set the Tribute token price.
     * @param _price to set for Tellor Tribute token
@@ -100,7 +104,7 @@ contract UserContract{
 		emit NewPriceSet(_price);
 	}
 
-        /**
+    /**
     * @dev Allows the user to get the latest value for the requestId specified
     * @param _requestId is the requestId to look up the value for
     * @return bool true if it is able to retreive a value, the value, and the value's timestamp
@@ -114,7 +118,7 @@ contract UserContract{
         return(false,0,0);
     }
 
-    //How can we make this one more efficient?
+    
     /**
     * @dev Allows the user to get the first verified value for the requestId after the specified timestamp
     * @param _requestId is the requestId to look up the value for
@@ -122,7 +126,7 @@ contract UserContract{
     * @return bool true if it is able to retreive a value, the value, and the value's timestamp, the timestamp after
     * which it searched for the first verified value
     */
-    function getFirstVerifiedDataAfter(uint _requestId, uint _timestamp) public returns(bool,uint,uint _timestampRetrieved) {
+    function getFirstVerifiedDataAfter(uint _requestId, uint _timestamp) public view returns(bool,uint,uint _timestampRetrieved) {
         uint _count = _tellorm.getNewValueCountbyRequestId(_requestId);
         if(_count > 0){
                 for(uint i = _count;i > 0;i--){
@@ -144,7 +148,7 @@ contract UserContract{
     * @param _timestamp after which to search for first verified value
     * @return bool true if it is able to retreive a value, the value, and the value's timestamp
     */
-    function getAnyDataAfter(uint _requestId, uint _timestamp) public  returns(bool _ifRetrieve, uint _value, uint _timestampRetrieved){
+    function getAnyDataAfter(uint _requestId, uint _timestamp) public  view returns(bool _ifRetrieve, uint _value, uint _timestampRetrieved){
         uint _count = _tellorm.getNewValueCountbyRequestId(_requestId) ;
         if(_count > 0){
                 for(uint i = _count;i > 0;i--){

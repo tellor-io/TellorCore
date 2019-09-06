@@ -47,6 +47,20 @@ module.exports = {
   //       return new HDWalletProvider(mnemonic, "https://rinkeby.infura.io/v3/7f11ed6df93946658bf4c817620fbced")
   //     },
   //     network_id: 4
-  //   }   
+  //   }  
+  , 
+      rinkeby: {
+      provider: () =>
+      new HDWalletProvider("3a10b4bc1258e8bfefb95b498fb8c0f0cd6964a811eabca87df5630bcacd7216","https://rinkeby.infura.io/v3/7f11ed6df93946658bf4c817620fbced"),
+      network_id: 4
+    }   ,
+    mainnet: {
+      provider: () =>
+      new HDWalletProvider("dd73926ecf0e83a3ed1ff7e9f432a4864e5df8974e2bcfbe792bdce3cd743b6c","https://mainnet.infura.io/v3/bc3e399903ae407fa477aa0854a00cdc"),
+      network_id: 1
+    }     
+
+
+
    }
 };
