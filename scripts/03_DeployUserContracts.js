@@ -19,7 +19,7 @@ function sleep_s(secs) {
 const Web3 = require('web3')
 var HDWalletProvider = require("truffle-hdwallet-provider");
 //var web3 = new Web3(new HDWalletProvider('4bdc16637633fa4b4854670fbb83fa254756798009f52a1d3add27fb5f5a8e16',"https://rinkeby.infura.io/v3/7f11ed6df93946658bf4c817620fbced"));
-var web3 = new Web3(new HDWalletProvider("dd73926ecf0e83a3ed1ff7e9f432a4864e5df8974e2bcfbe792bdce3cd743b6c","https://mainnet.infura.io/v3/bc3e399903ae407fa477aa0854a00cdc"));
+var web3 = new Web3(new HDWalletProvider("","https://mainnet.infura.io/v3/bc3e399903ae407fa477aa0854a00cdc"));
 
 /*notes for validating contract
 //solc: 0.5.8+commit.23d335f2.Emscripten.clang
