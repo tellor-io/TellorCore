@@ -59,11 +59,11 @@ module.exports = async function (deployer) {
   await deployer.deploy(Tellor);
 
   // deploy tellor master
-  await deployer.link(TellorTransfer,TellorMaster);
-  await deployer.link(TellorGettersLibrary,TellorMaster);
-    await deployer.link(TellorStake,TellorMaster);
-  await deployer.deploy(Tellor).then(async function() {
-    await deployer.deploy(TellorMaster, Tellor.address)
-  });
+  // await deployer.link(TellorTransfer,TellorMaster);
+  // await deployer.link(TellorGettersLibrary,TellorMaster);
+  //   await deployer.link(TellorStake,TellorMaster);
+  // await deployer.deploy(Tellor).then(async function() {
+  //   await deployer.deploy(TellorMaster, Tellor.address)
+  // });
 };
 /****Uncomment the body to run this with Truffle migrate for truffle testing*/

@@ -1,6 +1,9 @@
+require('dotenv').config()
 var HDWalletProvider = require("truffle-hdwallet-provider");
+//var NonceTrackerSubprovider = require("web3-provider-engine/subproviders/nonce-tracker")
 
-var mnemonic = "nick lucian brenda kevin sam fiscal patch fly damp ocean produce wish";
+
+//var mnemonic = "nick lucian brenda kevin sam fiscal patch fly damp ocean produce wish";
 
 //Public - 0xe010ac6e0248790e08f42d5f697160dedf97e024
 //Private - 3a10b4bc1258e8bfefb95b498fb8c0f0cd6964a811eabca87df5630bcacd7216
@@ -11,6 +14,12 @@ var mnemonic = "nick lucian brenda kevin sam fiscal patch fly damp ocean produce
 //var nick = "the ureau";
 //public - 0xb204edaf0410675e00e6c8a7e448a9e8e2db69aa
 // private -fe5f52e7e0381448fe7d4a99e409b6da987b31362125ccb7bca781949cf61710
+var mnemonic = process.env.ETH_MNEMONIC;
+var accessToken = process.env.INFURA_ACCESS_TOKEN;
+var rinkAccessToken = process.env.rinkeby_infura;
+var Mainnet_alchemy = process.env.main_alchemy;
+
+
 
 module.exports = {
   networks: {
@@ -19,7 +28,7 @@ module.exports = {
       port: 8545,
       network_id: "*",
       gas: 8000000
-    }
+    } ,
   //   dev2: {
   //     host: "localhost",
   //     port: 8546,
@@ -48,8 +57,8 @@ module.exports = {
   //     },
   //     network_id: 4
   //   }  
-  , 
-      rinkeby: {
+  
+    rinkeby: {
       provider: () =>
       new HDWalletProvider("3a10b4bc1258e8bfefb95b498fb8c0f0cd6964a811eabca87df5630bcacd7216","https://rinkeby.infura.io/v3/7f11ed6df93946658bf4c817620fbced"),
       network_id: 4
@@ -58,8 +67,36 @@ module.exports = {
       provider: () =>
       new HDWalletProvider("","https://mainnet.infura.io/v3/bc3e399903ae407fa477aa0854a00cdc"),
       network_id: 1
-    }     
+    }    
+/*
+    rinkeby: {
+      network_id: "4",
+      provider: function () {
+        var wallet = new HDWalletProvider(mnemonic, 'https://rinkeby.infura.io/v3' + accessToken)
+        var nonceTracker = new NonceTrackerSubprovider()
+        wallet.engine._providers.unshift(nonceTracker)
+        nonceTracker.setEngine(wallet.engine)
+        return wallet
+      },
+      network_id: 4,
+      gas: 4700000,
+      gasPrice: 4000000000
+    },
 
+      mainnet: {
+      network_id: "1",
+      provider: function () {
+        var wallet = new HDWalletProvider(mnemonic, 'https://mainnet.infura.io/v3' + accessToken)
+        var nonceTracker = new NonceTrackerSubprovider()
+        wallet.engine._providers.unshift(nonceTracker)
+        nonceTracker.setEngine(wallet.engine)
+        return wallet
+      },
+      network_id: 1,
+      gas: 4700000,
+      gasPrice: 7000000000
+    }
+*/
 
 
    }

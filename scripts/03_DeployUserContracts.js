@@ -16,11 +16,11 @@ function sleep_s(secs) {
   while ((+new Date) < secs);
 }
 
-const Web3 = require('web3')
+/*const Web3 = require('web3')
 var HDWalletProvider = require("truffle-hdwallet-provider");
 //var web3 = new Web3(new HDWalletProvider('4bdc16637633fa4b4854670fbb83fa254756798009f52a1d3add27fb5f5a8e16',"https://rinkeby.infura.io/v3/7f11ed6df93946658bf4c817620fbced"));
 var web3 = new Web3(new HDWalletProvider("","https://mainnet.infura.io/v3/bc3e399903ae407fa477aa0854a00cdc"));
-
+*/
 /*notes for validating contract
 //solc: 0.5.8+commit.23d335f2.Emscripten.clang
 // truffle-flattener ./contracts/01_DeploySaleContract.sol > ./flat_files/01_DeploySaleContract.sol
@@ -39,9 +39,9 @@ module.exports =async function(callback) {
    // let testContract;
    console.log("1")
     
-    tm = (web3.utils.toChecksumAddress(tellorMaster));
-    console.log("tm", tm);
-    userContract = await UserContract.new(tm);
+    // tm = (web3.utils.toChecksumAddress(tellorMaster));
+    // console.log("tm", tm);
+    userContract = await UserContract.new(tellorMaster);
     
     console.log("userContract address:", userContract.address);
 /*    testContract = await testContract.new(userContract.address,10,86400*3,[1],86400);
