@@ -33,7 +33,7 @@ library TellorDispute {
     function beginDispute(TellorStorage.TellorStorageStruct storage self,uint _requestId, uint _timestamp,uint _minerIndex) public {
         TellorStorage.Request storage _request = self.requestDetails[_requestId];
         //require that no more than a day( (24 hours * 60 minutes)/10minutes=144 blocks) has gone by since the value was "mined"
-        require(block.number- _request.minedBlockNum[_timestamp]<= 144);
+        require(now - _timestamp]<= 1 days);
         require(_request.minedBlockNum[_timestamp] > 0);
         require(_minerIndex < 5);
         

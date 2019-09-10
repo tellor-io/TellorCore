@@ -52,7 +52,6 @@ library TellorTransfer {
     * @return true if spender appproved successfully
     */
     function approve(TellorStorage.TellorStorageStruct storage self, address _spender, uint _amount) public returns (bool) {
-        require(allowedToTrade(self,msg.sender,_amount));
         require(_spender != address(0));
         self.allowed[msg.sender][_spender] = _amount;
         emit Approval(msg.sender, _spender, _amount);
