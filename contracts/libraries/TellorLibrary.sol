@@ -33,7 +33,7 @@ library TellorLibrary{
         self.uintVars[keccak256("total_supply")] += _amount;
         TellorTransfer.updateBalanceAtNow(self.balances[_address],_amount);
     }*/
-
+    
 
     /**
     * @dev Add tip to Request value from oracle

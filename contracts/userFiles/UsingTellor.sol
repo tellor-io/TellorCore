@@ -9,10 +9,9 @@ import './UserContract.sol';
 */
 contract UsingTellor{
 	UserContract tellorUserContract;
-	address public owner;
+	address payable public owner;
 	
 	event OwnershipTransferred(address _previousOwner,address _newOwner);
-    event Print(string _s,uint _num);
 
     /*Constructor*/
     /**
@@ -32,14 +31,8 @@ contract UsingTellor{
     * @return bool true if it is able to retreive a value, the value, and the value's timestamp
     */
 	function getCurrentValue(uint _requestId) public view returns(bool ifRetrieve, uint value, uint _timestampRetrieved) {
-		TellorMaster _tellor = TellorMaster(tellorUserContract.tellorStorageAddress());
-		uint _count = _tellor.getNewValueCountbyRequestId(_requestId) ;
-		if(_count > 0){
-				_timestampRetrieved = _tellor.getTimestampbyRequestIDandIndex(_requestId,_count -1);//will this work with a zero index? (or insta hit?)
-				return(true,_tellor.retrieveData(_requestId,_timestampRetrieved),_timestampRetrieved);
-        }
-        return(false,0,0);
-	}
+        return tellorUserContract.getCurrentValue(_requestId);
+    }
 
 
 	//How can we make this one more efficient?
@@ -50,20 +43,8 @@ contract UsingTellor{
     * @return bool true if it is able to retreive a value, the value, and the value's timestamp, the timestamp after
     * which it searched for the first verified value
     */
-	function getFirstVerifiedDataAfter(uint _requestId, uint _timestamp) public returns(bool,uint,uint _timestampRetrieved) {
-		TellorMaster _tellor = TellorMaster(tellorUserContract.tellorStorageAddress());
-		uint _count = _tellor.getNewValueCountbyRequestId(_requestId);
-		if(_count > 0){
-				for(uint i = _count;i > 0;i--){
-					if(_tellor.getTimestampbyRequestIDandIndex(_requestId,i-1) > _timestamp && _tellor.getTimestampbyRequestIDandIndex(_requestId,i-1) < block.timestamp - 86400){
-						_timestampRetrieved = _tellor.getTimestampbyRequestIDandIndex(_requestId,i-1);//will this work with a zero index? (or insta hit?)
-					}
-				}
-				if(_timestampRetrieved > 0){
-					return(true,_tellor.retrieveData(_requestId,_timestampRetrieved),_timestampRetrieved);
-				}
-        }
-        return(false,0,0);
+	function getFirstVerifiedDataAfter(uint _requestId, uint _timestamp) public view returns(bool,uint,uint _timestampRetrieved) {
+        return tellorUserContract.getFirstVerifiedDataAfter(_requestId,_timestamp);
 	}
 	
 
@@ -73,26 +54,8 @@ contract UsingTellor{
     * @param _timestamp after which to search for first verified value
     * @return bool true if it is able to retreive a value, the value, and the value's timestamp
     */
-	function getAnyDataAfter(uint _requestId, uint _timestamp) public  returns(bool _ifRetrieve, uint _value, uint _timestampRetrieved){
-		TellorMaster _tellor = TellorMaster(tellorUserContract.tellorStorageAddress());
-		uint _count = _tellor.getNewValueCountbyRequestId(_requestId) ;
-		if(_count > 0){
-				emit Print("count",_count);
-				for(uint i = _count;i > 0;i--){
-					emit Print('tester',_tellor.getTimestampbyRequestIDandIndex(_requestId,i-1));
-					emit Print('actual', _timestamp);
-
-					if(_tellor.getTimestampbyRequestIDandIndex(_requestId,i-1) >= _timestamp){
-						_timestampRetrieved = _tellor.getTimestampbyRequestIDandIndex(_requestId,i-1);//will this work with a zero index? (or insta hit?)
-						emit Print("_timestampRetrieved",_timestampRetrieved);
-						emit Print("value",_tellor.retrieveData(_requestId,_timestampRetrieved));
-					}
-				}
-				if(_timestampRetrieved > 0){
-					return(true,_tellor.retrieveData(_requestId,_timestampRetrieved),_timestampRetrieved);
-				}
-        }
-        return(false,0,0);
+	function getAnyDataAfter(uint _requestId, uint _timestamp) public view returns(bool _ifRetrieve, uint _value, uint _timestampRetrieved){
+        return tellorUserContract.getAnyDataAfter(_requestId,_timestamp);
 	}
 
 

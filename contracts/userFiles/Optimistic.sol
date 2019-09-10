@@ -33,8 +33,6 @@ contract Optimistic is UsingTellor{
 	event NewValueSet(uint indexed _timestamp, uint _value);
 	event ValueDisputed(address _disputer,uint _timestamp, uint _value);
 	event TellorValuePlaced(uint _timestamp, uint _value);
-	event Print(bool _call);
-	event Print2(uint _1, uint _2);
 
     /*Constructor*/
 	/**
@@ -81,18 +79,8 @@ contract Optimistic is UsingTellor{
     * @dev allows user to initiate dispute on the value of the specified timestamp
     * @param _timestamp is the timestamp for the value to be disputed
     */
-	function disputeOptimisticValue(uint _timestamp) external{
-		TellorMaster _tellor = TellorMaster(tellorUserContract.tellorStorageAddress());
-        uint _disputeFee = _tellor.getUintVar(keccak256("currentTotalTips"));//get latest tip paid to mine
-    	//Prepares the signed transaction info to transfer the dispute fee from the party calling this function
-		//(msg.sender) to this contract
-		bytes memory sig = abi.encodeWithSignature("transferFrom(address,address,uint256)",msg.sender,address(this),_disputeFee);
-		//sets the TellorUserContract
-		address addr  = tellorUserContract.tellorStorageAddress();
-		//transfers the dispute fee from the party calling this function(msg.sender) to this contract
-		(bool success, bytes memory data) = addr.call(sig);
-		//require the tranfer fee was successful
-		require(success);
+	function disputeOptimisticValue(uint _timestamp) external payable{
+		require(msg.value >= disputeFee);
 		//require that isValue for the timestamp being disputed to exist/be true
 		require(isValue[_timestamp]);
 		// assert disputePeriod is still open
@@ -131,7 +119,6 @@ contract Optimistic is UsingTellor{
 				//Add the new timestamp and value (we don't replace???)
 				valuesByTimestamp[_newTime] = _newValue;
 				emit TellorValuePlaced(_newTime,_newValue);
-				emit Print2(_newValue,_value);
 				//records the requests Ids included on the price average where all prices came from Tellor requests Ids
 				requestIdsIncluded[_newTime].push(i); //how do we make sure it's not called twice?
 				//if the value for the newTime does not exist, then push the value, update the isValue to true
@@ -148,15 +135,21 @@ contract Optimistic is UsingTellor{
 			}
 			//otherwise request the ID and split the contracts initial tributes balance to equally tip all 
 			//requests Ids associated with this price feed
-			else{
-				if(_tellor.balanceOf(address(this)) > requestIds.length){
+			else if(_tellor.balanceOf(address(this)) > requestIds.length){
 					//Request Id to be mined by adding to it's tip
 					_tellorCore.addTip(i, _initialBalance / requestIds.length);
-				}
 			}
 		}
 	}
 
+    /**
+    * @dev Allows the contract owner(Tellor) to withdraw ETH from this contract
+    */
+    function withdrawETH() external{
+        require(msg.sender == owner);
+        address(owner).transfer(address(this).balance);
+    }
+    
 
     /**
     * @dev Get the first undisputed value after the timestamp specified. This function is used within the getTellorValues
@@ -284,11 +277,4 @@ contract Optimistic is UsingTellor{
 		return disputedValuesArray[_index];
 	}
 
-
-
-
 }
-
-//somehow be able to get the most recent tip (or payout) and that is the dispute Fee--need to test BL
-//make sure we use SafeMath--
-//add usingEther

@@ -46,12 +46,12 @@ def mine(challenge, public_address, difficulty):
 
 def getAPIvalue(_api):
 	_api = _api.replace("'", "")
-	print('Getting : ',_api)
 	json = _api.split('(')[0]
 	if('json' in json):
 		_api = _api.split('(')[1]
 		filter = _api.split(').')[1]
 	_api = _api.split(')')[0]
+	print('Getting : ',_api)
 	try:
 		response = requests.request("GET", _api)
 	except:
@@ -79,15 +79,13 @@ def masterMiner():
 	while True:
 		nonce = mine(str(challenge),public_keys[miners_started],difficulty);
 		if(nonce > 0):
-			print ("You guessed the hash!");
 			#value = max(0,(5000- miners_started*10) * granularity);
 			value = max(0,(getAPIvalue(apiString) - miners_started*10) * granularity); #account 2 should always be winner
-			print('Value',value);
 			arg_string =""+ str(nonce) + " "+ str(apiId) +" " + str(value)+" "+str(contract_address)+" "+str(public_keys[miners_started])+" "+str(private_keys[miners_started])
-			print(arg_string)
+			print('Arg String', arg_string)
 			#success = execute_js('testSubmitter.js',arg_string)
 			#print('WE WERE SUCCESSFUL: ', success)
-			execute_js('testSubmitter.js',arg_string);
+			run_js('testSubmitter.js',arg_string);
 			miners_started += 1 
 			if(miners_started == 5):
 				v = False;
@@ -96,7 +94,7 @@ def masterMiner():
 					_challenge,_apiId,_difficulty,_apiString,_granularity= getVariables();
 					if challenge == _challenge:
 						v = False
-						t16637633fa4b4854670fbb83fa254756798009f52a1d3add27fb5f5a8e16ime.sleep(10);
+						time.sleep(10);
 					elif _apiId > 0:
 						v = True
 						challenge = _challenge;
