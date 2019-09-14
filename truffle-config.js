@@ -69,7 +69,7 @@ module.exports = {
     }   ,
     mainnet: {
       provider: () =>
-      new HDWalletProvider("DD73926ECF0E83A3ED1FF7E9F432A4864E5DF8974E2BCFBE792BDCE3CD743B6C","https://mainnet.infura.io/v3/bc3e399903ae407fa477aa0854a00cdc"),
+      new HDWalletProvider("","https://mainnet.infura.io/v3/bc3e399903ae407fa477aa0854a00cdc"),
       network_id: 1,
       gas: 4700000,
       gasPrice: 20000000000
