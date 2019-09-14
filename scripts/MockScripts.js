@@ -12,7 +12,7 @@ Run mockMiner.py
 var mnemonic = "nick lucian brenda kevin sam fiscal patch fly damp ocean produce wish";
 
 const Web3 = require('web3')
-var HDWalletProvider = require("truffle-hdwallet-provider");
+var HDWalletProvider = require("@truffle/hdwallet-provider");
 var web3 = new Web3(new HDWalletProvider(mnemonic,"https://rinkeby.infura.io/v3/72bb9acde80d4a9ca803274f42f77612"));
 //const web3 = new Web3(new Web3.providers.WebsocketProvider('ws://localhost:8545'));
 const BN = require('bn.js');
