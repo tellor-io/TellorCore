@@ -1,14 +1,10 @@
 
 /**
-* @title Deploy User Contracts 
-* @dev This allows Tellor deploy the community sale contract
+* @title Deploy Tellor 
 */
 
 /*Imports*/
-var UserContract = artifacts.require("UserContract");
-var UsingTellor = artifacts.require("UsingTellor");
-var Optimistic = artifacts.require("Optimistic");
-var TestContract = artifacts.require("TestContract");
+var Tellor = artifacts.require("Tellor");
 
 /*Helper functions*/
 function sleep_s(secs) {
@@ -35,21 +31,14 @@ tellorMaster = '0x0Ba45A8b5d5575935B8158a88C631E9F9C95a2e5';
 
 console.log("start");
 module.exports =async function(callback) {
-    let userContract;
-   // let testContract;
+    let tellor;
+
    console.log("1")
     
-    // tm = (web3.utils.toChecksumAddress(tellorMaster));
-    // console.log("tm", tm);
-    userContract = await UserContract.new(tellorMaster);
+
+    tellor = await Tellor.new();
     
-    console.log("userContract address:", userContract.address);
-/*    testContract = await testContract.new(userContract.address,10,86400*3,[1],86400);
-    console.log("testContract address:", testContract.address);
-    await testContract.setUserContract(userContract.address);
-    console.log("UserContract set on test contract");  
-    await testContract.testContract(7 * 86400);
-    var startTime = await testContract.startDateTime.call(); 
-    console.log('StartTime', startTime);*/
+    console.log("Tellor address:", tellor.address);
+
 process.exit()
 }

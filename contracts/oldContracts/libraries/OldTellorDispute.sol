@@ -1,7 +1,7 @@
 pragma solidity ^0.5.0;
 
 import "./TellorStorage.sol";
-import "./TellorTransfer.sol";
+import "./OldTellorTransfer.sol";
 //import "./SafeMath.sol";
 
 /**
@@ -10,7 +10,7 @@ import "./TellorTransfer.sol";
 */
 
 
-library TellorDispute {
+library OldTellorDispute {
     using SafeMath for uint256;
     using SafeMath for int256;
 
@@ -33,7 +33,7 @@ library TellorDispute {
     function beginDispute(TellorStorage.TellorStorageStruct storage self,uint _requestId, uint _timestamp,uint _minerIndex) public {
         TellorStorage.Request storage _request = self.requestDetails[_requestId];
         //require that no more than a day( (24 hours * 60 minutes)/10minutes=144 blocks) has gone by since the value was "mined"
-        require(now - _timestamp<= 1 days);
+        require(block.number- _request.minedBlockNum[_timestamp]<= 144);//This is 
         require(_request.minedBlockNum[_timestamp] > 0);
         require(_minerIndex < 5);
         
@@ -44,7 +44,7 @@ library TellorDispute {
         
         //Ensures that a dispute is not already open for the that miner, requestId and timestamp
         require(self.disputeIdByDisputeHash[_hash] == 0);
-        TellorTransfer.doTransfer(self, msg.sender,address(this), self.uintVars[keccak256("disputeFee")]);
+        OldTellorTransfer.doTransfer(self, msg.sender,address(this), self.uintVars[keccak256("disputeFee")]);
         
         //Increase the dispute count by 1
         self.uintVars[keccak256("disputeCount")] =  self.uintVars[keccak256("disputeCount")] + 1;
@@ -95,7 +95,7 @@ library TellorDispute {
         TellorStorage.Dispute storage disp = self.disputesById[_disputeId];
         
         //Get the voteWeight or the balance of the user at the time/blockNumber the disupte began
-        uint voteWeight = TellorTransfer.balanceOfAt(self,msg.sender,disp.disputeUintVars[keccak256("blockNumber")]);
+        uint voteWeight = OldTellorTransfer.balanceOfAt(self,msg.sender,disp.disputeUintVars[keccak256("blockNumber")]);
         
         //Require that the msg.sender has not voted
         require(disp.voted[msg.sender] != true);
@@ -159,10 +159,10 @@ library TellorDispute {
                 updateDisputeFee(self);
 
                 //Transfers the StakeAmount from the reporded miner to the reporting party
-                TellorTransfer.doTransfer(self, disp.reportedMiner,disp.reportingParty, self.uintVars[keccak256("stakeAmount")]);
+                OldTellorTransfer.doTransfer(self, disp.reportedMiner,disp.reportingParty, self.uintVars[keccak256("stakeAmount")]);
                 
                 //Returns the dispute fee to the reportingParty
-                TellorTransfer.doTransfer(self, address(this),disp.reportingParty,disp.disputeUintVars[keccak256("fee")]);
+                OldTellorTransfer.doTransfer(self, address(this),disp.reportingParty,disp.disputeUintVars[keccak256("fee")]);
                 
                 //Set the dispute state to passed/true
                 disp.disputeVotePassed = true;
@@ -179,7 +179,7 @@ library TellorDispute {
                 //Update the miner's current status to staked(currentStatus = 1)
                 stakes.currentStatus = 1;              
                 //tranfer the dispute fee to the miner
-                TellorTransfer.doTransfer(self,address(this),disp.reportedMiner,disp.disputeUintVars[keccak256("fee")]);
+                OldTellorTransfer.doTransfer(self,address(this),disp.reportedMiner,disp.disputeUintVars[keccak256("fee")]);
                 if(_request.inDispute[disp.disputeUintVars[keccak256("timestamp")]] == true){
                     _request.inDispute[disp.disputeUintVars[keccak256("timestamp")]] = false;
                 }
@@ -207,7 +207,7 @@ library TellorDispute {
     function proposeFork(TellorStorage.TellorStorageStruct storage self, address _propNewTellorAddress) public {
         bytes32 _hash = keccak256(abi.encodePacked(_propNewTellorAddress));
         require(self.disputeIdByDisputeHash[_hash] == 0);
-        TellorTransfer.doTransfer(self, msg.sender,address(this), self.uintVars[keccak256("disputeFee")]);//This is the fork fee
+        OldTellorTransfer.doTransfer(self, msg.sender,address(this), self.uintVars[keccak256("disputeFee")]);//This is the fork fee
         self.uintVars[keccak256("disputeCount")]++;
         uint disputeId = self.uintVars[keccak256("disputeCount")];
         self.disputeIdByDisputeHash[_hash] = disputeId;

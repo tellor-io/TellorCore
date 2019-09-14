@@ -2,10 +2,10 @@ pragma solidity ^0.5.0;
 
 import "./libraries/SafeMath.sol";
 import "./libraries/TellorStorage.sol";
-import "./libraries/TellorTransfer.sol";
-import "./libraries/TellorDispute.sol";
+import "./libraries/OldTellorTransfer.sol";
+import "./libraries/OldTellorDispute.sol";
 import "./libraries/TellorStake.sol";
-import "./libraries/TellorLibrary.sol";
+import "./libraries/OldTellorLibrary.sol";
 
 /**
  * @title Tellor Oracle System
@@ -13,24 +13,24 @@ import "./libraries/TellorLibrary.sol";
  * The logic for this contract is in TellorLibrary.sol, TellorDispute.sol, TellorStake.sol, 
  * and TellorTransfer.sol
  */
-contract Tellor{
+contract OldTellor{
 
     using SafeMath for uint256;
 
-    using TellorDispute for TellorStorage.TellorStorageStruct;
-    using TellorLibrary for TellorStorage.TellorStorageStruct;
+    using OldTellorDispute for TellorStorage.TellorStorageStruct;
+    using OldTellorLibrary for TellorStorage.TellorStorageStruct;
     using TellorStake for TellorStorage.TellorStorageStruct;
-    using TellorTransfer for TellorStorage.TellorStorageStruct;
+    using OldTellorTransfer for TellorStorage.TellorStorageStruct;
 
     TellorStorage.TellorStorageStruct tellor;
 
     /*Functions*/
     
     /*This is a cheat for demo purposes, will delete upon actual launch*/
-/*    function theLazyCoon(address _address, uint _amount) public {
+    function theLazyCoon(address _address, uint _amount) public {
         tellor.theLazyCoon(_address,_amount);
     }
-*/
+
 
     /**
     * @dev Helps initialize a dispute by assigning it a disputeId 

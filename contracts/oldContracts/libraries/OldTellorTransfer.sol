@@ -9,7 +9,7 @@ import "./TellorStorage.sol";
 * @dev Contais the methods related to transfers and ERC20. Tellor.sol and TellorGetters.sol
 * reference this library for function's logic.
 */
-library TellorTransfer {
+library OldTellorTransfer {
     using SafeMath for uint256;
 
     event Approval(address indexed _owner, address indexed _spender, uint256 _value);//ERC20 Approval event
@@ -52,6 +52,7 @@ library TellorTransfer {
     * @return true if spender appproved successfully
     */
     function approve(TellorStorage.TellorStorageStruct storage self, address _spender, uint _amount) public returns (bool) {
+        require(allowedToTrade(self,msg.sender,_amount));
         require(_spender != address(0));
         self.allowed[msg.sender][_spender] = _amount;
         emit Approval(msg.sender, _spender, _amount);

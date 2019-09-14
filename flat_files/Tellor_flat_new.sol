@@ -1,3 +1,7 @@
+/**
+ *Submitted for verification at Etherscan.io on 2019-09-13
+*/
+
 pragma solidity ^0.5.0;
 
 /**
@@ -173,8 +177,6 @@ library TellorTransfer {
         }
     }
 }
-
-
 
 
 //import "./SafeMath.sol";
@@ -599,6 +601,7 @@ library SafeMath {
 }
 
 
+
 /**
  * @title Tellor Oracle Storage Library
  * @dev Contains all the variables/structs used by Tellor
@@ -711,7 +714,6 @@ library TellorStorage {
 
 
 
-
 //Functions for retrieving min and Max in 51 length array (requestQ)
 //Taken partly from: https://github.com/modular-network/ethereum-libraries-array-utils/blob/master/contracts/Array256Lib.sol
 
@@ -783,8 +785,6 @@ library Utilities{
 
 
   }
-
-
 
 
 /**
@@ -1277,12 +1277,23 @@ library TellorLibrary{
             // If the difference between the timeTarget and how long it takes to solve the challenge this updates the challenge 
             //difficulty up or donw by the difference between the target time and how long it took to solve the prevous challenge
             //otherwise it sets it to 1
-            int _newDiff = int(self.uintVars[keccak256("difficulty")]) + int(self.uintVars[keccak256("difficulty")]) * (int(self.uintVars[keccak256("timeTarget")]) - int(now - self.uintVars[keccak256("timeOfLastNewValue")]))/1000;
-            if(_newDiff <= 0){
+            int _change = int(SafeMath.min(1200,(now - self.uintVars[keccak256("timeOfLastNewValue")])));
+            _change = int(self.uintVars[keccak256("difficulty")]) * (int(self.uintVars[keccak256("timeTarget")]) -_change)/1000;
+
+            if (_change < 2 && _change > -2){
+                if (_change >= 0){
+                    _change = 1;
+                } 
+                else {
+                    _change = -1;
+                }
+            }
+
+            if( (int(self.uintVars[keccak256("difficulty")]) + _change) <= 0){
                 self.uintVars[keccak256("difficulty")] = 1;
             }
             else{
-                self.uintVars[keccak256("difficulty")] = uint(_newDiff);
+                self.uintVars[keccak256("difficulty")] = uint(int(self.uintVars[keccak256("difficulty")]) + _change);
             }
             
             //Sets time of value submission rounded to 1 minute
@@ -1510,8 +1521,8 @@ contract Tellor{
     /*This is a cheat for demo purposes, will delete upon actual launch*/
 /*    function theLazyCoon(address _address, uint _amount) public {
         tellor.theLazyCoon(_address,_amount);
-    }*/
-
+    }
+*/
 
     /**
     * @dev Helps initialize a dispute by assigning it a disputeId 
