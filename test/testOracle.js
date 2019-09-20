@@ -58,7 +58,7 @@ contract('Mining Tests', function(accounts) {
         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",1000,0).encodeABI()})
     });
 
-    /*it("Get Symbol", async function(){
+    it("Get Symbol", async function(){
         newOracle = await Tellor.new();
         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:master.methods.changeTellorContract(newOracle.address).encodeABI()})
         let symbol = await oracle.getSymbol();
@@ -268,7 +268,7 @@ contract('Mining Tests', function(accounts) {
         s =  await oracle.getStakerInfo(accounts[2])
         assert(s != 1, " Not staked" );
     });
-    */
+    
    it("Test time travel in data -- really long timesincelastPoof and proper difficulty adjustment", async function () {
                         newOracle = await Tellor.new();
         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:master.methods.changeTellorContract(newOracle.address).encodeABI()})
@@ -288,7 +288,7 @@ contract('Mining Tests', function(accounts) {
         assert( newDiff < oldDiff,"difficulty should be 1 now");
         assert(await oracle.getNewValueCountbyRequestId(1) == 3, "Request ID 1 should have 3 mines");
     });
-   /*
+   
     it("Test 50 requests, proper booting, and mining of 5", async function () {
          this.timeout(0) 
          logMineWatcher = await promisifyLogWatch(oracle.address, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');
@@ -566,5 +566,5 @@ contract('Mining Tests', function(accounts) {
         console.log(res['2'])
         assert(res['2'] == 5 , "last payout had a tip of 5")
     });
-    */
+    
 });    

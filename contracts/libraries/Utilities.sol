@@ -33,19 +33,4 @@ library Utilities{
         }
   }
 
-  function name() public returns(string){
-    return "Tellor Tributes";
-  }
-
-  function symbol() public returns(string){
-    return "TT"
-  }
-
-  function decimals() public returns(uint8){
-    return 18;
-  }
-
-
-
-
   }

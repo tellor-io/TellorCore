@@ -27,10 +27,10 @@ contract Tellor{
     /*Functions*/
     
     /*This is a cheat for demo purposes, will delete upon actual launch*/
-/*    function theLazyCoon(address _address, uint _amount) public {
+    function theLazyCoon(address _address, uint _amount) public {
         tellor.theLazyCoon(_address,_amount);
     }
-*/
+
 
     /**
     * @dev Helps initialize a dispute by assigning it a disputeId 
@@ -188,5 +188,17 @@ contract Tellor{
     function transferFrom(address _from, address _to, uint256 _amount) external returns (bool) {
         return tellor.transferFrom(_from,_to,_amount);
     }
+
+  function name() external returns(string memory){
+    return "Tellor Tributes";
+  }
+
+  function symbol() external returns(string memory){
+    return "TRB";
+  }
+
+  function decimals() external returns(uint8){
+    return 18;
+  }
 
 }

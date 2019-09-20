@@ -50,6 +50,19 @@
 //         assert(web3.utils.fromWei(balance2a, 'ether') == 995, web3.utils.fromWei(balance2a, 'ether') + "should be 995");
 //         assert(web3.utils.fromWei(balance5) == 1005, "balance for acct 5 is 1005");
 //     });
+
+//         it("Test new getters", async function(){
+//     	newOracle = await Tellor.new();
+//         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:master.methods.changeTellorContract(newOracle.address).encodeABI()})
+//         data =  await web3.eth.call({to:oracle.address,data:oracle2.methods.symbol().encodeABI()})
+//         assert(data = "TT", "symbol should be correct");
+//         data =  await web3.eth.call({to:oracle.address,data:oracle2.methods.name().encodeABI()})
+//         assert(data = "TT", "symbol should be correct");
+//         data =  await web3.eth.call({to:oracle.address,data:oracle2.methods.decimals().encodeABI()})
+//         assert(data = "TT", "symbol should be correct");
+//     });
+
+
 //    it("Approve and transferFrom", async function(){
 //     	t = web3.utils.toWei('7', 'ether');
 //     	                    newOracle = await Tellor.new();
