@@ -1,0 +1,18 @@
+{
+  "parser": "babel-eslint",
+  "extends": "eslint:recommended",
+  "rules": {
+    "spaced-comment": ["error", "always", { "exceptions": ["-", "+", "*"] }],
+    "indent": ["warn", 2],
+    "max-len": ["warn", 100]
+  },
+  "env": {
+    "mocha": true,
+    "node": true
+  },
+  "globals": {
+    "assert": true,
+    "contract": true,
+    "web3": true
+  }
+}
