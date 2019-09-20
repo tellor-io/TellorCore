@@ -119,7 +119,7 @@ library TellorLibrary{
             //difficulty up or donw by the difference between the target time and how long it took to solve the prevous challenge
             //otherwise it sets it to 1
             int _change = int(SafeMath.min(1200,(now - self.uintVars[keccak256("timeOfLastNewValue")])));
-            _change = int(self.uintVars[keccak256("difficulty")]) * (int(self.uintVars[keccak256("timeTarget")]) -_change)/1000;
+            _change = int(self.uintVars[keccak256("difficulty")]) * (int(self.uintVars[keccak256("timeTarget")]) -_change)/4000;
 
             if (_change < 2 && _change > -2){
                 if (_change >= 0){
