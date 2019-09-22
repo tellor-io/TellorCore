@@ -10,7 +10,7 @@ import "./libraries/TellorLibrary.sol";
 /**
  * @title Tellor Oracle System
  * @dev Oracle contract where miners can submit the proof of work along with the value.
- * The logic for this contract is in TellorLibrary.sol, TellorDispute.sol, TellorStake.sol, 
+ * The logic for this contract is in TellorLibrary.sol, TellorDispute.sol, TellorStake.sol,
  * and TellorTransfer.sol
  */
 contract Tellor{
@@ -25,24 +25,24 @@ contract Tellor{
     TellorStorage.TellorStorageStruct tellor;
 
     /*Functions*/
-    
+
     /*This is a cheat for demo purposes, will delete upon actual launch*/
-/*    function theLazyCoon(address _address, uint _amount) public {
+    /* function theLazyCoon(address _address, uint _amount) public {
         tellor.theLazyCoon(_address,_amount);
-    }*/
+    } */
 
 
     /**
-    * @dev Helps initialize a dispute by assigning it a disputeId 
-    * when a miner returns a false on the validate array(in Tellor.ProofOfWork) it sends the 
+    * @dev Helps initialize a dispute by assigning it a disputeId
+    * when a miner returns a false on the validate array(in Tellor.ProofOfWork) it sends the
     * invalidated value information to POS voting
     * @param _requestId being disputed
     * @param _timestamp being disputed
-    * @param _minerIndex the index of the miner that submitted the value being disputed. Since each official value 
+    * @param _minerIndex the index of the miner that submitted the value being disputed. Since each official value
     * requires 5 miners to submit a value.
     */
-    function beginDispute(uint _requestId, uint _timestamp,uint _minerIndex) external {
-        tellor.beginDispute(_requestId,_timestamp,_minerIndex);
+    function beginDispute(uint _requestId, uint _timestamp, uint _minerIndex) external {
+        tellor.beginDispute(_requestId, _timestamp, _minerIndex);
     }
 
 
@@ -52,7 +52,7 @@ contract Tellor{
     * @param _supportsDispute is the vote (true=the dispute has basis false = vote against dispute)
     */
     function vote(uint _disputeId, bool _supportsDispute) external {
-        tellor.vote(_disputeId,_supportsDispute);
+        tellor.vote(_disputeId, _supportsDispute);
     }
 
 
@@ -81,21 +81,21 @@ contract Tellor{
     * mine the onDeckQueryHash, or the api with the highest payout pool
     */
     function addTip(uint _requestId, uint _tip) external {
-        tellor.addTip(_requestId,_tip);
+        tellor.addTip(_requestId, _tip);
     }
 
 
     /**
-    * @dev Request to retreive value from oracle based on timestamp. The tip is not required to be 
-    * greater than 0 because there are no tokens in circulation for the initial(genesis) request 
+    * @dev Request to retreive value from oracle based on timestamp. The tip is not required to be
+    * greater than 0 because there are no tokens in circulation for the initial(genesis) request
     * @param _c_sapi string API being requested be mined
     * @param _c_symbol is the short string symbol for the api request
     * @param _granularity is the number of decimals miners should include on the submitted value
     * @param _tip amount the requester is willing to pay to be get on queue. Miners
     * mine the onDeckQueryHash, or the api with the highest payout pool
     */
-    function requestData(string calldata _c_sapi,string calldata _c_symbol,uint _granularity, uint _tip) external {
-        tellor.requestData(_c_sapi,_c_symbol,_granularity,_tip);
+    function requestData(string calldata _c_sapi, string calldata _c_symbol, uint _granularity, uint _tip) external {
+        tellor.requestData(_c_sapi, _c_symbol, _granularity, _tip);
     }
 
 
@@ -105,14 +105,14 @@ contract Tellor{
     * @param _requestId the apiId being mined
     * @param _value of api query
     */
-    function submitMiningSolution(string calldata _nonce, uint _requestId, uint _value) external{
-        tellor.submitMiningSolution(_nonce,_requestId,_value);
+    function submitMiningSolution(string calldata _nonce, uint _requestId, uint _value) external {
+        tellor.submitMiningSolution(_nonce, _requestId, _value);
     }
 
 
     /**
-    * @dev Allows the current owner to propose transfer control of the contract to a 
-    * newOwner and the ownership is pending until the new owner calls the claimOwnership 
+    * @dev Allows the current owner to propose transfer control of the contract to a
+    * newOwner and the ownership is pending until the new owner calls the claimOwnership
     * function
     * @param _pendingOwner The address to transfer ownership to.
     */
@@ -162,7 +162,7 @@ contract Tellor{
     * @return true if spender appproved successfully
     */
     function approve(address _spender, uint _amount) external returns (bool) {
-        return tellor.approve(_spender,_amount);
+        return tellor.approve(_spender, _amount);
     }
 
 
@@ -173,7 +173,7 @@ contract Tellor{
     * @return true if transfer is successful
     */
     function transfer(address _to, uint256 _amount) external returns (bool) {
-        return tellor.transfer(_to,_amount);
+        return tellor.transfer(_to, _amount);
     }
 
 
@@ -186,28 +186,28 @@ contract Tellor{
     * @return True if the transfer was successful
     */
     function transferFrom(address _from, address _to, uint256 _amount) external returns (bool) {
-        return tellor.transferFrom(_from,_to,_amount);
+        return tellor.transferFrom(_from, _to, _amount);
     }
 
     /**
-    @dev Allows users to access the token's name
+    * @dev Allows users to access the token's name
     */
-    function name() external pure returns(string memory){
-    return "Tellor Tributes";
+    function name() public view returns(string memory) {
+        return "Tellor Tributes";
     }
 
     /**
-    @dev Allows users to access the token's symbol
+    * @dev Allows users to access the token's symbol
     */
-    function symbol() external pure returns(string memory){
-    return "TRB";
+    function symbol() public view returns(string memory) {
+        return "TRB";
     }
 
     /**
-    @dev Allows users to access the number of decimals
+    * @dev Allows users to access the number of decimals
     */
-    function decimals() external pure returns(uint8){
-    return 18;
+    function decimals() public view returns(uint8) {
+        return 18;
     }
 
 }
