@@ -43,7 +43,7 @@ library TellorStorage {
     }
 
     //Internal struct to allow balances to be queried by blocknumber for voting purposes
-    struct  Checkpoint {
+    struct Checkpoint {
         uint128 fromBlock;// fromBlock is the block number that the value was generated from
         uint128 value;// value is the amount of tokens at a specific block number
     }
@@ -79,7 +79,7 @@ library TellorStorage {
             // address keccak256("tellorContract");//Tellor address
             // address  keccak256("_owner");//Tellor Owner address
             // address  keccak256("_deity");//Tellor Owner that can do things at will
-        mapping(bytes32 => uint) uintVars; 
+        mapping(bytes32 => uint) uintVars;
         //uint fields in the Tellor contract are saved the uintVars mapping
         //e.g. uintVars[keccak256("decimals")] = uint
         //These are the variables saved in this mapping:

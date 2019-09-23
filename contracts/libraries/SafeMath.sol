@@ -10,11 +10,10 @@ library SafeMath {
   }
 
   function add(int256 a, int256 b) internal pure returns (int256 c) {
-    if(b > 0){
+    if (b > 0) {
       c = a + b;
       assert(c >= a);
-    }
-    else{
+    } else {
       c = a + b;
       assert(c <= a);
     }
@@ -45,11 +44,10 @@ library SafeMath {
   }
 
   function sub(int256 a, int256 b) internal pure returns (int256 c) {
-    if(b > 0){
+    if (b > 0) {
       c = a - b;
       assert(c <= a);
-    }
-    else{
+    } else {
       c = a - b;
       assert(c >= a);
     }

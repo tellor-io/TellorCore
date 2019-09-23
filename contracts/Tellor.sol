@@ -7,13 +7,14 @@ import "./libraries/TellorDispute.sol";
 import "./libraries/TellorStake.sol";
 import "./libraries/TellorLibrary.sol";
 
+
 /**
  * @title Tellor Oracle System
  * @dev Oracle contract where miners can submit the proof of work along with the value.
  * The logic for this contract is in TellorLibrary.sol, TellorDispute.sol, TellorStake.sol,
  * and TellorTransfer.sol
  */
-contract Tellor{
+contract Tellor {
 
     using SafeMath for uint256;
 
@@ -138,8 +139,8 @@ contract Tellor{
 
 
     /**
-    * @dev This function allows stakers to request to withdraw their stake (no longer stake) 
-    * once they lock for withdraw(stakes.currentStatus = 2) they are locked for 7 days before they 
+    * @dev This function allows stakers to request to withdraw their stake (no longer stake)
+    * once they lock for withdraw(stakes.currentStatus = 2) they are locked for 7 days before they
     * can withdraw the stake
     */
     function requestStakingWithdraw() external {
@@ -148,7 +149,7 @@ contract Tellor{
 
 
     /**
-    * @dev This function allows users to withdraw their stake after a 7 day waiting period from request 
+    * @dev This function allows users to withdraw their stake after a 7 day waiting period from request
     */
     function withdrawStake() external {
         tellor.withdrawStake();

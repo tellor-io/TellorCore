@@ -16,7 +16,7 @@ library TellorTransfer {
     event Transfer(address indexed _from, address indexed _to, uint256 _value);//ERC20 Transfer Event
 
     /*Functions*/
-    
+
     /**
     * @dev Allows for a transfer of tokens to _to
     * @param _to The address to send tokens to
@@ -38,7 +38,7 @@ library TellorTransfer {
     * @return True if the transfer was successful
     */
     function transferFrom(TellorStorage.TellorStorageStruct storage self, address _from, address _to, uint256 _amount) public returns (bool success) {
-        require(self.allowed[_from][msg.sender] >= _amount);
+        require(self.allowed[_from][msg.sender] >= _amount, "Allowance is wrong");
         self.allowed[_from][msg.sender] -= _amount;
         doTransfer(self,_from, _to, _amount);
         return true;
@@ -52,7 +52,7 @@ library TellorTransfer {
     * @return true if spender appproved successfully
     */
     function approve(TellorStorage.TellorStorageStruct storage self, address _spender, uint _amount) public returns (bool) {
-        require(_spender != address(0));
+        require(_spender != address(0), "Spender is 0-address");
         self.allowed[msg.sender][_spender] = _amount;
         emit Approval(msg.sender, _spender, _amount);
         return true;
@@ -65,7 +65,7 @@ library TellorTransfer {
     * @return Returns the remaining allowance of tokens granted to the _spender from the _user
     */
     function allowance(TellorStorage.TellorStorageStruct storage self,address _user, address _spender) public view returns (uint) {
-       return self.allowed[_user][_spender]; 
+        return self.allowed[_user][_spender];
     }
 
 
@@ -76,13 +76,13 @@ library TellorTransfer {
     * @param _amount to transfer
     */
     function doTransfer(TellorStorage.TellorStorageStruct storage self, address _from, address _to, uint _amount) public {
-        require(_amount > 0);
-        require(_to != address(0));
-        require(allowedToTrade(self,_from,_amount)); //allowedToTrade checks the stakeAmount is removed from balance if the _user is staked
+        require(_amount > 0, "Tried to send non-positive amount");
+        require(_to != address(0), "Receiver is 0 address");
+        require(allowedToTrade(self,_from,_amount), "Stake amount was not removed from balance"); //allowedToTrade checks the stakeAmount is removed from balance if the _user is staked
         uint previousBalance = balanceOfAt(self,_from, block.number);
         updateBalanceAtNow(self.balances[_from], previousBalance - _amount);
         previousBalance = balanceOfAt(self,_to, block.number);
-        require(previousBalance + _amount >= previousBalance); // Check for overflow
+        require(previousBalance + _amount >= previousBalance, "Overflow happened"); // Check for overflow
         updateBalanceAtNow(self.balances[_to], previousBalance + _amount);
         emit Transfer(_from, _to, _amount);
     }
@@ -106,11 +106,10 @@ library TellorTransfer {
     */
     function balanceOfAt(TellorStorage.TellorStorageStruct storage self,address _user, uint _blockNumber) public view returns (uint) {
         if ((self.balances[_user].length == 0) || (self.balances[_user][0].fromBlock > _blockNumber)) {
-                return 0;
+            return 0;
+        } else {
+            return getBalanceAt(self.balances[_user], _blockNumber);
         }
-     else {
-        return getBalanceAt(self.balances[_user], _blockNumber);
-     }
     }
 
 
@@ -120,16 +119,18 @@ library TellorTransfer {
     * @param _block is the block number to search the balance on
     * @return the balance at the checkpoint
     */
-    function getBalanceAt(TellorStorage.Checkpoint[] storage checkpoints, uint _block) view public returns (uint) {
-        if (checkpoints.length == 0) return 0;
+    function getBalanceAt(TellorStorage.Checkpoint[] storage checkpoints, uint _block) public view returns (uint) {
+        if (checkpoints.length == 0)
+            return 0;
         if (_block >= checkpoints[checkpoints.length-1].fromBlock)
             return checkpoints[checkpoints.length-1].value;
-        if (_block < checkpoints[0].fromBlock) return 0;
+        if (_block < checkpoints[0].fromBlock)
+            return 0;
         // Binary search of the value in the array
         uint min = 0;
-        uint max = checkpoints.length-1;
+        uint max = checkpoints.length - 1;
         while (max > min) {
-            uint mid = (max + min + 1)/ 2;
+            uint mid = (max + min + 1) / 2;
             if (checkpoints[mid].fromBlock<=_block) {
                 min = mid;
             } else {
@@ -141,25 +142,24 @@ library TellorTransfer {
 
 
     /**
-    * @dev This function returns whether or not a given user is allowed to trade a given amount 
+    * @dev This function returns whether or not a given user is allowed to trade a given amount
     * and removing the staked amount from their balance if they are staked
     * @param _user address of user
     * @param _amount to check if the user can spend
     * @return true if they are allowed to spend the amount being checked
     */
     function allowedToTrade(TellorStorage.TellorStorageStruct storage self,address _user,uint _amount) public view returns(bool) {
-        if(self.stakerDetails[_user].currentStatus >0){
+        if (self.stakerDetails[_user].currentStatus > 0) {
             //Removes the stakeAmount from balance if the _user is staked
-            if(balanceOf(self,_user).sub(self.uintVars[keccak256("stakeAmount")]).sub(_amount) >= 0){
+            if (balanceOf(self, _user).sub(self.uintVars[keccak256("stakeAmount")]).sub(_amount) >= 0) {
                 return true;
             }
-        }
-        else if(balanceOf(self,_user).sub(_amount) >= 0){
-                return true;
+        } else if (balanceOf(self,_user).sub(_amount) >= 0) {
+            return true;
         }
         return false;
     }
-    
+
 
     /**
     * @dev Updates balance for from and to on the current block number via doTransfer
@@ -167,13 +167,13 @@ library TellorTransfer {
     * @param _value is the new balance
     */
     function updateBalanceAtNow(TellorStorage.Checkpoint[] storage checkpoints, uint _value) public {
-        if ((checkpoints.length == 0) || (checkpoints[checkpoints.length -1].fromBlock < block.number)) {
-               TellorStorage.Checkpoint storage newCheckPoint = checkpoints[ checkpoints.length++ ];
-               newCheckPoint.fromBlock =  uint128(block.number);
-               newCheckPoint.value = uint128(_value);
+        if ((checkpoints.length == 0) || (checkpoints[checkpoints.length - 1].fromBlock < block.number)) {
+            TellorStorage.Checkpoint storage newCheckPoint = checkpoints[checkpoints.length++];
+            newCheckPoint.fromBlock = uint128(block.number);
+            newCheckPoint.value = uint128(_value);
         } else {
-               TellorStorage.Checkpoint storage oldCheckPoint = checkpoints[checkpoints.length-1];
-               oldCheckPoint.value = uint128(_value);
+            TellorStorage.Checkpoint storage oldCheckPoint = checkpoints[checkpoints.length-1];
+            oldCheckPoint.value = uint128(_value);
         }
     }
 }
