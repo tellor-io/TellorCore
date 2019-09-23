@@ -57,6 +57,8 @@ contract('Mining Tests', function(accounts) {
         //await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.init().encodeABI()})
         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",1000,0).encodeABI()})
     });
+
+ 
     /*
     it("Get Symbol", async function(){
         newOracle = await Tellor.new();
@@ -71,7 +73,7 @@ contract('Mining Tests', function(accounts) {
         let name = await oracle.getName();
         assert.equal(name,"Tellor Tributes","the Symbol should be Tellor Tributes");
     });
-
+/*
     it("getStakersCount", async function(){
                     newOracle = await Tellor.new();
         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:master.methods.changeTellorContract(newOracle.address).encodeABI()})
@@ -269,25 +271,25 @@ contract('Mining Tests', function(accounts) {
         assert(s != 1, " Not staked" );
     });
     */
-   it("Test time travel in data -- really long timesincelastPoof and proper difficulty adjustment", async function () {
-                        newOracle = await Tellor.new();
+/*   it("Test time travel in data -- really long timesincelastPoof and proper difficulty adjustment", async function () {
+        newOracle = await Tellor.new();
         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:master.methods.changeTellorContract(newOracle.address).encodeABI()})
         logMineWatcher = await promisifyLogWatch(oracle.address, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",1000,0).encodeABI()});
         logMineWatcher = await promisifyLogWatch(oracle.address, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
-                await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",1000,0).encodeABI()});
+        await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",1000,0).encodeABI()});
         logMineWatcher = await promisifyLogWatch(oracle.address, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
-                await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",1000,0).encodeABI()});
+        await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",1000,0).encodeABI()});
         logMineWatcher = await promisifyLogWatch(oracle.address, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
-                        await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",1000,0).encodeABI()});
+        await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",1000,0).encodeABI()});
         logMineWatcher = await promisifyLogWatch(oracle.address, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
-                        await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",1000,0).encodeABI()});
+        await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",1000,0).encodeABI()});
         logMineWatcher = await promisifyLogWatch(oracle.address, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
-                        await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",1000,0).encodeABI()});
+        await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",1000,0).encodeABI()});
         logMineWatcher = await promisifyLogWatch(oracle.address, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
         vars = await oracle.getCurrentVariables()
-       var oldDiff = web3.utils.hexToNumberString(vars[2])*1
-       console.log("oldDiff",oldDiff)
+        var oldDiff = web3.utils.hexToNumberString(vars[2])*1
+        console.log("oldDiff",oldDiff)
         assert((web3.utils.hexToNumberString(vars[2])*1) > 1, "difficulty should be greater than 1");//difficulty not changing.....
         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",1000,0).encodeABI()});
         await helper.advanceTime(86400 * 20);
@@ -296,8 +298,9 @@ contract('Mining Tests', function(accounts) {
         var newDiff = web3.utils.hexToNumberString(vars[2])*1
         console.log("newDiff ",newDiff);
         assert( newDiff < oldDiff,"difficulty should be 1 now");
-        assert(await oracle.getNewValueCountbyRequestId(1) == 8, "Request ID 1 should have 3 mines");
+        assert(await oracle.getNewValueCountbyRequestId(1) == 8, "Request ID 1 should have 8 mines");
     });
+    */
    /*
     it("Test 50 requests, proper booting, and mining of 5", async function () {
          this.timeout(0) 

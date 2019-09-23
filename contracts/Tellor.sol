@@ -178,7 +178,7 @@ contract Tellor{
 
 
     /**
-    * @notice Send _amount tokens to _to from _from on the condition it
+    * @dev Sends _amount tokens to _to from _from on the condition it
     * is approved by _from
     * @param _from The address holding the tokens being transferred
     * @param _to The address of the recipient
@@ -189,16 +189,25 @@ contract Tellor{
         return tellor.transferFrom(_from,_to,_amount);
     }
 
-  function name() external returns(string memory){
+    /**
+    @dev Allows users to access the token's name
+    */
+    function name() external pure returns(string memory){
     return "Tellor Tributes";
-  }
+    }
 
-  function symbol() external returns(string memory){
+    /**
+    @dev Allows users to access the token's symbol
+    */
+    function symbol() external pure returns(string memory){
     return "TRB";
-  }
+    }
 
-  function decimals() external returns(uint8){
+    /**
+    @dev Allows users to access the number of decimals
+    */
+    function decimals() external pure returns(uint8){
     return 18;
-  }
+    }
 
 }
