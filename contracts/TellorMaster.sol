@@ -9,7 +9,6 @@ import "./TellorGetters.sol";
 * TellorGettersLibrary, and TellorStake
 */
 contract TellorMaster is TellorGetters {
-
     event NewTellorAddress(address _newTellor);
 
     /**
@@ -17,14 +16,13 @@ contract TellorMaster is TellorGetters {
     * account, the tellor contract to the Tellor master address and owner to the Tellor master owner address
     * @param _tellorContract is the address for the tellor contract
     */
-    constructor (address _tellorContract) public {
+    constructor(address _tellorContract) public {
         tellor.init();
         tellor.addressVars[keccak256("_owner")] = msg.sender;
         tellor.addressVars[keccak256("_deity")] = msg.sender;
         tellor.addressVars[keccak256("tellorContract")] = _tellorContract;
         emit NewTellorAddress(_tellorContract);
     }
-
 
     /**
     * @dev Gets the 5 miners who mined the value for the specified requestId/_timestamp
@@ -36,7 +34,6 @@ contract TellorMaster is TellorGetters {
         tellor.changeDeity(_newDeity);
     }
 
-
     /**
     * @dev  allows for the deity to make fast upgrades.  Deity should be 0 address if decentralized
     * @param _tellorContract the address of the new Tellor Contract
@@ -45,11 +42,10 @@ contract TellorMaster is TellorGetters {
         tellor.changeTellorContract(_tellorContract);
     }
 
-
     /**
     * @dev This is the fallback function that allows contracts to call the tellor contract at the address stored
     */
-    function () external payable {
+    function() external payable {
         address addr = tellor.addressVars[keccak256("tellorContract")];
         bytes memory _calldata = msg.data;
         assembly {
@@ -59,8 +55,13 @@ contract TellorMaster is TellorGetters {
             returndatacopy(ptr, 0, size)
             // revert instead of invalid() bc if the underlying call failed with invalid() it already wasted gas.
             // if the call returned error data, forward it
-            switch result case 0 { revert(ptr, size) }
-            default { return(ptr, size) }
+            switch result
+                case 0 {
+                    revert(ptr, size)
+                }
+                default {
+                    return(ptr, size)
+                }
         }
     }
 }
