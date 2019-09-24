@@ -300,6 +300,7 @@ contract('Mining Tests', function(accounts) {
         assert( newDiff < oldDiff,"difficulty should be 1 now");
         assert(await oracle.getNewValueCountbyRequestId(1) == 8, "Request ID 1 should have 8 mines");
     });
+
     it("Test 50 requests, proper booting, and mining of 5", async function () {
          this.timeout(0) 
          logMineWatcher = await promisifyLogWatch(oracle.address, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');
