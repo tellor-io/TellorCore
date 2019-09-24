@@ -29,8 +29,8 @@ contract Tellor{
     /*This is a cheat for demo purposes, will delete upon actual launch*/
 /*    function theLazyCoon(address _address, uint _amount) public {
         tellor.theLazyCoon(_address,_amount);
-    }
-*/
+    }*/
+
 
     /**
     * @dev Helps initialize a dispute by assigning it a disputeId 
@@ -178,7 +178,7 @@ contract Tellor{
 
 
     /**
-    * @notice Send _amount tokens to _to from _from on the condition it
+    * @dev Sends _amount tokens to _to from _from on the condition it
     * is approved by _from
     * @param _from The address holding the tokens being transferred
     * @param _to The address of the recipient
@@ -187,6 +187,27 @@ contract Tellor{
     */
     function transferFrom(address _from, address _to, uint256 _amount) external returns (bool) {
         return tellor.transferFrom(_from,_to,_amount);
+    }
+
+    /**
+    @dev Allows users to access the token's name
+    */
+    function name() external pure returns(string memory){
+    return "Tellor Tributes";
+    }
+
+    /**
+    @dev Allows users to access the token's symbol
+    */
+    function symbol() external pure returns(string memory){
+    return "TRB";
+    }
+
+    /**
+    @dev Allows users to access the number of decimals
+    */
+    function decimals() external pure returns(uint8){
+    return 18;
     }
 
 }
