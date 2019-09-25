@@ -176,21 +176,21 @@ contract Tellor {
     /**
     * @dev Allows users to access the token's name
     */
-    function name() public view returns (string memory) {
+    function name() external pure returns (string memory) {
         return "Tellor Tributes";
     }
 
     /**
     * @dev Allows users to access the token's symbol
     */
-    function symbol() public view returns (string memory) {
+    function symbol() external pure returns (string memory) {
         return "TRB";
     }
 
     /**
     * @dev Allows users to access the number of decimals
     */
-    function decimals() public view returns (uint8) {
+    function decimals() external pure returns (uint8) {
         return 18;
     }
 
