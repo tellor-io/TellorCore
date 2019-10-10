@@ -6,7 +6,7 @@ import "./TellorTransfer.sol";
 
 /**
 * @title Tellor Dispute
-* @dev Contais the methods related to disputes. Tellor.sol references this library for function's logic.
+* @dev Contains the methods related to disputes. Tellor.sol references this library for function's logic.
 */
 
 library TellorDispute {
