@@ -10,6 +10,8 @@
   </a> 
 </p>
 
+* 
+
 ## Table of Contents
 
 * [Instructions for quick start with Truffle Deployment](#Quick-Deployment)

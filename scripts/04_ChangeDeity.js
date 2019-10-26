@@ -34,9 +34,7 @@ function sleep_s(secs) {
 
 
 module.exports = async function(callback) {
-  console.log("keccak256Deity:",web3.utils.keccak256("_deity"));
+  console.log("contract:",web3.utils.keccak256("tellorContract"));
   console.log("keccak256owner:",web3.utils.keccak256("_deity"));
-    let ins2 = await TellorMaster.at(myOracle);
-    await ins2.changeDeity(multi);
-    console.log("changed deity to:", multi);
+
 }
