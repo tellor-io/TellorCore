@@ -104,10 +104,9 @@ contract UsingTellor {
     * @dev Allows user to add tip with Ether by sending the ETH to the userContract and exchanging it for Tributes
     * at the price specified by the userContract owner.
     * @param _requestId to tip
-    * @param _tip amount
     */
-    function addTipWithEther(uint256 _requestId, uint256 _tip) public payable {
-        UserContract(tellorUserContract).addTipWithEther.value(msg.value)(_requestId, _tip);
+    function addTipWithEther(uint256 _requestId) public payable {
+        UserContract(tellorUserContract).addTipWithEther.value(msg.value)(_requestId);
     }
 
     /**

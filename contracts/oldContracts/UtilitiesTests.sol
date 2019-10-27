@@ -2,7 +2,7 @@ pragma solidity ^0.5.0;
 
 import "./libraries/Utilities.sol";
 import "./libraries/TellorGettersLibrary.sol";
-import "./TellorMaster.sol";
+import "./OldTellorMaster.sol";
 
 /**
 * @title Utilities Tests
@@ -11,7 +11,7 @@ import "./TellorMaster.sol";
 */
 contract UtilitiesTests{
 	address internal owner;
-	TellorMaster internal tellorMaster; 
+	OldTellorMaster internal tellorMaster; 
     address public tellorMasterAddress;
 
     /**
@@ -28,7 +28,7 @@ contract UtilitiesTests{
     function setTellorMaster(address payable _TellorMasterAddress) public {
         require (msg.sender == owner);
         tellorMasterAddress = _TellorMasterAddress;
-        tellorMaster = TellorMaster(_TellorMasterAddress);
+        tellorMaster = OldTellorMaster(_TellorMasterAddress);
     }
 
     function testgetMax() public view returns(uint _max, uint _index){

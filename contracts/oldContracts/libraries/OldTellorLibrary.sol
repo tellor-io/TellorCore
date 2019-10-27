@@ -5,7 +5,7 @@ import "./Utilities.sol";
 import "./TellorStorage.sol";
 import "./OldTellorTransfer.sol";
 import "./OldTellorDispute.sol";
-import "./TellorStake.sol";
+import "./OldTellorStake.sol";
 import "./TellorGettersLibrary.sol";
 
 

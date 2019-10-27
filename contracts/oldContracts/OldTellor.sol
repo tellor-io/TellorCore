@@ -4,7 +4,7 @@ import "./libraries/SafeMath.sol";
 import "./libraries/TellorStorage.sol";
 import "./libraries/OldTellorTransfer.sol";
 import "./libraries/OldTellorDispute.sol";
-import "./libraries/TellorStake.sol";
+import "./libraries/OldTellorStake.sol";
 import "./libraries/OldTellorLibrary.sol";
 
 /**
@@ -19,7 +19,7 @@ contract OldTellor{
 
     using OldTellorDispute for TellorStorage.TellorStorageStruct;
     using OldTellorLibrary for TellorStorage.TellorStorageStruct;
-    using TellorStake for TellorStorage.TellorStorageStruct;
+    using OldTellorStake for TellorStorage.TellorStorageStruct;
     using OldTellorTransfer for TellorStorage.TellorStorageStruct;
 
     TellorStorage.TellorStorageStruct tellor;

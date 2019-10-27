@@ -78,12 +78,11 @@ contract UserContract {
     /**
     * @dev Allows the user to tip miners using ether
     * @param _apiId to tip
-    * @param _tip amount
     */
-    function addTipWithEther(uint256 _apiId, uint256 _tip) external payable {
-        require(_tellorm.balanceOf(address(this)) >= _tip, "Balance is lower than tip amount");
-        require(msg.value >= (_tip * tributePrice) / 1e18, "Value is too low");
-        _tellor.addTip(_apiId, _tip);
+    function addTipWithEther(uint256 _apiId) external payable {
+        uint _amount = (msg.value / tributePrice);
+        require(_tellorm.balanceOf(address(this)) >= _amount, "Balance is lower than tip amount");
+        _tellor.addTip(_apiId, _amount);
     }
 
     /**

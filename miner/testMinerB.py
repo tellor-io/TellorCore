@@ -79,8 +79,8 @@ def masterMiner():
 	while True:
 		nonce = mine(str(challenge),public_keys[miners_started],difficulty);
 		if(nonce > 0):
-			value = max(0,(5000- miners_started*10) * granularity);
-			#value = max(0,(getAPIvalue(apiString) - miners_started*10) * granularity); #account 2 should always be winner
+			#value = max(0,(5000- miners_started*10) * granularity);
+			value = max(0,(getAPIvalue(apiString) - miners_started*10) * granularity); #account 2 should always be winner
 			arg_string =""+ str(nonce) + " "+ str(apiId) +" " + str(value)+" "+str(contract_address)+" "+str(public_keys[miners_started])+" "+str(private_keys[miners_started])
 			print('Arg String', arg_string)
 			#success = execute_js('testSubmitter.js',arg_string)

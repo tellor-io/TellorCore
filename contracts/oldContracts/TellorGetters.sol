@@ -4,7 +4,7 @@ import "./libraries/SafeMath.sol";
 import "./libraries/TellorStorage.sol";
 import "./libraries/OldTellorTransfer.sol";
 import "./libraries/TellorGettersLibrary.sol";
-import "./libraries/TellorStake.sol";
+import "./libraries/OldTellorStake.sol";
 
 /**
 * @title Tellor Getters
@@ -16,7 +16,7 @@ contract TellorGetters{
 
     using OldTellorTransfer for TellorStorage.TellorStorageStruct;
     using TellorGettersLibrary for TellorStorage.TellorStorageStruct;
-    using TellorStake for TellorStorage.TellorStorageStruct;
+    using OldTellorStake for TellorStorage.TellorStorageStruct;
 
     TellorStorage.TellorStorageStruct tellor;
     
