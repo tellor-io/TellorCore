@@ -76,6 +76,10 @@ Tellor implements a staked PoW where miners have to deposit Tellor Tributes (tel
 A deep dive in methodology is available here: [In-Depth Overview](./InDepthOverview.md)
 
   
+### Using in your project (NPM)
+
+    npm install tellorcore
+
 
 ### Useful links <a name="useful-links"> </a>
 High level inspiration from [EIP918 Mineable Token](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-918.md).
