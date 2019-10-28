@@ -31,5 +31,7 @@
     "type": "git",
     "url": "https://github.com/tellor-io/TellorCore/issues"
   },
-  "license": "MIT"
+    "author": "Tellor",
+  "license": "MIT",
+  "homepage": "https://github.com/tellor-io/TellorCore"
 }
