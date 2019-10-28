@@ -8,7 +8,7 @@ import "./TellorGetters.sol";
 * The logic for the functions on this contract is saved on the TellorGettersLibrary, TellorTransfer, 
 * TellorGettersLibrary, and TellorStake
 */
-contract TellorMaster is TellorGetters{
+contract OldTellorMaster is TellorGetters{
     
     event NewTellorAddress(address _newTellor);
 

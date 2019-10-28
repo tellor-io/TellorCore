@@ -10,7 +10,7 @@ import "./OldTellorDispute.sol";
 * references this library for function's logic.
 */
 
-library TellorStake {
+library OldTellorStake {
     event NewStake(address indexed _sender);//Emits upon new staker
     event StakeWithdrawn(address indexed _sender);//Emits when a staker is now no longer staked
     event StakeWithdrawRequested(address indexed _sender);//Emits when a staker begins the 7 day withdraw period
