@@ -1,8 +1,8 @@
-const BN = require('bn.js');
-const TellorMaster = artifacts.require("./TellorMaster.sol");
-const Oracle = artifacts.require("./Tellor.sol");
-var oracleAbi = Oracle.abi;
-var oracleByte = Oracle.bytecode;
+// const BN = require('bn.js');
+// const TellorMaster = artifacts.require("./TellorMaster.sol");
+// const Oracle = artifacts.require("./Tellor.sol");
+// var oracleAbi = Oracle.abi;
+// var oracleByte = Oracle.bytecode;
 const Web3 = require('web3');
 
 
@@ -35,6 +35,6 @@ function sleep_s(secs) {
 
 module.exports = async function(callback) {
   console.log("contract:",web3.utils.keccak256("tellorContract"));
-  console.log("keccak256owner:",web3.utils.keccak256("_deity"));
+  //console.log("keccak256owner:",web3.utils.keccak256("_deity"));
 
 }

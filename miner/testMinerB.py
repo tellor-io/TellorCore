@@ -19,158 +19,160 @@ def generate_random_number():
     return random.randint(1000000,9999999)
 
 def mine(challenge, public_address, difficulty):
-	global last_block, contract_address
-	x = 0;
-	print('starting to mine')
-	while True:
-		x += 1;
-		j = generate_random_number()
-		nonce = Web3.toHex(str.encode(str(j)))
-		_string = str(challenge).strip() + public_address[2:].strip() + str(nonce)[2:].strip()
-		v = Web3.toHex(Web3.sha3(hexstr=_string));
-		z= hashlib.new('ripemd160',bytes.fromhex(v[2:])).hexdigest()
-		n = "0x" + hashlib.new('sha256',bytes.fromhex(z)).hexdigest()
-		hash1 = int(n,16);
-		if hash1 % difficulty == 0:
-			print('solution found')
-			return j;
-		if x % 10000 == 0:
-			payload = {"jsonrpc":"2.0","id":net_id,"method":"eth_blockNumber"}
-			r = requests.post(node_url, data=json.dumps(payload));
-			d = jsonParser(r);
-			_block = int(d['result'],16)
-			if(last_block != _block):
-				_challenge,_apiId,_difficulty,_apiString,_granularity = getVariables();
-				if challenge != _challenge:
-					return 0;
+                global last_block, contract_address
+                x = 0;
+                print('starting to mine')
+                while True:
+                                x += 1;
+                                j = generate_random_number()
+                                nonce = Web3.toHex(str.encode(str(j)))
+                                _string = str(challenge).strip() + public_address[2:].strip() + str(nonce)[2:].strip()
+                                v = Web3.toHex(Web3.sha3(hexstr=_string));
+                                z= hashlib.new('ripemd160',bytes.fromhex(v[2:])).hexdigest()
+                                n = "0x" + hashlib.new('sha256',bytes.fromhex(z)).hexdigest()
+                                hash1 = int(n,16);
+                                if hash1 % difficulty == 0:
+                                                print('solution found')
+                                                return j;
+                                if x % 10000 == 0:
+                                                payload = {"jsonrpc":"2.0","id":net_id,"method":"eth_blockNumber"}
+                                                r = requests.post(node_url, data=json.dumps(payload));
+                                                d = jsonParser(r);
+                                                _block = int(d['result'],16)
+                                                if(last_block != _block):
+                                                                _challenge,_apiId,_difficulty,_apiString,_granularity = getVariables();
+                                                                if challenge != _challenge:
+                                                                                return 0;
 
 def getAPIvalue(_api):
-	_api = _api.replace("'", "")
-	json = _api.split('(')[0]
-	if('json' in json):
-		_api = _api.split('(')[1]
-		filter = _api.split(').')[1]
-	_api = _api.split(')')[0]
-	print('Getting : ',_api)
-	try:
-		response = requests.request("GET", _api)
-	except:
-		response = 0;
-		print('API ERROR',_api)
-	if('json' in json):
-		if(len(filter)):
-			price =response.json()[filter]
-		else:
-			price = response.json()
-	else:
-		price = response
-	print(price)
-	return int(float(price))
+                _api = _api.replace("'", "")
+                print('Getting : ',_api)
+                json = _api.split('(')[0]
+                if('json' in json):
+                                _api = _api.split('(')[1]
+                                filter = _api.split(').')[1]
+                _api = _api.split(')')[0]
+                try:
+                                response = requests.request("GET", _api)
+                except:
+                                response = 0;
+                                print('API ERROR',_api)
+                if('json' in json):
+                                if(len(filter)):
+                                                price =response.json()[filter]
+                                else:
+                                                price = response.json()
+                else:
+                                price = response
+                print(price)
+                return int(float(price))
 
 # def getAPIvalue():
-# 	url = "https://api.gdax.com/products/BTC-USD/ticker"
-# 	response = requests.request("GET", url)
-# 	price =response.json()['price']
-# 	return int(float(price))
+#             url = "https://api.gdax.com/products/BTC-USD/ticker"
+#             response = requests.request("GET", url)
+#             price =response.json()['price']
+#             return int(float(price))
 
 def masterMiner():
-	miners_started = 0
-	challenge,apiId,difficulty,apiString,granularity = getVariables();
-	while True:
-		nonce = mine(str(challenge),public_keys[miners_started],difficulty);
-		if(nonce > 0):
-			#value = max(0,(5000- miners_started*10) * granularity);
-			value = max(0,(getAPIvalue(apiString) - miners_started*10) * granularity); #account 2 should always be winner
-			arg_string =""+ str(nonce) + " "+ str(apiId) +" " + str(value)+" "+str(contract_address)+" "+str(public_keys[miners_started])+" "+str(private_keys[miners_started])
-			print('Arg String', arg_string)
-			#success = execute_js('testSubmitter.js',arg_string)
-			#print('WE WERE SUCCESSFUL: ', success)
-			run_js('testSubmitter.js',arg_string);
-			miners_started += 1 
-			if(miners_started == 5):
-				v = False;
-				while(v == False):
-					time.sleep(2);
-					_challenge,_apiId,_difficulty,_apiString,_granularity= getVariables();
-					if challenge == _challenge:
-						v = False
-						time.sleep(10);
-					elif _apiId > 0:
-						v = True
-						challenge = _challenge;
-						apiId = _apiId;
-						difficulty = _difficulty;
-						apiString = _apiString;
-						granularity = _granularity;
-				miners_started = 0;
-		else:
-			challenge,apiId,difficulty,apiString = getVariables(); 
-			print('variables grabbed')
-	print('Miner Stopping')
+                miners_started = 0
+                challenge,apiId,difficulty,apiString,granularity = getVariables();
+                while True:
+                                nonce = mine(str(challenge),public_keys[miners_started],difficulty);
+                                if(nonce > 0):
+                                                print ("You guessed the hash!");
+                                                #value = max(0,(5000- miners_started*10) * granularity);
+                                                value = max(0,(getAPIvalue(apiString) - miners_started*10) * granularity); #account 2 should always be winner
+                                                print('Value',value);
+                                                arg_string =""+ str(nonce) + " "+ str(apiId) +" " + str(value)+" "+str(contract_address)+" "+str(public_keys[miners_started])+" "+str(private_keys[miners_started])
+                                                print(arg_string)
+                                                #success = execute_js('testSubmitter.js',arg_string)
+                                                #print('WE WERE SUCCESSFUL: ', success)
+                                                execute_js('testSubmitter.js',arg_string);
+                                                miners_started += 1 
+                                                if(miners_started == 5):
+                                                                v = False;
+                                                                while(v == False):
+                                                                                time.sleep(2);
+                                                                                _challenge,_apiId,_difficulty,_apiString,_granularity= getVariables();
+                                                                                if challenge == _challenge:
+                                                                                                v = False
+                                                                                                time.sleep(10);
+                                                                                elif _apiId > 0:
+                                                                                                v = True
+                                                                                                challenge = _challenge;
+                                                                                                apiId = _apiId;
+                                                                                                difficulty = _difficulty;
+                                                                                                apiString = _apiString;
+                                                                                                granularity = _granularity;
+                                                                miners_started = 0;
+                                else:
+                                                challenge,apiId,difficulty,apiString = getVariables(); 
+                                                print('variables grabbed')
+                print('Miner Stopping')
 
 def getVariables():
-	getAddress();
-	payload = {"jsonrpc":"2.0","id":net_id,"method":"eth_call","params":[{"to":contract_address,"data":"0xa22e407a"}, "latest"]}
-	tries = 1;
-	while tries < 5:
-		try:
-			r = requests.post(node_url, data=json.dumps(payload));
-			val = jsonParser(r);
-			val = val['result'];
-			_challenge = val[:66]
-			val = val[66:]
-			_apiId = int(val[:64],16)
-			val = val[64:]
-			_difficulty = int(val[:64],16);
-			val =val[64:]
-			val =val[64:]
-			_granularity = int(val[:64],16);
-			val =val[64:]
-			val =val[64:]
-			val = val[:-16]
-			_apiString =  str(binascii.unhexlify(val.strip()))
-			print('String',_challenge,_apiId,_difficulty,_apiString,_granularity)
-			return _challenge,_apiId,_difficulty,_apiString,_granularity
-		except:
-			tries += 1
-			print('Oh no...not working')
-	return 0,0,0,0,0
+                getAddress();
+                payload = {"jsonrpc":"2.0","id":net_id,"method":"eth_call","params":[{"to":contract_address,"data":"0xa22e407a"}, "latest"]}
+                tries = 1;
+                while tries < 5:
+                                try:
+                                                r = requests.post(node_url, data=json.dumps(payload));
+                                                val = jsonParser(r);
+                                                val = val['result'];
+                                                _challenge = val[:66]
+                                                val = val[66:]
+                                                _apiId = int(val[:64],16)
+                                                val = val[64:]
+                                                _difficulty = int(val[:64],16);
+                                                val =val[64:]
+                                                val =val[64:]
+                                                _granularity = int(val[:64],16);
+                                                val =val[64:]
+                                                val =val[64:]
+                                                val = val[:-16]
+                                                _apiString =  str(binascii.unhexlify(val.strip()))
+                                                print('String',_challenge,_apiId,_difficulty,_apiString,_granularity)
+                                                return _challenge,_apiId,_difficulty,_apiString,_granularity
+                                except:
+                                                tries += 1
+                                                print('Oh no...not working')
+                return 0,0,0,0,0
 
 def jsonParser(_info):
-	my_json = _info.content
-	data = json.loads(my_json)
-	s = json.dumps(data, indent=4, sort_keys=True)
-	return json.loads(s)
+                my_json = _info.content
+                data = json.loads(my_json)
+                s = json.dumps(data, indent=4, sort_keys=True)
+                return json.loads(s)
 
 def getAddress():
-	global last_block, contract_address
-	payload = {"jsonrpc":"2.0","id":net_id,"method":"eth_blockNumber"}
-	r = requests.post(node_url, data=json.dumps(payload));
-	e = jsonParser(r);
-	block = int(e['result'],16)
-	while(block > last_block):
-		print('block',block);
-		try:
-			payload = {"jsonrpc":"2.0","id":net_id,"method":"eth_getTransactionByBlockNumberAndIndex","params":[hex(block),0]}
-			r = requests.post(node_url, data=json.dumps(payload));
-			d = jsonParser(r);
-			tx = d['result']
-			payload = {"jsonrpc":"2.0","id":net_id,"method":"eth_getTransactionReceipt","params":[tx['hash']]}
-			r = requests.post(node_url, data=json.dumps(payload));
-			d = jsonParser(r);
-			tx = d['result']
-			_contract_address =tx['contractAddress']
-			if len(_contract_address)>0 and tx['logs'][6]['topics'][0] == '0xc2d1449eb0b6547aa426e09d9942a77fa4fc8cd3296305b3163e22452e0bcb8d':
-				last_block = int(e['result'],16) 
-				block = 0;
-				contract_address = _contract_address
-				print('New Contract Address',_contract_address)
-				return True;
-		except:
-			pass
-		block = block - 1;
-	last_block = int(e['result'],16)
-	return False;
+                global last_block, contract_address
+                payload = {"jsonrpc":"2.0","id":net_id,"method":"eth_blockNumber"}
+                r = requests.post(node_url, data=json.dumps(payload));
+                e = jsonParser(r);
+                block = int(e['result'],16)
+                while(block > last_block):
+                                print('block',block);
+                                try:
+                                                payload = {"jsonrpc":"2.0","id":net_id,"method":"eth_getTransactionByBlockNumberAndIndex","params":[hex(block),0]}
+                                                r = requests.post(node_url, data=json.dumps(payload));
+                                                d = jsonParser(r);
+                                                tx = d['result']
+                                                payload = {"jsonrpc":"2.0","id":net_id,"method":"eth_getTransactionReceipt","params":[tx['hash']]}
+                                                r = requests.post(node_url, data=json.dumps(payload));
+                                                d = jsonParser(r);
+                                                tx = d['result']
+                                                _contract_address =tx['contractAddress']
+                                                if len(_contract_address)>0 and tx['logs'][6]['topics'][0] == '0xc2d1449eb0b6547aa426e09d9942a77fa4fc8cd3296305b3163e22452e0bcb8d':
+                                                                last_block = int(e['result'],16) 
+                                                                block = 0;
+                                                                contract_address = _contract_address
+                                                                print('New Contract Address',_contract_address)
+                                                                return True;
+                                except:
+                                                pass
+                                block = block - 1;
+                last_block = int(e['result'],16)
+                return False;
 
 #getVariables()
 masterMiner();
