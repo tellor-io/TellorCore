@@ -33,29 +33,29 @@ module.exports = async function (deployer) {
 
   // deploy transfer
   await deployer.deploy(TellorTransfer);
-  //sleep_s(30);
+  sleep_s(30);
 
   // deploy dispute
   await deployer.link(TellorTransfer,TellorDispute);
   await deployer.deploy(TellorDispute);
-  //sleep_s(30);
+  sleep_s(30);
 
   // deploy stake
   await deployer.link(TellorTransfer,TellorStake);
   await deployer.link(TellorDispute,TellorStake);
   await deployer.deploy(TellorStake);
-  //sleep_s(30);
+  sleep_s(30);
 
   // deploy getters lib
-  await deployer.deploy(TellorGettersLibrary);
-  //sleep_s(30);
+  //await deployer.deploy(TellorGettersLibrary);
+  sleep_s(30);
 
   // deploy lib
   await deployer.link(TellorDispute, TellorLibrary);
   await deployer.link(TellorTransfer, TellorLibrary);
   await deployer.link(TellorStake, TellorLibrary);
   await deployer.deploy(TellorLibrary);
-  //sleep_s(60);
+  sleep_s(60);
 
   // deploy tellor
   await deployer.link(TellorTransfer,Tellor);
@@ -63,15 +63,15 @@ module.exports = async function (deployer) {
   await deployer.link(TellorStake,Tellor);
   await deployer.link(TellorLibrary,Tellor);
   await deployer.deploy(Tellor);
-  //sleep_s(60);
+  sleep_s(60);
 
   // deploy tellor master
-  await deployer.link(TellorTransfer,TellorMaster);
-  await deployer.link(TellorGettersLibrary,TellorMaster);
-  await deployer.link(TellorStake,TellorMaster);
-  await deployer.deploy(Tellor).then(async function() {
-    await deployer.deploy(TellorMaster, Tellor.address)
-  });
+  // await deployer.link(TellorTransfer,TellorMaster);
+  // await deployer.link(TellorGettersLibrary,TellorMaster);
+  // await deployer.link(TellorStake,TellorMaster);
+  // await deployer.deploy(Tellor).then(async function() {
+  //   await deployer.deploy(TellorMaster, Tellor.address)
+  // });
 
 
 
