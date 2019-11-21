@@ -15,9 +15,9 @@
 ## Table of Contents
 
 * [Instructions for quick start with Truffle Deployment](#Quick-Deployment)
-   * [Detailed documentation for self setup](./SetupDocumentation.md)
+   * [Detailed documentation for self setup](https://tellor.readthedocs.io/en/latest/DevDocumentation/)
 * [Overview](#overview)
-    * [In-Depth Overview](./InDepthOverview.md)
+    * [In-Depth Overview](https://tellor.readthedocs.io/en/latest/)
 
 <details><summary>Contributing information</summary>
 
@@ -59,7 +59,7 @@ Follow the steps below to launch the Oracle contracts using Truffle.
 
 Production and test python miners are available under the miner subdirectory [here](./miner/). You will need to get at least 5 miners running.
 
-Step by step instructions on setting up a Tellor Oracle without truffle are available here: [Detailed documentation for self setup](./SetupDocumentation.md)
+Step by step instructions on setting up a Tellor Oracle without truffle are available here: [Detailed documentation for self setup](https://tellor.readthedocs.io/en/latest/DevDocumentation/)
 
 
 ## Overview <a name="overview"> </a>  
@@ -73,7 +73,7 @@ Tellor implements a staked PoW where miners have to deposit Tellor Tributes (tel
 <img src="./public/ProcessFlow.png" width="400" height="200" alt = "How it works">
 </p>
 
-A deep dive in methodology is available here: [In-Depth Overview](./InDepthOverview.md)
+A deep dive in methodology is available here: [In-Depth Overview](https://tellor.readthedocs.io/en/latest/)
 
   
 ### Using in your project (NPM)
