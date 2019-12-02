@@ -78,7 +78,7 @@ A deep dive in methodology is available here: [In-Depth Overview](https://tellor
   
 ### Using in your project (NPM)
 
-    npm install tellorcore
+    npm install usingtellor
 
 
 ### Useful links <a name="useful-links"> </a>
