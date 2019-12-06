@@ -82,11 +82,9 @@ contract UsingTellor {
     * @param _request string API being requested to be mined
     * @param _symbol is the short string symbol for the api request
     * @param _granularity is the number of decimals miners should include on the submitted value
-    * @param _tip amount the requester is willing to pay to be get on queue. Miners
-    * mine the onDeckQueryHash, or the api with the highest payout pool
     */
-    function requestDataWithEther(string calldata _request, string calldata _symbol, uint256 _granularity, uint256 _tip) external payable {
-        tellorUserContract.requestDataWithEther.value(msg.value)(_request, _symbol, _granularity, _tip);
+    function requestDataWithEther(string calldata _request, string calldata _symbol, uint256 _granularity) external payable {
+        tellorUserContract.requestDataWithEther.value(msg.value)(_request, _symbol, _granularity);
     }
 
     /**

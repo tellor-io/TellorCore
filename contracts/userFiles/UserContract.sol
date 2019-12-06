@@ -66,13 +66,11 @@ contract UserContract {
     * @param c_sapi string API being requested to be mined
     * @param _c_symbol is the short string symbol for the api request
     * @param _granularity is the number of decimals miners should include on the submitted value
-    * @param _tip amount the requester is willing to pay to be get on queue. Miners
-    * mine the onDeckQueryHash, or the api with the highest payout pool
     */
-    function requestDataWithEther(string calldata c_sapi, string calldata _c_symbol, uint256 _granularity, uint256 _tip) external payable {
-        require(_tellorm.balanceOf(address(this)) >= _tip, "Balance is lower than tip amount");
-        require(msg.value >= (_tip * tributePrice) / 1e18, "Value is too low");
-        _tellor.requestData(c_sapi, _c_symbol, _granularity, _tip);
+    function requestDataWithEther(string calldata c_sapi, string calldata _c_symbol, uint256 _granularity) external payable {
+        uint _amount = (msg.value / tributePrice)*1e18;
+        require(_tellorm.balanceOf(address(this)) >= _amount, "Balance is lower than tip amount");
+        _tellor.requestData(c_sapi, _c_symbol, _granularity, _amount);
     }
 
     /**
@@ -80,7 +78,7 @@ contract UserContract {
     * @param _apiId to tip
     */
     function addTipWithEther(uint256 _apiId) external payable {
-        uint _amount = (msg.value / tributePrice);
+        uint _amount = (msg.value / tributePrice)*1e18;
         require(_tellorm.balanceOf(address(this)) >= _amount, "Balance is lower than tip amount");
         _tellor.addTip(_apiId, _amount);
     }
