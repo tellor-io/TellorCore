@@ -9,7 +9,7 @@ const TellorMaster = artifacts.require("./TellorMaster.sol");
 const Tellor = artifacts.require("./Tellor.sol"); // globally injected artifacts helper
 var oracleAbi = Tellor.abi;
 var oracleByte = Tellor.bytecode;
-var OldTellor = artifacts.require("./oldContracts/OldTellor.sol")
+//var OldTellor = artifacts.require("./oldContracts/OldTellor.sol")
 var masterAbi = TellorMaster.abi;
 var api = "json(https://api.gdax.com/products/BTC-USD/ticker).price";
 var api2 = "json(https://api.gdax.com/products/ETH-USD/ticker).price";
@@ -50,7 +50,8 @@ contract('Mining Tests', function(accounts) {
   let master;
 
     beforeEach('Setup contract for each test', async function () {
-        oracleBase = await OldTellor.new();
+        //oracleBase = await OldTellor.new();
+        oracleBase = await Tellor.new();
         oracle = await TellorMaster.new(oracleBase.address);
         master = await new web3.eth.Contract(masterAbi,oracle.address);
         oracle2 = await new web3.eth.Contract(oracleAbi,oracleBase.address);///will this instance work for logWatch? hopefully...

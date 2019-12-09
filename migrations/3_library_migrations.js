@@ -1,15 +1,15 @@
 /****Uncomment the body below to run this with Truffle migrate for truffle testing*/
-var TellorTransfer = artifacts.require("./libraries/TellorTransfer.sol");
-var TellorDispute = artifacts.require("./libraries/TellorDispute.sol");
-var TellorStake = artifacts.require("./libraries/TellorStake.sol");
-var TellorLibrary = artifacts.require("./libraries/TellorLibrary.sol");
-var TellorGettersLibrary = artifacts.require("./libraries/TellorGettersLibrary.sol");
-var OldTellor = artifacts.require("./oldContracts/OldTellor.sol");
+// var TellorTransfer = artifacts.require("./libraries/TellorTransfer.sol");
+// var TellorDispute = artifacts.require("./libraries/TellorDispute.sol");
+// var TellorStake = artifacts.require("./libraries/TellorStake.sol");
+// var TellorLibrary = artifacts.require("./libraries/TellorLibrary.sol");
+// var TellorGettersLibrary = artifacts.require("./libraries/TellorGettersLibrary.sol");
+// var OldTellor = artifacts.require("./oldContracts/OldTellor.sol");
 var OldTellorTransfer = artifacts.require("./oldContracts/libraries/OldTellorTransfer.sol")
-var OldTellorDispute = artifacts.require("./oldContracts/libraries/OldTellorDispute.sol")
-var OldTellorLibrary = artifacts.require("./oldContracts/libraries/OldTellorLibrary.sol")
-var Tellor = artifacts.require("./Tellor.sol");
-var TellorMaster = artifacts.require("./TellorMaster.sol");
+// var OldTellorDispute = artifacts.require("./oldContracts/libraries/OldTellorDispute.sol")
+// var OldTellorLibrary = artifacts.require("./oldContracts/libraries/OldTellorLibrary.sol")
+// var Tellor = artifacts.require("./Tellor.sol");
+// var TellorMaster = artifacts.require("./TellorMaster.sol");
 /****Uncomment the body to run this with Truffle migrate for truffle testing*/
 
 /**
@@ -20,10 +20,10 @@ var TellorMaster = artifacts.require("./TellorMaster.sol");
 *truffle exec scripts/Migrate_1.js --network rinkeby
 *truffle exec scripts/Migrate_2.js --network rinkeby
 */
-function sleep_s(secs) {
-  secs = (+new Date) + secs * 1000;
-  while ((+new Date) < secs);
-}
+// function sleep_s(secs) {
+//   secs = (+new Date) + secs * 1000;
+//   while ((+new Date) < secs);
+// }
 /****Uncomment the body below to run this with Truffle migrate for truffle testing*/
 // module.exports = function (deployer) {
 //     deployer.deploy(TellorLibrary).then(() => {
@@ -38,38 +38,38 @@ module.exports = async function (deployer) {
   await deployer.deploy(OldTellorTransfer);
 
   // deploy dispute
-  await deployer.link(OldTellorTransfer,OldTellorDispute);
-  await deployer.deploy(OldTellorDispute);
+  // await deployer.link(OldTellorTransfer,OldTellorDispute);
+  // await deployer.deploy(OldTellorDispute);
 
-    // deploy stake
-  await deployer.link(OldTellorTransfer,TellorStake);
-  await deployer.link(OldTellorDispute,TellorStake);
-  await deployer.deploy(TellorStake);
+  //   // deploy stake
+  // await deployer.link(OldTellorTransfer,TellorStake);
+  // await deployer.link(OldTellorDispute,TellorStake);
+  // await deployer.deploy(TellorStake);
 
-  // deploy getters lib
-  await deployer.deploy(TellorGettersLibrary);
+  // // deploy getters lib
+  // await deployer.deploy(TellorGettersLibrary);
 
-  // deploy lib
-  await deployer.link(OldTellorDispute, OldTellorLibrary);
-  await deployer.link(OldTellorTransfer, OldTellorLibrary);
-  await deployer.link(TellorStake, OldTellorLibrary);
-  await deployer.deploy(OldTellorLibrary);
+  // // deploy lib
+  // await deployer.link(OldTellorDispute, OldTellorLibrary);
+  // await deployer.link(OldTellorTransfer, OldTellorLibrary);
+  // await deployer.link(TellorStake, OldTellorLibrary);
+  // await deployer.deploy(OldTellorLibrary);
 
 
-  // deploy tellor
-  await deployer.link(OldTellorTransfer,OldTellor);
-  await deployer.link(OldTellorDispute,OldTellor);
-  await deployer.link(TellorStake,OldTellor);
-  await deployer.link(OldTellorLibrary,OldTellor);
-  await deployer.deploy(OldTellor);
+  // // deploy tellor
+  // await deployer.link(OldTellorTransfer,OldTellor);
+  // await deployer.link(OldTellorDispute,OldTellor);
+  // await deployer.link(TellorStake,OldTellor);
+  // await deployer.link(OldTellorLibrary,OldTellor);
+  // await deployer.deploy(OldTellor);
 
-  // deploy tellor master
-  await deployer.link(OldTellorTransfer,TellorMaster);
-  await deployer.link(TellorGettersLibrary,TellorMaster);
-    await deployer.link(TellorStake,TellorMaster);
-  await deployer.deploy(OldTellor).then(async function() {
-    await deployer.deploy(TellorMaster, OldTellor.address)
-  });
+  // // deploy tellor master
+  // await deployer.link(OldTellorTransfer,TellorMaster);
+  // await deployer.link(TellorGettersLibrary,TellorMaster);
+  //   await deployer.link(TellorStake,TellorMaster);
+  // await deployer.deploy(OldTellor).then(async function() {
+  //   await deployer.deploy(TellorMaster, OldTellor.address)
+  // });
 
 
 };
