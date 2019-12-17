@@ -1,118 +1,118 @@
-// /** 
-// * This tests the oracle functions, including mining.
-// */
-// const Web3 = require('web3')
-// const web3 = new Web3(new Web3.providers.WebsocketProvider('ws://localhost:8545'));
-// const BN = require('bn.js');  
-// const helper = require("./helpers/test_helpers");
-// const TellorMaster = artifacts.require("./TellorMaster.sol");
-// const Tellor = artifacts.require("./Tellor.sol"); // globally injected artifacts helper
-// var oracleAbi = Tellor.abi;
-// var oracleByte = Tellor.bytecode;
-// //var OldTellor = artifacts.require("./oldContracts/OldTellor.sol")
-// var masterAbi = TellorMaster.abi;
-// var api = "json(https://api.gdax.com/products/BTC-USD/ticker).price";
-// var api2 = "json(https://api.gdax.com/products/ETH-USD/ticker).price";
+/** 
+* This tests the oracle functions, including mining.
+*/
+const Web3 = require('web3')
+const web3 = new Web3(new Web3.providers.WebsocketProvider('ws://localhost:8545'));
+const BN = require('bn.js');  
+const helper = require("./helpers/test_helpers");
+const TellorMaster = artifacts.require("./TellorMaster.sol");
+const Tellor = artifacts.require("./Tellor.sol"); // globally injected artifacts helper
+var oracleAbi = Tellor.abi;
+var oracleByte = Tellor.bytecode;
+//var OldTellor = artifacts.require("./oldContracts/OldTellor.sol")
+var masterAbi = TellorMaster.abi;
+var api = "json(https://api.gdax.com/products/BTC-USD/ticker).price";
+var api2 = "json(https://api.gdax.com/products/ETH-USD/ticker).price";
 
-// //XZDBFVORC4XNI483
-// //json(https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=GSPC&apikey=XZDBFVORC4XNI483).price"
-// //json(https://api.pro.coinbase.com/products/ZRX-USD/ticker).price
-// //json(https://api.pro.coinbase.com/products/LTC-USD/ticker).price
-// // https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=BNB&APIKEY=d2c47c82-a3d4-4ee8-8db3-5bccbdbd038a
-// //d2c47c82-a3d4-4ee8-8db3-5bccbdbd038a
+//XZDBFVORC4XNI483
+//json(https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=GSPC&apikey=XZDBFVORC4XNI483).price"
+//json(https://api.pro.coinbase.com/products/ZRX-USD/ticker).price
+//json(https://api.pro.coinbase.com/products/LTC-USD/ticker).price
+// https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=BNB&APIKEY=d2c47c82-a3d4-4ee8-8db3-5bccbdbd038a
+//d2c47c82-a3d4-4ee8-8db3-5bccbdbd038a
 
-// // json(https://api.binance.com/api/v3/ticker/price?symbol=BNBUSDT).price
-// // json(https://api.binance.com/api/v3/ticker/price?symbol=XMRUSDT).price
-// //https://stooq.com/t/d/l/?s=SPX.US&i=d
-
-
-// function promisifyLogWatch(_address,_event) {
-//   return new Promise((resolve, reject) => {
-//     web3.eth.subscribe('logs', {
-//       address: _address,
-//       topics: [web3.utils.sha3(_event)]
-//     }, (error, result) => {
-//         if (error){
-//           console.log('Error',error);
-//           reject(error);
-//         }
-//         else{
-//        	resolve(result);
-//     	}
-//     })
-//   });
-// }
-
-// contract('Mining Tests', function(accounts) {
-//   let oracle;
-//   let oracle2;
-//   let newOracle;
-//   let master;
-
-//     beforeEach('Setup contract for each test', async function () {
-//         //oracleBase = await OldTellor.new();
-//         oracleBase = await Tellor.new();
-//         oracle = await TellorMaster.new(oracleBase.address);
-//         master = await new web3.eth.Contract(masterAbi,oracle.address);
-//         oracle2 = await new web3.eth.Contract(oracleAbi,oracleBase.address);///will this instance work for logWatch? hopefully...
-//         //await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.init().encodeABI()})
-//         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",1000,0).encodeABI()})
-//     });
+// json(https://api.binance.com/api/v3/ticker/price?symbol=BNBUSDT).price
+// json(https://api.binance.com/api/v3/ticker/price?symbol=XMRUSDT).price
+//https://stooq.com/t/d/l/?s=SPX.US&i=d
 
 
+function promisifyLogWatch(_address,_event) {
+  return new Promise((resolve, reject) => {
+    web3.eth.subscribe('logs', {
+      address: _address,
+      topics: [web3.utils.sha3(_event)]
+    }, (error, result) => {
+        if (error){
+          console.log('Error',error);
+          reject(error);
+        }
+        else{
+       	resolve(result);
+    	}
+    })
+  });
+}
 
-//     it("Get Symbol", async function(){
-//         newOracle = await Tellor.new();
-//         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:master.methods.changeTellorContract(newOracle.address).encodeABI()})
-//         let symbol = await oracle.getSymbol();
-//         assert.equal(symbol,"TT","the Symbol should be TT");
-//     });
+contract('Mining Tests', function(accounts) {
+  let oracle;
+  let oracle2;
+  let newOracle;
+  let master;
 
-//     it("Get name", async function(){
-//                     newOracle = await Tellor.new();
-//         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:master.methods.changeTellorContract(newOracle.address).encodeABI()})
-//         let name = await oracle.getName();
-//         assert.equal(name,"Tellor Tributes","the Symbol should be Tellor Tributes");
-//     });
+    beforeEach('Setup contract for each test', async function () {
+        //oracleBase = await OldTellor.new();
+        oracleBase = await Tellor.new();
+        oracle = await TellorMaster.new(oracleBase.address);
+        master = await new web3.eth.Contract(masterAbi,oracle.address);
+        oracle2 = await new web3.eth.Contract(oracleAbi,oracleBase.address);///will this instance work for logWatch? hopefully...
+        //await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.init().encodeABI()})
+        await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",1000,0).encodeABI()})
+    });
 
-//     it("getStakersCount", async function(){
-//                     newOracle = await Tellor.new();
-//         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:master.methods.changeTellorContract(newOracle.address).encodeABI()})
-//         let count = await oracle.getUintVar(web3.utils.keccak256("stakerCount"))
-//         assert(web3.utils.hexToNumberString(count)==6, "count is 6");//added miner
-//     });
-//    it("getStakersInfo", async function(){
-//                 newOracle = await Tellor.new();
-//         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:master.methods.changeTellorContract(newOracle.address).encodeABI()})
-//         let info = await oracle.getStakerInfo(accounts[1])
-//         let stake = web3.utils.hexToNumberString(info['0']);
-//         let startDate = web3.utils.hexToNumberString(info['1']);
-//         let _date = new Date();
-//         let d = (_date - (_date % 86400000))/1000;
-//         console.log(_date,d,startDate);
-//         assert(d*1==startDate, "startDate is today");
-//         assert(stake*1 == 1, "Should be 1 for staked address");
-//      });
-//     it("getVariables", async function(){
-//                     newOracle = await Tellor.new();
-//         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:master.methods.changeTellorContract(newOracle.address).encodeABI()})
-//         var vars = await oracle.getCurrentVariables()
-//         let miningApiId = web3.utils.hexToNumberString(vars['1']);
-//         let difficulty = web3.utils.hexToNumberString(vars['2']);
-//         let sapi = vars['3'];
-//         assert(miningApiId == 1, "miningApiId should be 1");
-//         assert(difficulty == 1, "Difficulty should be 1");
-//         assert.equal(sapi,api, "sapi = api");  
-//     });
-//  it("Test miner", async function () {
-//         newOracle = await Tellor.new();
-//         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:master.methods.changeTellorContract(newOracle.address).encodeABI()})
-//         console.log('START MINING RIG!!');
-//         var logMineWatcher = await promisifyLogWatch(oracle.address, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
-//         res = web3.eth.abi.decodeParameters(['uint256','uint256'],logMineWatcher.data);
-//         console.log("res", res)
-//         assert(res['1'] > 0, "value should be positive");
-//    });
+
+
+    it("Get Symbol", async function(){
+        newOracle = await Tellor.new();
+        await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:master.methods.changeTellorContract(newOracle.address).encodeABI()})
+        let symbol = await oracle.getSymbol();
+        assert.equal(symbol,"TT","the Symbol should be TT");
+    });
+
+    it("Get name", async function(){
+        newOracle = await Tellor.new();
+        await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:master.methods.changeTellorContract(newOracle.address).encodeABI()})
+        let name = await oracle.getName();
+        assert.equal(name,"Tellor Tributes","the Symbol should be Tellor Tributes");
+    });
+
+    it("getStakersCount", async function(){
+        newOracle = await Tellor.new();
+        await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:master.methods.changeTellorContract(newOracle.address).encodeABI()})
+        let count = await oracle.getUintVar(web3.utils.keccak256("stakerCount"))
+        assert(web3.utils.hexToNumberString(count)==6, "count is 6");//added miner
+    });
+   it("getStakersInfo", async function(){
+                newOracle = await Tellor.new();
+        await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:master.methods.changeTellorContract(newOracle.address).encodeABI()})
+        let info = await oracle.getStakerInfo(accounts[1])
+        let stake = web3.utils.hexToNumberString(info['0']);
+        let startDate = web3.utils.hexToNumberString(info['1']);
+        let _date = new Date();
+        let d = (_date - (_date % 86400000))/1000;
+        console.log(_date,d,startDate);
+        assert(d*1==startDate, "startDate is today");
+        assert(stake*1 == 1, "Should be 1 for staked address");
+     });
+    it("getVariables", async function(){
+                    newOracle = await Tellor.new();
+        await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:master.methods.changeTellorContract(newOracle.address).encodeABI()})
+        var vars = await oracle.getCurrentVariables()
+        let miningApiId = web3.utils.hexToNumberString(vars['1']);
+        let difficulty = web3.utils.hexToNumberString(vars['2']);
+        let sapi = vars['3'];
+        assert(miningApiId == 1, "miningApiId should be 1");
+        assert(difficulty == 1, "Difficulty should be 1");
+        assert.equal(sapi,api, "sapi = api");  
+    });
+ it("Test miner", async function () {
+        newOracle = await Tellor.new();
+        await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:master.methods.changeTellorContract(newOracle.address).encodeABI()})
+        console.log('START MINING RIG!!');
+        var logMineWatcher = await promisifyLogWatch(oracle.address, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
+        res = web3.eth.abi.decodeParameters(['uint256','uint256'],logMineWatcher.data);
+        console.log("res", res)
+        assert(res['1'] > 0, "value should be positive");
+   });
 
 //  	// it("Test 5 Mines", async function () {
 //   //       newOracle = await Tellor.new();
@@ -658,4 +658,4 @@
 //   //       assert(res['2'] == 5 , "last payout had a tip of 5")
 //   //   });
 
-// });    
+ });    

@@ -2,6 +2,8 @@ pragma solidity ^0.5.0;
 
 import "../TellorMaster.sol";
 import "../Tellor.sol";
+import "./OracleIDDescriptions.sol";
+import "../interfaces/ADOInterface.sol";
 
 /**
 * @title UserContract
@@ -11,16 +13,18 @@ import "../Tellor.sol";
 * Once the tellor system is running, this can be set properly.
 * Note deploy through centralized 'Tellor Master contract'
 */
-contract UserContract {
+contract UserContract is ADOInterface{
     //in Loyas per ETH.  so at 200$ ETH price and 3$ Trib price -- (3/200 * 1e18)
     uint256 public tributePrice;
     address payable public owner;
     address payable public tellorStorageAddress;
     Tellor _tellor;
     TellorMaster _tellorm;
+    OracleIDDescriptions descriptions;
 
     event OwnershipTransferred(address _previousOwner, address _newOwner);
     event NewPriceSet(uint256 _newPrice);
+    event NewDescriptorSet(address _descriptorSet);
 
     /*Constructor*/
     /**
@@ -35,6 +39,17 @@ contract UserContract {
     }
 
     /*Functions*/
+    /*
+    * @dev Allows the owner to set the address for the oracleID descriptors
+    * used by the ADO members for price key value pairs standarization 
+    * _oracleDescriptos is the address for the OracleIDDescptions contract
+    */
+    function setOracleIDDescriptors(address _oracleDescriptors) external {
+        require(msg.sender == owner, "Sender is not owner");
+        descriptions = OracleIDDescriptions(_oracleDescriptors);
+        emit NewDescriptorSet(_oracleDescriptors);
+    }
+
     /**
     * @dev Allows the current owner to transfer control of the contract to a newOwner.
     * @param newOwner The address to transfer ownership to.
@@ -107,6 +122,28 @@ contract UserContract {
         return (false, 0, 0);
     }
 
+    /**
+    * @dev Allows the user to get the latest value for the requestId specified using the 
+    * ADO specification for the standard inteface for price oracles
+    * @param _bytesId is the ADO standarized bytes32 price/key value pair identifier
+    * @return the timestamp, outcome or value/ and the status code (for retreived, null, etc...)
+    */
+    function resultFor(bytes32 _bytesId) view external returns (uint256 timestamp, int outcome, int status) {
+        uint _id = descriptions.getTellorIdFromBytes(_bytesId);
+        if (_id > 0){
+            bool _didGet;
+            uint256 _returnedValue;
+            uint256 _timestampRetrieved;
+            (_didGet,_returnedValue,_timestampRetrieved) = getCurrentValue(_id);
+            if(_didGet){
+                return (_timestampRetrieved, int(_returnedValue),descriptions.getStatusFromTellorStatus(1));
+            }
+            else{
+                return (0,0,descriptions.getStatusFromTellorStatus(2));
+            }
+        }
+        return (0, 0, descriptions.getStatusFromTellorStatus(0));
+    }
     /**
     * @dev Allows the user to get the first verified value for the requestId after the specified timestamp
     * @param _requestId is the requestId to look up the value for
