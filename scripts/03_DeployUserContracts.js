@@ -40,30 +40,44 @@ module.exports =async function(callback) {
     let userContract;
     let oracleIDDescriptions;
    console.log("1")
-    oa = (web3.utils.toChecksumAddress(tellorMaster));
-    // tm = (web3.utils.toChecksumAddress(tellorMaster));
-    // console.log("tm", tm);
-    userContract = await UserContract.new(oa);
-    console.log("userContract address:", userContract.address);
-    sleep_s(30)
+    // oa = (web3.utils.toChecksumAddress(tellorMaster));
+    // // tm = (web3.utils.toChecksumAddress(tellorMaster));
+    // // console.log("tm", tm);
+    // userContract = await UserContract.new(oa);
+    // console.log("userContract address:", userContract.address);
+    // sleep_s(30)
 
-    usingTellor = await UsingTellor.new(userContract.address)
-    console.log("using tellor", usingTellor.address);
-    sleep_s(30)
+    // usingTellor = await UsingTellor.new(userContract.address)
+    // console.log("using tellor", usingTellor.address);
+    // sleep_s(30)
 
-    await usingTellor.setUserContract(userContract.address);
-    console.log("user contract set");
-    sleep_s(30)
+    // await usingTellor.setUserContract(userContract.address);
+    // console.log("user contract set");
+    // sleep_s(30)
 
-    oracleIDDesc = await OracleIDDescriptions.new();
-    console.log("oracleIDDesc address:", oracleIDDesc.address);
-    sleep_s(30)
+    // oracleIDDesc = await OracleIDDescriptions.new();
+    // console.log("oracleIDDesc address:", oracleIDDesc.address);
+    // sleep_s(30)
 
-    await userContract.setOracleIDDescriptors(oracleIDDesc.address);
+    // await userContract.setOracleIDDescriptors(oracleIDDesc.address);
+    // console.log("user contract setOracleIdDescriptors address");
+    // sleep_s(30)
+
+//     userContract address: 0x7e098B3CE904ba9Aba86E41a8da2FbdAcD59905e
+// using tellor 0x296516bE6bf5b4304a7E669aA34a4bB81Bc1A894
+// user contract set
+// oracleIDDesc address: 0x58FE2504eBe656Bc73ccfc84c40777B27968A7Cd
+// user contract setOracleIdDescriptors address
+    let u = '0x7e098B3CE904ba9Aba86E41a8da2FbdAcD59905e'
+    await UserContract.at(u);
+    let d = '0x58FE2504eBe656Bc73ccfc84c40777B27968A7Cd';
+    await OracleIDDescriptions.at(d);
+
+    await userContract.setOracleIDDescriptors(c);
     console.log("user contract setOracleIdDescriptors address");
     sleep_s(30)
 
-    await userContract.setPrice(web3.utils.toWei(1,'Ether'));
+    await userContract.setPrice(web3.utils.toWei(.03,'Ether'));
     console.log("userContract set Price ")
     sleep_s(30)
 
