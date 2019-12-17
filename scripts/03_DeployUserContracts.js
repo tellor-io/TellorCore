@@ -73,9 +73,9 @@ module.exports =async function(callback) {
     let d = '0x58FE2504eBe656Bc73ccfc84c40777B27968A7Cd';
     await OracleIDDescriptions.at(d);
 
-    await userContract.setOracleIDDescriptors(c);
-    console.log("user contract setOracleIdDescriptors address");
-    sleep_s(30)
+    // await userContract.setOracleIDDescriptors(c);
+    // console.log("user contract setOracleIdDescriptors address");
+    // sleep_s(30)
 
     await userContract.setPrice(web3.utils.toWei(.03,'Ether'));
     console.log("userContract set Price ")
