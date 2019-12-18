@@ -7,8 +7,7 @@
 /*Imports*/
 var UserContract = artifacts.require("UserContract");
 var UsingTellor = artifacts.require("UsingTellor");
-var Optimistic = artifacts.require("Optimistic");
-var TestContract = artifacts.require("TestContract");
+var OracleIDDescriptions = artifacts.require("OracleIDDescriptions");
 
 /*Helper functions*/
 function sleep_s(secs) {
@@ -28,28 +27,61 @@ var web3 = new Web3(new HDWalletProvider("","https://mainnet.infura.io/v3/bc3e39
 
 /*Variables*/
 //rinkeby
-//tellorMaster = '0x3f1571E4DFC9f3A016D90e0C9824C56fD8107a3e';
+//tellorMaster = '0x724D1B69a7Ba352F11D73fDBdEB7fF869cB22E19';
 
 //mainnet
 tellorMaster = '0x0Ba45A8b5d5575935B8158a88C631E9F9C95a2e5';
 
+var api = "json(https://api.gdax.com/products/BTC-USD/ticker).price";
+var bytes = web3.utils.keccak256(api, 1000);
+console.log("bytes", bytes);
+
 console.log("start");
 module.exports =async function(callback) {
     let userContract;
-   // let testContract;
+    let oracleIDDescriptions;
    console.log("1")
+    // oa = (web3.utils.toChecksumAddress(tellorMaster));
+    // // tm = (web3.utils.toChecksumAddress(tellorMaster));
+    // // console.log("tm", tm);
+    // userContract = await UserContract.new(oa);
+    // console.log("userContract address:", userContract.address);
+    // sleep_s(30)
+
+a = '0x09459fdafD6Fdce14E04B3487A656FBca0b953ea'
+userContract = await UserContract.at(a);
+    usingTellor = await UsingTellor.new(userContract.address)
+
+    console.log("using tellor", usingTellor.address);
+    sleep_s(30)
+
+    oracleIDDesc = await OracleIDDescriptions.new();
+    console.log("oracleIDDesc address:", oracleIDDesc.address);
+    sleep_s(30)
+
+    await userContract.setOracleIDDescriptors(oracleIDDesc.address);
+    console.log("user contract setOracleIdDescriptors address");
+    sleep_s(30)
     
-    // tm = (web3.utils.toChecksumAddress(tellorMaster));
-    // console.log("tm", tm);
-    userContract = await UserContract.new(tellorMaster);
-    
-    console.log("userContract address:", userContract.address);
-/*    testContract = await testContract.new(userContract.address,10,86400*3,[1],86400);
-    console.log("testContract address:", testContract.address);
-    await testContract.setUserContract(userContract.address);
-    console.log("UserContract set on test contract");  
-    await testContract.testContract(7 * 86400);
-    var startTime = await testContract.startDateTime.call(); 
-    console.log('StartTime', startTime);*/
+
+    await userContract.setPrice(web3.utils.toWei(.03,'ether'));
+    console.log("userContract set Price ")
+    sleep_s(30)
+
+    await oracleIDDesc.defineTellorCodeToStatusCode(0,400);
+    console.log("status code 0")
+    sleep_s(30)
+    await oracleIDDesc.defineTellorCodeToStatusCode(1,200);
+    console.log("status code 1")
+    sleep_s(30)
+    await oracleIDDesc.defineTellorCodeToStatusCode(2,404);
+    console.log("status code 2")
+    sleep_s(30)
+
+
+    await oracleIDDesc.defineTellorIdToBytesID(1,bytes);
+    console.log("defineTellorIdtoBytesId");
+
+
 process.exit()
 }

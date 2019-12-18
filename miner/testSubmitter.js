@@ -2,7 +2,7 @@
 
 const Web3 = require("web3");
 const fs = require('fs');
-const Tx = require('ethereumjs-tx')
+var Tx = require("ethereumjs-tx").Transaction
 var web3 = new Web3(new Web3.providers.HttpProvider('http://127.0.0.1:8545/'))
 var json = require('../build/contracts/Tellor.json');
 
@@ -34,10 +34,10 @@ web3.eth.getTransactionCount(account, function (err, nonce) {
 
     var raw = '0x' + tx.serialize().toString('hex');
     web3.eth.sendSignedTransaction(raw).on('transactionHash', function (txHash) {
-      }).on('receipt', function (receipt) {
-          console.log("receipt:" + receipt);
-      }).on('confirmation', function (confirmationNumber, receipt) {
-          //console.log("confirmationNumber:" + confirmationNumber + " receipt:" + receipt);
-      }).on('error', function (error) {
+      // }).on('receipt', function (receipt) {
+      //     console.log("receipt:" + receipt);
+      // }).on('confirmation', function (confirmationNumber, receipt) {
+      //     //console.log("confirmationNumber:" + confirmationNumber + " receipt:" + receipt);
+      // }).on('error', function (error) {
     });
   });

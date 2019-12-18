@@ -1,13 +1,14 @@
 pragma solidity ^0.5.0;
 
-import "../Tellor.sol";
 import "../TellorMaster.sol";
+import "../Tellor.sol";
 import "./UserContract.sol";
+import "../interfaces/ADOInterface.sol";
 /**
 * @title UsingTellor
 * This contracts creates for easy integration to the Tellor Tellor System
 */
-contract UsingTellor {
+contract UsingTellor is ADOInterface{
     UserContract tellorUserContract;
     address payable public owner;
 
@@ -33,7 +34,16 @@ contract UsingTellor {
         return tellorUserContract.getCurrentValue(_requestId);
     }
 
-    //How can we make this one more efficient?
+    /**
+    * @dev Allows the user to get the latest value for the requestId specified using the 
+    * ADO specification for the standard inteface for price oracles
+    * @param _bytesId is the ADO standarized bytes32 price/key value pair identifier
+    * @return the timestamp, outcome or value/ and the status code (for retreived, null, etc...)
+    */
+    function resultFor(bytes32 _bytesId) view external returns (uint256 timestamp,int256 outcome, int256 status){
+        return tellorUserContract.resultFor(_bytesId);
+    }
+
     /**
     * @dev Allows the user to get the first verified value for the requestId after the specified timestamp
     * @param _requestId is the requestId to look up the value for
@@ -82,11 +92,9 @@ contract UsingTellor {
     * @param _request string API being requested to be mined
     * @param _symbol is the short string symbol for the api request
     * @param _granularity is the number of decimals miners should include on the submitted value
-    * @param _tip amount the requester is willing to pay to be get on queue. Miners
-    * mine the onDeckQueryHash, or the api with the highest payout pool
     */
-    function requestDataWithEther(string calldata _request, string calldata _symbol, uint256 _granularity, uint256 _tip) external payable {
-        tellorUserContract.requestDataWithEther.value(msg.value)(_request, _symbol, _granularity, _tip);
+    function requestDataWithEther(string calldata _request, string calldata _symbol, uint256 _granularity) external payable {
+        tellorUserContract.requestDataWithEther.value(msg.value)(_request, _symbol, _granularity);
     }
 
     /**
