@@ -14,7 +14,7 @@ module.exports = {
     },
     rinkeby: {
       provider: () =>
-        new HDWalletProvider("4bdc16637633fa4b4854670fbb83fa254756798009f52a1d3add27fb5f5a8e16", `https://rinkeby.infura.io/v3/${accessToken}`),
+        new HDWalletProvider(mnemonic, `https://rinkeby.infura.io/v3/${accessToken}`),
       network_id: 4,
     },
     mainnet: {
@@ -22,7 +22,7 @@ module.exports = {
         new HDWalletProvider(mnemonic, `https://mainnet.infura.io/v3/${accessToken}`),
       network_id: 1,
       gas: 4700000,
-      gasPrice: 4000000000,
+      gasPrice: 8000000000,
     },
     mocha: {
       enableTimeouts: false,

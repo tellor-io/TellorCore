@@ -18,6 +18,7 @@ contract UserContract is ADOInterface{
     uint256 public tributePrice;
     address payable public owner;
     address payable public tellorStorageAddress;
+    address public oracleIDDescriptionsAddress;
     Tellor _tellor;
     TellorMaster _tellorm;
     OracleIDDescriptions descriptions;
@@ -46,6 +47,7 @@ contract UserContract is ADOInterface{
     */
     function setOracleIDDescriptors(address _oracleDescriptors) external {
         require(msg.sender == owner, "Sender is not owner");
+        oracleIDDescriptionsAddress = _oracleDescriptors;
         descriptions = OracleIDDescriptions(_oracleDescriptors);
         emit NewDescriptorSet(_oracleDescriptors);
     }
