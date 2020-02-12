@@ -135,6 +135,7 @@ library TellorLibrary {
         }
     }
 
+event print(uint reward);
     /**
     * @dev This fucntion is called by submitMiningSolution and adjusts the difficulty, sorts and stores the first
     * 5 values received, pays the miners, the dev share and assigns a new challenge
@@ -186,10 +187,15 @@ library TellorLibrary {
             }
         }
 
-        //Pay the miners
+
+        //Pay the miners 
+        //adjust by payout = payout * ratio 0.000030612633181126/1e18  
+        //uint _currentReward = self.uintVars[keccak256("currentReward")];   
         for (i = 0; i < 5; i++) {
-            TellorTransfer.doTransfer(self, address(this), a[i].miner, 5e18 + self.uintVars[keccak256("currentTotalTips")] / 5);
+            TellorTransfer.doTransfer(self, address(this), a[i].miner, self.uintVars[keccak256("currentReward")]  + self.uintVars[keccak256("currentTotalTips")] / 5);
         }
+        self.uintVars[keccak256("currentReward")] = self.uintVars[keccak256("currentReward")] * 30612633181126/1e18;
+    emit print(self.uintVars[keccak256("currentReward")]);
         emit NewValue(
             _requestId,
             _timeOfLastNewValue,
@@ -199,7 +205,10 @@ library TellorLibrary {
         );
 
         //update the total supply
-        self.uintVars[keccak256("total_supply")] += 275e17;
+        //adjust to += (payout * 5) +2.5
+        self.uintVars[keccak256("total_supply")] += 25e17 + self.uintVars[keccak256("currentReward")]*5 ;
+    emit print(self.uintVars[keccak256("total_supply")]);
+        //blocknumber, new supply added, supply adjusted by ratio
 
         //pay the dev-share
         TellorTransfer.doTransfer(self, address(this), self.addressVars[keccak256("_owner")], 25e17); //The ten there is the devshare
