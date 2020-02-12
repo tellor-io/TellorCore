@@ -191,11 +191,11 @@ library TellorDispute {
                     _request.inDispute[disp.disputeUintVars[keccak256("timestamp")]] = false;
                 }
             }
-            //If the vote is for a proposed fork require a 20% quorum before executing the update to the new tellor contract address
+            //If the vote is for a proposed fork require a 10% quorum before executing the update to the new tellor contract address
         } else {
             if (disp.tally > 0) {
                 require(
-                    disp.disputeUintVars[keccak256("quorum")] > ((self.uintVars[keccak256("total_supply")] * 20) / 100),
+                    disp.disputeUintVars[keccak256("quorum")] > ((self.uintVars[keccak256("total_supply")] * 10) / 100),
                     "Quorum is not reached"
                 );
                 self.addressVars[keccak256("tellorContract")] = disp.proposedForkAddress;

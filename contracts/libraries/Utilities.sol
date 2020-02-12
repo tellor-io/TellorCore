@@ -6,6 +6,14 @@ pragma solidity ^0.5.0;
 library Utilities {
     /**
     * @dev Returns the minimum value in an array.
+    * The zero position here is ignored. It's because 
+    * there's no null in solidity and we map each address 
+    * to an index in this array. So when we get 51 parties, 
+    * and one person is kicked out of the top 50, we 
+    * assign them a 0, and when you get mined and pulled 
+    * out of the top 50, also a 0. So then lot's of parties 
+    * will have zero as the index so we made the array run 
+    * from 1-51 with zero as nothing.
     */
     function getMax(uint256[51] memory data) internal pure returns (uint256 max, uint256 maxIndex) {
         max = data[1];
