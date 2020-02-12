@@ -283,7 +283,7 @@ library TellorLibrary {
             ) %
                 self.uintVars[keccak256("difficulty")] ==
                 0,
-            "Challenge information is not saved"
+            "Incorrect nonce for current challenge"
         );
 
         //Make sure the miner does not submit a value more than once
