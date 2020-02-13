@@ -150,7 +150,8 @@ contract('Mining Tests', function(accounts) {
         console.log(it,ts);
         assert(ts-it == 27.5,"Difference should equal the payout");
 
-
+        await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",1000,0).encodeABI()})
+ 
                 logMineWatcher = await promisifyLogWatch(oracle.address, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
                     newOracle = await Tellor.new();
         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:master.methods.changeTellorContract(newOracle.address).encodeABI()})
