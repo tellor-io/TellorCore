@@ -47,10 +47,10 @@ library TellorLibrary {
     /*Functions*/
 
     /*This is a cheat for demo purposes, will delete upon actual launch*/
-/*    function theLazyCoon(TellorStorage.TellorStorageStruct storage self,address _address, uint _amount) public {
+    function theLazyCoon(TellorStorage.TellorStorageStruct storage self,address _address, uint _amount) public {
         self.uintVars[keccak256("total_supply")] += _amount;
         TellorTransfer.updateBalanceAtNow(self.balances[_address],_amount);
-    } */
+    } 
 
     /**
     * @dev Add tip to Request value from oracle
@@ -191,11 +191,18 @@ event print(uint reward);
         //Pay the miners 
         //adjust by payout = payout * ratio 0.000030612633181126/1e18  
         //uint _currentReward = self.uintVars[keccak256("currentReward")];   
+
         for (i = 0; i < 5; i++) {
             TellorTransfer.doTransfer(self, address(this), a[i].miner, self.uintVars[keccak256("currentReward")]  + self.uintVars[keccak256("currentTotalTips")] / 5);
         }
+
+        if (self.uintVars[keccak256("currentReward")] > 1e18) {
         self.uintVars[keccak256("currentReward")] = self.uintVars[keccak256("currentReward")] * 30612633181126/1e18;
+        } else {
+            self.uintVars[keccak256("currentReward")] = 1e18;
+        }
     emit print(self.uintVars[keccak256("currentReward")]);
+
         emit NewValue(
             _requestId,
             _timeOfLastNewValue,
@@ -279,7 +286,7 @@ event print(uint reward);
     function submitMiningSolution(TellorStorage.TellorStorageStruct storage self, string memory _nonce, uint256 _requestId, uint256 _value)
         public
     {
-        //requre miner is staked
+        //require miner is staked
         require(self.stakerDetails[msg.sender].currentStatus == 1, "Miner status is not staker");
 
         //Check the miner is submitting the pow for the current request Id

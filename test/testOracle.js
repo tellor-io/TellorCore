@@ -61,7 +61,7 @@ contract('Mining Tests', function(accounts) {
 
 
 
-    it("Get Symbol", async function(){
+/*    it("Get Symbol", async function(){
         newOracle = await Tellor.new();
         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:master.methods.changeTellorContract(newOracle.address).encodeABI()})
         let symbol = await oracle.getSymbol();
@@ -73,7 +73,7 @@ contract('Mining Tests', function(accounts) {
         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:master.methods.changeTellorContract(newOracle.address).encodeABI()})
         let name = await oracle.getName();
         assert.equal(name,"Tellor Tributes","the Symbol should be Tellor Tributes");
-    });
+    });*/
 
     it("getStakersCount", async function(){
         newOracle = await Tellor.new();
@@ -127,17 +127,42 @@ contract('Mining Tests', function(accounts) {
 //   //   });
 
     
-//   // it("Test Total Supply Increase", async function () {
-//   //       initTotalSupply = await oracle.totalSupply();
-//   //       logMineWatcher = await promisifyLogWatch(oracle.address, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
-//   //                   newOracle = await Tellor.new();
-//   //       await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:master.methods.changeTellorContract(newOracle.address).encodeABI()})
-//   //       newTotalSupply = await oracle.totalSupply();
-//   //       it= await web3.utils.fromWei(initTotalSupply, 'ether');
-//   //       ts= await web3.utils.fromWei(newTotalSupply, 'ether');         
-//   //       console.log(it,ts);
-//   //       assert(ts-it == 27.5,"Difference should equal the payout");
-//   //   });
+  it("Test Total Supply Increase", async function () {
+        initTotalSupply = await oracle.totalSupply();
+        logMineWatcher = await promisifyLogWatch(oracle.address, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
+                    newOracle = await Tellor.new();
+        await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:master.methods.changeTellorContract(newOracle.address).encodeABI()})
+        newTotalSupply = await oracle.totalSupply();
+        it= await web3.utils.fromWei(initTotalSupply, 'ether');
+        ts= await web3.utils.fromWei(newTotalSupply, 'ether');         
+        console.log(it,ts);
+        assert(ts-it == 27.5,"Difference should equal the payout");
+    });
+
+  it("Test Total Supply decreasing increase", async function () {
+        initTotalSupply = await oracle.totalSupply();
+        logMineWatcher = await promisifyLogWatch(oracle.address, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
+                    newOracle = await Tellor.new();
+        await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:master.methods.changeTellorContract(newOracle.address).encodeABI()})
+        newTotalSupply = await oracle.totalSupply();
+        it= await web3.utils.fromWei(initTotalSupply, 'ether');
+        ts= await web3.utils.fromWei(newTotalSupply, 'ether');         
+        console.log(it,ts);
+        assert(ts-it == 27.5,"Difference should equal the payout");
+
+
+                logMineWatcher = await promisifyLogWatch(oracle.address, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
+                    newOracle = await Tellor.new();
+        await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:master.methods.changeTellorContract(newOracle.address).encodeABI()})
+        newTotalSupply = await oracle.totalSupply();
+        it= await web3.utils.fromWei(initTotalSupply, 'ether');
+        ts= await web3.utils.fromWei(newTotalSupply, 'ether');         
+        console.log(it,ts);
+        assert(ts-it < 27.5,"Difference should less than 27.5");
+
+    });
+
+
 //   //   it("Test Is Data", async function () {
 //   //       logMineWatcher = await promisifyLogWatch(oracle.address, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
 //   //       res = web3.eth.abi.decodeParameters(['uint256','uint256','uint256'],logMineWatcher.data)
@@ -164,25 +189,58 @@ contract('Mining Tests', function(accounts) {
 //   //       res2 = await oracle.getTimestampbyRequestIDandIndex(1,0);
 //   //       assert(res2 == res[0]);
 //   //   });
-//    // it("Test Miner Payout", async function () {
-//    //      balances = []
-//    //      for(var i = 0;i<6;i++){
-//    //          balances[i] = await oracle.balanceOf(accounts[i]);
-//    //      }
-//    //      logMineWatcher = await promisifyLogWatch(oracle.address, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
-//    //      new_balances = []
-//    //                  newOracle = await Tellor.new();
-//    //      await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:master.methods.changeTellorContract(newOracle.address).encodeABI()})
-//    //      for(var i = 0;i<6;i++){
-//    //          new_balances[i] = await oracle.balanceOf(accounts[i]);
-//    //      }
-//    //      assert((web3.utils.hexToNumberString(new_balances[5]) - web3.utils.hexToNumberString(balances[5])) == web3.utils.toWei('5', 'ether'));
-//    //      assert((web3.utils.hexToNumberString(new_balances[1]) - web3.utils.hexToNumberString(balances[1])) == web3.utils.toWei('5', 'ether'));
-//    //      assert((web3.utils.hexToNumberString(new_balances[2]) - web3.utils.hexToNumberString(balances[2])) == web3.utils.toWei('5', 'ether'));
-//    //      assert((web3.utils.hexToNumberString(new_balances[3]) - web3.utils.hexToNumberString(balances[3])) == web3.utils.toWei('5', 'ether'));
-//    //      assert((web3.utils.hexToNumberString(new_balances[4]) - web3.utils.hexToNumberString(balances[4])) == web3.utils.toWei('5', 'ether'));
-//    //      //assert((web3.utils.hexToNumberString(new_balances[4]) - web3.utils.hexToNumberString(balances[4])) == web3.utils.toWei('1.1', 'ether'));
-//    //  });
+    it("Test Miner Payout", async function () {
+        balances = []
+        for(var i = 0;i<6;i++){
+            balances[i] = await oracle.balanceOf(accounts[i]);
+        }
+        logMineWatcher = await promisifyLogWatch(oracle.address, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
+        new_balances = []
+                    newOracle = await Tellor.new();
+        await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:master.methods.changeTellorContract(newOracle.address).encodeABI()})
+        for(var i = 0;i<6;i++){
+            new_balances[i] = await oracle.balanceOf(accounts[i]);
+        }
+        assert((web3.utils.hexToNumberString(new_balances[5]) - web3.utils.hexToNumberString(balances[5])) == web3.utils.toWei('5', 'ether'));
+        assert((web3.utils.hexToNumberString(new_balances[1]) - web3.utils.hexToNumberString(balances[1])) == web3.utils.toWei('5', 'ether'));
+        assert((web3.utils.hexToNumberString(new_balances[2]) - web3.utils.hexToNumberString(balances[2])) == web3.utils.toWei('5', 'ether'));
+        assert((web3.utils.hexToNumberString(new_balances[3]) - web3.utils.hexToNumberString(balances[3])) == web3.utils.toWei('5', 'ether'));
+        assert((web3.utils.hexToNumberString(new_balances[4]) - web3.utils.hexToNumberString(balances[4])) == web3.utils.toWei('5', 'ether'));
+        //assert((web3.utils.hexToNumberString(new_balances[4]) - web3.utils.hexToNumberString(balances[4])) == web3.utils.toWei('1.1', 'ether'));
+    });
+
+      it("Test Miner decreasing payout", async function () {
+        balances = []
+        for(var i = 0;i<6;i++){
+            balances[i] = await oracle.balanceOf(accounts[i]);
+        }
+        logMineWatcher = await promisifyLogWatch(oracle.address, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
+        new_balances = []
+                    newOracle = await Tellor.new();
+        await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:master.methods.changeTellorContract(newOracle.address).encodeABI()})
+        for(var i = 0;i<6;i++){
+            new_balances[i] = await oracle.balanceOf(accounts[i]);
+        }
+        assert((web3.utils.hexToNumberString(new_balances[5]) - web3.utils.hexToNumberString(balances[5])) == web3.utils.toWei('5', 'ether'));
+        assert((web3.utils.hexToNumberString(new_balances[1]) - web3.utils.hexToNumberString(balances[1])) == web3.utils.toWei('5', 'ether'));
+        assert((web3.utils.hexToNumberString(new_balances[2]) - web3.utils.hexToNumberString(balances[2])) == web3.utils.toWei('5', 'ether'));
+        assert((web3.utils.hexToNumberString(new_balances[3]) - web3.utils.hexToNumberString(balances[3])) == web3.utils.toWei('5', 'ether'));
+        assert((web3.utils.hexToNumberString(new_balances[4]) - web3.utils.hexToNumberString(balances[4])) == web3.utils.toWei('5', 'ether'));
+        //assert((web3.utils.hexToNumberString(new_balances[4]) - web3.utils.hexToNumberString(balances[4])) == web3.utils.toWei('1.1', 'ether'));
+
+        await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",1000,0).encodeABI()})
+        logMineWatcher = await promisifyLogWatch(oracle.address, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
+        new_balances2 = []
+        for(var i = 0;i<6;i++){
+            new_balances2[i] = await oracle.balanceOf(accounts[i]);
+        }
+        assert((web3.utils.hexToNumberString(new_balances2[5]) - web3.utils.hexToNumberString(new_balances[5])) < web3.utils.toWei('5', 'ether'));
+        assert((web3.utils.hexToNumberString(new_balances2[1]) - web3.utils.hexToNumberString(new_balances[1])) < web3.utils.toWei('5', 'ether'));
+        assert((web3.utils.hexToNumberString(new_balances2[2]) - web3.utils.hexToNumberString(new_balances[2])) < web3.utils.toWei('5', 'ether'));
+        assert((web3.utils.hexToNumberString(new_balances2[3]) - web3.utils.hexToNumberString(new_balances[3])) < web3.utils.toWei('5', 'ether'));
+        assert((web3.utils.hexToNumberString(new_balances2[4]) - web3.utils.hexToNumberString(new_balances[4])) < web3.utils.toWei('5', 'ether'));
+    
+    });
    
 //    // it("Test Difficulty Adjustment", async function () {
 //    //      logMineWatcher = await promisifyLogWatch(oracle.address, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
