@@ -104,7 +104,7 @@ contract('Mining Tests', function(accounts) {
         assert(difficulty == 1, "Difficulty should be 1");
         assert.equal(sapi,api, "sapi = api");  
     });
- it("Test miner", async function () {
+/* it("Test miner", async function () {
         newOracle = await Tellor.new();
         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:master.methods.changeTellorContract(newOracle.address).encodeABI()})
         console.log('START MINING RIG!!');
@@ -112,7 +112,7 @@ contract('Mining Tests', function(accounts) {
         res = web3.eth.abi.decodeParameters(['uint256','uint256'],logMineWatcher.data);
         console.log("res", res)
         assert(res['1'] > 0, "value should be positive");
-   });
+   });*/
 
 //  	// it("Test 5 Mines", async function () {
 //   //       newOracle = await Tellor.new();
@@ -127,7 +127,7 @@ contract('Mining Tests', function(accounts) {
 //   //   });
 
     
-  it("Test Total Supply Increase", async function () {
+/*  it("Test Total Supply Increase", async function () {
         initTotalSupply = await oracle.totalSupply();
         logMineWatcher = await promisifyLogWatch(oracle.address, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
                     newOracle = await Tellor.new();
@@ -162,7 +162,7 @@ contract('Mining Tests', function(accounts) {
         assert(ts-it < 27.5,"Difference should less than 27.5");
 
     });
-
+*/
 
 //   //   it("Test Is Data", async function () {
 //   //       logMineWatcher = await promisifyLogWatch(oracle.address, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
@@ -190,7 +190,7 @@ contract('Mining Tests', function(accounts) {
 //   //       res2 = await oracle.getTimestampbyRequestIDandIndex(1,0);
 //   //       assert(res2 == res[0]);
 //   //   });
-    it("Test Miner Payout", async function () {
+ /*   it("Test Miner Payout", async function () {
         balances = []
         for(var i = 0;i<6;i++){
             balances[i] = await oracle.balanceOf(accounts[i]);
@@ -242,7 +242,7 @@ contract('Mining Tests', function(accounts) {
         assert((web3.utils.hexToNumberString(new_balances2[4]) - web3.utils.hexToNumberString(new_balances[4])) < web3.utils.toWei('5', 'ether'));
     
     });
-   
+   */
 //    // it("Test Difficulty Adjustment", async function () {
 //    //      logMineWatcher = await promisifyLogWatch(oracle.address, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
 //    //      diff1 =await oracle.getCurrentVariables();

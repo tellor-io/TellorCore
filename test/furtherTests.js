@@ -1,66 +1,65 @@
-// /** 
-// * This contract tests the Tellor functions
-// */ 
+/** 
+* This contract tests the Tellor functions
+*/ 
 
-// const Web3 = require('web3')
-// const web3 = new Web3(new Web3.providers.WebsocketProvider('ws://localhost:8545'));
-// const BN = require('bn.js');
-// const helper = require("./helpers/test_helpers");
-// //const ethers = require('ethers');
-// const Utilities = artifacts.require("./libraries/Utilities.sol");
-// const UtilitiesTests = artifacts.require("./UtilitiesTests.sol");
-// const TellorMaster = artifacts.require("./TellorMaster.sol");
-// const Tellor = artifacts.require("./Tellor.sol"); // globally injected artifacts helper
-// var OldTellor = artifacts.require("./oldContracts/OldTellor.sol")
+const Web3 = require('web3')
+const web3 = new Web3(new Web3.providers.WebsocketProvider('ws://localhost:8545'));
+const BN = require('bn.js');
+const helper = require("./helpers/test_helpers");
+//const ethers = require('ethers');
+const Utilities = artifacts.require("./libraries/Utilities.sol");
+const UtilitiesTests = artifacts.require("./UtilitiesTests.sol");
+const TellorMaster = artifacts.require("./TellorMaster.sol");
+const Tellor = artifacts.require("./Tellor.sol"); // globally injected artifacts helper
+var OldTellor = artifacts.require("./oldContracts/OldTellor.sol")
 
-// var oracleAbi = Tellor.abi;
-// var masterAbi = TellorMaster.abi;
-// var oracleByte = Tellor.bytecode;
+var oracleAbi = Tellor.abi;
+var masterAbi = TellorMaster.abi;
+var oracleByte = Tellor.bytecode;
 
-// var api = 'json(https://api.gdax.com/products/BTC-USD/ticker).price';
-// var api2 = 'json(https://api.gdax.com/products/ETH-USD/ticker).price';
+var api = 'json(https://api.gdax.com/products/BTC-USD/ticker).price';
+var api2 = 'json(https://api.gdax.com/products/ETH-USD/ticker).price';
 
-// function promisifyLogWatch(_contract,_event) {
-//   return new Promise((resolve, reject) => {
-//     web3.eth.subscribe('logs', {
-//       address: _contract.options.address,
-//       //topics:  ['0xba11e319aee26e7bbac889432515ba301ec8f6d27bf6b94829c21a65c5f6ff25']
-//     }, (error, result) => {
-//         if (error){
-//           console.log('Error',error);
-//           reject(error);
-//         }
-//         web3.eth.clearSubscriptions();
-//         //console.log(result);
-//         resolve(result);
-//     })
-//   });
-// }
+function promisifyLogWatch(_contract,_event) {
+  return new Promise((resolve, reject) => {
+    web3.eth.subscribe('logs', {
+      address: _contract.options.address,
+      //topics:  ['0xba11e319aee26e7bbac889432515ba301ec8f6d27bf6b94829c21a65c5f6ff25']
+    }, (error, result) => {
+        if (error){
+          console.log('Error',error);
+          reject(error);
+        }
+        web3.eth.clearSubscriptions();
+        //console.log(result);
+        resolve(result);
+    })
+  });
+}
 
-// contract('Further Tests', function(accounts) {
-//   let oracle;
-//   let oracle2;
-//   let oracleBase;
-//   let logNewValueWatcher;
-//   let master;
-//   let utilities;
-//   let newOracle;
+contract('Further Tests', function(accounts) {
+  let oracle;
+  let oracle2;
+  let oracleBase;
+  let logNewValueWatcher;
+  let master;
+  let utilities;
+  let newOracle;
 
-//     beforeEach('Setup contract for each test', async function () {
-//         oracleBase = await OldTellor.new();
-//         oracle = await TellorMaster.new(oracleBase.address);
-//         master = await new web3.eth.Contract(masterAbi,oracle.address);
-//         oracle2 = await new web3.eth.Contract(oracleAbi,oracleBase.address);///will this instance work for logWatch? hopefully...
-//         //await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.init().encodeABI()})
-//         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",1000,0).encodeABI()})
-//         await helper.advanceTime(86400 * 8);
-//         await web3.eth.sendTransaction({to:oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestStakingWithdraw().encodeABI()})
-//         await helper.advanceTime(86400 * 8);
-//         await web3.eth.sendTransaction({to:oracle.address,from:accounts[2],data:oracle2.methods.withdrawStake().encodeABI()})
-//         utilities = await UtilitiesTests.new();
-//         await utilities.setTellorMaster(oracle.address);
-
-//    });  
+    beforeEach('Setup contract for each test', async function () {
+        oracleBase = await OldTellor.new();
+        oracle = await TellorMaster.new(oracleBase.address);
+        master = await new web3.eth.Contract(masterAbi,oracle.address);
+        oracle2 = await new web3.eth.Contract(oracleAbi,oracleBase.address);///will this instance work for logWatch? hopefully...
+        //await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.init().encodeABI()})
+        await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",1000,0).encodeABI()})
+        await helper.advanceTime(86400 * 8);
+        await web3.eth.sendTransaction({to:oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestStakingWithdraw().encodeABI()})
+        await helper.advanceTime(86400 * 8);
+        await web3.eth.sendTransaction({to:oracle.address,from:accounts[2],data:oracle2.methods.withdrawStake().encodeABI()})
+        utilities = await UtilitiesTests.new();
+        await utilities.setTellorMaster(oracle.address);
+   });  
 
 //    it("transferOwnership", async function () {
 //    	        newOracle = await Tellor.new();
@@ -410,22 +409,78 @@
 //         console.log(1);
 //         assert(await oracle.getAddressVars(web3.utils.keccak256("tellorContract")) == oracleBase2.address);
 //     });
-//         it("Test Failed Vote - New Tellor Storage Contract", async function () {
-//         	    	        newOracle = await Tellor.new();
-// 		await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:master.methods.changeTellorContract(newOracle.address).encodeABI()})
+        it("Test Failed Vote - New Tellor Storage Contract", async function () {
+        	    	        newOracle = await Tellor.new();
+		await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:master.methods.changeTellorContract(newOracle.address).encodeABI()})
        
-//         assert(await oracle.getAddressVars(web3.utils.keccak256("tellorContract")) == newOracle.address, "tellorContract should be Tellor Base");
-//         let oracleBase2 = await Tellor.new();
-//         await web3.eth.sendTransaction({to:oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.theLazyCoon(accounts[2],web3.utils.toWei('5000', 'ether')).encodeABI()})
+        assert(await oracle.getAddressVars(web3.utils.keccak256("tellorContract")) == newOracle.address, "tellorContract should be Tellor Base");
+        let oracleBase2 = await Tellor.new();
+        await web3.eth.sendTransaction({to:oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.theLazyCoon(accounts[2],web3.utils.toWei('5000', 'ether')).encodeABI()})
         
-//         await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.proposeFork(oracleBase2.address).encodeABI()})
-//         for(var i = 1;i<5;i++){
-//             await web3.eth.sendTransaction({to: oracle.address,from:accounts[i],gas:7000000,data:oracle2.methods.vote(1,false).encodeABI()})
-//         }
-//         await helper.advanceTime(86400 * 8);
-//         await web3.eth.sendTransaction({to: oracle.address,from:accounts[i],gas:7000000,data:oracle2.methods.tallyVotes(1).encodeABI()})
-//         assert(await oracle.getAddressVars(web3.utils.keccak256("tellorContract")) == newOracle.address, "vote should have failed");
-//     });
+        await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.proposeFork(oracleBase2.address).encodeABI()})
+        for(var i = 1;i<5;i++){
+            await web3.eth.sendTransaction({to: oracle.address,from:accounts[i],gas:7000000,data:oracle2.methods.vote(1,false).encodeABI()})
+        }
+        await helper.advanceTime(86400 * 8);
+        await web3.eth.sendTransaction({to: oracle.address,from:accounts[i],gas:7000000,data:oracle2.methods.tallyVotes(1).encodeABI()})
+        assert(await oracle.getAddressVars(web3.utils.keccak256("tellorContract")) == newOracle.address, "vote should have failed");
+    });
+
+      it("Test Failed Vote - New Tellor Storage Contract--quorum stuff", async function () {
+        newOracle = await Tellor.new();
+		    await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:master.methods.changeTellorContract(newOracle.address).encodeABI()})
+       
+        assert(await oracle.getAddressVars(web3.utils.keccak256("tellorContract")) == newOracle.address, "tellorContract should be Tellor Base");
+        let oracleBase2 = await Tellor.new();
+        await web3.eth.sendTransaction({to:oracle.address,from:accounts[5],gas:7000000,data:oracle2.methods.theLazyCoon(accounts[4],web3.utils.toWei('4000', 'ether')).encodeABI()})
+        
+        balances = []
+        for(var i = 0;i<7;i++){
+            balances[i] = await oracle.balanceOf(accounts[i]);
+            console.log(web3.utils.fromWei(web3.utils.hexToNumberString(balances[i]), 'ether'))
+        }
+
+        initTotalSupply = await oracle.totalSupply();
+        await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.proposeFork(oracleBase2.address).encodeABI()})
+        
+        let vars = await oracle.getAllDisputeVars(1);
+        console.log("vars-number of votes", web3.utils.hexToNumberString(vars[7][4]));
+        console.log("vars-quorum", web3.utils.fromWei(web3.utils.hexToNumberString(vars[7][7])), 'ether');
+        console.log("vars-current tally", web3.utils.fromWei(web3.utils.hexToNumberString(vars[8])), 'ether');
+
+
+        await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.vote(1,true).encodeABI()})
+
+        
+        vars = await oracle.getAllDisputeVars(1);
+        console.log("vars-number of votes", web3.utils.hexToNumberString(vars[7][4]));
+        console.log("vars-quorum", web3.utils.fromWei(web3.utils.hexToNumberString(vars[7][7])), 'ether');
+        console.log("vars-current tally", web3.utils.fromWei(web3.utils.hexToNumberString(vars[8])), 'ether');
+
+
+        await web3.eth.sendTransaction({to: oracle.address,from:accounts[1],gas:7000000,data:oracle2.methods.vote(1,false).encodeABI()})
+        await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.vote(1,false).encodeABI()})
+
+        vars = await oracle.getAllDisputeVars(1);
+        console.log("vars-number of votes", web3.utils.hexToNumberString(vars[7][4]));
+        console.log("vars-quorum", web3.utils.fromWei(web3.utils.hexToNumberString(vars[7][7])), 'ether');
+        console.log("vars-current tally", web3.utils.fromWei(web3.utils.hexToNumberString(vars[8])), 'ether');
+
+
+        //await web3.eth.sendTransaction({to:oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.theLazyCoon(accounts[2],web3.utils.toWei('5000', 'ether')).encodeABI()})
+        
+
+        newTotalSupply = await oracle.totalSupply();
+        it= await web3.utils.fromWei(initTotalSupply, 'ether');
+        ts= await web3.utils.fromWei(newTotalSupply, 'ether');         
+        console.log(it,ts);
+
+        await helper.advanceTime(86400 * 8);
+        await web3.eth.sendTransaction({to: oracle.address,from:accounts[i],gas:7000000,data:oracle2.methods.tallyVotes(1).encodeABI()})
+        assert(await oracle.getAddressVars(web3.utils.keccak256("tellorContract")) == newOracle.address, "vote should have failed");
+    });
+
+
 //     it("Test Deity Functions", async function () {
 //     	let owner = await oracle.getAddressVars(web3.utils.keccak256("_deity"));
 //     	assert(owner == accounts[0])
@@ -436,4 +491,4 @@
 // 		await web3.eth.sendTransaction({to: oracle.address,from:accounts[1],gas:7000000,data:master.methods.changeTellorContract(newOracle.address).encodeABI()})
 // 		assert(await oracle.getAddressVars(web3.utils.keccak256("tellorContract")) == newOracle.address);
 //     });
-// });
+ });
