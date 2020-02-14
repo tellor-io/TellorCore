@@ -10,18 +10,18 @@ var oracleByte = Oracle.bytecode;
 // var tellorAddress ='0x350E67De9E92f55c1164556b02deB320b45a4a2a';
 
 /*//Rinkeby
-var tellorMasterAddress = '0x3f1571E4DFC9f3A016D90e0C9824C56fD8107a3e' ;
-var tellorAddress = '0xAf96A11a622f78399b5a12503D429750525273Bd'  ;
+var tellorMasterAddress = '0x724D1B69a7Ba352F11D73fDBdEB7fF869cB22E19' ;
+var tellorAddress = '0x167bAB26405b2E50e46A6126c59590f3f393A347'  ;
 var acct = '0xe010ac6e0248790e08f42d5f697160dedf97e024';*/
 
 //let acct  =  "0xe010ac6e0248790e08f42d5f697160dedf97e024";
 //Rinkeby
-//const myOracle = "0x3f1571E4DFC9f3A016D90e0C9824C56fD8107a3e";
+const myOracle = "0x724D1B69a7Ba352F11D73fDBdEB7fF869cB22E19";
 
 
 //mainnet
 //let acct  =  "0xC840ba62Aab90B8cD629649822F04300Ef5D1963";
-const myOracle = "0x0Ba45A8b5d5575935B8158a88C631E9F9C95a2e";
+//const myOracle = "0x0Ba45A8b5d5575935B8158a88C631E9F9C95a2e";
 
 function sleep_s(secs) {
   secs = (+new Date) + secs * 1000;
@@ -35,7 +35,7 @@ module.exports = function() {
     let ins = await Oracle.at(myOracle);
     let ins2 = await TellorMaster.at(myOracle);
 
-    for(i=50;i<51;i++){
+    for(i=4;i<51;i++){
            let req = 'PSR' + i
            console.log(req)
            await ins.requestData(req,req,10,0)

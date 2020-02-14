@@ -142,6 +142,7 @@ library TellorDispute {
         //Ensure the time for voting has elapsed
         require(now > disp.disputeUintVars[keccak256("minExecutionDate")], "Time for voting haven't elapsed");
 
+
         //If the vote is not a proposed fork
         if (disp.isPropFork == false) {
             TellorStorage.StakeInfo storage stakes = self.stakerDetails[disp.reportedMiner];
@@ -195,9 +196,15 @@ library TellorDispute {
         } else {
             if (disp.tally > 0) {
                 require(
-                    disp.disputeUintVars[keccak256("quorum")] > ((self.uintVars[keccak256("total_supply")] * 10) / 100),
+                    disp.disputeUintVars[keccak256("quorum")] >= ((self.uintVars[keccak256("total_supply")] * 10) / 100),
                     "Quorum is not reached"
                 );
+                require(
+                    uint(disp.tally) >= ((self.uintVars[keccak256("total_supply")] * 10) / 100),
+                    "Tally spread is not reached"
+                    );
+
+
                 self.addressVars[keccak256("tellorContract")] = disp.proposedForkAddress;
                 disp.disputeVotePassed = true;
                 emit NewTellorAddress(disp.proposedForkAddress);

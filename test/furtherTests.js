@@ -410,8 +410,8 @@ contract('Further Tests', function(accounts) {
 //         assert(await oracle.getAddressVars(web3.utils.keccak256("tellorContract")) == oracleBase2.address);
 //     });
         it("Test Failed Vote - New Tellor Storage Contract", async function () {
-        	    	        newOracle = await Tellor.new();
-		await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:master.methods.changeTellorContract(newOracle.address).encodeABI()})
+        	  newOracle = await Tellor.new();
+		        await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:master.methods.changeTellorContract(newOracle.address).encodeABI()})
        
         assert(await oracle.getAddressVars(web3.utils.keccak256("tellorContract")) == newOracle.address, "tellorContract should be Tellor Base");
         let oracleBase2 = await Tellor.new();
@@ -426,50 +426,53 @@ contract('Further Tests', function(accounts) {
         assert(await oracle.getAddressVars(web3.utils.keccak256("tellorContract")) == newOracle.address, "vote should have failed");
     });
 
-      it("Test Failed Vote - New Tellor Storage Contract--quorum stuff", async function () {
+      it("Test Failed Vote - New Tellor Storage Contract--vote fail by 10% quorum", async function () {
         newOracle = await Tellor.new();
 		    await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:master.methods.changeTellorContract(newOracle.address).encodeABI()})
        
         assert(await oracle.getAddressVars(web3.utils.keccak256("tellorContract")) == newOracle.address, "tellorContract should be Tellor Base");
         let oracleBase2 = await Tellor.new();
+        //print some TRB tokens
         await web3.eth.sendTransaction({to:oracle.address,from:accounts[5],gas:7000000,data:oracle2.methods.theLazyCoon(accounts[4],web3.utils.toWei('4000', 'ether')).encodeABI()})
         
+        //Check account balances
         balances = []
         for(var i = 0;i<7;i++){
             balances[i] = await oracle.balanceOf(accounts[i]);
             console.log(web3.utils.fromWei(web3.utils.hexToNumberString(balances[i]), 'ether'))
         }
-
+        
+        //check total supply
         initTotalSupply = await oracle.totalSupply();
+        //Propose a fork
         await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.proposeFork(oracleBase2.address).encodeABI()})
         
+        //get the initial dispute variables--should be zeros
         let vars = await oracle.getAllDisputeVars(1);
         console.log("vars-number of votes", web3.utils.hexToNumberString(vars[7][4]));
         console.log("vars-quorum", web3.utils.fromWei(web3.utils.hexToNumberString(vars[7][7])), 'ether');
         console.log("vars-current tally", web3.utils.fromWei(web3.utils.hexToNumberString(vars[8])), 'ether');
 
-
+        //account 0 votes for the fork
         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.vote(1,true).encodeABI()})
 
-        
+        //get the dispute variables after one vote for the fork
         vars = await oracle.getAllDisputeVars(1);
         console.log("vars-number of votes", web3.utils.hexToNumberString(vars[7][4]));
         console.log("vars-quorum", web3.utils.fromWei(web3.utils.hexToNumberString(vars[7][7])), 'ether');
         console.log("vars-current tally", web3.utils.fromWei(web3.utils.hexToNumberString(vars[8])), 'ether');
 
-
+        //acounts 1&3 vote against fork
         await web3.eth.sendTransaction({to: oracle.address,from:accounts[1],gas:7000000,data:oracle2.methods.vote(1,false).encodeABI()})
-        await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.vote(1,false).encodeABI()})
+        await web3.eth.sendTransaction({to: oracle.address,from:accounts[3],gas:7000000,data:oracle2.methods.vote(1,false).encodeABI()})
 
+        //get dispute variables after all votes --number of votes, quorum and current tally
         vars = await oracle.getAllDisputeVars(1);
         console.log("vars-number of votes", web3.utils.hexToNumberString(vars[7][4]));
         console.log("vars-quorum", web3.utils.fromWei(web3.utils.hexToNumberString(vars[7][7])), 'ether');
         console.log("vars-current tally", web3.utils.fromWei(web3.utils.hexToNumberString(vars[8])), 'ether');
 
-
-        //await web3.eth.sendTransaction({to:oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.theLazyCoon(accounts[2],web3.utils.toWei('5000', 'ether')).encodeABI()})
-        
-
+        //check total supply again
         newTotalSupply = await oracle.totalSupply();
         it= await web3.utils.fromWei(initTotalSupply, 'ether');
         ts= await web3.utils.fromWei(newTotalSupply, 'ether');         
@@ -477,8 +480,145 @@ contract('Further Tests', function(accounts) {
 
         await helper.advanceTime(86400 * 8);
         await web3.eth.sendTransaction({to: oracle.address,from:accounts[i],gas:7000000,data:oracle2.methods.tallyVotes(1).encodeABI()})
+        //vote should fail
         assert(await oracle.getAddressVars(web3.utils.keccak256("tellorContract")) == newOracle.address, "vote should have failed");
     });
+
+      it("Test Failed Vote - New Tellor Storage Contract--vote fail to fail because 10% diff in quorum is not reached", async function () {
+        newOracle = await Tellor.new();
+        await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:master.methods.changeTellorContract(newOracle.address).encodeABI()})
+       
+        assert(await oracle.getAddressVars(web3.utils.keccak256("tellorContract")) == newOracle.address, "tellorContract should be Tellor Base");
+        let oracleBase2 = await Tellor.new();
+        //print some TRB tokens
+        await web3.eth.sendTransaction({to:oracle.address,from:accounts[5],gas:7000000,data:oracle2.methods.theLazyCoon(accounts[4],web3.utils.toWei('4000', 'ether')).encodeABI()})
+        
+        //Check account balances
+        console.log("balance check 1")
+        balances = []
+        for(var i = 0;i<7;i++){
+            balances[i] = await oracle.balanceOf(accounts[i]);
+            console.log(web3.utils.fromWei(web3.utils.hexToNumberString(balances[i]), 'ether'))
+        }
+        
+        //check total supply
+        initTotalSupply = await oracle.totalSupply();
+        //Propose a fork
+        await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.proposeFork(oracleBase2.address).encodeABI()})
+        
+        //Check account balances
+        console.log("balance check 2")
+/*        balances2 = []
+        for(var j = 0;j<7;j++){
+            balances2[i] = await oracle.balanceOf(accounts[j]);
+            console.log(web3.utils.fromWei(web3.utils.hexToNumberString(balances2[j]), 'ether'))
+        }*/
+
+
+        //get the initial dispute variables--should be zeros
+        let vars = await oracle.getAllDisputeVars(1);
+        console.log("vars-number of votes", web3.utils.hexToNumberString(vars[7][4]));
+        console.log("vars-quorum", web3.utils.fromWei(web3.utils.hexToNumberString(vars[7][7])), 'ether');
+        console.log("vars-current tally", web3.utils.fromWei(web3.utils.hexToNumberString(vars[8])), 'ether');
+
+        //account 0 votes for the fork
+        await web3.eth.sendTransaction({to: oracle.address,from:accounts[4],gas:7000000,data:oracle2.methods.vote(1,true).encodeABI()})
+
+        //get the dispute variables after one vote for the fork
+        vars = await oracle.getAllDisputeVars(1);
+        console.log("vars-number of votes", web3.utils.hexToNumberString(vars[7][4]));
+        console.log("vars-quorum", web3.utils.fromWei(web3.utils.hexToNumberString(vars[7][7])), 'ether');
+        console.log("vars-current tally", web3.utils.fromWei(web3.utils.hexToNumberString(vars[8])), 'ether');
+
+        //acounts 1&3 vote against fork
+        await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.vote(1,false).encodeABI()})
+        await web3.eth.sendTransaction({to: oracle.address,from:accounts[5],gas:7000000,data:oracle2.methods.vote(1,false).encodeABI()})
+
+        await web3.eth.sendTransaction({to: oracle.address,from:accounts[1],gas:7000000,data:oracle2.methods.vote(1,false).encodeABI()})
+        await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.vote(1,false).encodeABI()})
+
+        //get dispute variables after all votes --number of votes, quorum and current tally
+        vars = await oracle.getAllDisputeVars(1);
+        console.log("vars-number of votes", web3.utils.hexToNumberString(vars[7][4]));
+        console.log("vars-quorum", web3.utils.fromWei(web3.utils.hexToNumberString(vars[7][7])), 'ether');
+        console.log("vars-current tally", web3.utils.fromWei(web3.utils.hexToNumberString(vars[8])), 'ether');
+
+        //check total supply again
+        newTotalSupply = await oracle.totalSupply();
+        it= await web3.utils.fromWei(initTotalSupply, 'ether');
+        ts= await web3.utils.fromWei(newTotalSupply, 'ether');         
+        console.log(it,ts);
+
+        await helper.advanceTime(86400 * 8);
+        helper.expectThrow(await web3.eth.sendTransaction({to: oracle.address,from:accounts[i],gas:7000000,data:oracle2.methods.tallyVotes(1).encodeABI()}))
+        //vote should fail
+        //assert(await oracle.getAddressVars(web3.utils.keccak256("tellorContract")) == newOracle.address, "vote should have failed");
+    });
+
+
+
+
+
+      it("Test Failed Vote - New Tellor Storage Contract--vote passed by 10% quorum", async function () {
+        newOracle = await Tellor.new();
+        await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:master.methods.changeTellorContract(newOracle.address).encodeABI()})
+       
+        assert(await oracle.getAddressVars(web3.utils.keccak256("tellorContract")) == newOracle.address, "tellorContract should be Tellor Base");
+        let oracleBase2 = await Tellor.new();
+        //print some TRB tokens
+        await web3.eth.sendTransaction({to:oracle.address,from:accounts[5],gas:7000000,data:oracle2.methods.theLazyCoon(accounts[4],web3.utils.toWei('4000', 'ether')).encodeABI()})
+        
+        //Check account balances
+        balances = []
+        for(var i = 0;i<7;i++){
+            balances[i] = await oracle.balanceOf(accounts[i]);
+            console.log(web3.utils.fromWei(web3.utils.hexToNumberString(balances[i]), 'ether'))
+        }
+        
+        //check total supply
+        initTotalSupply = await oracle.totalSupply();
+        //Propose a fork
+        await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.proposeFork(oracleBase2.address).encodeABI()})
+        
+        //get the initial dispute variables--should be zeros
+        let vars = await oracle.getAllDisputeVars(1);
+        console.log("vars-number of votes", web3.utils.hexToNumberString(vars[7][4]));
+        console.log("vars-quorum", web3.utils.fromWei(web3.utils.hexToNumberString(vars[7][7])), 'ether');
+        console.log("vars-current tally", web3.utils.fromWei(web3.utils.hexToNumberString(vars[8])), 'ether');
+
+        //account 0 votes for the fork
+        await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.vote(1,false).encodeABI()})
+
+        //get the dispute variables after one vote for the fork
+        vars = await oracle.getAllDisputeVars(1);
+        console.log("vars-number of votes", web3.utils.hexToNumberString(vars[7][4]));
+        console.log("vars-quorum", web3.utils.fromWei(web3.utils.hexToNumberString(vars[7][7])), 'ether');
+        console.log("vars-current tally", web3.utils.fromWei(web3.utils.hexToNumberString(vars[8])), 'ether');
+
+        //acounts 1&3 vote against fork
+        await web3.eth.sendTransaction({to: oracle.address,from:accounts[1],gas:7000000,data:oracle2.methods.vote(1,true).encodeABI()})
+        await web3.eth.sendTransaction({to: oracle.address,from:accounts[3],gas:7000000,data:oracle2.methods.vote(1,true).encodeABI()})
+
+        //get dispute variables after all votes --number of votes, quorum and current tally
+        vars = await oracle.getAllDisputeVars(1);
+        console.log("vars-number of votes", web3.utils.hexToNumberString(vars[7][4]));
+        console.log("vars-quorum", web3.utils.fromWei(web3.utils.hexToNumberString(vars[7][7])), 'ether');
+        console.log("vars-current tally", web3.utils.fromWei(web3.utils.hexToNumberString(vars[8])), 'ether');
+
+        //check total supply again
+        newTotalSupply = await oracle.totalSupply();
+        it= await web3.utils.fromWei(initTotalSupply, 'ether');
+        ts= await web3.utils.fromWei(newTotalSupply, 'ether');         
+        console.log(it,ts);
+
+        await helper.advanceTime(86400 * 8);
+        await web3.eth.sendTransaction({to: oracle.address,from:accounts[i],gas:7000000,data:oracle2.methods.tallyVotes(1).encodeABI()})
+        //vote should fail
+        assert(await oracle.getAddressVars(web3.utils.keccak256("tellorContract")) == oracleBase2.address, "vote should have passed");
+    });
+
+
+
 
 
 //     it("Test Deity Functions", async function () {
