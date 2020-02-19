@@ -60,6 +60,7 @@ library TellorLibrary {
     */
     function addTip(TellorStorage.TellorStorageStruct storage self, uint256 _requestId, uint256 _tip) public {
         require(_requestId > 0, "RequestId is 0");
+        require(_requestId < self.uintVars[keccak256("requestCount")], "RequestId is not less than count");
 
         //If the tip > 0 transfer the tip to this contract
         if (_tip > 0) {
@@ -198,6 +199,7 @@ event print(uint reward);
 
         if (self.uintVars[keccak256("currentReward")] > 1e18) {
         self.uintVars[keccak256("currentReward")] = self.uintVars[keccak256("currentReward")] * 30612633181126/1e18;
+        self.uintVars[keccak256("devShare")] = self.uintVars[keccak256("currentReward")] * (10/100);
         } else {
             self.uintVars[keccak256("currentReward")] = 1e18;
         }
@@ -213,12 +215,12 @@ event print(uint reward);
 
         //update the total supply
         //adjust to += (payout * 5) +2.5
-        self.uintVars[keccak256("total_supply")] += 25e17 + self.uintVars[keccak256("currentReward")]*5 ;
+        self.uintVars[keccak256("total_supply")] +=  self.uintVars[keccak256("devShare")] + self.uintVars[keccak256("currentReward")]*5 ;
     emit print(self.uintVars[keccak256("total_supply")]);
         //blocknumber, new supply added, supply adjusted by ratio
 
         //pay the dev-share
-        TellorTransfer.doTransfer(self, address(this), self.addressVars[keccak256("_owner")], 25e17); //The ten there is the devshare
+        TellorTransfer.doTransfer(self, address(this), self.addressVars[keccak256("_owner")],  self.uintVars[keccak256("devShare")]); //The ten there is the devshare
         //Save the official(finalValue), timestamp of it, 5 miners and their submitted values for it, and its block number
         _request.finalValues[_timeOfLastNewValue] = a[2].value;
         _request.requestTimestamps.push(_timeOfLastNewValue);
