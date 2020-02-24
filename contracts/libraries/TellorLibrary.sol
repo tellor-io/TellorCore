@@ -199,7 +199,7 @@ event print(uint reward);
 
         if (self.uintVars[keccak256("currentReward")] > 1e18) {
         self.uintVars[keccak256("currentReward")] = self.uintVars[keccak256("currentReward")] * 30612633181126/1e18;
-        self.uintVars[keccak256("devShare")] = self.uintVars[keccak256("currentReward")] * (10/100);
+        self.uintVars[keccak256("devShare")] = self.uintVars[keccak256("currentReward")] * 10/100;
         } else {
             self.uintVars[keccak256("currentReward")] = 1e18;
         }
