@@ -32,7 +32,6 @@ library TellorStorage {
         // uint keccak256("numberOfVotes");//the number of parties who have voted on the measure
         // uint keccak256("blockNumber");// the blocknumber for which votes will be calculated from
         // uint keccak256("minerSlot"); //index in dispute array
-        // uint keccak256("quorum"); //quorum for dispute vote NEW
         // uint keccak256("fee"); //fee paid corresponding to dispute
         mapping(address => bool) voted; //mapping of address to whether or not they voted
     }

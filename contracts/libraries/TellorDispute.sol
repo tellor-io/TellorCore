@@ -113,9 +113,6 @@ library TellorDispute {
         //Update the number of votes for the dispute
         disp.disputeUintVars[keccak256("numberOfVotes")] += 1;
 
-        //Update the quorum by adding the voteWeight
-        disp.disputeUintVars[keccak256("quorum")] += voteWeight;
-
         //If the user supports the dispute increase the tally for the dispute by the voteWeight
         //otherwise decrease it
         if (_supportsDispute) {
@@ -194,17 +191,7 @@ library TellorDispute {
             }
             //If the vote is for a proposed fork require a 10% quorum before executing the update to the new tellor contract address
         } else {
-            if (disp.tally > 0) {
-                require(
-                    disp.disputeUintVars[keccak256("quorum")] >= ((self.uintVars[keccak256("total_supply")] * 10) / 100),
-                    "Quorum is not reached"
-                );
-                require(
-                    uint(disp.tally) >= ((self.uintVars[keccak256("total_supply")] * 10) / 100),
-                    "Tally spread is not reached"
-                    );
-
-
+            if (disp.tally > 0 && uint(disp.tally) >= ((self.uintVars[keccak256("total_supply")] * 10) / 100)) {
                 self.addressVars[keccak256("tellorContract")] = disp.proposedForkAddress;
                 disp.disputeVotePassed = true;
                 emit NewTellorAddress(disp.proposedForkAddress);
