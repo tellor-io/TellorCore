@@ -21,7 +21,9 @@ var acct = '0xe010ac6e0248790e08f42d5f697160dedf97e024';*/
 
 //mainnet
 //let acct  =  "0xC840ba62Aab90B8cD629649822F04300Ef5D1963";
-const myOracle = "0x0Ba45A8b5d5575935B8158a88C631E9F9C95a2e";
+//const myOracle = "0x0Ba45A8b5d5575935B8158a88C631E9F9C95a2e5";
+//Rinkeby
+const myOracle = "0xbE61BCa977b76CbFdA32E3f41304058229e84D0F";
 
 function sleep_s(secs) {
   secs = (+new Date) + secs * 1000;
