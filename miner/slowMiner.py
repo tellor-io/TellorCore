@@ -9,7 +9,7 @@ contract_address = "";
 node_url ="http://localhost:8545" #https://rinkeby.infura.io/
 net_id = 60 #eth network ID
 last_block = 0
-wait_between = 10
+wait_between = 15
 #C:\Users\themandalore\.windows-build-tools\python27\
 
 public_keys = ["0xe037ec8ec9ec423826750853899394de7f024fee","0xcdd8fa31af8475574b8909f135d510579a8087d3","0xb9dd5afd86547df817da2d0fb89334a6f8edd891","0x230570cd052f40e14c14a81038c6f3aa685d712b","0x3233afa02644ccd048587f8ba6e99b3c00a34dcc"]
@@ -74,7 +74,9 @@ def getAPIvalue(_api):
 #             return int(float(price))
 
 def masterMiner():
+                global wait_between
                 miners_started = 0
+                mineCount = 0
                 challenge,apiId,difficulty,apiString,granularity = getVariables();
                 while True:
                                 nonce = mine(str(challenge),public_keys[miners_started],difficulty);
@@ -88,24 +90,31 @@ def masterMiner():
                                                 #success = execute_js('testSubmitter.js',arg_string)
                                                 #print('WE WERE SUCCESSFUL: ', success)
                                                 execute_js('testSubmitter.js',arg_string);
-                                                time.sleep(wait_between)
-                                                miners_started += 1 
+                                                miners_started += 1
+                                                if(mineCount == 5):
+                                                    print("1 solved")
+                                                    time.sleep(wait_between)
+                                                    print("sleeping ",wait_between)
                                                 if(miners_started == 5):
-                                                                v = False;
-                                                                while(v == False):
-                                                                                time.sleep(2);
-                                                                                _challenge,_apiId,_difficulty,_apiString,_granularity= getVariables();
-                                                                                if challenge == _challenge:
-                                                                                                v = False
-                                                                                                time.sleep(10);
-                                                                                elif _apiId > 0:
-                                                                                                v = True
-                                                                                                challenge = _challenge;
-                                                                                                apiId = _apiId;
-                                                                                                difficulty = _difficulty;
-                                                                                                apiString = _apiString;
-                                                                                                granularity = _granularity;
-                                                                miners_started = 0;
+                                                    mineCount +=1;
+                                                    if (mineCount == 1):
+                                                        print("pausing, 30") 
+                                                        time.sleep(30)
+                                                    v = False;
+                                                    while(v == False):
+                                                                    time.sleep(2);
+                                                                    _challenge,_apiId,_difficulty,_apiString,_granularity= getVariables();
+                                                                    if challenge == _challenge:
+                                                                                    v = False
+                                                                                    time.sleep(10);
+                                                                    elif _apiId > 0:
+                                                                                    v = True
+                                                                                    challenge = _challenge;
+                                                                                    apiId = _apiId;
+                                                                                    difficulty = _difficulty;
+                                                                                    apiString = _apiString;
+                                                                                    granularity = _granularity;
+                                                    miners_started = 0;
                                 else:
                                                 challenge,apiId,difficulty,apiString = getVariables(); 
                                                 print('variables grabbed')
