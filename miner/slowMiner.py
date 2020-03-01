@@ -10,6 +10,7 @@ node_url ="http://localhost:8545" #https://rinkeby.infura.io/
 net_id = 60 #eth network ID
 last_block = 0
 wait_between = 15
+mineCount = 0
 #C:\Users\themandalore\.windows-build-tools\python27\
 
 public_keys = ["0xe037ec8ec9ec423826750853899394de7f024fee","0xcdd8fa31af8475574b8909f135d510579a8087d3","0xb9dd5afd86547df817da2d0fb89334a6f8edd891","0x230570cd052f40e14c14a81038c6f3aa685d712b","0x3233afa02644ccd048587f8ba6e99b3c00a34dcc"]
@@ -74,9 +75,9 @@ def getAPIvalue(_api):
 #             return int(float(price))
 
 def masterMiner():
-                global wait_between
+                global wait_between, mineCount
                 miners_started = 0
-                mineCount = 0
+
                 challenge,apiId,difficulty,apiString,granularity = getVariables();
                 while True:
                                 nonce = mine(str(challenge),public_keys[miners_started],difficulty);
@@ -91,15 +92,15 @@ def masterMiner():
                                                 #print('WE WERE SUCCESSFUL: ', success)
                                                 execute_js('testSubmitter.js',arg_string);
                                                 miners_started += 1
-                                                if(mineCount == 5):
+                                                if(mineCount == 6):
                                                     print("1 solved")
                                                     time.sleep(wait_between)
                                                     print("sleeping ",wait_between)
                                                 if(miners_started == 5):
                                                     mineCount +=1;
                                                     if (mineCount == 1):
-                                                        print("pausing, 30") 
-                                                        time.sleep(30)
+                                                        print("pausing, 40") 
+                                                        time.sleep(40)
                                                     v = False;
                                                     while(v == False):
                                                                     time.sleep(2);
@@ -121,7 +122,8 @@ def masterMiner():
                 print('Miner Stopping')
 
 def getVariables():
-                getAddress();
+                if mineCount == 0:
+                    getAddress();
                 payload = {"jsonrpc":"2.0","id":net_id,"method":"eth_call","params":[{"to":contract_address,"data":"0xa22e407a"}, "latest"]}
                 tries = 1;
                 while tries < 5:

@@ -73,6 +73,8 @@ contract('Upgrade Tests', function(accounts) {
             let rCount = await oracle.getUintVar(web3.utils.keccak256("requestCount"))
             assert(rCount == 51, "request count should be correct")
             assert(vars[1] == "t")
+            let currentReward = await oracle.getUintVar(web3.utils.keccak256("currentReward"))
+            assert(web3.utils.fromWei(currentReward,'ether') == 5)
         //change the deity
             let owner = await oracle.getAddressVars(web3.utils.keccak256("_deity"));
             assert(owner == accounts[0])
@@ -84,22 +86,26 @@ contract('Upgrade Tests', function(accounts) {
             for(var i = 0;i<6;i++){
                 balances[i] = await oracle.balanceOf(accounts[i]);
             }
-        console.log("here1")
         //mine 5 values
 
             for(var i = 0;i < 5;i++){
                 logMineWatcher = await promisifyLogWatch(oracle.address, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
             }
+
         //assert payout is not decreasing
             new_balances = []
              for(var i = 0;i<6;i++){
                 new_balances[i] = await oracle.balanceOf(accounts[i]);
             }
-            assert((web3.utils.hexToNumberString(new_balances[5]) - web3.utils.hexToNumberString(balances[5])) == web3.utils.toWei('5', 'ether'));
-            assert((web3.utils.hexToNumberString(new_balances[1]) - web3.utils.hexToNumberString(balances[1])) == web3.utils.toWei('5', 'ether'));
-            assert((web3.utils.hexToNumberString(new_balances[2]) - web3.utils.hexToNumberString(balances[2])) == web3.utils.toWei('5', 'ether'));
-            assert((web3.utils.hexToNumberString(new_balances[3]) - web3.utils.hexToNumberString(balances[3])) == web3.utils.toWei('5', 'ether'));
-            assert((web3.utils.hexToNumberString(new_balances[4]) - web3.utils.hexToNumberString(balances[4])) == web3.utils.toWei('5', 'ether'));
+            currentReward = await oracle.getUintVar(web3.utils.keccak256("currentReward"))
+            assert(web3.utils.fromWei(currentReward,'ether') == 5)
+        console.log("here1")
+            console.log(web3.utils.hexToNumberString(new_balances[5]) - web3.utils.hexToNumberString(balances[5]),web3.utils.hexToNumberString(new_balances[5]),web3.utils.hexToNumberString(balances[5]))
+            assert((web3.utils.hexToNumberString(new_balances[5]) - web3.utils.hexToNumberString(balances[5])) == web3.utils.toWei('25', 'ether'), "1. Payout should be 5");
+            assert((web3.utils.hexToNumberString(new_balances[1]) - web3.utils.hexToNumberString(balances[1])) == web3.utils.toWei('25', 'ether'),"2. Payout should be 5");
+            assert((web3.utils.hexToNumberString(new_balances[2]) - web3.utils.hexToNumberString(balances[2])) == web3.utils.toWei('25', 'ether'),"3. Payout should be 5");
+            assert((web3.utils.hexToNumberString(new_balances[3]) - web3.utils.hexToNumberString(balances[3])) == web3.utils.toWei('25', 'ether'),"4. Payout should be 5");
+            assert((web3.utils.hexToNumberString(new_balances[4]) - web3.utils.hexToNumberString(balances[4])) == web3.utils.toWei('25', 'ether'), "5. Payout should be 5");
         console.log("Stop the Miner....start slow Miner")
         //change tellorContract mid contract
         console.log("Solve 3")
@@ -150,11 +156,6 @@ contract('Upgrade Tests', function(accounts) {
             assert((web3.utils.hexToNumberString(new_balances2[2]) - web3.utils.hexToNumberString(new_balances[2])) > web3.utils.toWei('4.9', 'ether'));
             assert((web3.utils.hexToNumberString(new_balances2[3]) - web3.utils.hexToNumberString(new_balances[3])) > web3.utils.toWei('4.9', 'ether'));
             assert((web3.utils.hexToNumberString(new_balances2[4]) - web3.utils.hexToNumberString(new_balances[4])) > web3.utils.toWei('4.9', 'ether'));
-            assert((web3.utils.hexToNumberString(new_balances2[5]) - web3.utils.hexToNumberString(new_balances[5])) > web3.utils.toWei('4.9', 'ether'));
-            assert((web3.utils.hexToNumberString(new_balances2[1]) - web3.utils.hexToNumberString(new_balances[1])) > web3.utils.toWei('4.9', 'ether'));
-            assert((web3.utils.hexToNumberString(new_balances2[2]) - web3.utils.hexToNumberString(new_balances[2])) > web3.utils.toWei('4.9', 'ether'));
-            assert((web3.utils.hexToNumberString(new_balances2[3]) - web3.utils.hexToNumberString(new_balances[3])) > web3.utils.toWei('4.9', 'ether'));
-            assert((web3.utils.hexToNumberString(new_balances2[4]) - web3.utils.hexToNumberString(new_balances[4])) > web3.utils.toWei('4.9', 'ether'));
         //assert that the total supply / dev share is correct
             await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",1000,0).encodeABI()})
             initTotalSupply = await oracle.totalSupply();
@@ -180,8 +181,8 @@ contract('Upgrade Tests', function(accounts) {
             assert((endbal - begbal)/1e18  < 2.5, "devShare")
         //assert that the ocount is correct
             rCount = await oracle.getUintVar(web3.utils.keccak256("requestCount"))
+            currentReward = await oracle.getUintVar(web3.utils.keccak256("currentReward"))
+            assert(web3.utils.fromWei(currentReward,'ether') < 5)
             assert(rCount == 57, "request count should be correct")
-
-
    }).timeout(500000);
  });    
