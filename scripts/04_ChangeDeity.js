@@ -17,7 +17,7 @@ var acct = '0xe010ac6e0248790e08f42d5f697160dedf97e024';*/
 
 //let acct  =  "0xe010ac6e0248790e08f42d5f697160dedf97e024";
 //Rinkeby
-const myOracle = "0x3f1571E4DFC9f3A016D90e0C9824C56fD8107a3e";
+const myOracle = "0x2f51c4bf6b66634187214a695be6cdd344d4e9d1";
 var multi = '0x2F51C4Bf6B66634187214A695be6CDd344d4e9d1';
 
 //mainnet
@@ -36,5 +36,9 @@ function sleep_s(secs) {
 module.exports = async function(callback) {
   console.log("contract:",web3.utils.keccak256("tellorContract"));
   //console.log("keccak256owner:",web3.utils.keccak256("_deity"));
+
+      let ins2 = await TellorMaster.at(myOracle);
+      await ins.changeDeity(multi)
+
 
 }
