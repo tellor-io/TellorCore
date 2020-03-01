@@ -45,7 +45,7 @@ contract('Upgrade Tests', function(accounts) {
         //launch Old oracle
             oracleBase = await OldTellor.new();
             oracle = await OldMaster.new(oracleBase.address);
-            oracle2 = await new web3.eth.Contract(OldTellor.abi,oracleBase.address);
+            oracle2 = await new web3.eth.Contract(OldTellor.abi,oracle.address);
                         console.log("Start Miner")
         //get some tokens
             await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(api,"t",1000,0).encodeABI()});
@@ -68,17 +68,15 @@ contract('Upgrade Tests', function(accounts) {
             assert(web3.utils.hexToNumberString(apiIdonQ) == resApiId, "timestamp on Q should be apiID");
             vars = await oracle.getRequestVars(2);
             req = await oracle.getRequestQ();
-            console.log(req)
             assert(req[2] == 51, "Request Q should be correct")
             assert(req[50] == 3, "Request Q 2 should be correct")
-            let rCount = await oracle.getUintVars(web3.utils.keccak256("requestCount"))
+            let rCount = await oracle.getUintVar(web3.utils.keccak256("requestCount"))
             assert(rCount == 51, "request count should be correct")
             assert(vars[1] == "t")
-        console.log("here1")
         //change the deity
             let owner = await oracle.getAddressVars(web3.utils.keccak256("_deity"));
             assert(owner == accounts[0])
-            await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:master.methods.changeDeity(accounts[1]).encodeABI()})
+            await oracle.changeDeity(accounts[1])
             owner = await oracle.getAddressVars(web3.utils.keccak256("_deity"));
         //assert it changed
             assert(owner == accounts[1])
@@ -86,6 +84,7 @@ contract('Upgrade Tests', function(accounts) {
             for(var i = 0;i<6;i++){
                 balances[i] = await oracle.balanceOf(accounts[i]);
             }
+        console.log("here1")
         //mine 5 values
 
             for(var i = 0;i < 5;i++){
@@ -105,7 +104,7 @@ contract('Upgrade Tests', function(accounts) {
         //change tellorContract mid contract
         console.log("Solve 3")
             newOracle = await Tellor.new();
-            await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:master.methods.changeTellorContract(newOracle.address).encodeABI()})
+            await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle.methods.changeTellorContract(newOracle.address).encodeABI()})
             console.log("Tellor Contract changed")
         console.log("Solve 2")
         //assert correct
@@ -180,9 +179,9 @@ contract('Upgrade Tests', function(accounts) {
             assert((endbal - begbal)/1e18  > 2.4, "devShare")
             assert((endbal - begbal)/1e18  < 2.5, "devShare")
         //assert that the ocount is correct
-            rCount = await oracle.getUintVars(web3.utils.keccak256("requestCount"))
+            rCount = await oracle.getUintVar(web3.utils.keccak256("requestCount"))
             assert(rCount == 57, "request count should be correct")
 
 
-   });
+   }).timeout(500000);
  });    
