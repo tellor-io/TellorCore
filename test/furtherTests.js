@@ -192,7 +192,6 @@
 //         apiIdforpayoutPoolIndex = await oracle.getRequestIdByRequestQIndex(0);
 //         apiId = await oracle.getRequestIdByQueryHash(apiVars[2]);
 //         assert(web3.utils.hexToNumberString(apiId) == 1, "timestamp on Q should be 1");
-//         console.log("51 requests....");
 //          for(var i = 1;i <=21 ;i++){
 //         	apix= ("api" + i);
 //         	await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(apix,"",1000,i).encodeABI()})
@@ -389,7 +388,6 @@
 //         assert(await oracle.getAddressVars(web3.utils.keccak256("tellorContract")) == newOracle.address, "tellorContract should be Tellor Base");
 //         let oracleBase2 = await Tellor.new();
 //          await web3.eth.sendTransaction({to:oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.theLazyCoon(accounts[2],web3.utils.toWei('5000', 'ether')).encodeABI()})
-//        console.log('test', await oracle.balanceOf(accounts[1]))
 //         await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.proposeFork(oracleBase2.address).encodeABI()})
 //         for(var i = 1;i<5;i++){
 //             await web3.eth.sendTransaction({to: oracle.address,from:accounts[i],gas:7000000,data:oracle2.methods.vote(1,true).encodeABI()})
@@ -427,8 +425,7 @@
 //         balances = []
 //         for(var i = 0;i<7;i++){
 //             balances[i] = await oracle.balanceOf(accounts[i]);
-//             console.log(web3.utils.fromWei(web3.utils.hexToNumberString(balances[i]), 'ether'))
-//         }
+//          }
         
 //         initTotalSupply = await oracle.totalSupply();
 //         //Propose a fork
@@ -484,10 +481,6 @@
 //         it= await web3.utils.fromWei(initTotalSupply, 'ether');
 //         ts= await web3.utils.fromWei(newTotalSupply, 'ether');         
 //         await helper.advanceTime(86400 * 8);
-//         console.log(it,ts);
-//         console.log(vars)
-//         //helper.expectThrow(await web3.eth.sendTransaction({to: oracle.address,from:accounts[i],gas:7000000,data:oracle2.methods.tallyVotes(1).encodeABI()}))
-//         //vote should fail
 //         assert(await oracle.getAddressVars(web3.utils.keccak256("tellorContract")) == newOracle.address, "vote should have failed");
 //     });
 

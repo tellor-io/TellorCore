@@ -117,7 +117,6 @@
 //       assert(await reader.granularity.call() == 86400);
 //       //launch and mine one on Tellor
 //       //set up the contracts to handle getting the value
-//       console.log('START MINING RIG!!');
 //       logMineWatcher = await promisifyLogWatch(oa, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
 //       let res = web3.eth.abi.decodeParameters(['uint256','uint256'],logMineWatcher.data);
 //       assert(res['0'] - 0 > 0, "value should be positive");
@@ -285,7 +284,6 @@
 //       assert(rIds['0'] == 1, "included Id's should be correct")
 //       assert(rIds['1'] == 2)
 //       assert(rIds['2'] == 3)
-//       console.log(await reader.endValue.call() ,res[1] )
 //       assert(await reader.endValue.call() > res[1] * 1, 'value should be an average')
 //        });
 //       it("Test Real Value", async function(){

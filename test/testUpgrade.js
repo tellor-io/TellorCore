@@ -7,8 +7,8 @@ const BN = require('bn.js');
 const helper = require("./helpers/test_helpers");
 const TellorMaster = artifacts.require("./TellorMaster.sol");
 const Tellor = artifacts.require("./Tellor.sol"); // globally injected artifacts helper
-const OldTellor = artifacts.require("./oldContracts/Tellor.sol")
-const OldMaster = artifacts.require("./oldContracts/TellorMaster.sol")
+const OldTellor = artifacts.require("./oldContracts/OldTellor.sol")
+const OldMaster = artifacts.require("./oldContracts/OldTellorMaster.sol")
 
 var oracleAbi = Tellor.abi;
 var oracleByte = Tellor.bytecode;
@@ -46,7 +46,7 @@ contract('Upgrade Tests', function(accounts) {
             oracleBase = await OldTellor.new();
             oracle = await OldMaster.new(oracleBase.address);
             oracle2 = await new web3.eth.Contract(OldTellor.abi,oracle.address);
-                        console.log("Start Miner")
+                        console.log("Start Slow Miner")
         //get some tokens
             await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(api,"t",1000,0).encodeABI()});
             logMineWatcher = await promisifyLogWatch(oracle.address, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
@@ -100,24 +100,25 @@ contract('Upgrade Tests', function(accounts) {
             }
             // currentReward = await oracle.getUintVar(web3.utils.keccak256("currentReward"))
             // assert(web3.utils.fromWei(currentReward,'ether') == 5)
-        console.log("here1")
             console.log(web3.utils.hexToNumberString(new_balances[5]) - web3.utils.hexToNumberString(balances[5]),web3.utils.hexToNumberString(new_balances[5]),web3.utils.hexToNumberString(balances[5]))
-            assert((web3.utils.hexToNumberString(new_balances[5]) - web3.utils.hexToNumberString(balances[5])) == web3.utils.toWei('25', 'ether'), "1. Payout should be 5");
-            assert((web3.utils.hexToNumberString(new_balances[1]) - web3.utils.hexToNumberString(balances[1])) == web3.utils.toWei('25', 'ether'),"2. Payout should be 5");
-            assert((web3.utils.hexToNumberString(new_balances[2]) - web3.utils.hexToNumberString(balances[2])) == web3.utils.toWei('25', 'ether'),"3. Payout should be 5");
-            assert((web3.utils.hexToNumberString(new_balances[3]) - web3.utils.hexToNumberString(balances[3])) == web3.utils.toWei('25', 'ether'),"4. Payout should be 5");
-            assert((web3.utils.hexToNumberString(new_balances[4]) - web3.utils.hexToNumberString(balances[4])) == web3.utils.toWei('25', 'ether'), "5. Payout should be 5");
-        console.log("Stop the Miner....start slow Miner")
+            assert((web3.utils.hexToNumberString(new_balances[1]) - web3.utils.hexToNumberString(balances[1])) >= web3.utils.toWei('25', 'ether'),"2. Payout should be 5");
+            assert((web3.utils.hexToNumberString(new_balances[2]) - web3.utils.hexToNumberString(balances[2])) >= web3.utils.toWei('25', 'ether'),"3. Payout should be 5");
+            assert((web3.utils.hexToNumberString(new_balances[3]) - web3.utils.hexToNumberString(balances[3])) >= web3.utils.toWei('25', 'ether'),"4. Payout should be 5");
+            assert((web3.utils.hexToNumberString(new_balances[4]) - web3.utils.hexToNumberString(balances[4])) >= web3.utils.toWei('25', 'ether'), "5. Payout should be 5");
+            assert((web3.utils.hexToNumberString(new_balances[5]) - web3.utils.hexToNumberString(balances[5])) >= web3.utils.toWei('25', 'ether'), "1. Payout should be 5");
+            console.log("Stop the Miner....start slow Miner")
         //change tellorContract mid contract
         console.log("Solve 3")
             newOracle = await Tellor.new();
-            await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle.methods.changeTellorContract(newOracle.address).encodeABI()})
+            await oracle.changeTellorContract(newOracle.address,{from:accounts[1]})
             console.log("Tellor Contract changed")
         console.log("Solve 2")
         //assert correct
             assert(await oracle.getAddressVars(web3.utils.keccak256("tellorContract")) == newOracle.address, "tellorContract should be Tellor Base");
         //mine all in requestQ
-            for(var i = 0;i <= 46;i++){
+            console.log("mining 45....could be a while")
+            for(var i = 0;i < 46;i++){
+                console.log(i)
                 logMineWatcher = await promisifyLogWatch(oracle.address, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
             }
         //assert that it is working
@@ -185,5 +186,5 @@ contract('Upgrade Tests', function(accounts) {
             currentReward = await oracle.getUintVar(web3.utils.keccak256("currentReward"))
             assert(web3.utils.fromWei(currentReward,'ether') < 5)
             assert(rCount == 57, "request count should be correct")
-   }).timeout(500000);
+   }).timeout(2500000);
  });    

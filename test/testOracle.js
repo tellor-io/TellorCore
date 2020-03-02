@@ -90,7 +90,6 @@
 //         let startDate = web3.utils.hexToNumberString(info['1']);
 //         let _date = new Date();
 //         let d = (_date - (_date % 86400000))/1000;
-//         console.log(_date,d,startDate);
 //         assert(d*1==startDate, "startDate is today");
 //         assert(stake*1 == 1, "Should be 1 for staked address");
 //      });
@@ -105,13 +104,12 @@
 //         assert(difficulty == 1, "Difficulty should be 1");
 //         assert.equal(sapi,api, "sapi = api");  
 //     });
-//  it("Test miner", async function () {
+//     console.log('START MINING RIG!!');
+//     it("Test miner", async function () {
 //         newOracle = await Tellor.new();
 //         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:master.methods.changeTellorContract(newOracle.address).encodeABI()})
-//         console.log('START MINING RIG!!');
 //         var logMineWatcher = await promisifyLogWatch(oracle.address, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
 //         res = web3.eth.abi.decodeParameters(['uint256','uint256'],logMineWatcher.data);
-//         console.log("res", res)
 //         assert(res['1'] > 0, "value should be positive");
 //    });
 
@@ -126,8 +124,7 @@
 //         res = web3.eth.abi.decodeParameters(['uint256','uint256'],logMineWatcher.data);
 //         assert(res[0] > 0, "value should be positive");
 //     });
-    
-    
+       
 //   it("Test Total Supply Increase", async function () {
 //         initTotalSupply = await oracle.totalSupply();
 //         logMineWatcher = await promisifyLogWatch(oracle.address, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
@@ -136,7 +133,6 @@
 //         newTotalSupply = await oracle.totalSupply();
 //         it= await web3.utils.fromWei(initTotalSupply, 'ether');
 //         ts= await web3.utils.fromWei(newTotalSupply, 'ether');         
-//         console.log(it,ts);
 //         assert(ts-it >= 27,"Difference should equal the payout");
 //     });
     
@@ -158,7 +154,6 @@
 //         it= await web3.utils.fromWei(initTotalSupply, 'ether');
 //         ts= await web3.utils.fromWei(newTotalSupply, 'ether');   
 //         tsChange2 = ts-it      
-//         console.log(tsChange2,tsChange)
 //         assert(tsChange2 < tsChange,"TS change should go down");
 
 //     });
@@ -202,11 +197,16 @@
 //         for(var i = 0;i<6;i++){
 //             new_balances[i] = await oracle.balanceOf(accounts[i]);
 //         }
-//         assert((web3.utils.hexToNumberString(new_balances[5]) - web3.utils.hexToNumberString(balances[5])) == web3.utils.toWei('5', 'ether'));
-//         assert((web3.utils.hexToNumberString(new_balances[1]) - web3.utils.hexToNumberString(balances[1])) == web3.utils.toWei('5', 'ether'));
-//         assert((web3.utils.hexToNumberString(new_balances[2]) - web3.utils.hexToNumberString(balances[2])) == web3.utils.toWei('5', 'ether'));
-//         assert((web3.utils.hexToNumberString(new_balances[3]) - web3.utils.hexToNumberString(balances[3])) == web3.utils.toWei('5', 'ether'));
-//         assert((web3.utils.hexToNumberString(new_balances[4]) - web3.utils.hexToNumberString(balances[4])) == web3.utils.toWei('5', 'ether'));
+//         assert((web3.utils.hexToNumberString(new_balances[5]) - web3.utils.hexToNumberString(balances[5])) < web3.utils.toWei('5', 'ether'));
+//         assert((web3.utils.hexToNumberString(new_balances[1]) - web3.utils.hexToNumberString(balances[1])) < web3.utils.toWei('5', 'ether'));
+//         assert((web3.utils.hexToNumberString(new_balances[2]) - web3.utils.hexToNumberString(balances[2])) < web3.utils.toWei('5', 'ether'));
+//         assert((web3.utils.hexToNumberString(new_balances[3]) - web3.utils.hexToNumberString(balances[3])) < web3.utils.toWei('5', 'ether'));
+//         assert((web3.utils.hexToNumberString(new_balances[4]) - web3.utils.hexToNumberString(balances[4])) < web3.utils.toWei('5', 'ether'));
+//         assert((web3.utils.hexToNumberString(new_balances[5]) - web3.utils.hexToNumberString(balances[5])) > web3.utils.toWei('4.99', 'ether'));
+//         assert((web3.utils.hexToNumberString(new_balances[1]) - web3.utils.hexToNumberString(balances[1])) > web3.utils.toWei('4.99', 'ether'));
+//         assert((web3.utils.hexToNumberString(new_balances[2]) - web3.utils.hexToNumberString(balances[2])) > web3.utils.toWei('4.99', 'ether'));
+//         assert((web3.utils.hexToNumberString(new_balances[3]) - web3.utils.hexToNumberString(balances[3])) > web3.utils.toWei('4.99', 'ether'));
+//         assert((web3.utils.hexToNumberString(new_balances[4]) - web3.utils.hexToNumberString(balances[4])) > web3.utils.toWei('4.99', 'ether'));
 //         //assert((web3.utils.hexToNumberString(new_balances[4]) - web3.utils.hexToNumberString(balances[4])) == web3.utils.toWei('1.1', 'ether'));
 //     });
 
@@ -222,25 +222,25 @@
 //         for(var i = 0;i<6;i++){
 //             new_balances[i] = await oracle.balanceOf(accounts[i]);
 //         }
-//         assert((web3.utils.hexToNumberString(new_balances[5]) - web3.utils.hexToNumberString(balances[5])) == web3.utils.toWei('5', 'ether'));
-//         assert((web3.utils.hexToNumberString(new_balances[1]) - web3.utils.hexToNumberString(balances[1])) == web3.utils.toWei('5', 'ether'));
-//         assert((web3.utils.hexToNumberString(new_balances[2]) - web3.utils.hexToNumberString(balances[2])) == web3.utils.toWei('5', 'ether'));
-//         assert((web3.utils.hexToNumberString(new_balances[3]) - web3.utils.hexToNumberString(balances[3])) == web3.utils.toWei('5', 'ether'));
-//         assert((web3.utils.hexToNumberString(new_balances[4]) - web3.utils.hexToNumberString(balances[4])) == web3.utils.toWei('5', 'ether'));
-//         //assert((web3.utils.hexToNumberString(new_balances[4]) - web3.utils.hexToNumberString(balances[4])) == web3.utils.toWei('1.1', 'ether'));
-
+//         changes = []
+//                 for(var i = 0;i<6;i++){
+//             changes[i] = new_balances[i] - balances[i]
+//         }
 //         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",1000,0).encodeABI()})
 //         logMineWatcher = await promisifyLogWatch(oracle.address, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
 //         new_balances2 = []
 //         for(var i = 0;i<6;i++){
 //             new_balances2[i] = await oracle.balanceOf(accounts[i]);
 //         }
-//         assert((web3.utils.hexToNumberString(new_balances2[5]) - web3.utils.hexToNumberString(new_balances[5])) < web3.utils.toWei('5', 'ether'));
-//         assert((web3.utils.hexToNumberString(new_balances2[1]) - web3.utils.hexToNumberString(new_balances[1])) < web3.utils.toWei('5', 'ether'));
-//         assert((web3.utils.hexToNumberString(new_balances2[2]) - web3.utils.hexToNumberString(new_balances[2])) < web3.utils.toWei('5', 'ether'));
-//         assert((web3.utils.hexToNumberString(new_balances2[3]) - web3.utils.hexToNumberString(new_balances[3])) < web3.utils.toWei('5', 'ether'));
-//         assert((web3.utils.hexToNumberString(new_balances2[4]) - web3.utils.hexToNumberString(new_balances[4])) < web3.utils.toWei('5', 'ether'));
-    
+//         changes2 = []
+//         for(var i = 0;i<6;i++){
+//             changes2[i] = new_balances2[i] - new_balances[i]
+//         }
+//         assert(changes2[1] < changes[1]);
+//         assert(changes2[2] < changes[2]);
+//         assert(changes2[3] < changes[4]);
+//         assert(changes2[4] < changes[4]);
+//         assert(changes2[5] < changes[5]);
 //     });
 //    it("Test Difficulty Adjustment", async function () {
 //         logMineWatcher = await promisifyLogWatch(oracle.address, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
@@ -348,7 +348,6 @@
 //         resVars = []
 //         for(i=0;i<3;i++){
 //            await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",1000,0).encodeABI()})
-//             console.log('sent',i)
 //             logMineWatcher = await promisifyLogWatch(oracle.address, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
 //             resVars[i] = web3.eth.abi.decodeParameters(['uint256','uint256','uint256'],logMineWatcher.data)
 //             await helper.advanceTime(1000);
@@ -440,7 +439,6 @@
 //         data = await oracle.getMinedBlockNum(2,res[0]);
 
 //         assert(data>0, "Should be true if Data exist for that point in time");
-//         console.log("10 then mine requests....");
 //          for(var i = 11;i <=20 ;i++){
 //             apix= ("api" + i);
 //             await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(apix,"test",1000,i).encodeABI()});
@@ -468,7 +466,6 @@
 //         res = web3.eth.abi.decodeParameters(['uint256','uint256','uint256'],logMineWatcher.data)
 //         data = await oracle.getMinedBlockNum(1,res[0]);
 //         assert(data > 0, "Should be true if Data exist for that point in time");
-//         console.log("10 then mine requests....");
 //          for(var i =41;i <=55 ;i++){
 //             apix= ("api" + i);
 //             await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(apix,"test",1000,i).encodeABI()});
@@ -604,7 +601,9 @@
 //         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.tallyVotes(1).encodeABI()});
 //         balance2 = await oracle.balanceOf(accounts[2]);
 //         dispBal2 = await oracle.balanceOf(accounts[1])
-//         assert(balance2 - balance1 == await oracle.getUintVar(web3.utils.keccak256("disputeFee")),"balance1 should equal balance2")
+//         let df = await oracle.getUintVar(web3.utils.keccak256("disputeFee"));
+//         console.log(web3.utils.fromWei(balance2,"ether") - web3.utils.fromWei(balance1,"ether"),web3.utils.fromWei(df),'ether')
+//         assert(balance2 - balance1 == await oracle.getUintVar(web3.utils.keccak256("disputeFee")),"balance1 should equal balance2 plus disputeBal")
 //         assert(dispBal1 - dispBal2 == await oracle.getUintVar(web3.utils.keccak256("disputeFee")))
 //                 s =  await oracle.getStakerInfo(accounts[2])
 //         assert(s[0] ==1, " Staked" );
@@ -651,7 +650,7 @@
 //         	assert(s[0] ==1, " Staked" );
 // 	     }
 //     })
-//     it("Test zero addTip", async function () {
+//     /*it("Test zero addTip", async function () {
 //         logMineWatcher = await promisifyLogWatch(oracle.address, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
 //         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.addTip(1,0).encodeABI()})
 //         logMineWatcher = await promisifyLogWatch(oracle.address, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
@@ -696,6 +695,6 @@
 //         logMineWatcher = await promisifyLogWatch(oracle.address, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
 // 		res = web3.eth.abi.decodeParameters(['uint256','uint256','uint256'],logMineWatcher.data)
 //         assert(res['2'] == 5 , "last payout had a tip of 5")
-//     });
+//     });*/
 
 //  });    

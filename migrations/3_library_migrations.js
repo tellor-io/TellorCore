@@ -5,12 +5,11 @@ var TellorStake = artifacts.require("./libraries/TellorStake.sol");
 var TellorLibrary = artifacts.require("./libraries/TellorLibrary.sol");
 var TellorGettersLibrary = artifacts.require("./libraries/TellorGettersLibrary.sol");
 var OldTellor = artifacts.require("./oldContracts/OldTellor.sol");
+var OldTellorMaster = artifacts.require("./oldContracts/OldTellorMaster.sol");
 var OldTellorStake = artifacts.require("./oldContracts/libraries/OldTellorStake.sol");
 var OldTellorTransfer = artifacts.require("./oldContracts/libraries/OldTellorTransfer.sol")
 var OldTellorDispute = artifacts.require("./oldContracts/libraries/OldTellorDispute.sol")
 var OldTellorLibrary = artifacts.require("./oldContracts/libraries/OldTellorLibrary.sol")
-var Tellor = artifacts.require("./Tellor.sol");
-var TellorMaster = artifacts.require("./TellorMaster.sol");
 /****Uncomment the body to run this with Truffle migrate for truffle testing*/
 
 /**
@@ -60,11 +59,11 @@ module.exports = async function (deployer) {
   await deployer.deploy(OldTellor);
 
   // deploy tellor master
-  await deployer.link(OldTellorTransfer,TellorMaster);
-  await deployer.link(TellorGettersLibrary,TellorMaster);
-    await deployer.link(OldTellorStake,TellorMaster);
+  await deployer.link(OldTellorTransfer,OldTellorMaster);
+  await deployer.link(TellorGettersLibrary,OldTellorMaster);
+    await deployer.link(OldTellorStake,OldTellorMaster);
   await deployer.deploy(OldTellor).then(async function() {
-    await deployer.deploy(TellorMaster, OldTellor.address)
+    await deployer.deploy(OldTellorMaster, OldTellor.address)
   });
 
 
