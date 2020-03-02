@@ -55,7 +55,6 @@ library TellorStake {
         self.uintVars[keccak256("timeTarget")] = 600;
         self.uintVars[keccak256("timeOfLastNewValue")] = now - (now % self.uintVars[keccak256("timeTarget")]);
         self.uintVars[keccak256("difficulty")] = 1;
-        self.uintVars[keccak256("currentReward")] = 5e18;
     }
 
     /**

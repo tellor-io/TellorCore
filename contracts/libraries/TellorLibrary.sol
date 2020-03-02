@@ -190,8 +190,8 @@ library TellorLibrary {
         //Pay the miners 
         //adjust by payout = payout * ratio 0.000030612633181126/1e18  
         //uint _currentReward = self.uintVars[keccak256("currentReward")];   
-        for (i = 0; i < 5; i++) {
-            TellorTransfer.doTransfer(self, address(this), a[i].miner, self.uintVars[keccak256("currentReward")]  + self.uintVars[keccak256("currentTotalTips")] / 5);
+        if(self.uintVars[keccak256("currentReward")] == 0){
+            self.uintVars[keccak256("currentReward")] = 5e18;
         }
         if (self.uintVars[keccak256("currentReward")] > 1e18) {
         self.uintVars[keccak256("currentReward")] = self.uintVars[keccak256("currentReward")] - self.uintVars[keccak256("currentReward")] * 30612633181126/1e18; 
@@ -206,6 +206,9 @@ library TellorLibrary {
             self.uintVars[keccak256("currentTotalTips")] - (self.uintVars[keccak256("currentTotalTips")] % 5),
             self.currentChallenge
         );
+        for (i = 0; i < 5; i++) {
+            TellorTransfer.doTransfer(self, address(this), a[i].miner, self.uintVars[keccak256("currentReward")]  + self.uintVars[keccak256("currentTotalTips")] / 5);
+        }
         //update the total supply
         self.uintVars[keccak256("total_supply")] +=  self.uintVars[keccak256("devShare")] + self.uintVars[keccak256("currentReward")]*5 ;
         //pay the dev-share
