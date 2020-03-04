@@ -84,7 +84,7 @@ def masterMiner():
                                 if(nonce > 0):
                                                 print ("You guessed the hash!");
                                                 #value = max(0,(5000- miners_started*10) * granularity);
-                                                value = max(0,(getAPIvalue(apiString) - miners_started*10) * granularity); #account 2 should always be winner
+                                                value = max(0,(10000 - miners_started*10) * granularity); #account 2 should always be winner
                                                 print('Value',value);
                                                 arg_string =""+ str(nonce) + " "+ str(apiId) +" " + str(value)+" "+str(contract_address)+" "+str(public_keys[miners_started])+" "+str(private_keys[miners_started])
                                                 print(arg_string)
@@ -101,6 +101,8 @@ def masterMiner():
                                                     if (mineCount == 1):
                                                         print("pausing, 40") 
                                                         time.sleep(40)
+                                                    if(mineCount == 6):
+                                                        time.sleep(wait_between)
                                                     v = False;
                                                     while(v == False):
                                                                     time.sleep(2);

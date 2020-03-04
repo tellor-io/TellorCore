@@ -73,10 +73,7 @@ contract('Upgrade Tests', function(accounts) {
             let rCount = await oracle.getUintVar(web3.utils.keccak256("requestCount"))
             assert(rCount == 51, "request count should be correct")
             assert(vars[1] == "t")
-            // let currentReward = await oracle.getUintVar(web3.utils.keccak256("currentReward"))
-            // console.log(currentReward)
-            // assert(web3.utils.fromWei(currentReward,'ether') == 5, "Current Reward should be correct")
-        //change the deity
+        // //change the deity
             let owner = await oracle.getAddressVars(web3.utils.keccak256("_deity"));
             assert(owner == accounts[0])
             await oracle.changeDeity(accounts[1])
@@ -88,12 +85,11 @@ contract('Upgrade Tests', function(accounts) {
                 balances[i] = await oracle.balanceOf(accounts[i]);
             }
         //mine 5 values
-
             for(var i = 0;i < 5;i++){
                 logMineWatcher = await promisifyLogWatch(oracle.address, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
             }
 
-        //assert payout is not decreasing
+        // //assert payout is not decreasing
             new_balances = []
              for(var i = 0;i<6;i++){
                 new_balances[i] = await oracle.balanceOf(accounts[i]);
@@ -107,7 +103,7 @@ contract('Upgrade Tests', function(accounts) {
             assert((web3.utils.hexToNumberString(new_balances[4]) - web3.utils.hexToNumberString(balances[4])) >= web3.utils.toWei('25', 'ether'), "5. Payout should be 5");
             assert((web3.utils.hexToNumberString(new_balances[5]) - web3.utils.hexToNumberString(balances[5])) >= web3.utils.toWei('25', 'ether'), "1. Payout should be 5");
             console.log("Stop the Miner....start slow Miner")
-        //change tellorContract mid contract
+        // //change tellorContract mid contract
         console.log("Solve 3")
             newOracle = await Tellor.new();
             await oracle.changeTellorContract(newOracle.address,{from:accounts[1]})
@@ -116,15 +112,15 @@ contract('Upgrade Tests', function(accounts) {
         //assert correct
             assert(await oracle.getAddressVars(web3.utils.keccak256("tellorContract")) == newOracle.address, "tellorContract should be Tellor Base");
         //mine all in requestQ
-            console.log("mining 45....could be a while")
-            for(var i = 0;i < 46;i++){
+            console.log("mine 5 more....could be a while")
+            for(var i = 0;i < 5;i++){
                 console.log(i)
                 logMineWatcher = await promisifyLogWatch(oracle.address, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
             }
-        //assert that it is working
+        // //assert that it is working
             res = web3.eth.abi.decodeParameters(['uint256','uint256'],logMineWatcher.data);
             console.log("res", res)
-            assert(res['1'] > 0, "value should be positive");
+            assert(res['0'] > 0, "timestamp should be positive");
         //request 2 new data points
             for(var i = 52;i <=53 ;i++){
                 apix= ("api" + i);
@@ -134,15 +130,7 @@ contract('Upgrade Tests', function(accounts) {
             for(var i = 0;i <= 1;i++){
                 logMineWatcher = await promisifyLogWatch(oracle.address, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
             }
-        //request 3 new data points
-            for(var i = 54;i <=56 ;i++){
-                apix= ("api" + i);
-                await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(apix,"t",1000,i).encodeABI()});
-            }
-        //mine 3
-            for(var i = 0;i <= 2;i++){
-                logMineWatcher = await promisifyLogWatch(oracle.address, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
-            }
+            console.log("mining some more")
         //assert that the payout is decreasing
             balances = []
             for(var i = 0;i<6;i++){
@@ -161,7 +149,6 @@ contract('Upgrade Tests', function(accounts) {
         //assert that the total supply / dev share is correct
             await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",1000,0).encodeABI()})
             initTotalSupply = await oracle.totalSupply();
-            begbal = await oracle.balanceOf(accounts[0]);
             logMineWatcher = await promisifyLogWatch(oracle.address, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
             newTotalSupply = await oracle.totalSupply();
             it= await web3.utils.fromWei(initTotalSupply, 'ether');
@@ -169,22 +156,22 @@ contract('Upgrade Tests', function(accounts) {
             tsChange = ts-it
             await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",1000,0).encodeABI()})
             initTotalSupply = await oracle.totalSupply();
+            begbal = await oracle.balanceOf(accounts[0]);
             logMineWatcher = await promisifyLogWatch(oracle.address, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
-            newOracle = await Tellor.new();
-            await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:master.methods.changeTellorContract(newOracle.address).encodeABI()})
             newTotalSupply = await oracle.totalSupply();
             it= await web3.utils.fromWei(initTotalSupply, 'ether');
             ts= await web3.utils.fromWei(newTotalSupply, 'ether');   
             tsChange2 = ts-it      
-            console.log(tsChange2,tsChange)
             assert(tsChange2 < tsChange,"TS change should go down");
             endbal = await oracle.balanceOf(accounts[0]);
+            console.log(endbal - 0,begbal - 0,endbal-begbal)
             assert((endbal - begbal)/1e18  > 2.4, "devShare")
             assert((endbal - begbal)/1e18  < 2.5, "devShare")
         //assert that the ocount is correct
             rCount = await oracle.getUintVar(web3.utils.keccak256("requestCount"))
             currentReward = await oracle.getUintVar(web3.utils.keccak256("currentReward"))
             assert(web3.utils.fromWei(currentReward,'ether') < 5)
-            assert(rCount == 57, "request count should be correct")
+            console.log(rCount - 0)
+            assert(rCount == 53, "request count should be correct")
    }).timeout(2500000);
  });    
