@@ -47,10 +47,10 @@ library TellorLibrary {
     /*Functions*/
 
     /*This is a cheat for demo purposes, will delete upon actual launch*/
-/*    function theLazyCoon(TellorStorage.TellorStorageStruct storage self,address _address, uint _amount) public {
-        self.uintVars[keccak256("total_supply")] += _amount;
-        TellorTransfer.updateBalanceAtNow(self.balances[_address],_amount);
-    } */
+    // function theLazyCoon(TellorStorage.TellorStorageStruct storage self,address _address, uint _amount) public {
+    //     self.uintVars[keccak256("total_supply")] += _amount;
+    //     TellorTransfer.updateBalanceAtNow(self.balances[_address],_amount);
+    // } 
 
     /**
     * @dev Add tip to Request value from oracle
@@ -60,6 +60,7 @@ library TellorLibrary {
     */
     function addTip(TellorStorage.TellorStorageStruct storage self, uint256 _requestId, uint256 _tip) public {
         require(_requestId > 0, "RequestId is 0");
+        require(_requestId <= self.uintVars[keccak256("requestCount")], "RequestId is not less than count");
 
         //If the tip > 0 transfer the tip to this contract
         if (_tip > 0) {
@@ -135,7 +136,7 @@ library TellorLibrary {
         }
     }
 
-    /**
+   /**
     * @dev This fucntion is called by submitMiningSolution and adjusts the difficulty, sorts and stores the first
     * 5 values received, pays the miners, the dev share and assigns a new challenge
     * @param _nonce or solution for the PoW  for the requestId
@@ -186,9 +187,17 @@ library TellorLibrary {
             }
         }
 
-        //Pay the miners
-        for (i = 0; i < 5; i++) {
-            TellorTransfer.doTransfer(self, address(this), a[i].miner, 5e18 + self.uintVars[keccak256("currentTotalTips")] / 5);
+        //Pay the miners 
+        //adjust by payout = payout * ratio 0.000030612633181126/1e18  
+        //uint _currentReward = self.uintVars[keccak256("currentReward")];   
+        if(self.uintVars[keccak256("currentReward")] == 0){
+            self.uintVars[keccak256("currentReward")] = 5e18;
+        }
+        if (self.uintVars[keccak256("currentReward")] > 1e18) {
+        self.uintVars[keccak256("currentReward")] = self.uintVars[keccak256("currentReward")] - self.uintVars[keccak256("currentReward")] * 30612633181126/1e18; 
+        self.uintVars[keccak256("devShare")] = self.uintVars[keccak256("currentReward")] * 50/100;
+        } else {
+            self.uintVars[keccak256("currentReward")] = 1e18;
         }
         emit NewValue(
             _requestId,
@@ -197,12 +206,13 @@ library TellorLibrary {
             self.uintVars[keccak256("currentTotalTips")] - (self.uintVars[keccak256("currentTotalTips")] % 5),
             self.currentChallenge
         );
-
+        for (i = 0; i < 5; i++) {
+            TellorTransfer.doTransfer(self, address(this), a[i].miner, self.uintVars[keccak256("currentReward")]  + self.uintVars[keccak256("currentTotalTips")] / 5);
+        }
         //update the total supply
-        self.uintVars[keccak256("total_supply")] += 275e17;
-
+        self.uintVars[keccak256("total_supply")] +=  self.uintVars[keccak256("devShare")] + self.uintVars[keccak256("currentReward")]*5 ;
         //pay the dev-share
-        TellorTransfer.doTransfer(self, address(this), self.addressVars[keccak256("_owner")], 25e17); //The ten there is the devshare
+        TellorTransfer.doTransfer(self, address(this), self.addressVars[keccak256("_owner")],  self.uintVars[keccak256("devShare")]); //The ten there is the devshare
         //Save the official(finalValue), timestamp of it, 5 miners and their submitted values for it, and its block number
         _request.finalValues[_timeOfLastNewValue] = a[2].value;
         _request.requestTimestamps.push(_timeOfLastNewValue);
@@ -211,7 +221,6 @@ library TellorLibrary {
         _request.valuesByTimestamp[_timeOfLastNewValue] = [a[0].value, a[1].value, a[2].value, a[3].value, a[4].value];
         _request.minedBlockNum[_timeOfLastNewValue] = block.number;
         //map the timeOfLastValue to the requestId that was just mined
-
         self.requestIdByTimestamp[_timeOfLastNewValue] = _requestId;
         //add timeOfLastValue to the newValueTimestamps array
         self.newValueTimestamps.push(_timeOfLastNewValue);
@@ -270,7 +279,7 @@ library TellorLibrary {
     function submitMiningSolution(TellorStorage.TellorStorageStruct storage self, string memory _nonce, uint256 _requestId, uint256 _value)
         public
     {
-        //requre miner is staked
+        //require miner is staked
         require(self.stakerDetails[msg.sender].currentStatus == 1, "Miner status is not staker");
 
         //Check the miner is submitting the pow for the current request Id
