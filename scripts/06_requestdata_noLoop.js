@@ -28,19 +28,19 @@ function sleep_s(secs) {
   while ((+new Date) < secs);
 }
 
+api1 = "json(https://api.coindesk.com/v1/bpi/currentprice.json).bpi.USD.rate"; 
+api2 = "json(https://api.binance.com/api/v1/klines?symbol=BTCUSDT&interval=1d&limit=1).0.4";
+
 
 module.exports = function() {
 
   async function requestData() {
     let ins = await Oracle.at(myOracle);
-    let ins2 = await TellorMaster.at(myOracle);
 
-    for(i=1;i<4;i++){
-           let req = 'PSR' + i
-           console.log(req)
-           await ins.requestData(req,req,10,0)
-           console.log('sent req',i)
-        } 
+           console.log("request about to be sent")
+           await ins.requestData(api2,"BTC/USD",10000,0)
+           console.log('sent req')
+        
 
     }
   

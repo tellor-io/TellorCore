@@ -56,7 +56,7 @@ console.log('vars')
         //Deploy TellorTransfer library
         let t = await new web3.eth.Contract(TellorTransfer.abi)
         console.log(10)
-        tellorTransfer  =await t.deploy({data:TellorTransfer.bytecode}).send({from:accounts[0], gas:3000000})  
+        tellorTransfer  =await t.deploy({data:TellorTransfer.bytecode}).send({ gas:3000000})  
         console.log(1)
         t = await new web3.eth.Contract(TellorGettersLibrary.abi)
         //Deploy TellorGetters library

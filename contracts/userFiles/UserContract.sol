@@ -39,6 +39,18 @@ contract UserContract is ADOInterface{
         owner = msg.sender;
     }
 
+    /**
+    * @dev This function allows the owner to update
+    * Tellor's address
+    * @param _storage is the TellorMaster address
+    */
+    function updateTellorAddress(address payable _storage) public {
+        require(msg.sender == owner, "Sender is not owner");
+        tellorStorageAddress = _storage;
+        _tellor = Tellor(tellorStorageAddress); //we should delcall here
+        _tellorm = TellorMaster(tellorStorageAddress);
+    }
+    
     /*Functions*/
     /*
     * @dev Allows the owner to set the address for the oracleID descriptors
