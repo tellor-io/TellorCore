@@ -56,7 +56,7 @@ contract YourContract is UsingTellor{
 ```
 
 
-* <b>Miner</b> [Documentation](https://tellor.readthedocs.io/en/latest/MinerSetup/)
+* <b>Miner [Documentation](https://tellor.readthedocs.io/en/latest/MinerSetup/)</b>
 
 * <b>General Tellor Developer's [Documentation](https://tellor.readthedocs.io/en/latest/DevDocumentation/)</b>
 
