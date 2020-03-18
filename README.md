@@ -16,7 +16,9 @@ Ethereum smart contracts cannot access off-chain data. If your smart contract re
 
 <b>The Tellor oracle</b> is a decentralized oracle. It provides an option for contracts to securely interact with and obtain data from off-chain.
 
-Documentation for implementing Tellor into your project, become a miner and learn how Tellor works is available at:  [tellor.readthedocs.io/en/latest/](https://tellor.readthedocs.io/en/latest/). Quick references are included below: 
+For more indepth information about Tellor checkout our [documenation](https://tellor.readthedocs.io/en/latest/), [whitepaper](https://tellor.io/whitepaper/) and [FAQ](https://tellor.io/faq/) page. 
+
+Quick references are included below: 
 
 * <b>Implement Tellor into your project</b>
 
@@ -35,39 +37,26 @@ npm install usingTellor
 pragma solidity ^0.5.0;
 
 import './UsingTellor.sol';
-import '../TellorMaster.sol';
-import '../Tellor.sol';
 
 contract YourContract is UsingTellor{
  ...
     constructor(address _userContract) UsingTellor(_userContract) public{
 
     }   
-
-    function getFirstUndisputedValueAfter(uint _timestamp) public view returns(bool,uint, uint _timestampRetrieved){
-        uint _count = timestamps.length;
-        if(_count > 0){
-                for(uint i = _count;i > 0;i--){
-                    if(timestamps[i-1] >= _timestamp && disputedValues[timestamps[i-1]] == false){
-                        _timestampRetrieved = timestamps[i-1];
-                    }
-                }
-                if(_timestampRetrieved > 0){
-                    return(true,getMyValuesByTimestamp(_timestampRetrieved),_timestampRetrieved);
-                }
-        }
-        return(false,0,0);
-    }   
+    /**
+    * @dev Allows the user to get the latest value for the requestId specified
+    * @param _requestId is the requestId to look up the value for
+    * @return bool true if it is able to retreive a value, the value, and the value's timestamp
+    */
+    function getLastValue(uint256 _requestId) public view returns (bool ifRetrieve, uint256 value, uint256 _timestampRetrieved) {
+        return getCurrentValue(_requestId);
+    }
  ...
 }
 ```
 
 
-* <b>Become a miner</b>
-
-    * [Become Setup](https://tellor.readthedocs.io/en/latest/MinerSetup/)
-
-    * [Miner Implentation from source](https://tellor.readthedocs.io/en/latest/MinerSetupFromSource/)
+* <b>Miner</b> [Documentation](https://tellor.readthedocs.io/en/latest/MinerSetup/)
 
 * <b>General Tellor Developer's [Documentation](https://tellor.readthedocs.io/en/latest/DevDocumentation/)</b>
 
