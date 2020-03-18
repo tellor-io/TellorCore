@@ -16,16 +16,19 @@ Ethereum smart contracts cannot access off-chain data. If your smart contract re
 
 <b>The Tellor oracle</b> is a decentralized oracle. It provides an option for contracts to securely interact with and obtain data from off-chain.
 
-Here are quick references for implementing Tellor into your project, become a miner and explore Tellor's code:  [tellor.readthedocs.io/en/latest/](https://tellor.readthedocs.io/en/latest/). 
+Documentation for implementing Tellor into your project, become a miner and learn how Tellor works is available at:  [tellor.readthedocs.io/en/latest/](https://tellor.readthedocs.io/en/latest/). Quick references are included below: 
 
-* <b>Use npm to istall the</b> [usingTellor](https://github.com/tellor-io/usingtellor) repo.
+* <b>Implement Tellor into your project</b>
+
+1. Use npm to istall the [usingTellor](https://github.com/tellor-io/usingtellor) repo.
 
 ```bash
 npm install usingTellor
 ```
-Import UsingTellor.sol into your smart contract and ensure your contract inherits from it by adding "is UsingTellor".
 
-Pass through the user contract address (
+2. Import UsingTellor.sol into your smart contract and ensure your contract inherits from it by adding "is UsingTellor".
+
+3. Pass through the user contract address (
 [0x09459fdafD6Fdce14E04B3487A656FBca0b953ea](https://etherscan.io/address/0x09459fdafd6fdce14e04b3487a656fbca0b953ea#code) ) in your constructor. See example below:
 
 ```solidity
