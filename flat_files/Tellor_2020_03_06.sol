@@ -166,12 +166,11 @@ library TellorTransfer {
     }
 }
 
-
 //import "./SafeMath.sol";
 
 /**
 * @title Tellor Dispute
-* @dev Contais the methods related to disputes. Tellor.sol references this library for function's logic.
+* @dev Contains the methods related to disputes. Tellor.sol references this library for function's logic.
 */
 
 library TellorDispute {
@@ -278,9 +277,6 @@ library TellorDispute {
         //Update the number of votes for the dispute
         disp.disputeUintVars[keccak256("numberOfVotes")] += 1;
 
-        //Update the quorum by adding the voteWeight
-        disp.disputeUintVars[keccak256("quorum")] += voteWeight;
-
         //If the user supports the dispute increase the tally for the dispute by the voteWeight
         //otherwise decrease it
         if (_supportsDispute) {
@@ -307,29 +303,39 @@ library TellorDispute {
         //Ensure the time for voting has elapsed
         require(now > disp.disputeUintVars[keccak256("minExecutionDate")], "Time for voting haven't elapsed");
 
+
         //If the vote is not a proposed fork
         if (disp.isPropFork == false) {
             TellorStorage.StakeInfo storage stakes = self.stakerDetails[disp.reportedMiner];
             //If the vote for disputing a value is succesful(disp.tally >0) then unstake the reported
             // miner and transfer the stakeAmount and dispute fee to the reporting party
             if (disp.tally > 0) {
-                //Changing the currentStatus and startDate unstakes the reported miner and allows for the
-                //transfer of the stakeAmount
-                stakes.currentStatus = 0;
-                stakes.startDate = now - (now % 86400);
 
-                //Decreases the stakerCount since the miner's stake is being slashed
-                self.uintVars[keccak256("stakerCount")]--;
-                updateDisputeFee(self);
-
-                //Transfers the StakeAmount from the reporded miner to the reporting party
-                TellorTransfer.doTransfer(self, disp.reportedMiner, disp.reportingParty, self.uintVars[keccak256("stakeAmount")]);
-
-                //Returns the dispute fee to the reportingParty
-                TellorTransfer.doTransfer(self, address(this), disp.reportingParty, disp.disputeUintVars[keccak256("fee")]);
+                //if reported miner stake has not been slashed yet, slash them and return the fee to reporting party
+                if (stakes.currentStatus == 3) {
+                    //Changing the currentStatus and startDate unstakes the reported miner and allows for the
+                    //transfer of the stakeAmount
+                    stakes.currentStatus = 0;
+                    stakes.startDate = now - (now % 86400);
+     
+                    //Decreases the stakerCount since the miner's stake is being slashed
+                    self.uintVars[keccak256("stakerCount")]--;
+                    updateDisputeFee(self);
+     
+                    //Transfers the StakeAmount from the reporded miner to the reporting party
+                    TellorTransfer.doTransfer(self, disp.reportedMiner, disp.reportingParty, self.uintVars[keccak256("stakeAmount")]);
+     
+                    //Returns the dispute fee to the reportingParty
+                    TellorTransfer.doTransfer(self, address(this), disp.reportingParty, disp.disputeUintVars[keccak256("fee")]);
+                    
+                //if reported miner stake was already slashed, return the fee to other reporting paties
+                } else{
+                    TellorTransfer.doTransfer(self, address(this), disp.reportingParty, disp.disputeUintVars[keccak256("fee")]);
+                }
 
                 //Set the dispute state to passed/true
                 disp.disputeVotePassed = true;
+
 
                 //If the dispute was succeful(miner found guilty) then update the timestamp value to zero
                 //so that users don't use this datapoint
@@ -347,13 +353,9 @@ library TellorDispute {
                     _request.inDispute[disp.disputeUintVars[keccak256("timestamp")]] = false;
                 }
             }
-            //If the vote is for a proposed fork require a 20% quorum before executing the update to the new tellor contract address
+            //If the vote is for a proposed fork require a 10% quorum before executing the update to the new tellor contract address
         } else {
-            if (disp.tally > 0) {
-                require(
-                    disp.disputeUintVars[keccak256("quorum")] > ((self.uintVars[keccak256("total_supply")] * 20) / 100),
-                    "Quorum is not reached"
-                );
+            if (disp.tally > 0 && uint(disp.tally) >= ((self.uintVars[keccak256("total_supply")] * 10) / 100)) {
                 self.addressVars[keccak256("tellorContract")] = disp.proposedForkAddress;
                 disp.disputeVotePassed = true;
                 emit NewTellorAddress(disp.proposedForkAddress);
@@ -533,7 +535,6 @@ library TellorStake {
 }
 
 
-
 //Slightly modified SafeMath library - includes a min and max function, removes useless div function
 library SafeMath {
     function add(uint256 a, uint256 b) internal pure returns (uint256) {
@@ -621,7 +622,6 @@ library TellorStorage {
         // uint keccak256("numberOfVotes");//the number of parties who have voted on the measure
         // uint keccak256("blockNumber");// the blocknumber for which votes will be calculated from
         // uint keccak256("minerSlot"); //index in dispute array
-        // uint keccak256("quorum"); //quorum for dispute vote NEW
         // uint keccak256("fee"); //fee paid corresponding to dispute
         mapping(address => bool) voted; //mapping of address to whether or not they voted
     }
@@ -702,13 +702,20 @@ library TellorStorage {
 }
 
 
-
 //Functions for retrieving min and Max in 51 length array (requestQ)
 //Taken partly from: https://github.com/modular-network/ethereum-libraries-array-utils/blob/master/contracts/Array256Lib.sol
 
 library Utilities {
     /**
     * @dev Returns the minimum value in an array.
+    * The zero position here is ignored. It's because 
+    * there's no null in solidity and we map each address 
+    * to an index in this array. So when we get 51 parties, 
+    * and one person is kicked out of the top 50, we 
+    * assign them a 0, and when you get mined and pulled 
+    * out of the top 50, also a 0. So then lot's of parties 
+    * will have zero as the index so we made the array run 
+    * from 1-51 with zero as nothing.
     */
     function getMax(uint256[51] memory data) internal pure returns (uint256 max, uint256 maxIndex) {
         max = data[1];
@@ -961,9 +968,9 @@ library TellorGettersLibrary {
     * @dev Get the name of the token
     * @return string of the token name
     */
-    function getName(TellorStorage.TellorStorageStruct storage self) internal pure returns (string memory) {
+/*    function getName(TellorStorage.TellorStorageStruct storage self) internal pure returns (string memory) {
         return "Tellor Tributes";
-    }
+    }*/
 
     /**
     * @dev Counts the number of values that have been submited for the request
@@ -1083,9 +1090,9 @@ library TellorGettersLibrary {
     * @dev Get the symbol of the token
     * @return string of the token symbol
     */
-    function getSymbol(TellorStorage.TellorStorageStruct storage self) internal pure returns (string memory) {
+/*    function getSymbol(TellorStorage.TellorStorageStruct storage self) internal pure returns (string memory) {
         return "TT";
-    }
+    }*/
 
     /**
     * @dev Gets the timestamp for the value based on their index
@@ -1212,10 +1219,10 @@ library TellorLibrary {
     /*Functions*/
 
     /*This is a cheat for demo purposes, will delete upon actual launch*/
-    /* function theLazyCoon(TellorStorage.TellorStorageStruct storage self,address _address, uint _amount) public {
-        self.uintVars[keccak256("total_supply")] += _amount;
-        TellorTransfer.updateBalanceAtNow(self.balances[_address],_amount);
-    } */
+    // function theLazyCoon(TellorStorage.TellorStorageStruct storage self,address _address, uint _amount) public {
+    //     self.uintVars[keccak256("total_supply")] += _amount;
+    //     TellorTransfer.updateBalanceAtNow(self.balances[_address],_amount);
+    // } 
 
     /**
     * @dev Add tip to Request value from oracle
@@ -1225,6 +1232,7 @@ library TellorLibrary {
     */
     function addTip(TellorStorage.TellorStorageStruct storage self, uint256 _requestId, uint256 _tip) public {
         require(_requestId > 0, "RequestId is 0");
+        require(_requestId <= self.uintVars[keccak256("requestCount")], "RequestId is not less than count");
 
         //If the tip > 0 transfer the tip to this contract
         if (_tip > 0) {
@@ -1300,7 +1308,7 @@ library TellorLibrary {
         }
     }
 
-    /**
+   /**
     * @dev This fucntion is called by submitMiningSolution and adjusts the difficulty, sorts and stores the first
     * 5 values received, pays the miners, the dev share and assigns a new challenge
     * @param _nonce or solution for the PoW  for the requestId
@@ -1351,9 +1359,17 @@ library TellorLibrary {
             }
         }
 
-        //Pay the miners
-        for (i = 0; i < 5; i++) {
-            TellorTransfer.doTransfer(self, address(this), a[i].miner, 5e18 + self.uintVars[keccak256("currentTotalTips")] / 5);
+        //Pay the miners 
+        //adjust by payout = payout * ratio 0.000030612633181126/1e18  
+        //uint _currentReward = self.uintVars[keccak256("currentReward")];   
+        if(self.uintVars[keccak256("currentReward")] == 0){
+            self.uintVars[keccak256("currentReward")] = 5e18;
+        }
+        if (self.uintVars[keccak256("currentReward")] > 1e18) {
+        self.uintVars[keccak256("currentReward")] = self.uintVars[keccak256("currentReward")] - self.uintVars[keccak256("currentReward")] * 30612633181126/1e18; 
+        self.uintVars[keccak256("devShare")] = self.uintVars[keccak256("currentReward")] * 50/100;
+        } else {
+            self.uintVars[keccak256("currentReward")] = 1e18;
         }
         emit NewValue(
             _requestId,
@@ -1362,12 +1378,13 @@ library TellorLibrary {
             self.uintVars[keccak256("currentTotalTips")] - (self.uintVars[keccak256("currentTotalTips")] % 5),
             self.currentChallenge
         );
-
+        for (i = 0; i < 5; i++) {
+            TellorTransfer.doTransfer(self, address(this), a[i].miner, self.uintVars[keccak256("currentReward")]  + self.uintVars[keccak256("currentTotalTips")] / 5);
+        }
         //update the total supply
-        self.uintVars[keccak256("total_supply")] += 275e17;
-
+        self.uintVars[keccak256("total_supply")] +=  self.uintVars[keccak256("devShare")] + self.uintVars[keccak256("currentReward")]*5 ;
         //pay the dev-share
-        TellorTransfer.doTransfer(self, address(this), self.addressVars[keccak256("_owner")], 25e17); //The ten there is the devshare
+        TellorTransfer.doTransfer(self, address(this), self.addressVars[keccak256("_owner")],  self.uintVars[keccak256("devShare")]); //The ten there is the devshare
         //Save the official(finalValue), timestamp of it, 5 miners and their submitted values for it, and its block number
         _request.finalValues[_timeOfLastNewValue] = a[2].value;
         _request.requestTimestamps.push(_timeOfLastNewValue);
@@ -1376,7 +1393,6 @@ library TellorLibrary {
         _request.valuesByTimestamp[_timeOfLastNewValue] = [a[0].value, a[1].value, a[2].value, a[3].value, a[4].value];
         _request.minedBlockNum[_timeOfLastNewValue] = block.number;
         //map the timeOfLastValue to the requestId that was just mined
-
         self.requestIdByTimestamp[_timeOfLastNewValue] = _requestId;
         //add timeOfLastValue to the newValueTimestamps array
         self.newValueTimestamps.push(_timeOfLastNewValue);
@@ -1435,7 +1451,7 @@ library TellorLibrary {
     function submitMiningSolution(TellorStorage.TellorStorageStruct storage self, string memory _nonce, uint256 _requestId, uint256 _value)
         public
     {
-        //requre miner is staked
+        //require miner is staked
         require(self.stakerDetails[msg.sender].currentStatus == 1, "Miner status is not staker");
 
         //Check the miner is submitting the pow for the current request Id
@@ -1448,7 +1464,7 @@ library TellorLibrary {
             ) %
                 self.uintVars[keccak256("difficulty")] ==
                 0,
-            "Challenge information is not saved"
+            "Incorrect nonce for current challenge"
         );
 
         //Make sure the miner does not submit a value more than once
@@ -1576,9 +1592,9 @@ contract Tellor {
     /*Functions*/
 
     /*This is a cheat for demo purposes, will delete upon actual launch*/
-    /* function theLazyCoon(address _address, uint _amount) public {
-        tellor.theLazyCoon(_address,_amount);
-    } */
+    // function theLazyCoon(address _address, uint _amount) public {
+    //     tellor.theLazyCoon(_address,_amount);
+    // }
 
     /**
     * @dev Helps initialize a dispute by assigning it a disputeId
