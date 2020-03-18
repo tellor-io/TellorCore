@@ -1,6 +1,6 @@
 <p align="center">
   <a href='https://www.tellor.io/'>
-    <img src= './public/Tellor.png' width="250" height="200" alt='tellor.io' />
+    <img src= 'https://raw.githubusercontent.com/tellor-io/TellorBrandMaterials/master/LightBkrnd_RGB.png' width="250" height="200" alt='tellor.io' />
   </a>
 </p>
 
@@ -10,84 +10,69 @@
   </a> 
 </p>
 
-* 
-
-## Table of Contents
-
-* [Instructions for quick start with Truffle Deployment](#Quick-Deployment)
-   * [Detailed documentation for self setup](https://tellor.readthedocs.io/en/latest/DevDocumentation/)
-* [Overview](#overview)
-    * [In-Depth Overview](https://tellor.readthedocs.io/en/latest/)
-
-<details><summary>Contributing information</summary>
-
-   * [Maintainers](#Maintainers)
-   * [How to Contribute](#how2contribute)
-   * [Copyright](#copyright)
- </details>
-
-# Tellor Oracle
-
-
-### Instructions for quick start with Truffle Deployment <a name="Quick-Deployment"> </a> 
-Follow the steps below to launch the Oracle contracts using Truffle. 
-
-1. Open two terminals.
-
-2. On one terminal run:
-    Clone the repo, cd into it, and then run:
-```
-    $ npm install
-    $ truffle compile
-    $ truffle migrate
-    $ truffle exec scripts/01_DeployTellor.js
-```
-#### Testing through Truffle<a name="testing"> </a>
-
-
-3. On the second termial run:
-```solidity
-  $ ganache-cli -m "nick lucian brenda kevin sam fiscal patch fly damp ocean produce wish"
-```
-4. On the first terminal run: 
-```solidity
-  $ truffle test
-```
-5. And wait for the message 'START MINING RIG!!'
-6. Kick off the python miner file [./miner/testMinerB.py](./miner/testMinerB.py).
-
-
-Production and test python miners are available under the miner subdirectory [here](./miner/). You will need to get at least 5 miners running.
-
-Step by step instructions on setting up a Tellor Oracle without truffle are available here: [Detailed documentation for self setup](https://tellor.readthedocs.io/en/latest/DevDocumentation/)
-
 
 ## Overview <a name="overview"> </a>  
 Ethereum smart contracts cannot access off-chain data. If your smart contract relies on off-chain (e.g. internet) data to evaluate or execute a function, you either have to manually feed the data to your contract, incentivize users to do it, or rely on a centralized party to provide the data.
 
 <b>The Tellor oracle</b> is a decentralized oracle. It provides an option for contracts to securely interact with and obtain data from off-chain.
 
-Tellor implements a staked PoW where miners have to deposit Tellor Tributes (tellor's native token) to be able to mine and along with the PoW solution they also provide an off-chain data point. The first five miners to provide the PoW and off-chain data point are rewarded and the median is selected as the official value. Once validated and processed the value is available for on-chain contracts to use. The value can be disputed by anyone holding tellor tributes within one day after being mined for a fee. After the value goes to dispute, anyone holding tributes can vote on it's validity. If the vote determines the value was invalid the reporting party gets awarded the miner's stake, otherwise the wrongly accused miner gets the dispute fee. 
+Here are quick references for implementing Tellor into your project, become a miner and explore Tellor's code:  [tellor.readthedocs.io/en/latest/](https://tellor.readthedocs.io/en/latest/). 
 
-<p align="center">
-<img src="./public/ProcessFlow.png" width="400" height="200" alt = "How it works">
-</p>
+* <b>Use npm to istall the</b> [usingTellor](https://github.com/tellor-io/usingtellor) repo.
 
-A deep dive in methodology is available here: [In-Depth Overview](https://tellor.readthedocs.io/en/latest/)
+```bash
+npm install usingTellor
+```
+Import UsingTellor.sol into your smart contract and ensure your contract inherits from it by adding "is UsingTellor".
 
-  
-### Using in your project (NPM)
+Pass through the user contract address (
+[0x09459fdafD6Fdce14E04B3487A656FBca0b953ea](https://etherscan.io/address/0x09459fdafd6fdce14e04b3487a656fbca0b953ea#code) ) in your constructor. See example below:
 
-    npm install usingtellor
+```solidity
+pragma solidity ^0.5.0;
+
+import './UsingTellor.sol';
+import '../TellorMaster.sol';
+import '../Tellor.sol';
+
+contract YourContract is UsingTellor{
+ ...
+    constructor(address _userContract) UsingTellor(_userContract) public{
+
+    }   
+
+    function getFirstUndisputedValueAfter(uint _timestamp) public view returns(bool,uint, uint _timestampRetrieved){
+        uint _count = timestamps.length;
+        if(_count > 0){
+                for(uint i = _count;i > 0;i--){
+                    if(timestamps[i-1] >= _timestamp && disputedValues[timestamps[i-1]] == false){
+                        _timestampRetrieved = timestamps[i-1];
+                    }
+                }
+                if(_timestampRetrieved > 0){
+                    return(true,getMyValuesByTimestamp(_timestampRetrieved),_timestampRetrieved);
+                }
+        }
+        return(false,0,0);
+    }   
+ ...
+}
+```
 
 
-### Useful links <a name="useful-links"> </a>
-High level inspiration from [EIP918 Mineable Token](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-918.md).
+* <b>Become a miner</b>
 
-Why we need a decentralized option? Checkout: ["Trusted third parties are security holes" ~ Nick Szabo, 2001](https://nakamotoinstitute.org/trusted-third-parties/)
+    * [Become Setup](https://tellor.readthedocs.io/en/latest/MinerSetup/)
+
+    * [Miner Implentation from source](https://tellor.readthedocs.io/en/latest/MinerSetupFromSource/)
+
+* <b>General Tellor Developer's [Documentation](https://tellor.readthedocs.io/en/latest/DevDocumentation/)</b>
+
+
+### Useful Links
 
 Metamask - www.metamask.io 
-
+<br>
 Truffle - http://truffleframework.com/
 
 
@@ -102,7 +87,7 @@ Join our Discord or Telegram:
 [<img src="./public/telegram.png" width="24" height="24">](https://t.me/tellor)
 [<img src="./public/discord.png" width="24" height="24">](https://discord.gg/zFcM3G)
 
-Check out or issues log here on Github or contribute to our future plans to build a better miner and more examples of data secured by Tellor. 
+Check out our issues log here on Github or contribute to our future plans to build a better miner and more examples of data secured by Tellor. 
 
 
 #### Contributors<a name="contributors"> </a>
