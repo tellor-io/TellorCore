@@ -35,7 +35,7 @@ library TellorDispute {
     function beginDispute(TellorStorage.TellorStorageStruct storage self, uint256 _requestId, uint256 _timestamp, uint256 _minerIndex) public {
         TellorStorage.Request storage _request = self.requestDetails[_requestId];
         //require that no more than a day( (24 hours * 60 minutes)/10minutes=144 blocks) has gone by since the value was "mined"
-        require(now - _timestamp <= 1 days, "The value was mined more than a day ago");
+        //require(now - _timestamp <= 1 days, "The value was mined more than a day ago");
         require(_request.minedBlockNum[_timestamp] > 0, "Mined block is 0");
         require(_minerIndex < 5, "Miner index is wrong");
 
@@ -46,7 +46,6 @@ library TellorDispute {
 
         //Ensures that a dispute is not already open for the that miner, requestId and timestamp
         require(self.disputeIdByDisputeHash[_hash] == 0, "Dispute is already open");
-        TellorTransfer.doTransfer(self, msg.sender, address(this), self.uintVars[keccak256("disputeFee")]);
 
         //Increase the dispute count by 1
         self.uintVars[keccak256("disputeCount")] = self.uintVars[keccak256("disputeCount")] + 1;
@@ -75,7 +74,11 @@ library TellorDispute {
         self.disputesById[disputeId].disputeUintVars[keccak256("minExecutionDate")] = now + 7 days;
         self.disputesById[disputeId].disputeUintVars[keccak256("blockNumber")] = block.number;
         self.disputesById[disputeId].disputeUintVars[keccak256("minerSlot")] = _minerIndex;
-        self.disputesById[disputeId].disputeUintVars[keccak256("fee")] = self.uintVars[keccak256("disputeFee")];
+        //Updates dispute fee
+        updateDisputeFee(disptueId);
+        self.disputesById[disputeId].disputeUintVars[keccak256("DisputeRound")]++;
+
+        TellorTransfer.doTransfer(self, msg.sender, address(this), self.disputesById[disputeId].disputeUintVars[keccak256("fee")]);
 
         //Values are sorted as they come in and the official value is the median of the first five
         //So the "official value" miner is always minerIndex==2. If the official value is being
@@ -233,7 +236,8 @@ library TellorDispute {
     * @dev this function allows the dispute fee to fluctuate based on the number of miners on the system.
     * The floor for the fee is 15e18.
     */
-    function updateDisputeFee(TellorStorage.TellorStorageStruct storage self) public {
+    function updateDisputeFee(TellorStorage.TellorStorageStruct storage self,uint _disputeId) public {
+        
         //if the number of staked miners divided by the target count of staked miners is less than 1
         if ((self.uintVars[keccak256("stakerCount")] * 1000) / self.uintVars[keccak256("targetMiners")] < 1000) {
             //Set the dispute fee at stakeAmt * (1- stakerCount/targetMiners)
@@ -249,5 +253,13 @@ library TellorDispute {
             //otherwise set the dispute fee at 15e18 (the floor/minimum fee allowed)
             self.uintVars[keccak256("disputeFee")] = 15e18;
         }
+
+        if (self.disputesById[disputeId].disputeUintVars[keccak256("DisputeRound")]  == 0 ) {
+            self.disputesById[disputeId].disputeUintVars[keccak256("fee")] = self.uintVars[keccak256("disputeFee")];
+        
+        } else {
+           self.disputesById[disputeId].disputeUintVars[keccak256("fee")] * self.disputesById[disputeId].disputeUintVars[keccak256("DisputeRound")] * 2;
+        }
+
     }
 }
