@@ -1,5 +1,4 @@
-pragma solidity ^0.5.0;
-
+pragma solidity >=0.5.0 <0.7.0;
 import "./TellorStorage.sol";
 import "./TellorTransfer.sol";
 //import "./SafeMath.sol";
@@ -75,7 +74,7 @@ library TellorDispute {
         self.disputesById[disputeId].disputeUintVars[keccak256("blockNumber")] = block.number;
         self.disputesById[disputeId].disputeUintVars[keccak256("minerSlot")] = _minerIndex;
         //Updates dispute fee
-        updateDisputeFee(disptueId);
+        updateDisputeFee(disputeId);
         self.disputesById[disputeId].disputeUintVars[keccak256("DisputeRound")]++;
 
         TellorTransfer.doTransfer(self, msg.sender, address(this), self.disputesById[disputeId].disputeUintVars[keccak256("fee")]);

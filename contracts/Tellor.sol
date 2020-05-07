@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity >=0.5.0 <0.7.0;
 
 import "./libraries/SafeMath.sol";
 import "./libraries/TellorStorage.sol";
@@ -78,18 +78,6 @@ contract Tellor {
         tellor.addTip(_requestId, _tip);
     }
 
-    /**
-    * @dev Request to retreive value from oracle based on timestamp. The tip is not required to be
-    * greater than 0 because there are no tokens in circulation for the initial(genesis) request
-    * @param _c_sapi string API being requested be mined
-    * @param _c_symbol is the short string symbol for the api request
-    * @param _granularity is the number of decimals miners should include on the submitted value
-    * @param _tip amount the requester is willing to pay to be get on queue. Miners
-    * mine the onDeckQueryHash, or the api with the highest payout pool
-    */
-    function requestData(string calldata _c_sapi, string calldata _c_symbol, uint256 _granularity, uint256 _tip) external {
-        tellor.requestData(_c_sapi, _c_symbol, _granularity, _tip);
-    }
 
     /**
     * @dev Proof of work is called by the miner when they submit the solution (proof of work and value)

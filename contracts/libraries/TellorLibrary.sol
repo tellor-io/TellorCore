@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity >=0.5.0 <0.7.0;
 
 import "./SafeMath.sol";
 import "./Utilities.sol";
@@ -72,69 +72,7 @@ library TellorLibrary {
         emit TipAdded(msg.sender, _requestId, _tip, self.requestDetails[_requestId].apiUintVars[keccak256("totalTip")]);
     }
 
-    /**
-    * @dev Request to retreive value from oracle based on timestamp. The tip is not required to be
-    * greater than 0 because there are no tokens in circulation for the initial(genesis) request
-    * @param _c_sapi string API being requested be mined
-    * @param _c_symbol is the short string symbol for the api request
-    * @param _granularity is the number of decimals miners should include on the submitted value
-    * @param _tip amount the requester is willing to pay to be get on queue. Miners
-    * mine the onDeckQueryHash, or the api with the highest payout pool
-    */
-    function requestData(
-        TellorStorage.TellorStorageStruct storage self,
-        string memory _c_sapi,
-        string memory _c_symbol,
-        uint256 _granularity,
-        uint256 _tip
-    ) public {
-        //Require at least one decimal place
-        require(_granularity > 0, "Too few decimal places");
 
-        //But no more than 18 decimal places
-        require(_granularity <= 1e18, "Too many decimal places");
-
-        //If it has been requested before then add the tip to it otherwise create the queryHash for it
-        string memory _sapi = _c_sapi;
-        string memory _symbol = _c_symbol;
-        require(bytes(_sapi).length > 0, "API string length is 0");
-        require(bytes(_symbol).length < 64, "API string symbol is greater than 64");
-        bytes32 _queryHash = keccak256(abi.encodePacked(_sapi, _granularity));
-
-        //If this is the first time the API and granularity combination has been requested then create the API and granularity hash
-        //otherwise the tip will be added to the requestId submitted
-        if (self.requestIdByQueryHash[_queryHash] == 0) {
-            self.uintVars[keccak256("requestCount")]++;
-            uint256 _requestId = self.uintVars[keccak256("requestCount")];
-            self.requestDetails[_requestId] = TellorStorage.Request({
-                queryString: _sapi,
-                dataSymbol: _symbol,
-                queryHash: _queryHash,
-                requestTimestamps: new uint256[](0)
-            });
-            self.requestDetails[_requestId].apiUintVars[keccak256("granularity")] = _granularity;
-            self.requestDetails[_requestId].apiUintVars[keccak256("requestQPosition")] = 0;
-            self.requestDetails[_requestId].apiUintVars[keccak256("totalTip")] = 0;
-            self.requestIdByQueryHash[_queryHash] = _requestId;
-
-            //If the tip > 0 it tranfers the tip to this contract
-            if (_tip > 0) {
-                TellorTransfer.doTransfer(self, msg.sender, address(this), _tip);
-            }
-            updateOnDeck(self, _requestId, _tip);
-            emit DataRequested(
-                msg.sender,
-                self.requestDetails[_requestId].queryString,
-                self.requestDetails[_requestId].dataSymbol,
-                _granularity,
-                _requestId,
-                _tip
-            );
-            //Add tip to existing request id since this is not the first time the api and granularity have been requested
-        } else {
-            addTip(self, self.requestIdByQueryHash[_queryHash], _tip);
-        }
-    }
 
    /**
     * @dev This fucntion is called by submitMiningSolution and adjusts the difficulty, sorts and stores the first
@@ -199,6 +137,10 @@ library TellorLibrary {
         } else {
             self.uintVars[keccak256("currentReward")] = 1e18;
         }
+
+        //Burn some tips???
+        self.uintVars[keccak256("currentTotalTips")] = self.uintVars[keccak256("currentTotalTips")] * 90/100;
+
         emit NewValue(
             _requestId,
             _timeOfLastNewValue,
@@ -206,6 +148,7 @@ library TellorLibrary {
             self.uintVars[keccak256("currentTotalTips")] - (self.uintVars[keccak256("currentTotalTips")] % 5),
             self.currentChallenge
         );
+
         for (i = 0; i < 5; i++) {
             TellorTransfer.doTransfer(self, address(this), a[i].miner, self.uintVars[keccak256("currentReward")]  + self.uintVars[keccak256("currentTotalTips")] / 5);
         }
