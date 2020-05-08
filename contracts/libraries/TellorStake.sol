@@ -76,7 +76,9 @@ library TellorStake {
 
         //Reduce the staker count
         self.uintVars[keccak256("stakerCount")] -= 1;
-        TellorDispute.updateDisputeFee(self);
+
+        //Update the minimum dispute fee that is based on the number of stakers 
+        TellorDispute.updateMinDisputeFee(self);
         emit StakeWithdrawRequested(msg.sender);
     }
 
@@ -99,7 +101,7 @@ library TellorStake {
     function depositStake(TellorStorage.TellorStorageStruct storage self) public {
         newStake(self, msg.sender);
         //self adjusting disputeFee
-        TellorDispute.updateDisputeFee(self);
+        TellorDispute.updateMinDisputeFee(self);
     }
 
     /**

@@ -107,6 +107,9 @@ library TellorLibrary {
         uint256 _timeOfLastNewValue = now - (now % 1 minutes);
         self.uintVars[keccak256("timeOfLastNewValue")] = _timeOfLastNewValue;
 
+        //update Miner's last award time
+        self.uintVars[keccak256(abi.encodePacked(msg.sender))] = _timeOfLastNewValue;
+
         //The sorting algorithm that sorts the values of the first five values that come in
         TellorStorage.Details[5] memory a = self.currentMiners;
         uint256 i;
@@ -138,8 +141,15 @@ library TellorLibrary {
             self.uintVars[keccak256("currentReward")] = 1e18;
         }
 
+
+        //update the total supply
+        self.uintVars[keccak256("total_supply")] +=  self.uintVars[keccak256("devShare")] + self.uintVars[keccak256("currentReward")]*5 - (self.uintVars[keccak256("currentTotalTips")] * 10/100);
+    
         //Burn some tips???
         self.uintVars[keccak256("currentTotalTips")] = self.uintVars[keccak256("currentTotalTips")] * 90/100;
+        //transfer to zero address
+        TellorTransfer.doTransfer(self, address(this), address(0x0), self.uintVars[keccak256("currentTotalTips")] * 10/100 );
+        
 
         emit NewValue(
             _requestId,
@@ -151,10 +161,10 @@ library TellorLibrary {
 
         for (i = 0; i < 5; i++) {
             TellorTransfer.doTransfer(self, address(this), a[i].miner, self.uintVars[keccak256("currentReward")]  + self.uintVars[keccak256("currentTotalTips")] / 5);
+            
         }
-        //update the total supply
-        self.uintVars[keccak256("total_supply")] +=  self.uintVars[keccak256("devShare")] + self.uintVars[keccak256("currentReward")]*5 ;
-        //pay the dev-share
+
+    //pay the dev-share
         TellorTransfer.doTransfer(self, address(this), self.addressVars[keccak256("_owner")],  self.uintVars[keccak256("devShare")]); //The ten there is the devshare
         //Save the official(finalValue), timestamp of it, 5 miners and their submitted values for it, and its block number
         _request.finalValues[_timeOfLastNewValue] = a[2].value;
@@ -240,6 +250,11 @@ library TellorLibrary {
 
         //Make sure the miner does not submit a value more than once
         require(self.minersByChallenge[self.currentChallenge][msg.sender] == false, "Miner already submitted the value");
+
+        //require the miner did not receive awards in the last hour
+        require(now - self.uintVars[keccak256(abi.encodePacked(msg.sender))] > 1 hours);
+
+
 
         //Save the miner and value received
         self.currentMiners[self.uintVars[keccak256("slotProgress")]].value = _value;
