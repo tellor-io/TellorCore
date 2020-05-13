@@ -110,8 +110,11 @@ library TellorLibrary {
         //update Miner's last award time
         self.uintVars[keccak256(abi.encodePacked(msg.sender))] = _timeOfLastNewValue;
 
+uint256 k;
+for (i = 1; i < 5; i++) {
         //The sorting algorithm that sorts the values of the first five values that come in
-        TellorStorage.Details[5] memory a = self.currentMiners;
+        TellorStorage.Details[5] memory a = self.currentMiners[k];
+
         uint256 i;
         for (i = 1; i < 5; i++) {
             uint256 temp = a[i].value;
@@ -127,6 +130,7 @@ library TellorLibrary {
                 a[j].miner = temp2;
             }
         }
+}
 
         //Pay the miners 
         //adjust by payout = payout * ratio 0.000030612633181126/1e18  
@@ -159,6 +163,7 @@ library TellorLibrary {
             self.currentChallenge
         );
 
+     //Pay miners
         for (i = 0; i < 5; i++) {
             TellorTransfer.doTransfer(self, address(this), a[i].miner, self.uintVars[keccak256("currentReward")]  + self.uintVars[keccak256("currentTotalTips")] / 5);
             
@@ -166,6 +171,7 @@ library TellorLibrary {
 
     //pay the dev-share
         TellorTransfer.doTransfer(self, address(this), self.addressVars[keccak256("_owner")],  self.uintVars[keccak256("devShare")]); //The ten there is the devshare
+
         //Save the official(finalValue), timestamp of it, 5 miners and their submitted values for it, and its block number
         _request.finalValues[_timeOfLastNewValue] = a[2].value;
         _request.requestTimestamps.push(_timeOfLastNewValue);
@@ -173,10 +179,13 @@ library TellorLibrary {
         _request.minersByValue[_timeOfLastNewValue] = [a[0].miner, a[1].miner, a[2].miner, a[3].miner, a[4].miner];
         _request.valuesByTimestamp[_timeOfLastNewValue] = [a[0].value, a[1].value, a[2].value, a[3].value, a[4].value];
         _request.minedBlockNum[_timeOfLastNewValue] = block.number;
+
         //map the timeOfLastValue to the requestId that was just mined
         self.requestIdByTimestamp[_timeOfLastNewValue] = _requestId;
         //add timeOfLastValue to the newValueTimestamps array
         self.newValueTimestamps.push(_timeOfLastNewValue);
+
+
         //re-start the count for the slot progress to zero before the new request mining starts
         self.uintVars[keccak256("slotProgress")] = 0;
         uint256 _topId = TellorGettersLibrary.getTopRequestID(self);
@@ -229,12 +238,13 @@ library TellorLibrary {
     * @param _requestId the apiId being mined
     * @param _value of api query
     */
-    function submitMiningSolution(TellorStorage.TellorStorageStruct storage self, string memory _nonce, uint256 _requestId, uint256 _value)
+    function submitMiningSolution(TellorStorage.TellorStorageStruct storage self, string memory _nonce, uint256[5] _requestId, uint256[5] _value)
         public
     {
         //require miner is staked
         require(self.stakerDetails[msg.sender].currentStatus == 1, "Miner status is not staker");
 
+//loop through requestId[5]......uintVars is uint not array...or ?????
         //Check the miner is submitting the pow for the current request Id
         require(_requestId == self.uintVars[keccak256("currentRequestId")], "RequestId is wrong");
 
@@ -244,7 +254,8 @@ library TellorLibrary {
                 sha256(abi.encodePacked(ripemd160(abi.encodePacked(keccak256(abi.encodePacked(self.currentChallenge, msg.sender, _nonce))))))
             ) %
                 self.uintVars[keccak256("difficulty")] ==
-                0,
+                0
+                || (now - (now % 1 minutes)) - self.uintVars[keccak256("timeOfLastNewValue")] >= 15 minutes,
             "Incorrect nonce for current challenge"
         );
 
@@ -257,8 +268,15 @@ library TellorLibrary {
 
 
         //Save the miner and value received
-        self.currentMiners[self.uintVars[keccak256("slotProgress")]].value = _value;
+
+//hmmm, this will fill the currentMiners array
+        uint256 j;
+        for (j = 1; j < 5; j++) {
+        self.currentMiners[self.uintVars[keccak256("slotProgress")]].value = _value[j];
         self.currentMiners[self.uintVars[keccak256("slotProgress")]].miner = msg.sender;
+        }
+
+
 
         //Add to the count how many values have been submitted, since only 5 are taken per request
         self.uintVars[keccak256("slotProgress")]++;
