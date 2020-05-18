@@ -17,26 +17,15 @@ library TellorLibrary {
     using SafeMath for uint256;
 
     event TipAdded(address indexed _sender, uint256 indexed _requestId, uint256 _tip, uint256 _totalTips);
-    //Emits upon someone adding value to a pool; msg.sender, amount added, and timestamp incentivized to be mined
-    event DataRequested(
-        address indexed _sender,
-        string _query,
-        string _querySymbol,
-        uint256 _granularity,
-        uint256 indexed _requestId,
-        uint256 _totalTips
-    );
     //emits when a new challenge is created (either on mined block or when a new request is pushed forward on waiting system)
     event NewChallenge(
         bytes32 _currentChallenge,
         uint256 indexed _currentRequestId,
         uint256 _difficulty,
-        uint256 _multiplier,
-        string _query,
         uint256 _totalTips
     );
     //emits when a the payout of another request is higher after adding to the payoutPool or submitting a request
-    event NewRequestOnDeck(uint256 indexed _requestId, string _query, bytes32 _onDeckQueryHash, uint256 _onDeckTotalTips);
+    event NewRequestOnDeck(uint256 indexed _requestId, uint256 _onDeckTotalTips);
     //Emits upon a successful Mine, indicates the blocktime at point of the mine and the value mined
     event NewValue(uint256 indexed _requestId, uint256 _time, uint256 _value, uint256 _totalTips, bytes32 _currentChallenge);
     //Emits upon each mine (5 total) and shows the miner, nonce, and value submitted
@@ -60,19 +49,14 @@ library TellorLibrary {
     */
     function addTip(TellorStorage.TellorStorageStruct storage self, uint256 _requestId, uint256 _tip) public {
         require(_requestId > 0, "RequestId is 0");
-        require(_requestId <= self.uintVars[keccak256("requestCount")], "RequestId is not less than count");
-
         //If the tip > 0 transfer the tip to this contract
         if (_tip > 0) {
             TellorTransfer.doTransfer(self, msg.sender, address(this), _tip);
         }
-
         //Update the information for the request that should be mined next based on the tip submitted
         updateOnDeck(self, _requestId, _tip);
         emit TipAdded(msg.sender, _requestId, _tip, self.requestDetails[_requestId].apiUintVars[keccak256("totalTip")]);
     }
-
-
 
    /**
     * @dev This fucntion is called by submitMiningSolution and adjusts the difficulty, sorts and stores the first
@@ -211,14 +195,10 @@ for (i = 1; i < 5; i++) {
                 self.currentChallenge,
                 _topId,
                 self.uintVars[keccak256("difficulty")],
-                self.requestDetails[_topId].apiUintVars[keccak256("granularity")],
-                self.requestDetails[_topId].queryString,
                 self.uintVars[keccak256("currentTotalTips")]
             );
             emit NewRequestOnDeck(
                 newRequestId,
-                self.requestDetails[newRequestId].queryString,
-                self.requestDetails[newRequestId].queryHash,
                 self.requestDetails[newRequestId].apiUintVars[keccak256("totalTip")]
             );
         } else {
@@ -323,10 +303,13 @@ for (i = 1; i < 5; i++) {
         //Set _payout for the submitted request
         uint256 _payout = _request.apiUintVars[keccak256("totalTip")];
 
+        if(self.uintVars[keccak256("currentRequestId")] == _requestId){
+            self.uintVars[keccak256("currentTotalTips")] += _tip;
+        }
         //If there is no current request being mined
         //then set the currentRequestId to the requestid of the requestData or addtip requestId submitted,
         // the totalTips to the payout/tip submitted, and issue a new mining challenge
-        if (self.uintVars[keccak256("currentRequestId")] == 0) {
+        else if (self.uintVars[keccak256("currentRequestId")] == 0) {
             _request.apiUintVars[keccak256("totalTip")] = 0;
             self.uintVars[keccak256("currentRequestId")] = _requestId;
             self.uintVars[keccak256("currentTotalTips")] = _payout;
@@ -335,8 +318,6 @@ for (i = 1; i < 5; i++) {
                 self.currentChallenge,
                 self.uintVars[keccak256("currentRequestId")],
                 self.uintVars[keccak256("difficulty")],
-                self.requestDetails[self.uintVars[keccak256("currentRequestId")]].apiUintVars[keccak256("granularity")],
-                self.requestDetails[self.uintVars[keccak256("currentRequestId")]].queryString,
                 self.uintVars[keccak256("currentTotalTips")]
             );
         } else {
