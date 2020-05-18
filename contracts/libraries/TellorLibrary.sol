@@ -66,13 +66,13 @@ library TellorLibrary {
     */
     function newBlock(TellorStorage.TellorStorageStruct storage self, string memory _nonce, uint256 _requestId) internal {
         TellorStorage.Request storage _request = self.requestDetails[_requestId];
-        if(self.uintVars[keccak256("v2")] == 0){
-            initV2(self);
+        if(self.uintVars[keccak256("timeTarget")] == 600){
+            self.uintVars[keccak256("timeTarget")] = 300;
         }
         // If the difference between the timeTarget and how long it takes to solve the challenge this updates the challenge
         //difficulty up or donw by the difference between the target time and how long it took to solve the prevous challenge
         //otherwise it sets it to 1
-        int256 _change = int256(SafeMath.min(1200, (now - self.uintVars[keccak256("timeOfLastNewValue")])));
+        int256 _change = int256(SafeMath.min(1200, (now - self.uintVars[keccak256("requestTime")])));
         _change = (int256(self.uintVars[keccak256("difficulty")]) * (int256(self.uintVars[keccak256("timeTarget")]) - _change)) / 4000;
 
         if (_change < 2 && _change > -2) {
@@ -92,9 +92,6 @@ library TellorLibrary {
         //Sets time of value submission rounded to 1 minute
         uint256 _timeOfLastNewValue = now - (now % 1 minutes);
         self.uintVars[keccak256("timeOfLastNewValue")] = _timeOfLastNewValue;
-
-        //update Miner's last award time
-        self.uintVars[keccak256(abi.encodePacked(msg.sender))] = _timeOfLastNewValue;
 
 uint256 k;
 for (i = 1; i < 5; i++) {
@@ -172,6 +169,7 @@ for (i = 1; i < 5; i++) {
         //if the currentRequestId is not zero(currentRequestId exists/something is being mined) select the requestId with the hightest payout
         //else wait for a new tip to mine
         if (_topId > 0) {
+            self.uintVars[keccak256("requestTime")] = now - (now % 1 minutes);
             //Update the current request to be mined to the requestID with the highest payout
             self.uintVars[keccak256("currentTotalTips")] = self.requestDetails[_topId].apiUintVars[keccak256("totalTip")];
             //Remove the currentRequestId/onDeckRequestId from the requestQ array containing the rest of the 50 requests
@@ -239,12 +237,12 @@ for (i = 1; i < 5; i++) {
 
         //require the miner did not receive awards in the last hour
         require(now - self.uintVars[keccak256(abi.encodePacked(msg.sender))] > 1 hours);
-
+        self.uintVars[keccak256(abi.encodePacked(msg.sender))] = now;
 
 
         //Save the miner and value received
 
-//hmmm, this will fill the currentMiners array
+        //hmmm, this will fill the currentMiners array
         uint256 j;
         for (j = 1; j < 5; j++) {
         self.currentMiners[self.uintVars[keccak256("slotProgress")]].value = _value[j];
@@ -313,6 +311,7 @@ for (i = 1; i < 5; i++) {
             _request.apiUintVars[keccak256("totalTip")] = 0;
             self.uintVars[keccak256("currentRequestId")] = _requestId;
             self.uintVars[keccak256("currentTotalTips")] = _payout;
+            self.uintVars[keccak256("requestTime")] = now - (now % 1 minutes);
             self.currentChallenge = keccak256(abi.encodePacked(_payout, self.currentChallenge, blockhash(block.number - 1))); // Save hash for next proof
             emit NewChallenge(
                 self.currentChallenge,
@@ -351,9 +350,4 @@ for (i = 1; i < 5; i++) {
         }
     }
 
-    function initV2(TellorStorage.TellorStorageStruct storage self) internal {
-        self.uintVars[keccak256("timeTarget")] = 300;
-        self.uintVars[keccak256("difficulty")] = self.uintVars[keccak256("difficulty")]/2;
-        self.uintVars[keccak256("v2")] = 1;
-    }
 }
