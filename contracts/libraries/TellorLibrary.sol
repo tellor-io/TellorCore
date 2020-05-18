@@ -82,7 +82,9 @@ library TellorLibrary {
     */
     function newBlock(TellorStorage.TellorStorageStruct storage self, string memory _nonce, uint256 _requestId) internal {
         TellorStorage.Request storage _request = self.requestDetails[_requestId];
-
+        if(self.uintVars[keccak256("v2")] == 0){
+            initV2(self);
+        }
         // If the difference between the timeTarget and how long it takes to solve the challenge this updates the challenge
         //difficulty up or donw by the difference between the target time and how long it took to solve the prevous challenge
         //otherwise it sets it to 1
@@ -131,13 +133,6 @@ for (i = 1; i < 5; i++) {
             }
         }
 }
-
-        //Pay the miners 
-        //adjust by payout = payout * ratio 0.000030612633181126/1e18  
-        //uint _currentReward = self.uintVars[keccak256("currentReward")];   
-        if(self.uintVars[keccak256("currentReward")] == 0){
-            self.uintVars[keccak256("currentReward")] = 5e18;
-        }
         if (self.uintVars[keccak256("currentReward")] > 1e18) {
         self.uintVars[keccak256("currentReward")] = self.uintVars[keccak256("currentReward")] - self.uintVars[keccak256("currentReward")] * 30612633181126/1e18; 
         self.uintVars[keccak256("devShare")] = self.uintVars[keccak256("currentReward")] * 50/100;
@@ -373,5 +368,11 @@ for (i = 1; i < 5; i++) {
                 self.requestQ[_request.apiUintVars[keccak256("requestQPosition")]] += _tip;
             }
         }
+    }
+
+    function initV2(TellorStorage.TellorStorageStruct storage self) internal {
+        self.uintVars[keccak256("timeTarget")] = 300;
+        self.uintVars[keccak256("difficulty")] = self.uintVars[keccak256("difficulty")]/2;
+        self.uintVars[keccak256("v2")] = 1;
     }
 }
