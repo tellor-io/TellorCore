@@ -60,7 +60,18 @@ contract('Further Tests', function(accounts) {
         utilities = await UtilitiesTests.new();
         await utilities.setTellorMaster(oracle.address);
    });  
-
+   it("Test switch with no block to mine", async function () {
+   	   assert(0==1)
+   });
+    it("Test switch partially through mine", async function () {
+   	   assert(0==1)
+   });
+    it("Test switch at beginning of mine", async function () {
+   	   assert(0==1)
+   });
+       it("Test switch partially through with tips added before new block", async function () {
+   	   assert(0==1)
+   });
    it("Test 5 values per block", async function () {
    	   assert(0==1)
    });
@@ -88,7 +99,7 @@ contract('Further Tests', function(accounts) {
    it("Test allow tip of current mined ID", async function () {
    	   assert(0==1)
    });
-      it("Test removal of request data", async function () {
+   it("Test removal of request data", async function () {
    	   assert(0==1)
    });
    it("Test token fee burning", async function () {

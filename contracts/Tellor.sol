@@ -182,4 +182,12 @@ contract Tellor {
         return 18;
     }
 
+    function getNewCurrentVariables() external view returns(bytes32 _challenge,uint[5] _requestIds,uint256 _difficutly, uint256 _tip){
+        return tellor.getNewCurrentVariables();
+    }
+
+    function getCurrentPayout(TellorStorage.TellorStorageStruct storage self)external view returns(uint256 _payout){
+        return tellor.getCurrentPayout();
+    }
+
 }
