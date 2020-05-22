@@ -196,7 +196,7 @@ contract TellorGetters{
     * return string of the token name
     */
     function getName() external view returns(string memory){
-        return tellor.getName();
+        return "Tellor Tributes";
     }
 
 
@@ -304,7 +304,7 @@ contract TellorGetters{
     * return string of the token symbol
     */
     function getSymbol() external view returns(string memory){
-        return tellor.getSymbol();
+        return "TT";
     } 
 
     /**

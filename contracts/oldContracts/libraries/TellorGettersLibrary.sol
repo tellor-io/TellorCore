@@ -182,16 +182,6 @@ library TellorGettersLibrary{
         return self.requestDetails[_requestId].minersByValue[_timestamp];
     }
 
-
-    /**
-    * @dev Get the name of the token
-    * @return string of the token name
-    */
-    function getName(TellorStorage.TellorStorageStruct storage self) internal pure returns(string memory){
-        return "Tellor Tributes";
-    }
-
-
     /**
     * @dev Counts the number of values that have been submited for the request 
     * if called for the currentRequest being mined it can tell you how many miners have submitted a value for that
@@ -294,14 +284,6 @@ library TellorGettersLibrary{
     function getSubmissionsByTimestamp(TellorStorage.TellorStorageStruct storage self, uint _requestId, uint _timestamp) internal view returns(uint[5] memory){
         return self.requestDetails[_requestId].valuesByTimestamp[_timestamp];
     }
-
-    /**
-    * @dev Get the symbol of the token
-    * @return string of the token symbol
-    */
-    function getSymbol(TellorStorage.TellorStorageStruct storage self) internal pure returns(string memory){
-        return "TT";
-    } 
 
 
     /**

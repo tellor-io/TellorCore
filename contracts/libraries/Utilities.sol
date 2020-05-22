@@ -40,4 +40,20 @@ library Utilities {
         }
     }
 
+    function getMax5(uint256[51] memory data) internal pure returns (uint256[5] memory max, uint256[5] memory maxIndex) {
+ 
+        for (uint256 i = 1; i < data.length; i++) {
+            for(uint256 j=0;j<5;j++){
+                if(i==1){
+                    max[j]= data[j+1];
+                    maxIndex[j] =j+1;
+                }
+                if (data[i] > max[j]) {
+                    max[j] = data[i];
+                    maxIndex[j] = i;
+                }
+            }
+        }
+    }
+
 }

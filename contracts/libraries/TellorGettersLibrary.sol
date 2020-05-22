@@ -411,7 +411,7 @@ library TellorGettersLibrary {
         uint256[5] memory _max;
         uint256[5] memory _index;
         (_max, _index) = Utilities.getMax5(self.requestQ);
-        _requestIds = [self.requestIdByRequestQIndex[_index[0],self.requestIdByRequestQIndex[_index[1],self.requestIdByRequestQIndex[_index[2],self.requestIdByRequestQIndex[_index[3],self.requestIdByRequestQIndex[_index[4]];
+        _requestIds = [self.requestIdByRequestQIndex[_index[0]],self.requestIdByRequestQIndex[_index[1]],self.requestIdByRequestQIndex[_index[2]],self.requestIdByRequestQIndex[_index[3]],self.requestIdByRequestQIndex[_index[4]]];
     }
     /**
     * @dev Gets the 5 miners who mined the value for the specified requestId/_timestamp
