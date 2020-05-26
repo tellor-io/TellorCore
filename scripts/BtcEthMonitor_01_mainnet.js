@@ -20,16 +20,16 @@ var accessToken = process.env.INFURA_ACCESS_TOKEN;
 var web3 = new Web3(new HDWalletProvider(mnemonic,"https://rinkeby.infura.io/v3"+ accessToken));
 */
 //var mnemonic = "nick lucian brenda kevin sam fiscal patch fly damp ocean produce wish";
-var web3 = new Web3(new HDWalletProvider("3a10b4bc1258e8bfefb95b498fb8c0f0cd6964a811eabca87df5630bcacd7216","https://rinkeby.infura.io/v3/7f11ed6df93946658bf4c817620fbced"));
+var web3 = new Web3(new HDWalletProvider("77a597bedae2ffcd93dac5a721f74e0119ce6719d4ccd0de340153c734255ab1","https://rinkeby.infura.io/v3/7f11ed6df93946658bf4c817620fbced"));
 
 var _UTCtime  = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
 
 //Rinkeby
-var tellorMasterAddress = '0xFe41Cb708CD98C5B20423433309E55b53F79134a' ;
-var reqAddress = '0xe010ac6e0248790e08f42d5f697160dedf97e024';
+//var tellorMasterAddress = '0xFe41Cb708CD98C5B20423433309E55b53F79134a' ;
 
-//var tellorMasterAddress = '0x0Ba45A8b5d5575935B8158a88C631E9F9C95a2e5';
 
+var tellorMasterAddress = '0x0Ba45A8b5d5575935B8158a88C631E9F9C95a2e5';
+var reqAddress = '0xff0016ff42666f635de4532ca3c05281ac478dfb';
 console.log(_UTCtime);
 
 

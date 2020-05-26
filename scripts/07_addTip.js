@@ -28,22 +28,21 @@ function sleep_s(secs) {
   while ((+new Date) < secs);
 }
 
-api1 = "json(https://api.coindesk.com/v1/bpi/currentprice.json).bpi.USD.rate"; 
-api2 = "json(https://api.binance.com/api/v1/klines?symbol=BTCUSDT&interval=1d&limit=1).0.4";
-
-
 module.exports = function() {
 
   async function requestData() {
     let ins = await Oracle.at(myOracle);
+    let master = await TellorMaster.at(myOracle);
 
-    for(i=1;i<51;i++){
-           let req = 'PSR' + i
+    vars = await master.getLastNewValue();
+    console.log("vars", vars[0]*1, vars[1])
+
+    
            console.log("addtip about to be sent")
-           await ins.addTip(i,i)
-           console.log('sent addtip')
-        }
-
+           await ins.addTip(1,1)
+           console.log('sent addtip', 1)
+     
+    process.exit()
     }
   
   requestData();
