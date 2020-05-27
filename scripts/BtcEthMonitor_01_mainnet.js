@@ -2,6 +2,7 @@
 const Web3 = require('web3');
 var HDWalletProvider = require("@truffle/hdwallet-provider");
 var fs = require('fs');
+const fetch = require('node-fetch-polyfill');
 
 const TellorMaster = artifacts.require("./TellorMaster.sol");
 const Oracle = artifacts.require("./Tellor.sol");
@@ -14,33 +15,66 @@ function sleep_s(secs) {
   while ((+new Date) < secs);
 }
 
+//https://ethgasstation.info/json/ethgasAPI.json
+//https://www.etherchain.org/api/gasPriceOracle
+async function fetchGasPrice() {
+  const URL = `https://www.etherchain.org/api/gasPriceOracle`;
+  try {
+    const fetchResult = fetch(URL);
+    const response = await fetchResult;
+    const jsonData = await response.json();
+    const gasPriceNow = await jsonData.standard*1;
+    const gasPriceNow2 = await (gasPriceNow + 1)*1000000000;
+    console.log(jsonData);
+    //console.log("gasPriceNow", gasPriceNow);
+    //console.log("gasPriceNow2", gasPriceNow2);
+    return(gasPriceNow2);
+  } catch(e){
+    throw Error(e);
+  }
+}
+
 
 /*var mnemonic = process.env.ETH_MNEMONIC;
 var accessToken = process.env.INFURA_ACCESS_TOKEN;
 var web3 = new Web3(new HDWalletProvider(mnemonic,"https://rinkeby.infura.io/v3"+ accessToken));
 */
 //var mnemonic = "nick lucian brenda kevin sam fiscal patch fly damp ocean produce wish";
-var web3 = new Web3(new HDWalletProvider("77a597bedae2ffcd93dac5a721f74e0119ce6719d4ccd0de340153c734255ab1","https://rinkeby.infura.io/v3/7f11ed6df93946658bf4c817620fbced"));
+var web3 = new Web3(new HDWalletProvider("","https://rinkeby.infura.io/v3/7f11ed6df93946658bf4c817620fbced"));
 
 var _UTCtime  = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
+var gas_Limit= 200000;
 
 //Rinkeby
 //var tellorMasterAddress = '0xFe41Cb708CD98C5B20423433309E55b53F79134a' ;
-
+//var accountFrom = '0xe010ac6e0248790e08f42d5f697160dedf97e024';
 
 var tellorMasterAddress = '0x0Ba45A8b5d5575935B8158a88C631E9F9C95a2e5';
-var reqAddress = '0xff0016ff42666f635de4532ca3c05281ac478dfb';
-console.log(_UTCtime);
+var accountFrom = '0xf967b011c0b04913d16bf8807f38d7346112a56b';
 
+console.log(_UTCtime);
+console.log("Tellor Address: ", tellorMasterAddress);
+console.log('<https://www.etherchain.org/api/gasPriceOracle>')
 
 module.exports =async function(callback) {
+    try{
+    var gasP = await fetchGasPrice();
+    console.log("gasP1", gasP);
+    } catch(error){
+        console.error(error);
+        console.log("no gas price fetched");
+    }
+
+
+
+
     let tellorMaster = await TellorMaster.at(tellorMasterAddress);  
         try{
 
-             let balNow = await web3.eth.getBalance(reqAddress);
-             console.log("Requests Address", reqAddress);
+             let balNow = await web3.eth.getBalance(accountFrom);
+             console.log("Requests Address", accountFrom);
              console.log("Miner ETH Balance",  web3.utils.fromWei(balNow,'ether'));
-             let ttbalanceNow = await tellorMaster.balanceOf(reqAddress);
+             let ttbalanceNow = await tellorMaster.balanceOf(accountFrom);
              //console.log('Tellor Tributes balance', web3.utils.hexToNumberString(ttbalanceNow));
              let tributesBal =  await web3.utils.fromWei(ttbalanceNow,'ether');
              console.log('Tellor Tributes balance', tributesBal); 
@@ -100,30 +134,66 @@ module.exports =async function(callback) {
 
     console.log("It has been ", ethHowlong.toFixed(2), " hours since ETH was last mined");
     console.log("It has been ", btcHowlong.toFixed(2), " hours since BTC was last mined");
-    console.log('<https://rinkeby.etherscan.io/address/0xfe41cb708cd98c5b20423433309e55b53f79134a>')
+    console.log('<https://etherscan.io/address/0x0Ba45A8b5d5575935B8158a88C631E9F9C95a2e5>')
     
-    if (btcHowlong.toFixed(2)>12) {
-        let ins = await Oracle.at(tellorMasterAddress);
-        await ins.addTip(2,1)
-        console.log('sent request for BTC price')
-    }
 
-    if (ethHowlong.toFixed(2)>12) {  
-        let ins = await Oracle.at(tellorMasterAddress);
-        await ins.addTip(2,1)
-        console.log('sent request for Eth price')
-    }
 
+
+    if (gasP != 0) {
+        try{
+            var oracle = await new web3.eth.Contract(oracleAbi,tellorMasterAddress);
+            console.log("awaitOracle");
+            //sleep_s(30);
+        } catch(error) {
+            console.error(error);
+            console.log("oracle not instantiated");
+        }
+        console.log("Was request sent for BTC?")
+        if (btcHowlong.toFixed(2)>12) {
+        try{
+            await oracle.methods.addTip(2,1).send({from: accountFrom,gas: gas_Limit,gasPrice: gasP })
+            .on('transactionHash', function(hash){
+                var link = "".concat('<https://etherscan.io/tx/',hash,'>' );
+                var ownerlink = "".concat('<https://etherscan.io/address/',tellorMasterAddress,'>' );
+                 console.log('Yes, a request was sent for the BTC price');
+                console.log("Hash link: ", link);
+                console.log("Contract link: ", ownerlink);
+            })
+
+            .on('error', console.error); // If there's an out of gas error the second parameter is the receipt.
+
+        } catch(error) {
+        console.error(error);
+        }
+        } else {
+            console.log("No, no request was sent for BTC")
+        }
+
+        console.log("Was request sent for ETH?")
+        if (ethHowlong.toFixed(2)>12) {
+        try{
+            await oracle.methods.addTip(1,1).send({from: accountFrom,gas: gas_Limit,gasPrice: gasP })
+            .on('transactionHash', function(hash){
+                var link = "".concat('<https://etherscan.io/tx/',hash,'>' );
+                var ownerlink = "".concat('<https://etherscan.io/address/',tellorMasterAddress,'>' );
+                console.log('Yes, a request was sent for the Eth price')
+                console.log("Hash link: ", link);
+                console.log("Contract link: ", ownerlink);
+            })
+
+            .on('error', console.error); // If there's an out of gas error the second parameter is the receipt.
+
+        } catch(error) {
+        console.error(error);
+        }
+        } else {
+            console.log("No, no request was sent for ETH")
+        }
+    }
 
          } catch(error) {
          console.error(error);
          }
-
-
-
-
-
-
     process.exit()
 
 }

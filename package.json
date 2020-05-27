@@ -21,6 +21,7 @@
     "contract": "^0.1.2",
     "ethereumjs-tx": "^2.1.1",
     "ganache-cli": "^6.5.1",
+    "node-fetch-polyfill": "^2.0.6",
     "truffle": "^5.0.34",
     "web3": "^1.0.0-beta.36"
   },
