@@ -34,12 +34,9 @@ module.exports = function() {
     let ins = await Oracle.at(myOracle);
     let master = await TellorMaster.at(myOracle);
 
-    for(i=51;i<52;i++){
-    //vars = await master.getLastNewValue();
-    //console.log("vars", vars[0]*1, vars[1])
-           console.log("addtip about to be sent")
-           await ins.addTip(i,4)
-           console.log('sent addtip', i)
+    for(i=1;i<52;i++){
+           vars = await master.getLastNewValueById(i)
+           console.log('Request ID:',i, vars[0]*1, vars[1])
     }
     process.exit()
     }

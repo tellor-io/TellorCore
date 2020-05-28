@@ -43,7 +43,7 @@ var web3 = new Web3(new HDWalletProvider(mnemonic,"https://rinkeby.infura.io/v3"
 var web3 = new Web3(new HDWalletProvider("","https://rinkeby.infura.io/v3/7f11ed6df93946658bf4c817620fbced"));
 
 var _UTCtime  = new Date().toISOString().replace(/T/, ' ').replace(/\..+/, '');
-var gas_Limit= 200000;
+var gas_Limit= 400000;
 
 //Rinkeby
 //var tellorMasterAddress = '0xFe41Cb708CD98C5B20423433309E55b53F79134a' ;
