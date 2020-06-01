@@ -318,8 +318,8 @@ library TellorLibrary {
     /**
     * @dev Proof of work is called by the miner when they submit the solution (proof of work and value)
     * @param _nonce uint submitted by miner
-    * @param _requestId the apiId being mined
-    * @param _value of api query
+    * @param _requestId is the array of the 5 PSR's being mined
+    * @param _value is an array of 5 values
     */
     function submitMiningSolution(TellorStorage.TellorStorageStruct storage self, string memory _nonce,uint256[5] memory _requestId, uint256[5] memory _value)
         public

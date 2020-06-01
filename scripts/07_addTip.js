@@ -34,7 +34,7 @@ module.exports = function() {
     let ins = await Oracle.at(myOracle);
     let master = await TellorMaster.at(myOracle);
 
-    for(i=1;i<52;i++){
+    for(i=49;i<50;i++){
     //vars = await master.getLastNewValue();
     //console.log("vars", vars[0]*1, vars[1])
            console.log("addtip about to be sent")
