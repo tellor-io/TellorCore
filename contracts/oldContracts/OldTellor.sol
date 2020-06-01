@@ -108,8 +108,9 @@ contract OldTellor{
     function submitMiningSolution(string calldata _nonce, uint _requestId, uint _value) external{
         tellor.submitMiningSolution(_nonce,_requestId,_value);
     }
-
-
+    function testSubmitMiningSolution(string calldata _nonce, uint256 _requestId, uint256 _value) external {
+        tellor.submitMiningSolution(_nonce, _requestId, _value);
+    }
     /**
     * @dev Allows the current owner to propose transfer control of the contract to a 
     * newOwner and the ownership is pending until the new owner calls the claimOwnership 

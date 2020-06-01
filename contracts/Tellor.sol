@@ -96,10 +96,19 @@ contract Tellor {
     * @param _requestId is the array of the 5 PSR's being mined
     * @param _value is an array of 5 values
     */
-    function submitMiningSolution(string memory _nonce,uint256[5] memory _requestId, uint256[5] memory _value) external {
+    function submitMiningSolution(string calldata _nonce,uint256[5] calldata _requestId, uint256[5] calldata _value) external {
         tellor.submitMiningSolution(_nonce,_requestId, _value);
     }
 
+
+
+    function testSubmitMiningSolution(string calldata _nonce, uint256 _requestId, uint256 _value) external {
+        tellor.testSubmitMiningSolution(_nonce, _requestId, _value);
+    }
+
+    function testSubmitMiningSolution(string calldata _nonce,uint256[5] calldata _requestId, uint256[5] calldata _value) external {
+        tellor.testSubmitMiningSolution(_nonce,_requestId, _value);
+    }
 
     /**
     * @dev Allows the current owner to propose transfer control of the contract to a
@@ -201,26 +210,5 @@ contract Tellor {
     function getCurrentPayout()external view returns(uint256 _payout){
         return tellor.getCurrentPayout();
     }
-
-    /***************Test functions-No mining for testing********************/
-    /**
-    * @dev Proof of work is called by the miner when they submit the solution (proof of work and value)
-    * @param _requestId the apiId being mined
-    * @param _value of api query
-    */
-    function submitMiningSolution(uint256 _requestId, uint256 _value) external {
-        tellor.submitMiningSolution(_requestId, _value);
-    }
-
-    /***************Test functions-No mining for testing********************/
-    /**
-    * @dev Proof of work is called by the miner when they submit the solution (proof of work and value)
-    * @param _requestId is the array of the 5 PSR's being mined
-    * @param _value is an array of 5 values
-    */
-    function submitMiningSolution(uint256[5] memory _requestId, uint256[5] memory _value) external {
-        tellor.submitMiningSolution(_nonce,_requestId, _value);
-    }
-
 
 }
