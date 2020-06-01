@@ -17,23 +17,6 @@
 // var api = "json(https://api.gdax.com/products/BTC-USD/ticker).price";
 // var api2 = "json(https://api.gdax.com/products/ETH-USD/ticker).price";
 
-// function promisifyLogWatch(_address,_event) {
-//   return new Promise((resolve, reject) => {
-//     web3.eth.subscribe('logs', {
-//       address: _address,
-//       topics: [web3.utils.sha3(_event)]
-//     }, (error, result) => {
-//         if (error){
-//           console.log('Error',error);
-//           reject(error);
-//         }
-//         else{
-//        	resolve(result);
-//     	}
-//     })
-//   });
-// }
-
 // contract('Upgrade Tests', function(accounts) {
 //   let oracle;
 //   let oracle2;

@@ -20,22 +20,6 @@
 // var api = 'json(https://api.gdax.com/products/BTC-USD/ticker).price';
 // var api2 = 'json(https://api.gdax.com/products/ETH-USD/ticker).price';
 
-// function promisifyLogWatch(_contract,_event) {
-//   return new Promise((resolve, reject) => {
-//     web3.eth.subscribe('logs', {
-//       address: _contract.options.address,
-//       //topics:  ['0xba11e319aee26e7bbac889432515ba301ec8f6d27bf6b94829c21a65c5f6ff25']
-//     }, (error, result) => {
-//         if (error){
-//           console.log('Error',error);
-//           reject(error);
-//         }
-//         web3.eth.clearSubscriptions();
-//         //console.log(result);
-//         resolve(result);
-//     })
-//   });
-// }
 
 // contract('Further Tests', function(accounts) {
 //   let oracle;
