@@ -157,4 +157,16 @@
 //             console.log(rCount - 0)
 //             assert(rCount == 53, "request count should be correct")
 //    }).timeout(2500000);
+//    it("Test upgrade with full queue", async function () {
+//   		assert(0==1)
+//    });
+//    it("Test upgrade with no queue", async function () {
+//   		assert(0==1)
+//    });
+//     it("Test upgrade halfway through mining", async function () {
+//   		assert(0==1)
+//    });
+//         it("Test upgrade halfway through dispute", async function () {
+//   		assert(0==1)
+//    });
 //  });    

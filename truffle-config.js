@@ -5,6 +5,8 @@ const HDWalletProvider = require("@truffle/hdwallet-provider");
  const accessToken = process.env.WEB3_INFURA_PROJECT_ID;
  const mnemonic = "nick lucian brenda kevin sam fiscal patch fly damp ocean produce wish";
 
+
+// ganache-cli -m "nick lucian brenda kevin sam fiscal patch fly damp ocean produce wish" -l 12000000
 module.exports = {
   networks: {
     development: {
@@ -15,7 +17,7 @@ module.exports = {
     },
     rinkeby: {
       provider: () =>
-        new HDWalletProvider("3a10b4bc1258e8bfefb95b498fb8c0f0cd6964a811eabca87df5630bcacd7216", `https://rinkeby.infura.io/v3/${accessToken}`),
+        new HDWalletProvider(process.env.PRIVATE_KEY, `https://rinkeby.infura.io/v3/${accessToken}`),
       network_id: 4,
       gas: 4700000,
       gasPrice: 8000000000,

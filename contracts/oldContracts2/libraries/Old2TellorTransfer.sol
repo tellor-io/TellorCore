@@ -8,7 +8,7 @@ import "./TellorStorage.sol";
 * @dev Contais the methods related to transfers and ERC20. Tellor.sol and TellorGetters.sol
 * reference this library for function's logic.
 */
-library TellorTransfer {
+library Old2TellorTransfer {
     using SafeMath for uint256;
 
     event Approval(address indexed _owner, address indexed _spender, uint256 _value); //ERC20 Approval event

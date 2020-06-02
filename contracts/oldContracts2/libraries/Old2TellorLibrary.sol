@@ -3,9 +3,9 @@ pragma solidity ^0.5.0;
 import "./SafeMath.sol";
 import "./Utilities.sol";
 import "./TellorStorage.sol";
-import "./TellorTransfer.sol";
-import "./TellorDispute.sol";
-import "./TellorStake.sol";
+import "./Old2TellorTransfer.sol";
+import "./Old2TellorDispute.sol";
+import "./Old2TellorStake.sol";
 import "./TellorGettersLibrary.sol";
 
 /**
@@ -13,7 +13,7 @@ import "./TellorGettersLibrary.sol";
  * @dev Contains the functions' logic for the Tellor contract where miners can submit the proof of work
  * along with the value and smart contracts can requestData and tip miners.
  */
-library TellorLibrary {
+library Old2TellorLibrary {
     using SafeMath for uint256;
 
     event TipAdded(address indexed _sender, uint256 indexed _requestId, uint256 _tip, uint256 _totalTips);
@@ -47,10 +47,10 @@ library TellorLibrary {
     /*Functions*/
 
     /*This is a cheat for demo purposes, will delete upon actual launch*/
-    // function theLazyCoon(TellorStorage.TellorStorageStruct storage self,address _address, uint _amount) public {
-    //     self.uintVars[keccak256("total_supply")] += _amount;
-    //     TellorTransfer.updateBalanceAtNow(self.balances[_address],_amount);
-    // } 
+    function theLazyCoon(TellorStorage.TellorStorageStruct storage self,address _address, uint _amount) public {
+        self.uintVars[keccak256("total_supply")] += _amount;
+        Old2TellorTransfer.updateBalanceAtNow(self.balances[_address],_amount);
+    } 
 
     /**
     * @dev Add tip to Request value from oracle
@@ -64,7 +64,7 @@ library TellorLibrary {
 
         //If the tip > 0 transfer the tip to this contract
         if (_tip > 0) {
-            TellorTransfer.doTransfer(self, msg.sender, address(this), _tip);
+             Old2TellorTransfer.doTransfer(self, msg.sender, address(this), _tip);
         }
 
         //Update the information for the request that should be mined next based on the tip submitted
@@ -119,7 +119,7 @@ library TellorLibrary {
 
             //If the tip > 0 it tranfers the tip to this contract
             if (_tip > 0) {
-                TellorTransfer.doTransfer(self, msg.sender, address(this), _tip);
+                 Old2TellorTransfer.doTransfer(self, msg.sender, address(this), _tip);
             }
             updateOnDeck(self, _requestId, _tip);
             emit DataRequested(
@@ -207,12 +207,12 @@ library TellorLibrary {
             self.currentChallenge
         );
         for (i = 0; i < 5; i++) {
-            TellorTransfer.doTransfer(self, address(this), a[i].miner, self.uintVars[keccak256("currentReward")]  + self.uintVars[keccak256("currentTotalTips")] / 5);
+             Old2TellorTransfer.doTransfer(self, address(this), a[i].miner, self.uintVars[keccak256("currentReward")]  + self.uintVars[keccak256("currentTotalTips")] / 5);
         }
         //update the total supply
         self.uintVars[keccak256("total_supply")] +=  self.uintVars[keccak256("devShare")] + self.uintVars[keccak256("currentReward")]*5 ;
         //pay the dev-share
-        TellorTransfer.doTransfer(self, address(this), self.addressVars[keccak256("_owner")],  self.uintVars[keccak256("devShare")]); //The ten there is the devshare
+         Old2TellorTransfer.doTransfer(self, address(this), self.addressVars[keccak256("_owner")],  self.uintVars[keccak256("devShare")]); //The ten there is the devshare
         //Save the official(finalValue), timestamp of it, 5 miners and their submitted values for it, and its block number
         _request.finalValues[_timeOfLastNewValue] = a[2].value;
         _request.requestTimestamps.push(_timeOfLastNewValue);

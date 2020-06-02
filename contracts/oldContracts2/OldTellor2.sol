@@ -2,10 +2,10 @@ pragma solidity ^0.5.0;
 
 import "./libraries/SafeMath.sol";
 import "./libraries/TellorStorage.sol";
-import "./libraries/TellorTransfer.sol";
-import "./libraries/TellorDispute.sol";
-import "./libraries/TellorStake.sol";
-import "./libraries/TellorLibrary.sol";
+import "./libraries/Old2TellorTransfer.sol";
+import "./libraries/Old2TellorDispute.sol";
+import "./libraries/Old2TellorStake.sol";
+import "./libraries/Old2TellorLibrary.sol";
 
 /**
  * @title Tellor Oracle System
@@ -13,22 +13,22 @@ import "./libraries/TellorLibrary.sol";
  * The logic for this contract is in TellorLibrary.sol, TellorDispute.sol, TellorStake.sol,
  * and TellorTransfer.sol
  */
-contract Tellor {
+contract OldTellor2 {
     using SafeMath for uint256;
 
-    using TellorDispute for TellorStorage.TellorStorageStruct;
-    using TellorLibrary for TellorStorage.TellorStorageStruct;
-    using TellorStake for TellorStorage.TellorStorageStruct;
-    using TellorTransfer for TellorStorage.TellorStorageStruct;
+    using Old2TellorDispute for TellorStorage.TellorStorageStruct;
+    using Old2TellorLibrary for TellorStorage.TellorStorageStruct;
+    using Old2TellorStake for TellorStorage.TellorStorageStruct;
+    using Old2TellorTransfer for TellorStorage.TellorStorageStruct;
 
     TellorStorage.TellorStorageStruct tellor;
 
     /*Functions*/
 
     /*This is a cheat for demo purposes, will delete upon actual launch*/
-    // function theLazyCoon(address _address, uint _amount) public {
-    //     tellor.theLazyCoon(_address,_amount);
-    // }
+    function theLazyCoon(address _address, uint _amount) public {
+        tellor.theLazyCoon(_address,_amount);
+    }
 
     /**
     * @dev Helps initialize a dispute by assigning it a disputeId

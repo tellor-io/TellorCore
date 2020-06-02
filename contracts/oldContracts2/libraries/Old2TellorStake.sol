@@ -1,8 +1,8 @@
 pragma solidity ^0.5.0;
 
 import "./TellorStorage.sol";
-import "./TellorTransfer.sol";
-import "./TellorDispute.sol";
+import "./Old2TellorTransfer.sol";
+import "./Old2TellorDispute.sol";
 
 /**
 * itle Tellor Dispute
@@ -10,7 +10,7 @@ import "./TellorDispute.sol";
 * references this library for function's logic.
 */
 
-library TellorStake {
+library Old2TellorStake {
     event NewStake(address indexed _sender); //Emits upon new staker
     event StakeWithdrawn(address indexed _sender); //Emits when a staker is now no longer staked
     event StakeWithdrawRequested(address indexed _sender); //Emits when a staker begins the 7 day withdraw period
@@ -24,7 +24,7 @@ library TellorStake {
     function init(TellorStorage.TellorStorageStruct storage self) public {
         require(self.uintVars[keccak256("decimals")] == 0, "Too many decimals");
         //Give this contract 6000 Tellor Tributes so that it can stake the initial 6 miners
-        TellorTransfer.updateBalanceAtNow(self.balances[address(this)], 2**256 - 1 - 6000e18);
+         Old2TellorTransfer.updateBalanceAtNow(self.balances[address(this)], 2**256 - 1 - 6000e18);
 
         // //the initial 5 miner addresses are specfied below
         // //changed payable[5] to 6
@@ -40,7 +40,7 @@ library TellorStake {
         for (uint256 i = 0; i < 6; i++) {
             //6th miner to allow for dispute
             //Miner balance is set at 1000e18 at the block that this function is ran
-            TellorTransfer.updateBalanceAtNow(self.balances[_initalMiners[i]], 1000e18);
+             Old2TellorTransfer.updateBalanceAtNow(self.balances[_initalMiners[i]], 1000e18);
 
             newStake(self, _initalMiners[i]);
         }
@@ -76,7 +76,7 @@ library TellorStake {
 
         //Reduce the staker count
         self.uintVars[keccak256("stakerCount")] -= 1;
-        TellorDispute.updateDisputeFee(self);
+         Old2TellorDispute.updateDisputeFee(self);
         emit StakeWithdrawRequested(msg.sender);
     }
 
@@ -99,7 +99,7 @@ library TellorStake {
     function depositStake(TellorStorage.TellorStorageStruct storage self) public {
         newStake(self, msg.sender);
         //self adjusting disputeFee
-        TellorDispute.updateDisputeFee(self);
+         Old2TellorDispute.updateDisputeFee(self);
     }
 
     /**
@@ -108,7 +108,7 @@ library TellorStake {
     * and updates the number of stakers in the system.
     */
     function newStake(TellorStorage.TellorStorageStruct storage self, address staker) internal {
-        require(TellorTransfer.balanceOf(self, staker) >= self.uintVars[keccak256("stakeAmount")], "Balance is lower than stake amount");
+        require( Old2TellorTransfer.balanceOf(self, staker) >= self.uintVars[keccak256("stakeAmount")], "Balance is lower than stake amount");
         //Ensure they can only stake if they are not currrently staked or if their stake time frame has ended
         //and they are currently locked for witdhraw
         require(self.stakerDetails[staker].currentStatus == 0 || self.stakerDetails[staker].currentStatus == 2, "Miner is in the wrong state");

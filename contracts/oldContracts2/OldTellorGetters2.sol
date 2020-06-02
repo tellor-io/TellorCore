@@ -2,21 +2,21 @@ pragma solidity ^0.5.0;
 
 import "./libraries/SafeMath.sol";
 import "./libraries/TellorStorage.sol";
-import "./libraries/TellorTransfer.sol";
+import "./libraries/Old2TellorTransfer.sol";
 import "./libraries/TellorGettersLibrary.sol";
-import "./libraries/TellorStake.sol";
+import "./libraries/Old2TellorStake.sol";
 
 /**
 * @title Tellor Getters
 * @dev Oracle contract with all tellor getter functions. The logic for the functions on this contract
 * is saved on the TellorGettersLibrary, TellorTransfer, TellorGettersLibrary, and TellorStake
 */
-contract TellorGetters {
+contract OldTellorGetters2 {
     using SafeMath for uint256;
 
-    using TellorTransfer for TellorStorage.TellorStorageStruct;
+    using Old2TellorTransfer for TellorStorage.TellorStorageStruct;
     using TellorGettersLibrary for TellorStorage.TellorStorageStruct;
-    using TellorStake for TellorStorage.TellorStorageStruct;
+    using Old2TellorStake for TellorStorage.TellorStorageStruct;
 
     TellorStorage.TellorStorageStruct tellor;
 
