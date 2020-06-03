@@ -74,20 +74,15 @@ contract('Further Tests', function(accounts) {
       it("Test Failed Vote - New Tellor Storage Contract--vote fail by 10% quorum", async function () {
         let oracleBase2 = await Tellor.new();
         //print some TRB tokens
-        await web3.eth.sendTransaction({to:oracle.address,from:accounts[5],gas:7000000,data:oracle2.methods.theLazyCoon(accounts[4],web3.utils.toWei('1000', 'ether')).encodeABI()})
-        initTotalSupply = await oracle.totalSupply();
-        //Propose a fork
+        await web3.eth.sendTransaction({to:oracle.address,from:accounts[5],gas:7000000,data:oracle2.methods.theLazyCoon(accounts[4],web3.utils.toWei('2000', 'ether')).encodeABI()})
         console.log("here")
         await web3.eth.sendTransaction({to: oracle.address,from:accounts[4],gas:7000000,data:oracle2.methods.proposeFork(oracleBase2.address).encodeABI()})
         vars = await oracle.getAllDisputeVars(1);
         //check total supply again
         console.log("here2")
-        newTotalSupply = await oracle.totalSupply();
-        it= await web3.utils.fromWei(initTotalSupply, 'ether');
-        ts= await web3.utils.fromWei(newTotalSupply, 'ether');         
         await helper.advanceTime(86400 * 8);
         console.log("here3")
-        await web3.eth.sendTransaction({to: oracle.address,from:accounts[i],gas:7000000,data:oracle2.methods.tallyVotes(1).encodeABI()})
+        await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.tallyVotes(1).encodeABI()})
         //vote should fail
         assert(await oracle.getAddressVars(web3.utils.keccak256("tellorContract")) == oracleBase.address, "vote should have failed");
     });
@@ -116,27 +111,13 @@ contract('Further Tests', function(accounts) {
         let oracleBase2 = await Tellor.new();
         //print some TRB tokens
         await web3.eth.sendTransaction({to:oracle.address,from:accounts[5],gas:7000000,data:oracle2.methods.theLazyCoon(accounts[4],web3.utils.toWei('4000', 'ether')).encodeABI()})
-        //check total supply
-        initTotalSupply = await oracle.totalSupply();
-        //Propose a fork
         await web3.eth.sendTransaction({to: oracle.address,from:accounts[4],gas:7000000,data:oracle2.methods.proposeFork(oracleBase2.address).encodeABI()})
         //get the initial dispute variables--should be zeros
-        let vars = await oracle.getAllDisputeVars(1);
-        //account 0 votes for the fork
         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.vote(1,false).encodeABI()})
-        //get the dispute variables after one vote for the fork
-        vars = await oracle.getAllDisputeVars(1);
-        //acounts 1&3 vote against fork
         await web3.eth.sendTransaction({to: oracle.address,from:accounts[1],gas:7000000,data:oracle2.methods.vote(1,true).encodeABI()})
         await web3.eth.sendTransaction({to: oracle.address,from:accounts[3],gas:7000000,data:oracle2.methods.vote(1,true).encodeABI()})
-        //get dispute variables after all votes --number of votes, quorum and current tally
-        vars = await oracle.getAllDisputeVars(1);
-        //check total supply again
-        newTotalSupply = await oracle.totalSupply();
-        it= await web3.utils.fromWei(initTotalSupply, 'ether');
-        ts= await web3.utils.fromWei(newTotalSupply, 'ether');         
         await helper.advanceTime(86400 * 8);
-        await web3.eth.sendTransaction({to: oracle.address,from:accounts[i],gas:7000000,data:oracle2.methods.tallyVotes(1).encodeABI()})
+        await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.tallyVotes(1).encodeABI()})
         //vote should fail
         assert(await oracle.getAddressVars(web3.utils.keccak256("tellorContract")) == oracleBase2.address, "vote should have passed");
     });
@@ -150,5 +131,33 @@ contract('Further Tests', function(accounts) {
 		newOracle = await Tellor.new();
 		await web3.eth.sendTransaction({to: oracle.address,from:accounts[1],gas:7000000,data:master.methods.changeTellorContract(newOracle.address).encodeABI()})
 		assert(await oracle.getAddressVars(web3.utils.keccak256("tellorContract")) == newOracle.address);
+    });
+       it("Get Symbol and decimals", async function(){
+        let symbol =await oracle2.methods.symbol().call()
+        assert.equal(symbol,"TRB","the Symbol should be TT");
+        data3 =  await oracle2.methods.decimals().call()
+        assert(data3 - 0 == 18)
+    });
+    it("Get name", async function(){
+        let name = await oracle2.methods.name().call()
+        assert.equal(name,"Tellor Tributes","the Name should be Tellor Tributes");
+    });
+    it("getStakersCount", async function(){
+        let count = await oracle.getUintVar(web3.utils.keccak256("stakerCount"))
+        assert(web3.utils.hexToNumberString(count)==6, "count is 6");//added miner
+    });
+    it("getStakersInfo", async function(){
+        let info = await oracle.getStakerInfo(accounts[1])
+        let stake = web3.utils.hexToNumberString(info['0']);
+        let startDate = web3.utils.hexToNumberString(info['1']);
+        let _date = new Date();
+        let d = (_date - (_date % 86400000))/1000;
+        assert(startDate >= d*1, "startDate is today");
+        assert(stake*1 == 1, "Should be 1 for staked address");
+     });
+
+   it("Total Supply", async function(){
+        supply = await master.methods.totalSupply().call()
+        assert.equal(web3.utils.fromWei(supply),6000,"Supply should be 6000");//added miner
     });
  });

@@ -51,25 +51,6 @@
 //         assert(web3.utils.fromWei(balance5) == 1005, "balance for acct 5 is 1005");
 //     });
 
-//    it("Test new getters", async function(){
-//         newOracle = await Tellor.new();
-//         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:master.methods.changeTellorContract(newOracle.address).encodeABI()})
-//         data1 =  await web3.eth.call({to:oracle.address,data:oracle2.methods.symbol().encodeABI()})
-//         console.log("data1",web3.utils.hexToString(data1))
-//         symbol = web3.utils.hexToString(data1)
-//         console.log("symbol",symbol)
-//         //assert(symbol == "TRB", "symbol should be correct TRB");
-//         data2 =  await web3.eth.call({to:oracle.address,data:oracle2.methods.name().encodeABI()})
-//         console.log("data2",web3.utils.hexToString(data2))
-//         name = web3.utils.hexToString(data2)
-//         console.log("name",name)
-//         //assert(name == "Tellor Tributes", "Tellor Tributes");
-//         data3 =  await web3.eth.call({to:oracle.address,data:oracle2.methods.decimals().encodeABI()})
-//         console.log("data3",web3.utils.hexToNumberString(data3))
-//         decimals = web3.utils.hexToNumberString(data3)
-//         console.log("decimals",decimals)
-//         //assert(decimals == '18', "18 decimals");
-//     });
 
 
 //    it("Approve and transferFrom", async function(){
@@ -95,13 +76,6 @@
 //         assert.equal(web3.utils.fromWei(balance5a), 1006, "balance for acct 5 is 1006");
 //         allow = await web3.eth.call({to:oracle.address,data:oracle3.methods.allowance(accounts[2],accounts[1]).encodeABI()});
 //         assert.equal(web3.utils.fromWei(allow, 'ether'), 1, "Allowance shoudl be 1 eth");
-//     });
-
-//    it("Total Supply", async function(){
-//    	                    newOracle = await Tellor.new();
-//         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:master.methods.changeTellorContract(newOracle.address).encodeABI()})
-//         supply = await web3.eth.call({to:oracle.address,data:oracle3.methods.totalSupply().encodeABI()});
-//         assert.equal(web3.utils.fromWei(supply),6000,"Supply should be 6000");//added miner
 //     });
 
 //     it("re-Staking without withdraw ", async function(){

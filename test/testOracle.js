@@ -1,6 +1,3 @@
-// /** 
-// * This tests the oracle functions, including mining.
-// */
 // const Web3 = require('web3')
 // const web3 = new Web3(new Web3.providers.WebsocketProvider('ws://localhost:8545'));
 // const BN = require('bn.js');  
@@ -43,39 +40,6 @@
 //         //await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.init().encodeABI()})
 //         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",1000,0).encodeABI()})
 //     });
-
-
-//    it("Get Symbol", async function(){
-//         newOracle = await Tellor.new();
-//         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:master.methods.changeTellorContract(newOracle.address).encodeABI()})
-//         let symbol =await oracle3.methods.symbol().call()
-//         assert.equal(symbol,"TRB","the Symbol should be TT");
-//     });
-
-//     it("Get name", async function(){
-//         newOracle = await Tellor.new();
-//         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:master.methods.changeTellorContract(newOracle.address).encodeABI()})
-//         let name = await oracle3.methods.name().call()
-//         assert.equal(name,"Tellor Tributes","the Name should be Tellor Tributes");
-//     });
-
-//     it("getStakersCount", async function(){
-//         newOracle = await Tellor.new();
-//         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:master.methods.changeTellorContract(newOracle.address).encodeABI()})
-//         let count = await oracle.getUintVar(web3.utils.keccak256("stakerCount"))
-//         assert(web3.utils.hexToNumberString(count)==6, "count is 6");//added miner
-//     });
-//    it("getStakersInfo", async function(){
-//                 newOracle = await Tellor.new();
-//         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:master.methods.changeTellorContract(newOracle.address).encodeABI()})
-//         let info = await oracle.getStakerInfo(accounts[1])
-//         let stake = web3.utils.hexToNumberString(info['0']);
-//         let startDate = web3.utils.hexToNumberString(info['1']);
-//         let _date = new Date();
-//         let d = (_date - (_date % 86400000))/1000;
-//         assert(d*1==startDate, "startDate is today");
-//         assert(stake*1 == 1, "Should be 1 for staked address");
-//      });
 //     it("getVariables", async function(){
 //                     newOracle = await Tellor.new();
 //         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:master.methods.changeTellorContract(newOracle.address).encodeABI()})
@@ -156,7 +120,7 @@
 //     });
     
 //     it("Test dev Share", async function(){
-//                     newOracle = await Tellor.new();
+//         newOracle = await Tellor.new();
 //         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:master.methods.changeTellorContract(newOracle.address).encodeABI()})
 //         begbal = await oracle.balanceOf(accounts[0]);
 //         logMineWatcher = await promisifyLogWatch(oracle.address, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
@@ -534,7 +498,7 @@
 //         	assert(s[0] ==1, " Staked" );
 // 	     }
 //     })
-//     /*it("Test zero addTip", async function () {
+//     it("Test zero addTip", async function () {
 //         logMineWatcher = await promisifyLogWatch(oracle.address, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
 //         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.addTip(1,0).encodeABI()})
 //         logMineWatcher = await promisifyLogWatch(oracle.address, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
@@ -579,6 +543,6 @@
 //         logMineWatcher = await promisifyLogWatch(oracle.address, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
 // 		res = web3.eth.abi.decodeParameters(['uint256','uint256','uint256'],logMineWatcher.data)
 //         assert(res['2'] == 5 , "last payout had a tip of 5")
-//     });*/
+//     });
 
 //  });    

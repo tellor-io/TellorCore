@@ -210,5 +210,4 @@ contract Tellor {
     function getCurrentPayout()external view returns(uint256 _payout){
         return tellor.getCurrentPayout();
     }
-
 }
