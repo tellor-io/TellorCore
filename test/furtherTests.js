@@ -173,8 +173,8 @@ contract('Further Tests', function(accounts) {
                 s =  await oracle.getStakerInfo(accounts[1])
         assert(s !=1, "not Staked" );
     });
-
     it("Attempt to Allow and transferFrom more than balance - stake", async function(){
+        await web3.eth.sendTransaction({to:oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.theLazyCoon(accounts[2],web3.utils.toWei('5000', 'ether')).encodeABI()})
         var tokens = web3.utils.toWei('2', 'ether');
         var tokens2 = web3.utils.toWei('3', 'ether');
         await web3.eth.sendTransaction({to:oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.transfer(accounts[1],tokens).encodeABI()})
@@ -184,7 +184,7 @@ contract('Further Tests', function(accounts) {
         balance1b = await web3.eth.call({to:oracle.address,data:master.methods.balanceOf(accounts[1]).encodeABI()}); 
         assert((1000 + web3.utils.fromWei(tokens)*1) == web3.utils.fromWei(balance1)*1, "Balance for acct 1 should == 1000 + transferred amt ");
     });
-    it("Attempt to withdraw before stake time is up", async function(){ 
+    it("Attempt to withdraw unnaproved", async function(){ 
         balance1b = await ( web3.eth.call({to:oracle.address,data:master.methods.balanceOf(accounts[1]).encodeABI()}));
         await helper.expectThrow(web3.eth.sendTransaction({to:oracle.address,from:accounts[1],gas:7000000,data:oracle2.methods.withdrawStake().encodeABI()}) );
         s =  await oracle.getStakerInfo(accounts[1])
@@ -192,8 +192,9 @@ contract('Further Tests', function(accounts) {
         assert(web3.utils.fromWei(balance1b) == 1000, "Balance should equal transferred amt");
     });
     it("Attempt to transfer more than balance - stake", async function(){
+        await web3.eth.sendTransaction({to:oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.theLazyCoon(accounts[2],web3.utils.toWei('5000', 'ether')).encodeABI()})
         var tokens = web3.utils.toWei('1', 'ether');
-        var tokens2 = web3.utils.toWei('2', 'ether');
+        var tokens2 = web3.utils.toWei('2000000', 'ether');
         await web3.eth.sendTransaction({to:oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.transfer(accounts[1],tokens).encodeABI()})
         balance1 = await web3.eth.call({to:oracle.address,data:master.methods.balanceOf(accounts[1]).encodeABI()});
         await helper.expectThrow(web3.eth.sendTransaction({to:oracle.address,from:accounts[1],gas:7000000,data:oracle2.methods.transfer(accounts[1],tokens2).encodeABI()}));
@@ -212,7 +213,6 @@ contract('Further Tests', function(accounts) {
         s =  await oracle.getStakerInfo(accounts[1])
         assert(s[0] == 1, "is not Staked" );
     });    
-
     it("withdraw and re-stake", async function(){
         await helper.advanceTime(86400 * 10);
         let withdrawreq = await web3.eth.sendTransaction({to:oracle.address,from:accounts[1],gas:7000000,data:oracle2.methods.requestStakingWithdraw().encodeABI()})
@@ -229,16 +229,17 @@ contract('Further Tests', function(accounts) {
         assert(s[0] ==1, " Staked" );
     }); 
     it("Token transfer", async function(){
+        await web3.eth.sendTransaction({to:oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.theLazyCoon(accounts[2],web3.utils.toWei('5000', 'ether')).encodeABI()})
         balance2 =  await web3.eth.call({to:oracle.address,data:master.methods.balanceOf(accounts[2]).encodeABI()})
         t = web3.utils.toWei('5', 'ether');
         await web3.eth.sendTransaction({to:oracle.address,from:accounts[2],gas:700000,data:oracle2.methods.transfer(accounts[5], t).encodeABI()})
         balance2a = await web3.eth.call({to:oracle.address,data:master.methods.balanceOf(accounts[2]).encodeABI()})
         balance5 = await web3.eth.call({to:oracle.address,data:master.methods.balanceOf(accounts[5]).encodeABI()})
-        assert(web3.utils.fromWei(balance2a, 'ether') == 995, web3.utils.fromWei(balance2a, 'ether') + "should be 995");
+        assert(web3.utils.fromWei(balance2a, 'ether') == 4995, web3.utils.fromWei(balance2a, 'ether') + "should be 995");
         assert(web3.utils.fromWei(balance5) == 1005, "balance for acct 5 is 1005");
     });
-
    it("Approve and transferFrom", async function(){
+    await web3.eth.sendTransaction({to:oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.theLazyCoon(accounts[2],web3.utils.toWei('5000', 'ether')).encodeABI()})
         t = web3.utils.toWei('7', 'ether');
         await web3.eth.sendTransaction({to:oracle.address,from:accounts[2],gas:700000,data:oracle2.methods.approve(accounts[1], t).encodeABI()})
         balance0a = await web3.eth.call({to:oracle.address,data:master.methods.balanceOf(accounts[2]).encodeABI()})
@@ -246,8 +247,8 @@ contract('Further Tests', function(accounts) {
         balance5a = await web3.eth.call({to:oracle.address,data:master.methods.balanceOf(accounts[5]).encodeABI()});
         assert(web3.utils.fromWei(balance5a) == 1007, "balance for acct 5 is 1007");
     });
-
     it("Allowance after approve and transferFrom", async function(){
+        await web3.eth.sendTransaction({to:oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.theLazyCoon(accounts[2],web3.utils.toWei('5000', 'ether')).encodeABI()}) 
         t = web3.utils.toWei('7', 'ether');
         t2 = web3.utils.toWei('6', 'ether');
          await web3.eth.sendTransaction({to:oracle.address,from:accounts[2],gas:700000,data:oracle2.methods.approve(accounts[1], t).encodeABI()})
