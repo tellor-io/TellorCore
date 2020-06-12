@@ -41,4 +41,14 @@ contract UtilitiesTests {
         (_min, _index) = Utilities.getMin(requests);
     }
 
+        function testgetMax5() public  returns (uint256[5] memory _max, uint256[5] memory _index) {
+        uint256[51] memory requests = tellorMaster.getRequestQ();
+        (_max, _index) = Utilities.getMax5(requests);
+    }
+
+    function testgetTop5() public  returns (uint256[5] memory _max, uint256[5] memory _index) {
+        uint256[51] memory requests = tellorMaster.getRequestQ();
+        (_max, _index) = Utilities.getTop5(requests);
+    }
+
 }

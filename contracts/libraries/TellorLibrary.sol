@@ -39,6 +39,7 @@ library TellorLibrary {
         TellorTransfer.updateBalanceAtNow(self.balances[_address],_amount);
     } 
 
+event print(uint num);
     /**
     * @dev Add tip to Request value from oracle
     * @param _requestId being requested to be mined
@@ -47,12 +48,16 @@ library TellorLibrary {
     */
     function addTip(TellorStorage.TellorStorageStruct storage self, uint256 _requestId, uint256 _tip) public {
         require(_requestId > 0, "RequestId is 0");
+        emit print(1);
         //If the tip > 0 transfer the tip to this contract
         if (_tip > 0) {
+            emit print(2);
             TellorTransfer.doTransfer(self, msg.sender, address(this), _tip);
+       emit print(3);
         }
         //Update the information for the request that should be mined next based on the tip submitted
         updateOnDeck(self, _requestId, _tip);
+        emit print(4);
         emit TipAdded(msg.sender, _requestId, _tip, self.requestDetails[_requestId].apiUintVars[keccak256("totalTip")]);
     }
 
@@ -391,14 +396,18 @@ library TellorLibrary {
     * @param _tip is the tip to add
     */
     function updateOnDeck(TellorStorage.TellorStorageStruct storage self, uint256 _requestId, uint256 _tip) internal {
+        emit print(21);
         TellorStorage.Request storage _request = self.requestDetails[_requestId];
+        emit print(22);
         //If the tip >0 update the tip for the requestId
         if (_tip > 0) {
+            emit print(23);
             _request.apiUintVars[keccak256("totalTip")] = _request.apiUintVars[keccak256("totalTip")].add(_tip);
         }
         //maybe use a request uintVar to keep track if its being mined?
         if(self.currentMiners[0].value == _requestId || self.currentMiners[1].value== _requestId ||self.currentMiners[2].value == _requestId||self.currentMiners[3].value== _requestId || self.currentMiners[4].value== _requestId ){
             self.uintVars[keccak256("currentTotalTips")] += _tip;
+            emit print(24);
         }
         else {
             //if the request is not part of the requestQ[51] array
