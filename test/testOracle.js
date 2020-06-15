@@ -59,10 +59,8 @@ contract('Mining Tests', function(accounts) {
         for(var i=50;i>=0;i--){
             myArr.push(i+10)
         }
-        console.log(myArr)
         utilities = await UtilitiesTests.new(oracle.address)
         top5N = await utilities.testgetMax5(myArr)
-        console.log(top5N['_max'])
         for(var i=1;i<=5;i++){
             console.log(top5N['_max'][i]-0)
             assert(top5N['_max'][i] == myArr[i])
