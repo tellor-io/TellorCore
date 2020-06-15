@@ -43,13 +43,11 @@ contract('Mining Tests', function(accounts) {
         await web3.eth.sendTransaction({to: oracle.address,from:accounts[4],gas:7000000,data:oldTellorinst.methods.requestData(api,"BTC/USD6",1000,0).encodeABI()})
         //Deploy new upgraded Tellor
         oracleBase = await Tellor.new();
-        oracle2 = await new web3.eth.Contract(oracleAbi,oracleBase.address);
+        oracle2 = await new web3.eth.Contract(oracleAbi,oracle.address);
         await oracle.changeTellorContract(oracleBase.address)
         for(var i = 0;i<5;i++){
           await web3.eth.sendTransaction({to:oracle.address,from:accounts[i],gas:7000000,data:oracle2.methods['testSubmitMiningSolution(string,uint256,uint256)']("nonce",1,1200).encodeABI()})
         }
-        vars =  await oracle2.methods.getNewCurrentVariables().call()
-        console.log('vars', vars)
         // for(var i = 1;i<6;i++){
         //     await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.addTip(i,i).encodeABI()})
         // }
@@ -57,31 +55,33 @@ contract('Mining Tests', function(accounts) {
     it("test utilities",async function(){
         var myArr = []
         for(var i=50;i>=0;i--){
-            myArr.push(i+10)
+            myArr.push(i)
         }
         utilities = await UtilitiesTests.new(oracle.address)
         top5N = await utilities.testgetMax5(myArr)
-        for(var i=1;i<=5;i++){
-            console.log(top5N['_max'][i]-0)
-            assert(top5N['_max'][i] == myArr[i])
-            assert(top5N['_index'][i] == i)
+        for(var i=0;i<5;i++){
+            assert(top5N['_max'][i] == myArr[i+1])
+            assert(top5N['_index'][i] == i+1)
         }
 
     });
     it("getVariables", async function(){
+        //vars = await web3.eth.call({to:oracle.address,from:accounts[0],data:oracle2.methods.getNewCurrentVariables().encodeABI()})
+        
         vars =  await oracle2.methods.getNewCurrentVariables().call()
         console.log('vars', vars)
         assert(vars['1'].length == 5, "ids should be populated");
-        assert(vars[2] > 0, "difficulty should be correct")
-        assert(vars[3] == 0, "tip should be correct");  
+        console.log(await oracle.getUintVar(web3.utils.keccak256("difficulty")));
+        assert(vars['2'] > 0, "difficulty should be correct")
+        assert(vars['3'] == 0, "tip should be correct");  
     });
-   //  it("Test miner", async function () {
-   //      for(var i = 0;i<5;i++){
-   //          res = await web3.eth.sendTransaction({to:oracle.address,from:accounts[i],gas:7000000,data:oracle2.methods.testSubmitMiningSolution("nonce",[1,2,3,4,5],[1200,1300,1400,1500,1600]).encodeABI()})
-   //      }
-   //      console.log(res)
-   //      assert(res['1'] > 0, "value should be positive");
-   // });
+    it("Test miner", async function () {
+        for(var i = 0;i<5;i++){
+            res = await web3.eth.sendTransaction({to:oracle.address,from:accounts[i],gas:7000000,data:oracle2.methods.testSubmitMiningSolution("nonce",[1,2,3,4,5],[1200,1300,1400,1500,1600]).encodeABI()})
+        }
+        console.log(res)
+        assert(res['1'] > 0, "value should be positive");
+   });
 
    //  it("Test Miner decreasing payout", async function () {
    //      balances = []
