@@ -92,17 +92,25 @@ contract('Mining Tests', function(accounts) {
          console.log("add tip",i)
         }
         console.log(10)
+//requestQ
+
+       requestQ = await oracle.getRequestQ.call();
+       console.log('requestQ', requestQ);
+
         utilities = await UtilitiesTests.new()
         await utilities.setTellorMaster(oracle.address)
 
         top5B = await utilities.testgetTop5.call()
-        console.log(top5B)
+        console.log(top5B[0]*1,top5B[1]*1, top5B[2]*1, top5B[3]*1, top5B[4]*1, top5B[5]*1 )
+        console.log("top5B", top5B)
 
         top5N = await utilities.testgetMax5.call()
-        console.log(top5N)
+        console.log("top5n", top5N)
 
         vars = await oracleBase.getNewCurrentVariables()
         console.log('vars', vars)
+        //requestQ
+
         //mine addTip
         for(var i = 0;i<5;i++){
         //await web3.eth.sendTransaction({to:oracle.address,from:accounts[i],gas:7000000,data:oracle2.methods.testSubmitMiningSolution("nonce",5,1300).encodeABI()})
