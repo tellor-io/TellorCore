@@ -66,12 +66,4 @@ event print1( uint256 test);
                 }
             }
     }
-
-    function getTop5(uint256[51] memory data) internal pure returns (uint256[5] memory max, uint256[5] memory maxIndex) {
-        for(uint256 j=0;j<5;j++){
-                    (max[j],maxIndex[j]) = getMax(data);
-                    data[maxIndex[j]] = 0;
-            }
-        }
-
 }

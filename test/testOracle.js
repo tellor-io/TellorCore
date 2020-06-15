@@ -61,13 +61,12 @@ contract('Mining Tests', function(accounts) {
         }
         console.log(myArr)
         utilities = await UtilitiesTests.new(oracle.address)
-        top5B = await utilities.testgetTop5(myArr)
-        console.log(top5B['_max'])
         top5N = await utilities.testgetMax5(myArr)
         console.log(top5N['_max'])
-        for(var i=0;i<5;i++){
+        for(var i=1;i<=5;i++){
             console.log(top5N['_max'][i]-0)
             assert(top5N['_max'][i] == myArr[i])
+            assert(top5N['_index'][i] == i)
         }
 
     });
@@ -75,7 +74,7 @@ contract('Mining Tests', function(accounts) {
         vars =  await oracle2.methods.getNewCurrentVariables().call()
         console.log('vars', vars)
         assert(vars['1'].length == 5, "ids should be populated");
-        assert(vars[2] == 300, "difficulty should be correct")
+        assert(vars[2] > 0, "difficulty should be correct")
         assert(vars[3] == 0, "tip should be correct");  
     });
    //  it("Test miner", async function () {
