@@ -1,6 +1,5 @@
 const Web3 = require('web3')
 const web3 = new Web3(new Web3.providers.WebsocketProvider('ws://localhost:8545'));
-const BN = require('bn.js');  
 const helper = require("./helpers/test_helpers");
 const TellorMaster = artifacts.require("./TellorMaster.sol");
 const Tellor = artifacts.require("./Tellor.sol"); // globally injected artifacts helper
@@ -14,16 +13,6 @@ var masterAbi = TellorMaster.abi;
 var api = "json(https://api.gdax.com/products/BTC-USD/ticker).price";
 var api2 = "json(https://api.gdax.com/products/ETH-USD/ticker).price";
 
-//XZDBFVORC4XNI483
-//json(https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=GSPC&apikey=XZDBFVORC4XNI483).price"
-//json(https://api.pro.coinbase.com/products/ZRX-USD/ticker).price
-//json(https://api.pro.coinbase.com/products/LTC-USD/ticker).price
-// https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=BNB&APIKEY=d2c47c82-a3d4-4ee8-8db3-5bccbdbd038a
-//d2c47c82-a3d4-4ee8-8db3-5bccbdbd038a
-
-// json(https://api.binance.com/api/v3/ticker/price?symbol=BNBUSDT).price
-// json(https://api.binance.com/api/v3/ticker/price?symbol=XMRUSDT).price
-//https://stooq.com/t/d/l/?s=SPX.US&i=d
 console.log("start")
 
 contract('Mining Tests', function(accounts) {
@@ -37,283 +26,254 @@ contract('Mining Tests', function(accounts) {
   let utilities;
 
     beforeEach('Setup contract for each test', async function () {
-        
         //deploy old, request, update address, mine old challenge.
-        oldTellor = await OldTellor.new()   
-        console.log(1)   
+        oldTellor = await OldTellor.new()    
         oracle = await TellorMaster.new(oldTellor.address);
-        console.log(2)
-        
         master = await new web3.eth.Contract(masterAbi,oracle.address);
-        console.log(3)
         oldTellorinst = await new web3.eth.Contract(oldTellorABI,oldTellor.address);
-        console.log(4)
-        //print some TRB tokens
         for(var i = 0;i<6;i++){
             //print tokens 
             await web3.eth.sendTransaction({to:oracle.address,from:accounts[0],gas:7000000,data:oldTellorinst.methods.theLazyCoon(accounts[i],web3.utils.toWei('1100', 'ether')).encodeABI()})
         }
-        console.log(5)
-        //do 5 data request
         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oldTellorinst.methods.requestData(api,"BTC/USD1",1000,0).encodeABI()})
         await web3.eth.sendTransaction({to: oracle.address,from:accounts[1],gas:7000000,data:oldTellorinst.methods.requestData(api,"BTC/USD2",1000,0).encodeABI()})
         await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oldTellorinst.methods.requestData(api,"BTC/USD3",1000,0).encodeABI()})
         await web3.eth.sendTransaction({to: oracle.address,from:accounts[3],gas:7000000,data:oldTellorinst.methods.requestData(api,"BTC/USD4",1000,0).encodeABI()})
         await web3.eth.sendTransaction({to: oracle.address,from:accounts[4],gas:7000000,data:oldTellorinst.methods.requestData(api,"BTC/USD5",1000,0).encodeABI()})
         await web3.eth.sendTransaction({to: oracle.address,from:accounts[4],gas:7000000,data:oldTellorinst.methods.requestData(api,"BTC/USD6",1000,0).encodeABI()})
-        console.log(6)
-
-        var vars = await oracle.getCurrentVariables()
-        console.log('vars', vars)
-
-        //mine datarequested
-         // for(var i = 0;i<5;i++){
-         // await web3.eth.sendTransaction({to:oracle.address,from:accounts[i],gas:7000000,data:oldTellorinst.methods.testSubmitMiningSolution("nonce",1,1200).encodeABI()})
-         // }
-
         //Deploy new upgraded Tellor
         oracleBase = await Tellor.new();
-        console.log(7)
-
         oracle2 = await new web3.eth.Contract(oracleAbi,oracleBase.address);
-        console.log(8)
-
         await oracle.changeTellorContract(oracleBase.address)
-        console.log(9)
-
-                //mine datarequested
-          for(var i = 0;i<5;i++){
-          await web3.eth.sendTransaction({to:oracle.address,from:accounts[i],gas:7000000,data:oracle2.methods.testSubmitMiningSolution("nonce",1,1200).encodeABI()})
-          console.log("old mining", i)
-          }
-
-        for(var i = 1;i<6;i++){
-        await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.addTip(i,i).encodeABI()})
-         console.log("add tip",i)
-        }
-        console.log(10)
-        utilities = await UtilitiesTests.new()
-        await utilities.setTellorMaster(oracle.address)
-
-        top5B = await utilities.testgetTop5.call()
-        console.log(top5B)
-
-        top5N = await utilities.testgetMax5.call()
-        console.log(top5N)
-
-        vars = await oracleBase.getNewCurrentVariables()
-        console.log('vars', vars)
-        //mine addTip
         for(var i = 0;i<5;i++){
-        //await web3.eth.sendTransaction({to:oracle.address,from:accounts[i],gas:7000000,data:oracle2.methods.testSubmitMiningSolution("nonce",5,1300).encodeABI()})
-        await web3.eth.sendTransaction({to:oracle.address,from:accounts[i],gas:7000000,data:oracle2.methods.testSubmitMiningSolution("nonce",[1,2,3,4,5],[1200,1300,1400,1500,1600]).encodeABI()})
-    
+          await web3.eth.sendTransaction({to:oracle.address,from:accounts[i],gas:7000000,data:oracle2.methods['testSubmitMiningSolution(string,uint256,uint256)']("nonce",1,1200).encodeABI()})
         }
+        vars =  await oracle2.methods.getNewCurrentVariables().call()
+        console.log('vars', vars)
+        // for(var i = 1;i<6;i++){
+        //     await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.addTip(i,i).encodeABI()})
+        // }
+    });
+    it("test utilities",async function(){
+        var myArr = []
+        for(var i=50;i>=0;i--){
+            myArr.push(i+10)
+        }
+        console.log(myArr)
+        utilities = await UtilitiesTests.new(oracle.address)
+        top5B = await utilities.testgetTop5(myArr)
+        console.log(top5B['_max'])
+        top5N = await utilities.testgetMax5(myArr)
+        console.log(top5N['_max'])
+        for(var i=0;i<5;i++){
+            console.log(top5N['_max'][i]-0)
+            assert(top5N['_max'][i] == myArr[i])
+        }
+
     });
     it("getVariables", async function(){
-        var vars = await oracle.getCurrentVariables()
+        vars =  await oracle2.methods.getNewCurrentVariables().call()
         console.log('vars', vars)
-        let miningApiId = web3.utils.hexToNumberString(vars['1']);
-        let difficulty = web3.utils.hexToNumberString(vars['2']);
-        let sapi = vars['3'];
-        assert(miningApiId == 1, "miningApiId should be 1");
-        assert(difficulty == 1, "Difficulty should be 1");
-        assert.equal(sapi,api, "sapi = api");  
+        assert(vars['1'].length == 5, "ids should be populated");
+        assert(vars[2] == 300, "difficulty should be correct")
+        assert(vars[3] == 0, "tip should be correct");  
     });
-    it("Test miner", async function () {
-        newOracle = await Tellor.new();
-        await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:master.methods.changeTellorContract(newOracle.address).encodeABI()})
-        var logMineWatcher = await promisifyLogWatch(oracle.address, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
-        res = web3.eth.abi.decodeParameters(['uint256','uint256'],logMineWatcher.data);
-        assert(res['1'] > 0, "value should be positive");
-   });
+   //  it("Test miner", async function () {
+   //      for(var i = 0;i<5;i++){
+   //          res = await web3.eth.sendTransaction({to:oracle.address,from:accounts[i],gas:7000000,data:oracle2.methods.testSubmitMiningSolution("nonce",[1,2,3,4,5],[1200,1300,1400,1500,1600]).encodeABI()})
+   //      }
+   //      console.log(res)
+   //      assert(res['1'] > 0, "value should be positive");
+   // });
 
-  //   it("Test Miner decreasing payout", async function () {
-  //       balances = []
-  //       for(var i = 0;i<6;i++){
-  //           balances[i] = await oracle.balanceOf(accounts[i]);
-  //       }
-  //       logMineWatcher = await promisifyLogWatch(oracle.address, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
-  //       new_balances = []
-  //                   newOracle = await Tellor.new();
-  //       await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:master.methods.changeTellorContract(newOracle.address).encodeABI()})
-  //       for(var i = 0;i<6;i++){
-  //           new_balances[i] = await oracle.balanceOf(accounts[i]);
-  //       }
-  //       changes = []
-  //               for(var i = 0;i<6;i++){
-  //           changes[i] = new_balances[i] - balances[i]
-  //       }
-  //       await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",1000,0).encodeABI()})
-  //       logMineWatcher = await promisifyLogWatch(oracle.address, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
-  //       new_balances2 = []
-  //       for(var i = 0;i<6;i++){
-  //           new_balances2[i] = await oracle.balanceOf(accounts[i]);
-  //       }
-  //       changes2 = []
-  //       for(var i = 0;i<6;i++){
-  //           changes2[i] = new_balances2[i] - new_balances[i]
-  //       }
-  //       assert(changes2[1] < changes[1]);
-  //       assert(changes2[2] < changes[2]);
-  //       assert(changes2[3] < changes[4]);
-  //       assert(changes2[4] < changes[4]);
-  //       assert(changes2[5] < changes[5]);
-  //   });
-  //  it("Test Difficulty Adjustment", async function () {
-  //       logMineWatcher = await promisifyLogWatch(oracle.address, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
-  //       diff1 =await oracle.getCurrentVariables();
-  //                   newOracle = await Tellor.new();
-  //       await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:master.methods.changeTellorContract(newOracle.address).encodeABI()})
-  //       assert((web3.utils.hexToNumberString(diff1[2])*1) > 1, "difficulty greater than 1");//difficulty not changing.....
-  //       await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",1000,0).encodeABI()});
-  //       logMineWatcher = await promisifyLogWatch(oracle.address, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
-  //       vars = await oracle.getCurrentVariables();
-  //       assert((web3.utils.hexToNumberString(vars[2])*1) > (web3.utils.hexToNumberString(diff1[2])*1), "difficulty should continue to move up");
-  //   });
+   //  it("Test Miner decreasing payout", async function () {
+   //      balances = []
+   //      for(var i = 0;i<6;i++){
+   //          balances[i] = await oracle.balanceOf(accounts[i]);
+   //      }
+   //      for(var i = 0;i<5;i++){
+   //          await web3.eth.sendTransaction({to:oracle.address,from:accounts[i],gas:7000000,data:oracle2.methods.testSubmitMiningSolution("nonce",[1,2,3,4,5],[1200,1300,1400,1500,1600]).encodeABI()})
+   //      }
+   //      new_balances = []
+   //      for(var i = 0;i<6;i++){
+   //          new_balances[i] = await oracle.balanceOf(accounts[i]);
+   //      }
+   //      changes = []
+   //              for(var i = 0;i<6;i++){
+   //          changes[i] = new_balances[i] - balances[i]
+   //      }
+   //      await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",1000,0).encodeABI()})
+   //      for(var i = 0;i<5;i++){
+   //          await web3.eth.sendTransaction({to:oracle.address,from:accounts[i],gas:7000000,data:oracle2.methods.testSubmitMiningSolution("nonce",[1,2,3,4,5],[1200,1300,1400,1500,1600]).encodeABI()})
+   //      }
+   //      new_balances2 = []
+   //      for(var i = 0;i<6;i++){
+   //          new_balances2[i] = await oracle.balanceOf(accounts[i]);
+   //      }
+   //      changes2 = []
+   //      for(var i = 0;i<6;i++){
+   //          changes2[i] = new_balances2[i] - new_balances[i]
+   //      }
+   //      assert(changes2[1] < changes[1]);
+   //      assert(changes2[2] < changes[2]);
+   //      assert(changes2[3] < changes[4]);
+   //      assert(changes2[4] < changes[4]);
+   //      assert(changes2[5] < changes[5]);
+   //  });
+   // it("Test Difficulty Adjustment", async function () {
+   //      for(var i = 0;i<5;i++){
+   //          await web3.eth.sendTransaction({to:oracle.address,from:accounts[i],gas:7000000,data:oracle2.methods.testSubmitMiningSolution("nonce",[1,2,3,4,5],[1200,1300,1400,1500,1600]).encodeABI()})
+   //      }
+   //      diff1 =await oracle.getCurrentVariables();
+   //      assert((web3.utils.hexToNumberString(diff1[2])*1) > 1, "difficulty greater than 1");//difficulty not changing.....
+   //      for(var i = 0;i<5;i++){
+   //          await web3.eth.sendTransaction({to:oracle.address,from:accounts[i],gas:7000000,data:oracle2.methods.testSubmitMiningSolution("nonce",[1,2,3,4,5],[1200,1300,1400,1500,1600]).encodeABI()})
+   //      }
+   //      vars = await oracle.getCurrentVariables();
+   //      assert((web3.utils.hexToNumberString(vars[2])*1) > (web3.utils.hexToNumberString(diff1[2])*1), "difficulty should continue to move up");
+   //  });
 
-  //   it("Test didMine ", async function () {
-  //                   newOracle = await Tellor.new();
-  //       await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:master.methods.changeTellorContract(newOracle.address).encodeABI()})
-  //       vars = await oracle.getCurrentVariables();
-  //       logMineWatcher = await promisifyLogWatch(oracle.address, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
-  //       didMine = oracle.didMine(vars[0],accounts[1]);
-  //       assert(didMine);
-  //   });
-  //   it("Test Get MinersbyValue ", async function () {
-  //       logMineWatcher = await promisifyLogWatch(oracle.address, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
-  //       res = web3.eth.abi.decodeParameters(['uint256','uint256','uint256'],logMineWatcher.data)     
-  //                   newOracle = await Tellor.new();
-  //       await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:master.methods.changeTellorContract(newOracle.address).encodeABI()})
-  //       miners = await oracle.getMinersByRequestIdAndTimestamp(1, res[0]);
-  //       assert(miners = [accounts[4],accounts[3],accounts[2],accounts[1],accounts[5]])
-  //   });
+   //  it("Test didMine ", async function () {
+   //      vars = await oracle.getCurrentVariables();
+   //      for(var i = 0;i<5;i++){
+   //          await web3.eth.sendTransaction({to:oracle.address,from:accounts[i],gas:7000000,data:oracle2.methods.testSubmitMiningSolution("nonce",[1,2,3,4,5],[1200,1300,1400,1500,1600]).encodeABI()})
+   //      }
+   //      didMine = oracle.didMine(vars[0],accounts[1]);
+   //      assert(didMine);
+   //  });
+   //  it("Test Get MinersbyValue ", async function () {
+   //      for(var i = 0;i<5;i++){
+   //          res = await web3.eth.sendTransaction({to:oracle.address,from:accounts[i],gas:7000000,data:oracle2.methods.testSubmitMiningSolution("nonce",[1,2,3,4,5],[1200,1300,1400,1500,1600]).encodeABI()})
+   //      }    
+   //      miners = await oracle.getMinersByRequestIdAndTimestamp(1, res[0]);
+   //      assert(miners = [accounts[4],accounts[3],accounts[2],accounts[1],accounts[5]])
+   //  });
     
-  //   it("Test dev Share", async function(){
-  //       newOracle = await Tellor.new();
-  //       await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:master.methods.changeTellorContract(newOracle.address).encodeABI()})
-  //       begbal = await oracle.balanceOf(accounts[0]);
-  //       logMineWatcher = await promisifyLogWatch(oracle.address, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
-  //       endbal = await oracle.balanceOf(accounts[0]);
-  //       assert((endbal - begbal)/1e18  > 2.4, "devShare")
-  //   }); 
+   //  it("Test dev Share", async function(){
+   //      begbal = await oracle.balanceOf(accounts[0]);
+   //      for(var i = 0;i<5;i++){
+   //          await web3.eth.sendTransaction({to:oracle.address,from:accounts[i],gas:7000000,data:oracle2.methods.testSubmitMiningSolution("nonce",[1,2,3,4,5],[1200,1300,1400,1500,1600]).encodeABI()})
+   //      }
+   //      endbal = await oracle.balanceOf(accounts[0]);
+   //      assert((endbal - begbal)/1e18  > 2.4, "devShare")
+   //  }); 
 
-  //   it("Test miner, alternating api request on Q and auto select", async function () {
-  //       logMineWatcher = await promisifyLogWatch(oracle.address, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
-  //       await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",1000,0).encodeABI()});
-  //       logMineWatcher = await promisifyLogWatch(oracle.address, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
-  //       await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",1000,1).encodeABI()});  
-  //       data = await oracle.getVariablesOnDeck();
-  //       assert(data[0] == 0, 'There should be no API on Q');
-  //       var vars = await oracle.getCurrentVariables();
-  //       assert(vars[1] == 1, "miningApiId should be 1");
-  //                   newOracle = await Tellor.new();
-  //       await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:master.methods.changeTellorContract(newOracle.address).encodeABI()})
-  //       await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(api2,"ETH/USD",1000,5).encodeABI()});  
-  //       data = await oracle.getVariablesOnDeck();
-  //       assert(data[0] == 2, "API on q should be #2");
-  //       await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",1000,6).encodeABI()});
-  //       data = await oracle.getVariablesOnDeck();
-  //       assert(data[0] == 1, "API on q should be #1");
-  //   });
+   //  it("Test miner, alternating api request on Q and auto select", async function () {
+   //      for(var i = 0;i<5;i++){
+   //          await web3.eth.sendTransaction({to:oracle.address,from:accounts[i],gas:7000000,data:oracle2.methods.testSubmitMiningSolution("nonce",[1,2,3,4,5],[1200,1300,1400,1500,1600]).encodeABI()})
+   //      }
+   //      await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",1000,0).encodeABI()});
+   //      for(var i = 0;i<5;i++){
+   //          await web3.eth.sendTransaction({to:oracle.address,from:accounts[i],gas:7000000,data:oracle2.methods.testSubmitMiningSolution("nonce",[1,2,3,4,5],[1200,1300,1400,1500,1600]).encodeABI()})
+   //      }
+   //      await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",1000,1).encodeABI()});  
+   //      data = await oracle.getVariablesOnDeck();
+   //      assert(data[0] == 0, 'There should be no API on Q');
+   //      var vars = await oracle.getCurrentVariables();
+   //      assert(vars[1] == 1, "miningApiId should be 1");
+   //      await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(api2,"ETH/USD",1000,5).encodeABI()});  
+   //      data = await oracle.getVariablesOnDeck();
+   //      assert(data[0] == 2, "API on q should be #2");
+   //      await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",1000,6).encodeABI()});
+   //      data = await oracle.getVariablesOnDeck();
+   //      assert(data[0] == 1, "API on q should be #1");
+   //  });
     
-  //   it("Test dispute", async function () {
-  //       logMineWatcher = await promisifyLogWatch(oracle.address, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
-  //       res = web3.eth.abi.decodeParameters(['uint256','uint256','uint256'],logMineWatcher.data)     
-  //       balance1 = await oracle.balanceOf(accounts[2]);
-  //       blocknum = await oracle.getMinedBlockNum(1,res[0]);
-  //       await web3.eth.sendTransaction({to:oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.theLazyCoon(accounts[1],web3.utils.toWei('5000', 'ether')).encodeABI()})
-  //       dispBal1 = await oracle.balanceOf(accounts[1])
-  //       newOracle = await Tellor.new();
-  //       await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:master.methods.changeTellorContract(newOracle.address).encodeABI()})
-  //       await  web3.eth.sendTransaction({to: oracle.address,from:accounts[1],gas:7000000,data:oracle2.methods.beginDispute(1,res[0],2).encodeABI()});
-  //       count = await oracle.getUintVar(web3.utils.keccak256("disputeCount"));
-  //       await web3.eth.sendTransaction({to: oracle.address,from:accounts[3],gas:7000000,data:oracle2.methods.vote(1,true).encodeABI()});
-  //       await helper.advanceTime(86400 * 22);
-  //       await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.tallyVotes(1).encodeABI()});
-  //       dispInfo = await oracle.getAllDisputeVars(1);
-  //       assert(dispInfo[7][0] == 1)
-  //       assert(dispInfo[7][1] == res[0])
-  //       assert(dispInfo[7][2] == res[1])
-  //       assert(dispInfo[2] == true,"Dispute Vote passed")
-  //       voted = await oracle.didVote(1, accounts[3]);
-  //       assert(voted == true, "account 3 voted");
-  //       voted = await oracle.didVote(1, accounts[5]);
-  //       assert(voted == false, "account 5 did not vote");
-  //       apid2valueF = await oracle.retrieveData(1,res[0]);
-  //       assert(apid2valueF == 0 ,"value should now be zero this checks updateDisputeValue-internal fx  works");
-  //       balance2 = await oracle.balanceOf(accounts[2]);
-  //       dispBal2 = await oracle.balanceOf(accounts[1])
-  //       assert(balance1 - balance2 == await oracle.getUintVar(web3.utils.keccak256("stakeAmount")),"reported miner's balance should change correctly");
-  //       assert(dispBal2 - dispBal1 == await oracle.getUintVar(web3.utils.keccak256("stakeAmount")), "disputing party's balance should change correctly")
-  //       s =  await oracle.getStakerInfo(accounts[2])
-  //       assert(s != 1, " Not staked" );
-  //   });
+   //  it("Test dispute", async function () {
+   //      for(var i = 0;i<5;i++){
+   //          res = await web3.eth.sendTransaction({to:oracle.address,from:accounts[i],gas:7000000,data:oracle2.methods.testSubmitMiningSolution("nonce",[1,2,3,4,5],[1200,1300,1400,1500,1600]).encodeABI()})
+   //      }
+   //      balance1 = await oracle.balanceOf(accounts[2]);
+   //      blocknum = await oracle.getMinedBlockNum(1,res[0]);
+   //      await web3.eth.sendTransaction({to:oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.theLazyCoon(accounts[1],web3.utils.toWei('5000', 'ether')).encodeABI()})
+   //      dispBal1 = await oracle.balanceOf(accounts[1])
+   //      await  web3.eth.sendTransaction({to: oracle.address,from:accounts[1],gas:7000000,data:oracle2.methods.beginDispute(1,res[0],2).encodeABI()});
+   //      count = await oracle.getUintVar(web3.utils.keccak256("disputeCount"));
+   //      await web3.eth.sendTransaction({to: oracle.address,from:accounts[3],gas:7000000,data:oracle2.methods.vote(1,true).encodeABI()});
+   //      await helper.advanceTime(86400 * 22);
+   //      await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.tallyVotes(1).encodeABI()});
+   //      dispInfo = await oracle.getAllDisputeVars(1);
+   //      assert(dispInfo[7][0] == 1)
+   //      assert(dispInfo[7][1] == res[0])
+   //      assert(dispInfo[7][2] == res[1])
+   //      assert(dispInfo[2] == true,"Dispute Vote passed")
+   //      voted = await oracle.didVote(1, accounts[3]);
+   //      assert(voted == true, "account 3 voted");
+   //      voted = await oracle.didVote(1, accounts[5]);
+   //      assert(voted == false, "account 5 did not vote");
+   //      apid2valueF = await oracle.retrieveData(1,res[0]);
+   //      assert(apid2valueF == 0 ,"value should now be zero this checks updateDisputeValue-internal fx  works");
+   //      balance2 = await oracle.balanceOf(accounts[2]);
+   //      dispBal2 = await oracle.balanceOf(accounts[1])
+   //      assert(balance1 - balance2 == await oracle.getUintVar(web3.utils.keccak256("stakeAmount")),"reported miner's balance should change correctly");
+   //      assert(dispBal2 - dispBal1 == await oracle.getUintVar(web3.utils.keccak256("stakeAmount")), "disputing party's balance should change correctly")
+   //      s =  await oracle.getStakerInfo(accounts[2])
+   //      assert(s != 1, " Not staked" );
+   //  });
     
-  //   it("Test multiple dispute to one miner", async function () {
-  //       logMineWatcher = await promisifyLogWatch(oracle.address, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
-  //       res = web3.eth.abi.decodeParameters(['uint256','uint256','uint256'],logMineWatcher.data)     
-  //       balance1 = await oracle.balanceOf(accounts[2]);
-  //       blocknum = await oracle.getMinedBlockNum(1,res[0]);
-  //       await web3.eth.sendTransaction({to:oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.theLazyCoon(accounts[0],web3.utils.toWei('5000', 'ether')).encodeABI()})
-  //       await web3.eth.sendTransaction({to:oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.theLazyCoon(accounts[1],web3.utils.toWei('5000', 'ether')).encodeABI()})
-  //       await web3.eth.sendTransaction({to:oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.theLazyCoon(accounts[4],web3.utils.toWei('5000', 'ether')).encodeABI()})
+   //  it("Test multiple dispute to one miner", async function () {
+   //      for(var i = 0;i<5;i++){
+   //          res = await web3.eth.sendTransaction({to:oracle.address,from:accounts[i],gas:7000000,data:oracle2.methods.testSubmitMiningSolution("nonce",[1,2,3,4,5],[1200,1300,1400,1500,1600]).encodeABI()})
+   //      }
+   //      balance1 = await oracle.balanceOf(accounts[2]);
+   //      blocknum = await oracle.getMinedBlockNum(1,res[0]);
+   //      await web3.eth.sendTransaction({to:oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.theLazyCoon(accounts[0],web3.utils.toWei('5000', 'ether')).encodeABI()})
+   //      await web3.eth.sendTransaction({to:oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.theLazyCoon(accounts[1],web3.utils.toWei('5000', 'ether')).encodeABI()})
+   //      await web3.eth.sendTransaction({to:oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.theLazyCoon(accounts[4],web3.utils.toWei('5000', 'ether')).encodeABI()})
+   //      resVars = []
+   //      for(i=0;i<3;i++){
+   //         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",1000,0).encodeABI()})
+   //          for(var i = 0;i<5;i++){
+   //          resVars[i] = await web3.eth.sendTransaction({to:oracle.address,from:accounts[i],gas:7000000,data:oracle2.methods.testSubmitMiningSolution("nonce",[1,2,3,4,5],[1200,1300,1400,1500,1600]).encodeABI()})
+   //          }  
+   //          await helper.advanceTime(1000);
+   //      }
+   //       dispBal1 = await oracle.balanceOf(accounts[1])
+   //      orig_dispBal4 = await oracle.balanceOf(accounts[4])
+   //      //1st dispute to miner
+   //      await  web3.eth.sendTransaction({to: oracle.address,from:accounts[1],gas:7000000,data:oracle2.methods.beginDispute(1,resVars[0][0],2).encodeABI()});
+   //      count = await oracle.getUintVar(web3.utils.keccak256("disputeCount"));
+   //      //2nd dispute to same miner
+   //      await  web3.eth.sendTransaction({to: oracle.address,from:accounts[4],gas:7000000,data:oracle2.methods.beginDispute(1,resVars[1][0],2).encodeABI()});
+   //      count2 = await oracle.getUintVar(web3.utils.keccak256("disputeCount"));
+
+   //      //3rd dispute to same miner
+   //      await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.beginDispute(1,resVars[2][0],2).encodeABI()});
+   //      count2 = await oracle.getUintVar(web3.utils.keccak256("disputeCount"));
+   //      //dispute 1 votes and tally
+   //      await web3.eth.sendTransaction({to: oracle.address,from:accounts[3],gas:7000000,data:oracle2.methods.vote(1,true).encodeABI()});
+   //      await helper.advanceTime(86400 * 22);
+   //      balance1 = await oracle.balanceOf(accounts[2]);
+   //      await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.tallyVotes(1).encodeABI()});
+   //      dispInfo = await oracle.getAllDisputeVars(1);
+   //      assert(dispInfo[7][0] == 1)
+   //      assert(dispInfo[7][1] == resVars[0][0])
+   //      assert(dispInfo[7][2] == resVars[0][1])
+   //      assert(dispInfo[2] == true,"Dispute Vote passed")
+   //      voted = await oracle.didVote(1, accounts[3]);
+   //      assert(voted == true, "account 3 voted");
+   //      voted = await oracle.didVote(1, accounts[5]);
+   //      assert(voted == false, "account 5 did not vote");
+   //      apid2valueF = await oracle.retrieveData(1,resVars[0][0]);
+   //      assert(apid2valueF == 0 ,"value should now be zero this checks updateDisputeValue-internal fx  works");
+   //      //checks balances after dispute 1
+   //      balance2 = await oracle.balanceOf(accounts[2]);
+   //      dispBal2 = await oracle.balanceOf(accounts[1])
+   //      assert(balance1 - balance2 == await oracle.getUintVar(web3.utils.keccak256("stakeAmount")),"reported miner's balance should change correctly");
+   //      assert(dispBal2 - dispBal1 == await oracle.getUintVar(web3.utils.keccak256("stakeAmount")), "disputing party's balance should change correctly")
+   //      s =  await oracle.getStakerInfo(accounts[2])
+   //      assert(s != 1, " Not staked" );
+   //      //dispute 2 votes and tally
+   //      await web3.eth.sendTransaction({to: oracle.address,from:accounts[3],gas:7000000,data:oracle2.methods.vote(2,true).encodeABI()});
+   //      await helper.advanceTime(86400 * 22);
+   //      await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.tallyVotes(2).encodeABI()});
+   //      dispBal4 = await oracle.balanceOf(accounts[4])
+   //      assert(dispBal4 - orig_dispBal4 == 0,"a4 shouldn't change'")
+   //       });
 
 
-  //       newOracle = await Tellor.new();
-  //       await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:master.methods.changeTellorContract(newOracle.address).encodeABI()})
-  //       //First mine 3 values:
-  //       resVars = []
-  //       for(i=0;i<3;i++){
-  //          await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",1000,0).encodeABI()})
-  //           logMineWatcher = await promisifyLogWatch(oracle.address, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
-  //           resVars[i] = web3.eth.abi.decodeParameters(['uint256','uint256','uint256'],logMineWatcher.data)
-  //           await helper.advanceTime(1000);
-  //       }
-  //        dispBal1 = await oracle.balanceOf(accounts[1])
-  //       orig_dispBal4 = await oracle.balanceOf(accounts[4])
-  //       //1st dispute to miner
-  //       await  web3.eth.sendTransaction({to: oracle.address,from:accounts[1],gas:7000000,data:oracle2.methods.beginDispute(1,resVars[0][0],2).encodeABI()});
-  //       count = await oracle.getUintVar(web3.utils.keccak256("disputeCount"));
-  //       //2nd dispute to same miner
-  //       await  web3.eth.sendTransaction({to: oracle.address,from:accounts[4],gas:7000000,data:oracle2.methods.beginDispute(1,resVars[1][0],2).encodeABI()});
-  //       count2 = await oracle.getUintVar(web3.utils.keccak256("disputeCount"));
 
-  //       //3rd dispute to same miner
-  //       await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.beginDispute(1,resVars[2][0],2).encodeABI()});
-  //       count2 = await oracle.getUintVar(web3.utils.keccak256("disputeCount"));
-  //       //dispute 1 votes and tally
-  //       await web3.eth.sendTransaction({to: oracle.address,from:accounts[3],gas:7000000,data:oracle2.methods.vote(1,true).encodeABI()});
-  //       await helper.advanceTime(86400 * 22);
-  //       balance1 = await oracle.balanceOf(accounts[2]);
-  //       await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.tallyVotes(1).encodeABI()});
-  //       dispInfo = await oracle.getAllDisputeVars(1);
-  //       assert(dispInfo[7][0] == 1)
-  //       assert(dispInfo[7][1] == resVars[0][0])
-  //       assert(dispInfo[7][2] == resVars[0][1])
-  //       assert(dispInfo[2] == true,"Dispute Vote passed")
 
-  //       voted = await oracle.didVote(1, accounts[3]);
-  //       assert(voted == true, "account 3 voted");
-  //       voted = await oracle.didVote(1, accounts[5]);
-  //       assert(voted == false, "account 5 did not vote");
-  //       apid2valueF = await oracle.retrieveData(1,resVars[0][0]);
-  //       assert(apid2valueF == 0 ,"value should now be zero this checks updateDisputeValue-internal fx  works");
-
-  //       //checks balances after dispute 1
-  //       balance2 = await oracle.balanceOf(accounts[2]);
-  //       dispBal2 = await oracle.balanceOf(accounts[1])
-  //       assert(balance1 - balance2 == await oracle.getUintVar(web3.utils.keccak256("stakeAmount")),"reported miner's balance should change correctly");
-  //       assert(dispBal2 - dispBal1 == await oracle.getUintVar(web3.utils.keccak256("stakeAmount")), "disputing party's balance should change correctly")
-  //       s =  await oracle.getStakerInfo(accounts[2])
-  //       assert(s != 1, " Not staked" );
-  //       //dispute 2 votes and tally
-  //       await web3.eth.sendTransaction({to: oracle.address,from:accounts[3],gas:7000000,data:oracle2.methods.vote(2,true).encodeABI()});
-  //       await helper.advanceTime(86400 * 22);
-  //       await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.tallyVotes(2).encodeABI()});
-  //       dispBal4 = await oracle.balanceOf(accounts[4])
-  //       assert(dispBal4 - orig_dispBal4 == 0,"a4 shouldn't change'")
-  //       });
   //  it("Test time travel in data -- really long timesincelastPoof and proper difficulty adjustment", async function () {
   //       newOracle = await Tellor.new();
   //       await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:master.methods.changeTellorContract(newOracle.address).encodeABI()})

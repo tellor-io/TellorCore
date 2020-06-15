@@ -44,18 +44,6 @@
 //         utilities = await UtilitiesTests.new();
 //         await utilities.setTellorMaster(oracle.address);
 //    });  
-//    it("Test switch with no block to mine", async function () {
-//    	   assert(0==1)
-//    });
-//     it("Test switch partially through mine", async function () {
-//    	   assert(0==1)
-//    });
-//     it("Test switch at beginning of mine", async function () {
-//    	   assert(0==1)
-//    });
-//        it("Test switch partially through with tips added before new block", async function () {
-//    	   assert(0==1)
-//    });
 //    it("Test 5 values per block", async function () {
 //    	   assert(0==1)
 //    });
@@ -93,6 +81,9 @@
 //    	   assert(0==1)
 //    });
 //    it("Test initial difficulty drop", async function () {
+//    	   assert(0==1)
+//    });
+//    it("Test automatic pulling of top ID's (the last ones)", async function () {
 //    	   assert(0==1)
 //    });
 //  });

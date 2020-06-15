@@ -17,18 +17,9 @@ contract UtilitiesTests {
     /**
     * @dev The constructor sets the owner
     */
-    constructor() public {
+    constructor(address payable _TellorMasterAddress) public {
         owner = msg.sender;
-    }
-
-    /**
-    *@dev Set TellorMaster address
-    *@param _TellorMasterAddress is the Tellor Master address
-    */
-    function setTellorMaster(address payable _TellorMasterAddress) public {
-        require(msg.sender == owner, "Sender is not owner");
         tellorMasterAddress = _TellorMasterAddress;
-        tellorMaster = TellorMaster(_TellorMasterAddress);
     }
 
     function testgetMax() public view returns (uint256 _max, uint256 _index) {
@@ -41,13 +32,11 @@ contract UtilitiesTests {
         (_min, _index) = Utilities.getMin(requests);
     }
 
-        function testgetMax5() public  returns (uint256[5] memory _max, uint256[5] memory _index) {
-        uint256[51] memory requests = tellorMaster.getRequestQ();
+    function testgetMax5(uint256[51] memory requests) public view returns (uint256[5] memory _max, uint256[5] memory _index) {
         (_max, _index) = Utilities.getMax5(requests);
     }
 
-    function testgetTop5() public  returns (uint256[5] memory _max, uint256[5] memory _index) {
-        uint256[51] memory requests = tellorMaster.getRequestQ();
+    function testgetTop5(uint256[51] memory requests) public view returns (uint256[5] memory _max, uint256[5] memory _index) {
         (_max, _index) = Utilities.getTop5(requests);
     }
 

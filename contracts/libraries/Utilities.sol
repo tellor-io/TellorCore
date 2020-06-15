@@ -41,37 +41,37 @@ library Utilities {
     }
 event print1( uint256 test);
 
-    function getMax5(uint256[51] memory data) internal returns (uint256[5] memory max, uint256[5] memory maxIndex) {
-        for (uint256 i = 1; i < data.length; i++) {
-            for(uint256 j=0;j<5;j++){
-                
-                if(i==1){
-                    max[j]= data[j+1];//max[0]=data[1]
-                    maxIndex[j] =j+1;//maxIndex[0]= 1
-                }
-                if (data[i] > max[j]) {
-                    max[j] = data[i];//max[0] == data[1]
-                    maxIndex[j] = i;//maxIndex[0]=1
-                }
+    function getMax5(uint256[51] memory data) internal pure returns (uint256[5] memory max, uint256[5] memory maxIndex) {
+        uint256 min5 = data[1];
+        uint256 minI = 1;
+        for(uint256 j=0;j<5;j++){
+            max[j]= data[j+1];//max[0]=data[1]
+            maxIndex[j] = j+1;//maxIndex[0]= 1
+            if(max[j] < min5){
+                min5 = max[j];
+                minI = j;
             }
         }
+        for(uint256 i = 5; i < data.length; i++) {
+            if (data[i] > min5) {
+                        max[minI] = data[i];
+                        maxIndex[minI] = i;
+                        min5 = data[i];
+                    for(uint256 j=0;j<5;j++){
+                        if(max[j] < min5){
+                            min5 = max[j];
+                            minI = j;
+                        }
+                    }
+                }
+            }
     }
 
-    function getTop5(uint256[51] memory data) internal returns (uint256[5] memory max, uint256[5] memory maxIndex) {
-        uint256 maxs = data[1];
-        uint256 maxIndexs;
-        for (uint256 i = 1; i < data.length; i++) {
-            if (data[i] > maxs) {
-                for(uint256 j=0;j<5;j++){
-                    max[j] = data[i];
-                    maxIndex[j] = i;
-                }
-            maxs = data[i];
-            maxIndexs = i;
+    function getTop5(uint256[51] memory data) internal pure returns (uint256[5] memory max, uint256[5] memory maxIndex) {
+        for(uint256 j=0;j<5;j++){
+                    (max[j],maxIndex[j]) = getMax(data);
+                    data[maxIndex[j]] = 0;
             }
         }
-    }
-
-
 
 }

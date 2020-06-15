@@ -39,20 +39,6 @@
 //         await helper.advanceTime(86400 * 8);
 //         await web3.eth.sendTransaction({to:oracle.address,from:accounts[2],data:oracle2.methods.withdrawStake().encodeABI()})
 //  });
-//     it("getVariables", async function(){
-//     	                    newOracle = await Tellor.new();
-//         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:master.methods.changeTellorContract(newOracle.address).encodeABI()})
-//     	let res = await web3.eth.sendTransaction({to:oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",1000,20).encodeABI()}) 
-//         vars = await oracle.getCurrentVariables();
-//         let miningApiId =vars['1'];
-//         let difficulty = vars['2']
-//         let sapi = vars['3'];
-//         assert(miningApiId == 1, "miningApiId should be 1");
-//         assert(difficulty == 1, "Difficulty should be 1");
-//         assert.equal(sapi,api, "sapi = api");
-//         assert(vars['4'] ==1000)
-//     }); 
-
 //     it("Get apiId", async function () {
 //         balance1 = await web3.eth.call({to:oracle.address,data:oracle3.methods.balanceOf(accounts[2]).encodeABI()})
 //         let res = await web3.eth.sendTransaction({to:oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.requestData(api,"BTC/USD",1000,20).encodeABI()}) 
