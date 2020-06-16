@@ -214,4 +214,7 @@ contract Tellor {
     function getTopRequestIDs() external view returns(uint256[5] memory _requestIds){
         return tellor.getTopRequestIDs();
     }
+    function getNewVariablesOnDeck() external view returns (uint256[5] memory idsOnDeck, uint256[5] memory tipsOnDeck) {
+        return tellor.getNewVariablesOnDeck();
+    }
 }

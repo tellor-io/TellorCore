@@ -438,6 +438,17 @@ event print(uint num);
         return self.uintVars[keccak256("currentReward")] + self.uintVars[keccak256("currentTotalTips")]/5/2;
     }
         /**
+    * @dev Getter function for next requestId on queue/request with highest payout at time the function is called
+    * @return onDeck/info on request with highest payout-- RequestId, Totaltips, and API query string
+    */
+    function getNewVariablesOnDeck(TellorStorage.TellorStorageStruct storage self) internal view returns (uint256[5] memory idsOnDeck, uint256[5] memory tipsOnDeck) {
+        idsOnDeck = getTopRequestIDs(self);
+        for(uint i = 0;i<5;i++){
+            tipsOnDeck[i] = self.requestDetails[idsOnDeck[i]].apiUintVars[keccak256("totalTip")];
+        }
+    }
+
+        /**
     * @dev Getter function for the request with highest payout. This function is used within the getVariablesOnDeck function
     * @return uint _requestId of request with highest payout at the time the function is called
     */

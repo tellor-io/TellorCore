@@ -60,6 +60,14 @@
 //         assert(res.logs[1].args['_tip'] == 20, "Current payout on Q should be 20");
 //         assert(res.logs[1].args['_id'] == 11, "timestamp on Q should be apiID");
 //     });
+//        it("Test zero addTip", async function () {
+//         logMineWatcher = await promisifyLogWatch(oracle.address, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
+//         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.addTip(1,0).encodeABI()})
+//         logMineWatcher = await promisifyLogWatch(oracle.address, 'NewValue(uint256,uint256,uint256,uint256,bytes32)');//or Event Mine?
+//         res = web3.eth.abi.decodeParameters(['uint256','uint256','uint256'],logMineWatcher.data)
+//         data = await oracle.getMinedBlockNum(1,res[0]);
+//         assert(data > 0, "Should be true if Data exist for that point in time");
+//     });
 // //     it("several request data", async function () {
 // //         let req1 = await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.addTip(1,20).encodeABI()})
 // //         onQ = await web3.eth.abi.decodeParameter('uint256',req1.logs[1].topics[1])
