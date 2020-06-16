@@ -35,8 +35,11 @@ contract('Mining Tests', function(accounts) {
         }
         for(var i=0; i<52;i++){
             x = "USD" + i
-            await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oldTellorinst.methods.requestData(api,x,1000,0).encodeABI()})
+            apix = api + i
+            await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oldTellorinst.methods.requestData(apix,x,1000,52-i).encodeABI()})
         }
+        let q = await oracle.getRequestQ();
+        console.log(q)
         //Deploy new upgraded Tellor
         oracleBase = await Tellor.new();
         oracle2 = await new web3.eth.Contract(oracleAbi,oracle.address);
@@ -55,6 +58,9 @@ contract('Mining Tests', function(accounts) {
         }
         utilities = await UtilitiesTests.new(oracle.address)
         top5N = await utilities.testgetMax5(myArr)
+        let q = await oracle.getRequestQ();
+        console.log(q)
+        console.log(await utilities.testgetMax5(q))
         for(var i=0;i<5;i++){
             assert(top5N['_max'][i] == myArr[i+1])
             assert(top5N['_index'][i] == i+1)
@@ -67,11 +73,19 @@ contract('Mining Tests', function(accounts) {
         vars =  await oracle2.methods.getNewCurrentVariables().call()
         assert(vars['1'].length == 5, "ids should be populated");
         assert(vars['2'] > 0, "difficulty should be correct")
-        assert(vars['3'] == 0, "tip should be correct");  
+        assert(vars['3'] > 0, "tip should be correct");  
+    });
+    it("getTopRequestIDs", async function(){
+        vars = await oracle2.methods.getTopRequestIDs().call()
+        console.log(vars)
+        for(var i = 0;i<5;i++){
+            assert(vars[0]= i+1)
+        }
     });
     it("Test miner", async function () {
+        console.log("1")
         for(var i = 0;i<5;i++){
-            res = await web3.eth.sendTransaction({to:oracle.address,from:accounts[i],gas:7000000,data:oracle2.methods.testSubmitMiningSolution("nonce",[1,2,3,4,5],[1200,1300,1400,1500,1600]).encodeABI()})
+            res = await web3.eth.sendTransaction({to:oracle.address,from:accounts[i],gas:10000000,data:oracle2.methods.testSubmitMiningSolution("nonce",[1,2,3,4,5],[1200,1300,1400,1500,1600]).encodeABI()})
         }
         console.log(res)
         assert(res['1'] > 0, "value should be positive");

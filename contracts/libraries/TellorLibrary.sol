@@ -142,7 +142,6 @@ event print(uint num);
         //add timeOfLastValue to the newValueTimestamps array
         self.newValueTimestamps.push(_timeOfLastNewValue);
         //re-start the count for the slot progress to zero before the new request mining starts
-        self.uintVars[keccak256("slotProgress")] = 0;
 
         uint256[5] memory _topId = getTopRequestIDs(self);
         for(uint i = 0; i< 5;i++){
@@ -360,6 +359,7 @@ event print(uint num);
         //If 5 values have been received, adjust the difficulty otherwise sort the values until 5 are received
         if (self.uintVars[keccak256("slotProgress")] == 5) {
             newBlock(self, _nonce, _requestId);
+            self.uintVars[keccak256("slotProgress")] = 0;
         }
     }
 
@@ -445,8 +445,7 @@ event print(uint num);
         (_max, _index) = Utilities.getMax5(self.requestQ);
         for(uint i=0;i<5;i++){
             if(_max[i] > 0){
-                if (self.requestIdByRequestQIndex[_index[i]] > 0)
-                    _requestIds[i] = self.requestIdByRequestQIndex[_index[i]];
+                _requestIds[i] = self.requestIdByRequestQIndex[_index[i]];
             }
             else{
                 _requestIds[i] = self.currentMiners[5-i].value;
