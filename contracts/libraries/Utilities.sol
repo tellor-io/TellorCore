@@ -39,7 +39,6 @@ library Utilities {
             }
         }
     }
-event print1( uint256 test);
 
     function getMax5(uint256[51] memory data) internal pure returns (uint256[5] memory max, uint256[5] memory maxIndex) {
         uint256 min5 = data[1];

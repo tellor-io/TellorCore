@@ -135,13 +135,13 @@ event print(uint num);
         }
         //update the total supply
         self.uintVars[keccak256("total_supply")] +=  self.uintVars[keccak256("devShare")] + self.uintVars[keccak256("currentReward")]*5 - (self.uintVars[keccak256("currentTotalTips")]);
-        //transfer to zero address
-        TellorTransfer.doTransfer(self, address(this), address(0x0), self.uintVars[keccak256("currentTotalTips")]);
+        //transfer to zero address ( do not need, just leave it in addressThis)
+        //TellorTransfer.doTransfer(self, address(this), address(0x0), self.uintVars[keccak256("currentTotalTips")]);
         //pay the dev-share
         TellorTransfer.doTransfer(self, address(this), self.addressVars[keccak256("_owner")],  self.uintVars[keccak256("devShare")]); //The ten there is the devshare
         //add timeOfLastValue to the newValueTimestamps array
         self.newValueTimestamps.push(_timeOfLastNewValue);
-        //re-start the count for the slot progress to zero before the new request mining starts
+        self.uintVars[keccak256("_tblock")] ++;
 
         uint256[5] memory _topId = getTopRequestIDs(self);
         for(uint i = 0; i< 5;i++){
@@ -337,10 +337,13 @@ event print(uint num);
                 || (now - (now % 1 minutes)) - self.uintVars[keccak256("timeOfLastNewValue")] >= 15 minutes,
             "Incorrect nonce for current challenge"
         );
+        require(now - self.uintVars[keccak256(abi.encodePacked(msg.sender))] > 1 hours);
+
+
         //Make sure the miner does not submit a value more than once
         require(self.minersByChallenge[self.currentChallenge][msg.sender] == false, "Miner already submitted the value");
         //require the miner did not receive awards in the last hour
-        require(now - self.uintVars[keccak256(abi.encodePacked(msg.sender))] > 1 hours);
+        
         self.uintVars[keccak256(abi.encodePacked(msg.sender))] = now;
         uint _thisTip = self.uintVars[keccak256("currentTotalTips")] / 2 / (5-self.uintVars[keccak256("slotProgress")]);
         TellorTransfer.doTransfer(self, address(this), msg.sender, self.uintVars[keccak256("currentReward")]  + _thisTip);
@@ -516,7 +519,7 @@ event print(uint num);
     function testSubmitMiningSolution(TellorStorage.TellorStorageStruct storage self, string memory _nonce,uint256[5] memory _requestId, uint256[5] memory _value)
         public
     {
-        //require miner is staked
+//require miner is staked
         require(self.stakerDetails[msg.sender].currentStatus == 1, "Miner status is not staker");
         //has to be a better way to do this...
         for(uint i=0;i<5;i++){
@@ -531,29 +534,34 @@ event print(uint num);
         //         || (now - (now % 1 minutes)) - self.uintVars[keccak256("timeOfLastNewValue")] >= 15 minutes,
         //     "Incorrect nonce for current challenge"
         // );
+        //require(now - self.uintVars[keccak256(abi.encodePacked(msg.sender))] > 1 hours);
+
         //Make sure the miner does not submit a value more than once
         require(self.minersByChallenge[self.currentChallenge][msg.sender] == false, "Miner already submitted the value");
         //require the miner did not receive awards in the last hour
-        require(now - self.uintVars[keccak256(abi.encodePacked(msg.sender))] > 1 hours);
+        //
         self.uintVars[keccak256(abi.encodePacked(msg.sender))] = now;
         uint _thisTip = self.uintVars[keccak256("currentTotalTips")] / 2 / (5-self.uintVars[keccak256("slotProgress")]);
         TellorTransfer.doTransfer(self, address(this), msg.sender, self.uintVars[keccak256("currentReward")]  + _thisTip);
         self.uintVars[keccak256("currentTotalTips")] -= _thisTip;
         //Save the miner and value received
         _tblock.minersByValue[1][self.uintVars[keccak256("slotProgress")]]= msg.sender;
-        self.uintVars[keccak256("slotProgress")]++;
+
         //this will fill the currentMiners array
         for (uint j = 0; j < 5; j++) {
             _tblock.valuesByTimestamp[j][self.uintVars[keccak256("slotProgress")]] = _value[j];
 
         }
+        self.uintVars[keccak256("slotProgress")]++;
         //Update the miner status to true once they submit a value so they don't submit more than once
         self.minersByChallenge[self.currentChallenge][msg.sender] = true;
         emit NonceSubmitted(msg.sender, _nonce, _requestId, _value, self.currentChallenge);
         //If 5 values have been received, adjust the difficulty otherwise sort the values until 5 are received
         if (self.uintVars[keccak256("slotProgress")] == 5) {
             newBlock(self, _nonce, _requestId);
+            self.uintVars[keccak256("slotProgress")] = 0;
         }
+        emit print(self.uintVars[keccak256("slotProgress")]);
     }
 
 

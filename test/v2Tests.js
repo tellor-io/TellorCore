@@ -44,9 +44,6 @@
 //         utilities = await UtilitiesTests.new();
 //         await utilities.setTellorMaster(oracle.address);
 //    });  
-//    it("Test 5 values per block", async function () {
-//    	   assert(0==1)
-//    });
 //    it("Test lower difficulty target (5 min)", async function () {
 //    	   assert(0==1)
 //    });
@@ -84,6 +81,9 @@
 //    	   assert(0==1)
 //    });
 //    it("Test automatic pulling of top ID's (the last ones)", async function () {
+//    	   assert(0==1)
+//    });
+//     it("Test add tip on very far out API id (or on a tblock id?)", async function () {
 //    	   assert(0==1)
 //    });
 //  });
