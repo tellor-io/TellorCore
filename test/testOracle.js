@@ -13,8 +13,6 @@ var masterAbi = TellorMaster.abi;
 var api = "json(https://api.gdax.com/products/BTC-USD/ticker).price";
 var api2 = "json(https://api.gdax.com/products/ETH-USD/ticker).price";
 
-console.log("start")
-
 contract('Mining Tests', function(accounts) {
   let oracleBase;
   let oracle;
@@ -35,12 +33,10 @@ contract('Mining Tests', function(accounts) {
             //print tokens 
             await web3.eth.sendTransaction({to:oracle.address,from:accounts[0],gas:7000000,data:oldTellorinst.methods.theLazyCoon(accounts[i],web3.utils.toWei('1100', 'ether')).encodeABI()})
         }
-        await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oldTellorinst.methods.requestData(api,"BTC/USD1",1000,0).encodeABI()})
-        await web3.eth.sendTransaction({to: oracle.address,from:accounts[1],gas:7000000,data:oldTellorinst.methods.requestData(api,"BTC/USD2",1000,0).encodeABI()})
-        await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oldTellorinst.methods.requestData(api,"BTC/USD3",1000,0).encodeABI()})
-        await web3.eth.sendTransaction({to: oracle.address,from:accounts[3],gas:7000000,data:oldTellorinst.methods.requestData(api,"BTC/USD4",1000,0).encodeABI()})
-        await web3.eth.sendTransaction({to: oracle.address,from:accounts[4],gas:7000000,data:oldTellorinst.methods.requestData(api,"BTC/USD5",1000,0).encodeABI()})
-        await web3.eth.sendTransaction({to: oracle.address,from:accounts[4],gas:7000000,data:oldTellorinst.methods.requestData(api,"BTC/USD6",1000,0).encodeABI()})
+        for(var i=0; i<52;i++){
+            x = "USD" + i
+            await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oldTellorinst.methods.requestData(api,x,1000,0).encodeABI()})
+        }
         //Deploy new upgraded Tellor
         oracleBase = await Tellor.new();
         oracle2 = await new web3.eth.Contract(oracleAbi,oracle.address);
@@ -69,9 +65,7 @@ contract('Mining Tests', function(accounts) {
         //vars = await web3.eth.call({to:oracle.address,from:accounts[0],data:oracle2.methods.getNewCurrentVariables().encodeABI()})
         
         vars =  await oracle2.methods.getNewCurrentVariables().call()
-        console.log('vars', vars)
         assert(vars['1'].length == 5, "ids should be populated");
-        console.log(await oracle.getUintVar(web3.utils.keccak256("difficulty")));
         assert(vars['2'] > 0, "difficulty should be correct")
         assert(vars['3'] == 0, "tip should be correct");  
     });

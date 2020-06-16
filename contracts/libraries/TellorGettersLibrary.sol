@@ -403,19 +403,10 @@ library TellorGettersLibrary {
         (_max, _index) = Utilities.getMax(self.requestQ);
         _requestId = self.requestIdByRequestQIndex[_index];
     }
-    /**
-    * @dev Getter function for the request with highest payout. This function is used within the getVariablesOnDeck function
-    * @return uint _requestId of request with highest payout at the time the function is called
-    */
-    function getTopRequestIDs(TellorStorage.TellorStorageStruct storage self) internal  returns (uint256[5] memory _requestIds) {
-        uint256[5] memory _max;
-        uint256[5] memory _index;
-        (_max, _index) = Utilities.getMax5(self.requestQ);
-        _requestIds = [self.requestIdByRequestQIndex[_index[0]],self.requestIdByRequestQIndex[_index[1]],self.requestIdByRequestQIndex[_index[2]],self.requestIdByRequestQIndex[_index[3]],self.requestIdByRequestQIndex[_index[4]]];
-    }
+
     /**
     * @dev Gets the 5 miners who mined the value for the specified requestId/_timestamp
-    * @param _requestId to look up
+    * @param _requestId to looku p
     * @param _timestamp is the timestamp to look up miners for
     * @return bool true if requestId/timestamp is under dispute
     */
