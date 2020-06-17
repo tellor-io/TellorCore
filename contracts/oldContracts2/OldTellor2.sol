@@ -102,7 +102,7 @@ contract OldTellor2 {
     }
 
     function testSubmitMiningSolution(string calldata _nonce, uint256 _requestId, uint256 _value) external {
-        tellor.submitMiningSolution(_nonce, _requestId, _value);
+        tellor.testSubmitMiningSolution(_nonce, _requestId, _value);
     }
 
     /**

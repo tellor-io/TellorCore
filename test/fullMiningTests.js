@@ -1,4 +1,4 @@
-//This repo requires a test miner
+// This repo requires a test miner
 
 // /** 
 // * This tests the oracle functions, including mining.
@@ -167,7 +167,7 @@
 //         //assert((web3.utils.hexToNumberString(new_balances[4]) - web3.utils.hexToNumberString(balances[4])) == web3.utils.toWei('1.1', 'ether'));
 //     });
 // it("Test miner upgrade", async function () {
-		//assert(0==1)
+// 		assert(0==1)
 //    }).timeout(2500000);
 
 //  });    
