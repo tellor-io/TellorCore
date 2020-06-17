@@ -457,7 +457,7 @@ event print(uint num);
                 _requestIds[i] = self.requestIdByRequestQIndex[_index[i]];
             }
             else{
-                _requestIds[i] = self.currentMiners[5-i].value;
+                _requestIds[i] = self.currentMiners[4-i].value;
             }
         }
     }
