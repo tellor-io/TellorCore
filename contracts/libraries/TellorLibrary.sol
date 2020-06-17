@@ -48,10 +48,8 @@ event print(uint num);
     */
     function addTip(TellorStorage.TellorStorageStruct storage self, uint256 _requestId, uint256 _tip) public {
         require(_requestId > 0, "RequestId is 0");
-        //If the tip > 0 transfer the tip to this contract
-        if (_tip > 0) {
-            TellorTransfer.doTransfer(self, msg.sender, address(this), _tip);
-        }
+        require(_tip > 0, "Tip should be greater than 0");
+        TellorTransfer.doTransfer(self, msg.sender, address(this), _tip);
         //Update the information for the request that should be mined next based on the tip submitted
         updateOnDeck(self, _requestId, _tip);
         emit TipAdded(msg.sender, _requestId, _tip, self.requestDetails[_requestId].apiUintVars[keccak256("totalTip")]);
@@ -394,10 +392,7 @@ event print(uint num);
     */
     function updateOnDeck(TellorStorage.TellorStorageStruct storage self, uint256 _requestId, uint256 _tip) internal {
         TellorStorage.Request storage _request = self.requestDetails[_requestId];
-        //If the tip >0 update the tip for the requestId
-        if (_tip > 0) {
-            _request.apiUintVars[keccak256("totalTip")] = _request.apiUintVars[keccak256("totalTip")].add(_tip);
-        }
+        _request.apiUintVars[keccak256("totalTip")] = _request.apiUintVars[keccak256("totalTip")].add(_tip);
         //maybe use a request uintVar to keep track if its being mined?
         if(self.currentMiners[0].value == _requestId || self.currentMiners[1].value== _requestId ||self.currentMiners[2].value == _requestId||self.currentMiners[3].value== _requestId || self.currentMiners[4].value== _requestId ){
             self.uintVars[keccak256("currentTotalTips")] += _tip;
@@ -419,7 +414,7 @@ event print(uint num);
                     _request.apiUintVars[keccak256("requestQPosition")] = _index;
                 }
                 // else if the requestid is part of the requestQ[51] then update the tip for it
-            } else if (_tip > 0) {
+            } else{
                 self.requestQ[_request.apiUintVars[keccak256("requestQPosition")]] += _tip;
             }
         }
