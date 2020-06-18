@@ -320,7 +320,6 @@ event print(uint num);
     function submitMiningSolution(TellorStorage.TellorStorageStruct storage self, string memory _nonce,uint256[5] memory _requestId, uint256[5] memory _value)
         public
     {
-        //require miner is staked
         require(self.stakerDetails[msg.sender].currentStatus == 1, "Miner status is not staker");
         //has to be a better way to do this...
         for(uint i=0;i<5;i++){
@@ -337,23 +336,23 @@ event print(uint num);
         );
         require(now - self.uintVars[keccak256(abi.encodePacked(msg.sender))] > 1 hours);
 
-
         //Make sure the miner does not submit a value more than once
         require(self.minersByChallenge[self.currentChallenge][msg.sender] == false, "Miner already submitted the value");
         //require the miner did not receive awards in the last hour
-        
+        //
         self.uintVars[keccak256(abi.encodePacked(msg.sender))] = now;
         uint _thisTip = self.uintVars[keccak256("currentTotalTips")] / 2 / (5-self.uintVars[keccak256("slotProgress")]);
         TellorTransfer.doTransfer(self, address(this), msg.sender, self.uintVars[keccak256("currentReward")]  + _thisTip);
         self.uintVars[keccak256("currentTotalTips")] -= _thisTip;
         //Save the miner and value received
         _tblock.minersByValue[1][self.uintVars[keccak256("slotProgress")]]= msg.sender;
-        self.uintVars[keccak256("slotProgress")]++;
+
         //this will fill the currentMiners array
         for (uint j = 0; j < 5; j++) {
             _tblock.valuesByTimestamp[j][self.uintVars[keccak256("slotProgress")]] = _value[j];
 
         }
+        self.uintVars[keccak256("slotProgress")]++;
         //Update the miner status to true once they submit a value so they don't submit more than once
         self.minersByChallenge[self.currentChallenge][msg.sender] = true;
         emit NonceSubmitted(msg.sender, _nonce, _requestId, _value, self.currentChallenge);
@@ -362,6 +361,7 @@ event print(uint num);
             newBlock(self, _nonce, _requestId);
             self.uintVars[keccak256("slotProgress")] = 0;
         }
+        emit print(self.uintVars[keccak256("slotProgress")]);
     }
 
     /**
