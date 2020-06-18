@@ -109,7 +109,7 @@ contract OldTellor{
         tellor.submitMiningSolution(_nonce,_requestId,_value);
     }
     function testSubmitMiningSolution(string calldata _nonce, uint256 _requestId, uint256 _value) external {
-        tellor.submitMiningSolution(_nonce, _requestId, _value);
+        tellor.testSubmitMiningSolution(_nonce, _requestId, _value);
     }
     /**
     * @dev Allows the current owner to propose transfer control of the contract to a 
