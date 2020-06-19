@@ -46,6 +46,24 @@ contract('Further Tests w/ Upgrade', function(accounts) {
         }
     });
   
+     it("test utilities",async function(){
+        var myArr = []
+        for(var i=50;i>=0;i--){
+            myArr.push(i)
+        }
+        console.log("myArr", myArr)
+        utilities = await UtilitiesTests.new(oracle.address)
+        let minT = await utilities.testgetMins(myArr)
+        console.log("min myArr", minT)
+        let q = await master.methods.getRequestQ().call();
+        console.log("q", q)
+        let min = await utilities.testgetMin()
+        console.log('min', min)
+        // for(var i=0;i<5;i++){
+        //     assert(top5N['_max'][i] == myArr[i+1])
+        //     assert(top5N['_index'][i] == i+1)
+        // } 
+    });
    it("Add Tip", async function () {
    	    //old
         res = await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.addTip(11,20).encodeABI()})
@@ -76,8 +94,11 @@ contract('Further Tests w/ Upgrade', function(accounts) {
         console.log('top5', top5N)
         console.log("top5 index", top5N['_index'][1]*1,top5N['_index'][2]*1, top5N['_index'][3]*1, top5N['_index'][4]*1, top5N['_index'][5]*1)
 
-        oneMin = await utilities.testgetMin(q)
+        oneMin = await utilities.testgetMins(q)
         console.log("min", oneMin)
+
+        let min2 = await utilities.testgetMin()
+        console.log("min2", min2)
         //mine the current value from old contract
 
         //check values of 5 request id's

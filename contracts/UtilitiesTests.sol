@@ -36,4 +36,10 @@ contract UtilitiesTests {
         (_max, _index) = Utilities.getMax5(requests);
     }
 
+    function testgetMins(uint256[51] memory requests) public view returns (uint256 _min, uint256 _index) {
+        (_min, _index) = Utilities.getMin(requests);
+    }
+
+
+
 }
