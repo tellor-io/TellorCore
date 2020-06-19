@@ -73,7 +73,6 @@
 //         for(var i = 0;i < 2;i++){
 //             logMineWatcher = await promisifyLogWatch(oracle.address,'NewValue(uint256[5],uint256,uint256[5],uint256,bytes32)');//or Event Mine?
 //     	}
-
 //         res = web3.eth.abi.decodeParameters(['uint256','uint256'],logMineWatcher.data);
 //         assert(res[0] > 0, "value should be positive");
 //     });
@@ -86,6 +85,7 @@
 //         ts= await web3.utils.fromWei(newTotalSupply, 'ether');         
 //         assert(ts-it >= 27,"Difference should equal the payout");
 //     });
+
 //   it("Test Total Supply decreasing increase", async function () {
 //         initTotalSupply = await oracle.totalSupply();
 //         logMineWatcher = await promisifyLogWatch(oracle.address,'NewValue(uint256[5],uint256,uint256[5],uint256,bytes32)');//or Event Mine?
