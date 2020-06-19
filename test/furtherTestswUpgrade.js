@@ -1,56 +1,99 @@
-// const Web3 = require('web3')
-// const web3 = new Web3(new Web3.providers.WebsocketProvider('ws://localhost:8545'));
-// const helper = require("./helpers/test_helpers");
-// const TellorMaster = artifacts.require("./TellorMaster.sol");
-// const Tellor = artifacts.require("./Tellor.sol"); // globally injected artifacts helper
-// var oracleAbi = Tellor.abi;
-// var oracleByte = Tellor.bytecode;
-// var OldTellor = artifacts.require("./oldContracts/OldTellor.sol")
-// var oldTellorABI = OldTellor.abi;
-// var UtilitiesTests = artifacts.require("./UtilitiesTests.sol")
+const Web3 = require('web3')
+const web3 = new Web3(new Web3.providers.WebsocketProvider('ws://localhost:8545'));
+const helper = require("./helpers/test_helpers");
+const TellorMaster = artifacts.require("./TellorMaster.sol");
+const Tellor = artifacts.require("./Tellor.sol"); // globally injected artifacts helper
+var oracleAbi = Tellor.abi;
+var oracleByte = Tellor.bytecode;
+var OldTellor = artifacts.require("./oldContracts/OldTellor.sol")
+var oldTellorABI = OldTellor.abi;
+var UtilitiesTests = artifacts.require("./UtilitiesTests.sol")
 
-// var masterAbi = TellorMaster.abi;
-// var api = "json(https://api.gdax.com/products/BTC-USD/ticker).price";
-// var api2 = "json(https://api.gdax.com/products/ETH-USD/ticker).price";
+var masterAbi = TellorMaster.abi;
+var api = "json(https://api.gdax.com/products/BTC-USD/ticker).price";
+var api2 = "json(https://api.gdax.com/products/ETH-USD/ticker).price";
 
-// contract('Further Tests w/ Upgrade', function(accounts) {
-//   let oracleBase;
-//   let oracle;
-//   let oracle2;
-//   let master;
-//   let oldTellor;
-//   let oldTellorinst;
-//   let utilities;
+contract('Further Tests w/ Upgrade', function(accounts) {
+  let oracleBase;
+  let oracle;
+  let oracle2;
+  let master;
+  let oldTellor;
+  let oldTellorinst;
+  let utilities;
 
-//     beforeEach('Setup contract for each test', async function () {
-//         //deploy old, request, update address, mine old challenge.
-//         oldTellor = await OldTellor.new()    
-//         oracle = await TellorMaster.new(oldTellor.address);
-//         master = await new web3.eth.Contract(masterAbi,oracle.address);
-//         oldTellorinst = await new web3.eth.Contract(oldTellorABI,oldTellor.address);
-//         for(var i = 0;i<6;i++){
-//             //print tokens 
-//             await web3.eth.sendTransaction({to:oracle.address,from:accounts[0],gas:7000000,data:oldTellorinst.methods.theLazyCoon(accounts[i],web3.utils.toWei('1100', 'ether')).encodeABI()})
-//         }
-//         for(var i=0; i<52;i++){
-//             x = "USD" + i
-//             apix = api + i
-//             await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oldTellorinst.methods.requestData(apix,x,1000,0).encodeABI()})
-//         }
-//         //Deploy new upgraded Tellor
-//         oracleBase = await Tellor.new();
-//         oracle2 = await new web3.eth.Contract(oracleAbi,oracle.address);
-//         await oracle.changeTellorContract(oracleBase.address)
-//         for(var i = 0;i<5;i++){
-//           await web3.eth.sendTransaction({to:oracle.address,from:accounts[i],gas:7000000,data:oracle2.methods['testSubmitMiningSolution(string,uint256,uint256)']("nonce",1,1200).encodeABI()})
-//         }
-//     });
+    beforeEach('Setup contract for each test', async function () {
+        //deploy old, request, update address, mine old challenge.
+        oldTellor = await OldTellor.new()    
+        oracle = await TellorMaster.new(oldTellor.address);
+        master = await new web3.eth.Contract(masterAbi,oracle.address);
+        oldTellorinst = await new web3.eth.Contract(oldTellorABI,oldTellor.address);
+        for(var i = 0;i<6;i++){
+            //print tokens 
+            await web3.eth.sendTransaction({to:oracle.address,from:accounts[0],gas:7000000,data:oldTellorinst.methods.theLazyCoon(accounts[i],web3.utils.toWei('1100', 'ether')).encodeABI()})
+        }
+        for(var i=0; i<52;i++){
+            x = "USD" + i
+            apix = api + i
+            await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oldTellorinst.methods.requestData(apix,x,1000,0).encodeABI()})
+        }
+        //Deploy new upgraded Tellor
+        oracleBase = await Tellor.new();
+        oracle2 = await new web3.eth.Contract(oracleAbi,oracle.address);
+        await oracle.changeTellorContract(oracleBase.address)
+        for(var i = 0;i<5;i++){
+          await web3.eth.sendTransaction({to:oracle.address,from:accounts[i],gas:7000000,data:oracle2.methods['testSubmitMiningSolution(string,uint256,uint256)']("nonce",1,1200).encodeABI()})
+        }
+    });
   
-//    it("Add Tip", async function () {
-//         res = await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.addTip(11,20).encodeABI()})
-//         apiVars = await oracle.getRequestVars(11);
-//         assert(apiVars[5] == 20, "value pool should be 20");
-//     });
+   it("Add Tip", async function () {
+   	    //old
+        res = await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.addTip(11,20).encodeABI()})
+        apiVars = await oracle.getRequestVars(11);
+        console.log("apiVars", apiVars)
+        assert(apiVars[5] == 20, "value pool should be 20");
+
+        //upgrade--addTip
+        res1 = await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.addTip(20,20).encodeABI()})
+        res2 = await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.addTip(15,19).encodeABI()})
+        res3 = await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.addTip(50,18).encodeABI()})
+        //??why is this one not in the request Q
+        res4 = await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.addTip(1,17).encodeABI()})
+        
+        //review variables being currently mined 
+        vars =  await oracle2.methods.getNewCurrentVariables().call()
+        console.log('new vars', vars)
+ 
+        //review variables on deck-so pre-mine of the old original addTip/request
+        vars2 =  await oracle2.methods.getNewVariablesOnDeck().call()
+        console.log('new vars on deck', vars2)
+
+        utilities = await UtilitiesTests.new(oracle.address)
+        let q = await master.methods.getRequestQ().call()
+        console.log("requestQ", q)
+        top5N = await utilities.testgetMax5(q)
+        //what happened to tip 17 id 1
+        console.log('top5', top5N)
+        console.log("top5 index", top5N['_index'][1]*1,top5N['_index'][2]*1, top5N['_index'][3]*1, top5N['_index'][4]*1, top5N['_index'][5]*1)
+
+        oneMin = await utilities.testgetMin(q)
+        console.log("min", oneMin)
+        //mine the current value from old contract
+
+        //check values of 5 request id's
+
+        // res1 = await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.addTip(20,20).encodeABI()})
+        // res2 = await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.addTip(15,19).encodeABI()})
+        // res3 = await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.addTip(50,18).encodeABI()})
+        // res4 = await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.addTip(1,17).encodeABI()})
+        // res5 = await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.addTip(5,16).encodeABI()})
+    
+
+    //     assert(vars['1'].length == 5, "ids should be populated");
+    //     assert(vars['2'] > 0, "difficulty should be correct")
+    //     assert(vars['3']*1 == 90, "tip should be correct"); 
+
+    });
 //     it("several request data", async function () {
 //         let req1 = await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.addTip(41,100).encodeABI()})
 //         req1 = await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.addTip(42,100).encodeABI()})
@@ -299,4 +342,4 @@
 //         assert(sapi == api2, "API on Q string should be correct"); 
 //         assert(apiPayout == 6, "API on Q payout should be 6"); 
 //     });
-//  });
+ });
