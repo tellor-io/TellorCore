@@ -40,7 +40,7 @@ library Utilities {
         }
     }
 
-    function getMax5(uint256[51] memory data) internal pure returns (uint256[5] memory max, uint256[5] memory maxIndex) {
+    function getMax5(uint256[51] memory data) public pure returns (uint256[5] memory max, uint256[5] memory maxIndex) {
         uint256 min5 = data[1];
         uint256 minI = 1;
         for(uint256 j=0;j<5;j++){

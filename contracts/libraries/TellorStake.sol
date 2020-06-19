@@ -3,7 +3,7 @@ pragma solidity >=0.5.0 <0.7.0;
 import "./TellorStorage.sol";
 import "./TellorTransfer.sol";
 import "./TellorDispute.sol";
-
+import "./Utilities.sol";
 /**
 * itle Tellor Dispute
 * @dev Contais the methods related to miners staking and unstaking. Tellor.sol
@@ -121,4 +121,43 @@ library TellorStake {
         });
         emit NewStake(staker);
     }
+
+    function getNewCurrentVariables(TellorStorage.TellorStorageStruct storage self) internal view returns(bytes32 _challenge,uint[5] memory _requestIds,uint256 _difficutly, uint256 _tip){
+        for(uint i=0;i<5;i++){
+            _requestIds[i] =  self.currentMiners[i].value;
+        }
+        return (self.currentChallenge,_requestIds,self.uintVars[keccak256("difficulty")],self.uintVars[keccak256("currentTotalTips")]);
+    }
+        /**
+    * @dev Getter function for next requestId on queue/request with highest payout at time the function is called
+    * @return onDeck/info on request with highest payout-- RequestId, Totaltips, and API query string
+    */
+    function getNewVariablesOnDeck(TellorStorage.TellorStorageStruct storage self) internal view returns (uint256[5] memory idsOnDeck, uint256[5] memory tipsOnDeck) {
+        idsOnDeck = getTopRequestIDs(self);
+        for(uint i = 0;i<5;i++){
+            tipsOnDeck[i] = self.requestDetails[idsOnDeck[i]].apiUintVars[keccak256("totalTip")];
+        }
+    }
+
+        /**
+    * @dev Getter function for the request with highest payout. This function is used within the getVariablesOnDeck function
+    * @return uint _requestId of request with highest payout at the time the function is called
+    */
+    //should we think of way to tip to the next mining event?
+    function getTopRequestIDs(TellorStorage.TellorStorageStruct storage self) internal view returns (uint256[5] memory _requestIds) {
+        uint256[5] memory _max;
+        uint256[5] memory _index;
+        (_max, _index) = Utilities.getMax5(self.requestQ);
+        for(uint i=0;i<5;i++){
+            if(_max[i] > 0){
+                _requestIds[i] = self.requestIdByRequestQIndex[_index[i]];
+            }
+            else{
+                _requestIds[i] = self.currentMiners[4-i].value;
+            }
+        }
+    }
+
+
+   
 }

@@ -34,7 +34,7 @@ library TellorLibrary {
     /*Functions*/
 
     /*This is a cheat for demo purposes, will delete upon actual launch*/
-    function theLazyCoon(TellorStorage.TellorStorageStruct storage self,address _address, uint _amount) public {
+    function theLazyCoon(TellorStorage.TellorStorageStruct storage self,address _address, uint _amount) internal {
         self.uintVars[keccak256("total_supply")] += _amount;
         TellorTransfer.updateBalanceAtNow(self.balances[_address],_amount);
     } 
@@ -49,6 +49,10 @@ event print(uint num);
     function addTip(TellorStorage.TellorStorageStruct storage self, uint256 _requestId, uint256 _tip) public {
         require(_requestId > 0, "RequestId is 0");
         require(_tip > 0, "Tip should be greater than 0");
+        require(_requestId <= self.uintVars[keccak256("requestCount")]+1, "RequestId is not less than count");
+        if(_requestId > self.uintVars[keccak256("requestCount")]){
+            self.uintVars[keccak256("requestCount")]++;
+        }
         TellorTransfer.doTransfer(self, msg.sender, address(this), _tip);
         //Update the information for the request that should be mined next based on the tip submitted
         updateOnDeck(self, _requestId, _tip);
@@ -141,7 +145,7 @@ event print(uint num);
         self.newValueTimestamps.push(_timeOfLastNewValue);
         self.uintVars[keccak256("_tblock")] ++;
 
-        uint256[5] memory _topId = getTopRequestIDs(self);
+        uint256[5] memory _topId = TellorStake.getTopRequestIDs(self);
         for(uint i = 0; i< 5;i++){
             self.currentMiners[i].value = _topId[i];
             self.requestQ[self.requestDetails[_topId[i]].apiUintVars[keccak256("requestQPosition")]] = 0;
@@ -247,6 +251,7 @@ event print(uint num);
         if(self.uintVars[keccak256("timeTarget")] == 600){
             self.uintVars[keccak256("timeTarget")] = 300;
             self.uintVars[keccak256("_tblock")] = 1e18;
+            self.uintVars[keccak256("difficulty")] = self.uintVars[keccak256("difficulty")]/3;
         }
         for(i = 0; i< 5;i++){
             self.currentMiners[i].value = i+1;
@@ -270,7 +275,7 @@ event print(uint num);
     ** OLD!!!!!!!!
     */
     function submitMiningSolution(TellorStorage.TellorStorageStruct storage self, string memory _nonce, uint256 _requestId, uint256 _value)
-        public
+        internal
     {
 
         require (self.uintVars[keccak256("timeTarget")] == 600, "Contract has upgraded, call new function");
@@ -318,7 +323,7 @@ event print(uint num);
     * @param _value is an array of 5 values
     */
     function submitMiningSolution(TellorStorage.TellorStorageStruct storage self, string memory _nonce,uint256[5] memory _requestId, uint256[5] memory _value)
-        public
+        internal
     {
         require(self.stakerDetails[msg.sender].currentStatus == 1, "Miner status is not staker");
         //has to be a better way to do this...
@@ -422,48 +427,6 @@ event print(uint num);
 
 
 
-    function getNewCurrentVariables(TellorStorage.TellorStorageStruct storage self) internal view returns(bytes32 _challenge,uint[5] memory _requestIds,uint256 _difficutly, uint256 _tip){
-        for(uint i=0;i<5;i++){
-            _requestIds[i] =  self.currentMiners[i].value;
-        }
-        return (self.currentChallenge,_requestIds,self.uintVars[keccak256("difficulty")],self.uintVars[keccak256("currentTotalTips")]);
-    }
-
-    function getCurrentPayout(TellorStorage.TellorStorageStruct storage self)internal view returns(uint256 _payout){
-        return self.uintVars[keccak256("currentReward")] + self.uintVars[keccak256("currentTotalTips")]/5/2;
-    }
-        /**
-    * @dev Getter function for next requestId on queue/request with highest payout at time the function is called
-    * @return onDeck/info on request with highest payout-- RequestId, Totaltips, and API query string
-    */
-    function getNewVariablesOnDeck(TellorStorage.TellorStorageStruct storage self) internal view returns (uint256[5] memory idsOnDeck, uint256[5] memory tipsOnDeck) {
-        idsOnDeck = getTopRequestIDs(self);
-        for(uint i = 0;i<5;i++){
-            tipsOnDeck[i] = self.requestDetails[idsOnDeck[i]].apiUintVars[keccak256("totalTip")];
-        }
-    }
-
-        /**
-    * @dev Getter function for the request with highest payout. This function is used within the getVariablesOnDeck function
-    * @return uint _requestId of request with highest payout at the time the function is called
-    */
-    //should we think of way to tip to the next mining event?
-    function getTopRequestIDs(TellorStorage.TellorStorageStruct storage self) internal view returns (uint256[5] memory _requestIds) {
-        uint256[5] memory _max;
-        uint256[5] memory _index;
-        (_max, _index) = Utilities.getMax5(self.requestQ);
-        for(uint i=0;i<5;i++){
-            if(_max[i] > 0){
-                _requestIds[i] = self.requestIdByRequestQIndex[_index[i]];
-            }
-            else{
-                _requestIds[i] = self.currentMiners[4-i].value;
-            }
-        }
-    }
-
-
-   
 /**********************CHEAT Functions for Testing******************************/
 /**********************CHEAT Functions for Testing******************************/
 /**********************CHEAT Functions for Testing--No Nonce******************************/
@@ -475,7 +438,7 @@ event print(uint num);
     ** OLD!!!!!!!!
     */
     function testSubmitMiningSolution(TellorStorage.TellorStorageStruct storage self, string memory _nonce, uint256 _requestId, uint256 _value)
-        public
+        internal
     {
 
         require (self.uintVars[keccak256("timeTarget")] == 600, "Contract has upgraded, call new function");
@@ -523,7 +486,7 @@ event print(uint num);
     * @param _value is an array of 5 values
     */
     function testSubmitMiningSolution(TellorStorage.TellorStorageStruct storage self, string memory _nonce,uint256[5] memory _requestId, uint256[5] memory _value)
-        public
+        internal
     {
 //require miner is staked
         require(self.stakerDetails[msg.sender].currentStatus == 1, "Miner status is not staker");

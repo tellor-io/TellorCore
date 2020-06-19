@@ -3,6 +3,7 @@ var TellorTransfer = artifacts.require("./libraries/TellorTransfer.sol");
 var TellorDispute = artifacts.require("./libraries/TellorDispute.sol");
 var TellorStake = artifacts.require("./libraries/TellorStake.sol");
 var TellorLibrary = artifacts.require("./libraries/TellorLibrary.sol");
+var Utilities = artifacts.require("./libraries/Utilities.sol");
 var TellorGettersLibrary = artifacts.require("./libraries/TellorGettersLibrary.sol");
 var Tellor = artifacts.require("./Tellor.sol");
 var TellorMaster = artifacts.require("./TellorMaster.sol");
@@ -39,10 +40,11 @@ module.exports = async function (deployer) {
   await deployer.link(TellorTransfer,TellorDispute);
   await deployer.deploy(TellorDispute);
   //sleep_s(30);
-
+  await deployer.deploy(Utilities);
   // deploy stake
   await deployer.link(TellorTransfer,TellorStake);
   await deployer.link(TellorDispute,TellorStake);
+  await deployer.link(Utilities, TellorStake);
   await deployer.deploy(TellorStake);
   //sleep_s(30);
 
@@ -54,6 +56,7 @@ module.exports = async function (deployer) {
   await deployer.link(TellorDispute, TellorLibrary);
   await deployer.link(TellorTransfer, TellorLibrary);
   await deployer.link(TellorStake, TellorLibrary);
+  await deployer.link(Utilities, TellorLibrary);
   await deployer.deploy(TellorLibrary);
   //sleep_s(60);
 
@@ -62,6 +65,7 @@ module.exports = async function (deployer) {
   await deployer.link(TellorDispute,Tellor);
   await deployer.link(TellorStake,Tellor);
   await deployer.link(TellorLibrary,Tellor);
+  await deployer.link(Utilities, Tellor);
   await deployer.deploy(Tellor);
   //sleep_s(60);
 

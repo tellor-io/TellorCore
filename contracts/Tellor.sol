@@ -26,7 +26,7 @@ contract Tellor {
     /*Functions*/
 
     /*This is a cheat for demo purposes, will delete upon actual launch*/
-    function theLazyCoon(address _address, uint _amount) public {
+    function theLazyCoon(address _address, uint _amount) external {
         tellor.theLazyCoon(_address,_amount);
     }
 
@@ -205,10 +205,6 @@ contract Tellor {
 
     function getNewCurrentVariables() external view returns(bytes32 _challenge,uint[5] memory _requestIds,uint256 _difficutly, uint256 _tip){
         return tellor.getNewCurrentVariables();
-    }
-
-    function getCurrentPayout()external view returns(uint256 _payout){
-        return tellor.getCurrentPayout();
     }
 
     function getTopRequestIDs() external view returns(uint256[5] memory _requestIds){
