@@ -90,9 +90,9 @@ event print(uint num);
         //Sets time of value submission rounded to 1 minute
         uint256 _timeOfLastNewValue = now - (now % 1 minutes);
         self.uintVars[keccak256("timeOfLastNewValue")] = _timeOfLastNewValue;
-
+        uint[5] memory a; 
         for (uint k = 0; k < 5; k++) {
-            uint[5] memory a =  _tblock.valuesByTimestamp[k];
+            a =  _tblock.valuesByTimestamp[k];
             address[5] memory b = _tblock.minersByValue[1];
             for (uint i = 1; i < 5; i++) {
                 uint256 temp = a[i];
@@ -116,6 +116,8 @@ event print(uint num);
             _request.minersByValue[_timeOfLastNewValue] = [b[0], b[1], b[2], b[3], b[4]];
             _request.valuesByTimestamp[_timeOfLastNewValue] = [a[0],a[1],a[2],a[3],a[4]];
             _request.minedBlockNum[_timeOfLastNewValue] = block.number;
+            _request.apiUintVars[keccak256("totalTip")] = 0;
+        }
             emit NewValue(
                 _requestId,
                 _timeOfLastNewValue,
@@ -123,9 +125,6 @@ event print(uint num);
                 self.uintVars[keccak256("currentTotalTips")] * 2,//what should this be?
                 self.currentChallenge
             );
-            _request.apiUintVars[keccak256("totalTip")] = 0;
-        }
-
         //map the timeOfLastValue to the requestId that was just mined
         self.requestIdByTimestamp[_timeOfLastNewValue] = _requestId[0];  ///don't know what to do with this...
 
@@ -251,7 +250,7 @@ event print(uint num);
         if(self.uintVars[keccak256("timeTarget")] == 600){
             self.uintVars[keccak256("timeTarget")] = 300;
             self.uintVars[keccak256("_tblock")] = 1e18;
-            self.uintVars[keccak256("difficulty")] = self.uintVars[keccak256("difficulty")]/3;
+            self.uintVars[keccak256("difficulty")] = SafeMath.max(1,self.uintVars[keccak256("difficulty")]/3);
         }
         for(i = 0; i< 5;i++){
             self.currentMiners[i].value = i+1;

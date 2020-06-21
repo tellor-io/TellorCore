@@ -6,7 +6,7 @@ const HDWalletProvider = require("@truffle/hdwallet-provider");
  const mnemonic = "nick lucian brenda kevin sam fiscal patch fly damp ocean produce wish";
 
 
-// ganache-cli -m "nick lucian brenda kevin sam fiscal patch fly damp ocean produce wish" -l 12000000 allowUnlimitedContractSize
+// ganache-cli -m "nick lucian brenda kevin sam fiscal patch fly damp ocean produce wish" -l 12000000 --allowUnlimitedContractSize
 module.exports = {
   networks: {
     development: {
