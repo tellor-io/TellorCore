@@ -1,7 +1,7 @@
 pragma solidity ^0.5.0;
 
 import "./SafeMath.sol";
-import "./Utilities.sol";
+import "./OldUtilities.sol";
 import "./TellorStorage.sol";
 import "./OldTellorTransfer.sol";
 import "./OldTellorDispute.sol";
@@ -308,7 +308,7 @@ library OldTellorLibrary{
             if(_request.apiUintVars[keccak256("requestQPosition")] == 0){
                 uint _min;
                 uint _index;
-                (_min,_index) = Utilities.getMin(self.requestQ);
+                (_min,_index) = OldUtilities.getMin(self.requestQ);
                 //we have to zero out the oldOne
                 //if the _payout is greater than the current minimum payout in the requestQ[51] or if the minimum is zero
                 //then add it to the requestQ array aand map its index information to the requestId and the apiUintvars

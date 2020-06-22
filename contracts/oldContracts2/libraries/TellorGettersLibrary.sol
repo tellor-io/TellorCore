@@ -2,7 +2,7 @@ pragma solidity ^0.5.0;
 
 import "./SafeMath.sol";
 import "./TellorStorage.sol";
-import "./Utilities.sol";
+import "./Old2Utilities.sol";
 
 /**
 * @title Tellor Getters Library
@@ -400,7 +400,7 @@ library TellorGettersLibrary {
     function getTopRequestID(TellorStorage.TellorStorageStruct storage self) internal view returns (uint256 _requestId) {
         uint256 _max;
         uint256 _index;
-        (_max, _index) = Utilities.getMax(self.requestQ);
+        (_max, _index) = Old2Utilities.getMax(self.requestQ);
         _requestId = self.requestIdByRequestQIndex[_index];
     }
 
