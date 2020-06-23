@@ -61,9 +61,9 @@ library TellorDispute {
         uint256 origID = self.disputeIdByDisputeHash[_hash];
 
         self.disputesById[origID].disputeUintVars[keccak256("disputeRounds")]++;
-        self.disputesById[origID].disputeUintVars[keccak256(self.disputesById[origID].disputeUintVars[keccak256("disputeRounds")]) = disputeId;
+        self.disputesById[origID].disputeUintVars[keccak256(abi.encodePacked(self.disputesById[origID].disputeUintVars[keccak256("disputeRounds")]))] = disputeId;
         if(disputeId != origID){
-            uint256 lastID =  self.disputesById[origID].disputeUintVars[keccak256(self.disputesById[origID].disputeUintVars[keccak256("disputeRounds")]-1);
+            uint256 lastID =  self.disputesById[origID].disputeUintVars[keccak256(abi.encodePacked(self.disputesById[origID].disputeUintVars[keccak256("disputeRounds")]-1))];
             require(self.disputesById[lastID].disputeUintVars[keccak256("minExecutionDate")] < now, "Dispute is already open");
         }
         uint256 _fee = self.uintVars[keccak256("disputeFee")] * 2**self.disputesById[origID].disputeUintVars[keccak256("disputeRounds")];
@@ -154,7 +154,6 @@ library TellorDispute {
         require(disp.executed == false, "Dispute has been already executed");
         //If the vote is not a proposed fork
         if (disp.isPropFork == false) {
-                TellorStorage.Dispute storage disp = self.disputesById[_disputeId];
                 //Ensure this has not already been executed/tallied
                 require(disp.executed == false, "Dispute has been already executed");
                 require(disp.reportingParty != address(0));
@@ -203,9 +202,9 @@ library TellorDispute {
         uint256 origID = self.disputeIdByDisputeHash[_hash];
 
         self.disputesById[origID].disputeUintVars[keccak256("disputeRounds")]++;
-        self.disputesById[origID].disputeUintVars[keccak256(self.disputesById[origID].disputeUintVars[keccak256("disputeRounds")]) = disputeId;
+        self.disputesById[origID].disputeUintVars[keccak256(abi.encodePacked(self.disputesById[origID].disputeUintVars[keccak256("disputeRounds")]))] = disputeId;
         if(disputeId != origID){
-            uint256 lastID =  self.disputesById[origID].disputeUintVars[keccak256(self.disputesById[origID].disputeUintVars[keccak256("disputeRounds")]-1);
+            uint256 lastID =  self.disputesById[origID].disputeUintVars[keccak256(abi.encodePacked(self.disputesById[origID].disputeUintVars[keccak256("disputeRounds")]-1))];
             require(self.disputesById[lastID].disputeUintVars[keccak256("minExecutionDate")] < now, "Dispute is already open");
         }
         self.disputesById[disputeId] = TellorStorage.Dispute({
@@ -222,20 +221,20 @@ library TellorDispute {
         self.disputesById[disputeId].disputeUintVars[keccak256("minExecutionDate")] = now + 7 days;
     }
 
-    function updateTellor(TellorStorage.TellorStorageStruct storage self, uint _disputeId) pubic {
+    function updateTellor(TellorStorage.TellorStorageStruct storage self, uint _disputeId) internal {
         bytes32 _hash = self.disputesById[_disputeId].hash;
         uint256 origID = self.disputeIdByDisputeHash[_hash];
-        uint256 lastID =  self.disputesById[origID].disputeUintVars[keccak256(self.disputesById[origID].disputeUintVars[keccak256("disputeRounds")]);
+        uint256 lastID =  self.disputesById[origID].disputeUintVars[keccak256(abi.encodePacked(self.disputesById[origID].disputeUintVars[keccak256("disputeRounds")]))];
         TellorStorage.Dispute storage disp = self.disputesById[lastID];
-        require(disp.disputeVotePassed == true, "vote needs to pass")
+        require(disp.disputeVotePassed == true, "vote needs to pass");
         require(now - disp.disputeUintVars[keccak256("tallyDate")] > 1 days, "Time for voting for further disputes has not passed");
         self.addressVars[keccak256("tellorContract")] = disp.proposedForkAddress;
     }
 
-    function unlockDisputeFee (TellorStorage.TellorStorageStruct storage self, uint _disputeId) public {
+    function unlockDisputeFee (TellorStorage.TellorStorageStruct storage self, uint _disputeId) internal {
         bytes32 _hash = self.disputesById[_disputeId].hash;
         uint256 origID = self.disputeIdByDisputeHash[_hash];
-        uint256 lastID =  self.disputesById[origID].disputeUintVars[keccak256(self.disputesById[origID].disputeUintVars[keccak256("disputeRounds")]);
+        uint256 lastID =  self.disputesById[origID].disputeUintVars[keccak256(abi.encodePacked(self.disputesById[origID].disputeUintVars[keccak256("disputeRounds")]))];
         TellorStorage.Dispute storage disp = self.disputesById[origID];
         TellorStorage.Dispute storage last = self.disputesById[lastID];
 
@@ -251,7 +250,7 @@ library TellorDispute {
                 self.uintVars[keccak256("stakerCount")] -= 1;
 
                 //Update the minimum dispute fee that is based on the number of stakers 
-                TellorDispute.updateMinDisputeFee(self);
+                updateMinDisputeFee(self);
                 //Decreases the stakerCount since the miner's stake is being slashed
                 TellorTransfer.doTransfer(self,disp.reportedMiner,disp.reportingParty,self.uintVars[keccak256("stakeAmount")]);
                 if (TellorTransfer.balanceOf(self,disp.reportedMiner) == 0){
@@ -260,9 +259,9 @@ library TellorDispute {
                     stakes.currentStatus = 1;
                 }
                 for(uint i = 0; i < disp.disputeUintVars[keccak256("disputeRounds")];i++){
-                    uint256 _id = disp.disputeUintVars[keccak256(disp.disputeUintVars[keccak256("disputeRounds")]-i);
+                    uint256 _id = disp.disputeUintVars[keccak256(abi.encodePacked(disp.disputeUintVars[keccak256("disputeRounds")]-i))];
                     last = self.disputesById[_id];
-                    TellorTransfer.doTransfer(self,address(this),last.reportingParty,last.fee);
+                    TellorTransfer.doTransfer(self,address(this),last.reportingParty,last.disputeUintVars[keccak256("fee")]);
                 }
             }
             else {
@@ -277,9 +276,9 @@ library TellorDispute {
                     _request.inDispute[disp.disputeUintVars[keccak256("timestamp")]] = false;
                 }
                 for(uint i = 0; i < disp.disputeUintVars[keccak256("disputeRounds")];i++){
-                    uint256 _id = disp.disputeUintVars[keccak256(disp.disputeUintVars[keccak256("disputeRounds")]-i);
+                    uint256 _id = disp.disputeUintVars[keccak256(abi.encodePacked(disp.disputeUintVars[keccak256("disputeRounds")]-i))];
                     last = self.disputesById[_id];
-                    TellorTransfer.doTransfer(self,address(this),last.reportedMiner,last.fee);
+                    TellorTransfer.doTransfer(self,address(this),last.reportedMiner,last.disputeUintVars[keccak256("fee")]);
                 }
             }
     }

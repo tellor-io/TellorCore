@@ -213,4 +213,12 @@ contract Tellor {
     function getNewVariablesOnDeck() external view returns (uint256[5] memory idsOnDeck, uint256[5] memory tipsOnDeck) {
         return tellor.getNewVariablesOnDeck();
     }
-}
+
+     function updateTellor(uint _disputeId) external{
+        return tellor.updateTellor(_disputeId);
+     }
+
+     function unlockDisputeFee (uint _disputeId) external{
+        return tellor.unlockDisputeFee(_disputeId);
+     }
+ }
