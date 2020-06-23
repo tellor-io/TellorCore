@@ -249,6 +249,7 @@ event print(uint num);
         // THIS IS THE NEW PART
         if(self.uintVars[keccak256("timeTarget")] == 600){
             self.uintVars[keccak256("timeTarget")] = 300;
+            self.uintVars[keccak256("currentReward")] = self.uintVars[keccak256("currentReward")]/2;
             self.uintVars[keccak256("_tblock")] = 1e18;
             self.uintVars[keccak256("difficulty")] = SafeMath.max(1,self.uintVars[keccak256("difficulty")]/3);
         }
