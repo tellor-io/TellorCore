@@ -57,6 +57,8 @@
 //         }
 //         await helper.advanceTime(86400 * 8);
 //         await web3.eth.sendTransaction({to: oracle.address,from:accounts[i],gas:7000000,data:oracle2.methods.tallyVotes(1).encodeABI()})
+// 		await helper.advanceTime(86400 * 2);
+//         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.updateTellor(1).encodeABI()})
 //         assert(await oracle.getAddressVars(web3.utils.keccak256("tellorContract")) == oracleBase2.address);
 //     });
 //     it("Test Failed Vote - New Tellor Storage Contract", async function () {
@@ -110,7 +112,8 @@
 //         await web3.eth.sendTransaction({to: oracle.address,from:accounts[3],gas:7000000,data:oracle2.methods.vote(1,true).encodeABI()})
 //         await helper.advanceTime(86400 * 8);
 //         await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.tallyVotes(1).encodeABI()})
-//         //vote should fail
+//         await helper.advanceTime(86400 * 2);
+//                 await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.updateTellor(1).encodeABI()})
 //         assert(await oracle.getAddressVars(web3.utils.keccak256("tellorContract")) == oracleBase2.address, "vote should have passed");
 //     });
 
