@@ -137,43 +137,44 @@ contract('Mining Tests', function(accounts) {
         for(var i = 0;i<6;i++){
             new_balances[i] = await oracle.balanceOf(accounts[i]);
         }
-        assert((web3.utils.hexToNumberString(new_balances[5]) - web3.utils.hexToNumberString(balances[5])) < web3.utils.toWei('2.5', 'ether'));
-        assert((web3.utils.hexToNumberString(new_balances[1]) - web3.utils.hexToNumberString(balances[1])) < web3.utils.toWei('2.5', 'ether'));
-        assert((web3.utils.hexToNumberString(new_balances[2]) - web3.utils.hexToNumberString(balances[2])) < web3.utils.toWei('2.5', 'ether'));
-        assert((web3.utils.hexToNumberString(new_balances[3]) - web3.utils.hexToNumberString(balances[3])) < web3.utils.toWei('2.5', 'ether'));
-        assert((web3.utils.hexToNumberString(new_balances[4]) - web3.utils.hexToNumberString(balances[4])) < web3.utils.toWei('2.5', 'ether'));
-        assert((web3.utils.hexToNumberString(new_balances[5]) - web3.utils.hexToNumberString(balances[5])) > web3.utils.toWei('2', 'ether'));
-        assert((web3.utils.hexToNumberString(new_balances[1]) - web3.utils.hexToNumberString(balances[1])) > web3.utils.toWei('2', 'ether'));
-        assert((web3.utils.hexToNumberString(new_balances[2]) - web3.utils.hexToNumberString(balances[2])) > web3.utils.toWei('2', 'ether'));
-        assert((web3.utils.hexToNumberString(new_balances[3]) - web3.utils.hexToNumberString(balances[3])) > web3.utils.toWei('2', 'ether'));
-        assert((web3.utils.hexToNumberString(new_balances[4]) - web3.utils.hexToNumberString(balances[4])) > web3.utils.toWei('2', 'ether'));
-        //assert((web3.utils.hexToNumberString(new_balances[4]) - web3.utils.hexToNumberString(balances[4])) == web3.utils.toWei('1.1', 'ether'));
+        console.log(web3.utils.fromWei(new_balances[0]),web3.utils.fromWei(balances[0]))
+        assert(new_balances[0] -balances[0] <= web3.utils.toWei('3.75', 'ether'));
+        assert(new_balances[1] -balances[1] <= web3.utils.toWei('2.5', 'ether'));
+        assert(new_balances[2] - balances[2] <= web3.utils.toWei('2.5', 'ether'));
+        assert(new_balances[3] -balances[3] <= web3.utils.toWei('2.5', 'ether'));
+        assert(new_balances[4] -balances[4] <= web3.utils.toWei('2.5', 'ether'));
+        assert(new_balances[0] -balances[0] > web3.utils.toWei('2.5', 'ether'));
+        assert(new_balances[1] -balances[1] > web3.utils.toWei('2', 'ether'));
+        assert(new_balances[2] -balances[2] > web3.utils.toWei('2', 'ether'));
+        assert(new_balances[3] -balances[3] > web3.utils.toWei('2', 'ether'));
+        assert(new_balances[4] -balances[4] > web3.utils.toWei('2', 'ether'));
+        //assert(new_balances[4]) -balances[4])) == web3.utils.toWei('1.1', 'ether'));
     });
-it("Test miner upgrade", async function () {
-        oldTellor = await OldTellor.new()    
-        oracle = await TellorMaster.new(oldTellor.address);
-        master = await new web3.eth.Contract(masterAbi,oracle.address);
-        oldTellorinst = await new web3.eth.Contract(oldTellorABI,oldTellor.address);
-        for(var i = 0;i<6;i++){
-            //print tokens 
-            await web3.eth.sendTransaction({to:oracle.address,from:accounts[0],gas:7000000,data:oldTellorinst.methods.theLazyCoon(accounts[i],web3.utils.toWei('1100', 'ether')).encodeABI()})
-        }
-        for(var i=0; i<52;i++){
-            x = "USD" + i
-            apix = api + i
-            await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oldTellorinst.methods.requestData(apix,x,1000,52-i).encodeABI()})
-        }
-        let q = await oracle.getRequestQ();
-        //Deploy new upgraded Tellor
-        oracleBase = await Tellor.new();
-        oracle2 = await new web3.eth.Contract(oracleAbi,oracle.address);
-        await oracle.changeTellorContract(oracleBase.address)
-        for(var i = 0;i<5;i++){
-          await web3.eth.sendTransaction({to:oracle.address,from:accounts[i],gas:7000000,data:oracle2.methods['submitMiningSolution(string,uint256,uint256)']("nonce",1,1200).encodeABI()})
-        }
-        res = await promisifyLogWatch(oracle.address, 'NewValue(uint256[5],uint256,uint256[5],uint256,bytes32)');
-        res = web3.eth.abi.decodeParameters(['uint256[5]','uint256','uint256[5]','uint256'],res.data) 
-        data = await oracle.getMinedBlockNum(1,res[1]);
-        assert(data > 0, "Should be true if Data exist for that point in time");
-   })
+// it("Test miner upgrade", async function () {
+//         oldTellor = await OldTellor.new()    
+//         oracle = await TellorMaster.new(oldTellor.address);
+//         master = await new web3.eth.Contract(masterAbi,oracle.address);
+//         oldTellorinst = await new web3.eth.Contract(oldTellorABI,oldTellor.address);
+//         for(var i = 0;i<6;i++){
+//             //print tokens 
+//             await web3.eth.sendTransaction({to:oracle.address,from:accounts[0],gas:7000000,data:oldTellorinst.methods.theLazyCoon(accounts[i],web3.utils.toWei('1100', 'ether')).encodeABI()})
+//         }
+//         for(var i=0; i<52;i++){
+//             x = "USD" + i
+//             apix = api + i
+//             await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oldTellorinst.methods.requestData(apix,x,1000,52-i).encodeABI()})
+//         }
+//         let q = await oracle.getRequestQ();
+//         //Deploy new upgraded Tellor
+//         oracleBase = await Tellor.new();
+//         oracle2 = await new web3.eth.Contract(oracleAbi,oracle.address);
+//         await oracle.changeTellorContract(oracleBase.address)
+//         for(var i = 0;i<5;i++){
+//           await web3.eth.sendTransaction({to:oracle.address,from:accounts[i],gas:7000000,data:oracle2.methods['submitMiningSolution(string,uint256,uint256)']("nonce",1,1200).encodeABI()})
+//         }
+//         res = await promisifyLogWatch(oracle.address, 'NewValue(uint256[5],uint256,uint256[5],uint256,bytes32)');
+//         res = web3.eth.abi.decodeParameters(['uint256[5]','uint256','uint256[5]','uint256'],res.data) 
+//         data = await oracle.getMinedBlockNum(1,res[1]);
+//         assert(data > 0, "Should be true if Data exist for that point in time");
+//    })
  });    
