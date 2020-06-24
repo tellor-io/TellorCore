@@ -84,21 +84,11 @@ def masterMiner():
                                                 print("arg string", arg_string)
                                                 execute_js('testSubmitterv2.js',arg_string);
                                                 miners_started += 1 
-                                                if(miners_started == 5):
-                                                                v = False;
-                                                                while(v == False):
-                                                                                time.sleep(2);
-                                                                                _challenge,_apiId,_difficulty= getVariables(0);
-                                                                                if challenge == _challenge:
-                                                                                                v = False
-                                                                                                time.sleep(10);
-                                                                                elif _apiId > 0:
-                                                                                                v = True
-                                                                                                challenge = _challenge;
-                                                                                                apiId = _apiId;
-                                                                                                difficulty = _difficulty;
-                                                                                                granularity = _granularity;
-                                                                miners_started = 0;
+                                                if(miners_started % 5 == 0):
+                                                                time.sleep(20);
+                                                                challenge,apiId,difficulty= getVariables(0);
+                                                                if(miners_started == 10):
+                                                                    miners_started = 0;
                                 else:
                                                 challenge,apiId,difficulty = getVariables(0); 
                                                 print('variables grabbed')
