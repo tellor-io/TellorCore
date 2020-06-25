@@ -12,7 +12,7 @@ import "./TellorMaster.sol";
 contract UtilitiesTests {
     address internal owner;
     TellorMaster internal tellorMaster;
-    address public tellorMasterAddress;
+    address payable public tellorMasterAddress;
 
     /**
     * @dev The constructor sets the owner
