@@ -20,6 +20,7 @@ contract UtilitiesTests {
     constructor(address payable _TellorMasterAddress) public {
         owner = msg.sender;
         tellorMasterAddress = _TellorMasterAddress;
+        tellorMaster = TellorMaster(tellorMasterAddress);
     }
 
     function testgetMax() public view returns (uint256 _max, uint256 _index) {
