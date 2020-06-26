@@ -104,7 +104,9 @@ library TellorDispute {
             _request.inDispute[_timestamp] = true;
             _request.finalValues[_timestamp] = 0;
         }
-        self.stakerDetails[_miner].currentStatus = 3;
+        if (self.stakerDetails[_miner].currentStatus != 4){
+            self.stakerDetails[_miner].currentStatus = 3;
+        }
         emit NewDispute(disputeId, _requestId, _timestamp, _miner);
     }
 
@@ -170,7 +172,9 @@ library TellorDispute {
                         //Set the dispute state to passed/true
                         disp.disputeVotePassed = true;
                     }
-                    stakes.currentStatus = 4;
+                    if(stakes.currentStatus == 3){
+                        stakes.currentStatus = 4;
+                    }
                 //If the vote is for a proposed fork require a 10% quorum before executing the update to the new tellor contract address
         } else {
             if (disp.tally > 0 && uint(disp.tally) >= ((self.uintVars[keccak256("total_supply")] * 10) / 100)) {
@@ -252,8 +256,10 @@ library TellorDispute {
                 //Update the minimum dispute fee that is based on the number of stakers 
                 updateMinDisputeFee(self);
                 //Decreases the stakerCount since the miner's stake is being slashed
-                TellorTransfer.doTransfer(self,disp.reportedMiner,disp.reportingParty,self.uintVars[keccak256("stakeAmount")]);
-                stakes.currentStatus =0 ;
+                if(stakes.currentStatus == 4){
+                    TellorTransfer.doTransfer(self,disp.reportedMiner,disp.reportingParty,self.uintVars[keccak256("stakeAmount")]);
+                    stakes.currentStatus =0 ;
+                }
                 for(uint i = 0; i < disp.disputeUintVars[keccak256("disputeRounds")];i++){
                     uint256 _id = disp.disputeUintVars[keccak256(abi.encodePacked(disp.disputeUintVars[keccak256("disputeRounds")]-i))];
                     TellorStorage.Dispute storage disp2 = self.disputesById[_id];
