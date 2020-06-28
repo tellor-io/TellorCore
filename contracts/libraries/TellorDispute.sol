@@ -210,6 +210,9 @@ library TellorDispute {
         if(disputeId != origID){
             uint256 lastID =  self.disputesById[origID].disputeUintVars[keccak256(abi.encodePacked(self.disputesById[origID].disputeUintVars[keccak256("disputeRounds")]-1))];
             require(self.disputesById[lastID].disputeUintVars[keccak256("minExecutionDate")] < now, "Dispute is already open");
+            if(self.disputesById[lastID].executed){
+                require(now - self.disputesById[lastID].disputeUintVars[keccak256("tallyDate")] <= 1 days, "Time for voting haven't elapsed");
+            }
         }
         self.disputesById[disputeId] = TellorStorage.Dispute({
             hash: _hash,
