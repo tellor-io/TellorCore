@@ -340,4 +340,15 @@
 //    //      vars =  await oracle.getLastNewValue(53);
 //    //      assert(vars[0] == true)
 //    // });
+//     //    it("Test Proper zeroing of Payout Test", async function () {
+    	
+//     // 	vars =  await oracle2.methods.getNewCurrentVariables().call()
+//     //       for(var i = 0;i<5;i++){
+//     //         await web3.eth.sendTransaction({to:oracle.address,from:accounts[i],gas:7000000,data:oracle2.methods.testSubmitMiningSolution("nonce",vars['1'],[1200,1300,1400,1500,1600]).encodeABI()})
+//     //       }
+//     //     vars = await oracle.getRequestVars(vars['1'][0])
+//     //     assert(vars['5'] == 0  , "api payout should be zero")
+//     //     vars = await oracle.getUintVar(web3.utils.keccak256("currentTotalTips"))
+//     //     assert(vars == 0, "api payout should be zero")
+//     // });
 //  });
