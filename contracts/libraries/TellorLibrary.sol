@@ -346,9 +346,13 @@ event print(uint num);
         //require the miner did not receive awards in the last hour
         //
         self.uintVars[keccak256(abi.encodePacked(msg.sender))] = now;
-        uint _thisTip = self.uintVars[keccak256("currentTotalTips")] / 2 / (5-self.uintVars[keccak256("slotProgress")]);
+        if(self.uintVars[keccak256("slotProgress")] == 0){
+            self.uintVars[keccak256("runningTips")] = self.uintVars[keccak256("currentTotalTips")];
+        }
+        uint _thisTip = self.uintVars[keccak256("runningTips")] / 2 / 5 + self.uintVars[keccak256("currentTotalTips")]/(5-self.uintVars[keccak256("slotProgress")]);
         TellorTransfer.doTransfer(self, address(this), msg.sender, self.uintVars[keccak256("currentReward")]  + _thisTip);
         self.uintVars[keccak256("currentTotalTips")] -= _thisTip;
+
         //Save the miner and value received
         _tblock.minersByValue[1][self.uintVars[keccak256("slotProgress")]]= msg.sender;
 

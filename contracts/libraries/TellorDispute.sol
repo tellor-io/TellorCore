@@ -157,13 +157,13 @@ library TellorDispute {
 
         //Ensure this has not already been executed/tallied
         require(disp.executed == false, "Dispute has been already executed");
+        require(now > disp.disputeUintVars[keccak256("minExecutionDate")], "Time for voting haven't elapsed");
         //If the vote is not a proposed fork
         if (disp.isPropFork == false) {
                 //Ensure this has not already been executed/tallied
                 require(disp.executed == false, "Dispute has been already executed");
                 require(disp.reportingParty != address(0));
                 //Ensure the time for voting has elapsed
-                require(now > disp.disputeUintVars[keccak256("minExecutionDate")], "Time for voting haven't elapsed");
                     TellorStorage.StakeInfo storage stakes = self.stakerDetails[disp.reportedMiner];
                     //If the vote for disputing a value is succesful(disp.tally >0) then unstake the reported
                     // miner and transfer the stakeAmount and dispute fee to the reporting party
@@ -191,7 +191,6 @@ library TellorDispute {
     */
     function proposeFork(TellorStorage.TellorStorageStruct storage self, address _propNewTellorAddress) public {
         bytes32 _hash = keccak256(abi.encodePacked(_propNewTellorAddress));
-        require(self.disputeIdByDisputeHash[_hash] == 0, "");
         TellorTransfer.doTransfer(self, msg.sender, address(this), 100e18); //This is the fork fee (just 100 tokens flat, no refunds)
         self.uintVars[keccak256("disputeCount")]++;
         uint256 disputeId = self.uintVars[keccak256("disputeCount")];
