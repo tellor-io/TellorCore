@@ -30,7 +30,7 @@ contract('v2 Tests', function(accounts) {
         oldTellorinst = await new web3.eth.Contract(oldTellorABI,oldTellor.address);
         for(var i = 0;i<6;i++){
             //print tokens 
-            await web3.eth.sendTransaction({to:oracle.address,from:accounts[0],gas:7000000,data:oldTellorinst.methods.theLazyCoon(accounts[i],web3.utils.toWei('1100', 'ether')).encodeABI()})
+            await web3.eth.sendTransaction({to:oracle.address,from:accounts[0],gas:7000000,data:oldTellorinst.methods.theLazyCoon(accounts[i],web3.utils.toWei('2000', 'ether')).encodeABI()})
         }
         for(var i=0; i<52;i++){
             x = "USD" + i
@@ -122,12 +122,10 @@ contract('v2 Tests', function(accounts) {
    //    assert(dispBal2 - dispBal1 == web3.utils.toWei("1000"), "disputing party's balance should change correctly")
    // });
    it("Test multiple dispute rounds -- proposed fork", async function () {
-      await web3.eth.sendTransaction({to:oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.theLazyCoon(accounts[1],web3.utils.toWei('1000', 'ether')).encodeABI()})
-        for(var i = 0;i<5;i++){
+    for(var i = 0;i<5;i++){
            res = await web3.eth.sendTransaction({to:oracle.address,from:accounts[i],gas:7000000,data:oracle2.methods.testSubmitMiningSolution("nonce",[1,2,3,4,5],[1200,1300,1400,1500,1600]).encodeABI()})
         }
       res = web3.eth.abi.decodeParameters(['uint256[5]','uint256','uint256[5]','uint256'],res.logs['2'].data)
-      await web3.eth.sendTransaction({to:oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.theLazyCoon(accounts[1],web3.utils.toWei('1000', 'ether')).encodeABI()})
        balance1 = await oracle.balanceOf(accounts[2])
       dispBal1 =await oracle.balanceOf(accounts[1])
 
@@ -143,7 +141,6 @@ contract('v2 Tests', function(accounts) {
       	assert(dispInfo[2] == true,"Dispute Vote passed")
       	assert(await oracle.getAddressVars(web3.utils.keccak256("tellorContract")) != oracleBase2.address);
         //round 2
-              await web3.eth.sendTransaction({to:oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.theLazyCoon(accounts[3],web3.utils.toWei('1000', 'ether')).encodeABI()})
                console.log("here2")
 		await web3.eth.sendTransaction({to: oracle.address,from:accounts[3],gas:7000000,data:oracle2.methods.proposeFork(oracleBase2.address).encodeABI()})
                 console.log("here3")
@@ -158,15 +155,12 @@ contract('v2 Tests', function(accounts) {
 	 	assert(await oracle.getAddressVars(web3.utils.keccak256("tellorContract")) != oracleBase2.address);
    });
    it("Test multiple dispute rounds - passing, then failing", async function () {
-      await web3.eth.sendTransaction({to:oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.theLazyCoon(accounts[1],web3.utils.toWei('1000', 'ether')).encodeABI()})
-        for(var i = 0;i<5;i++){
+       for(var i = 0;i<5;i++){
            res = await web3.eth.sendTransaction({to:oracle.address,from:accounts[i],gas:7000000,data:oracle2.methods.testSubmitMiningSolution("nonce",[1,2,3,4,5],[1200,1300,1400,1500,1600]).encodeABI()})
         }
       res = web3.eth.abi.decodeParameters(['uint256[5]','uint256','uint256[5]','uint256'],res.logs['2'].data)
-      await web3.eth.sendTransaction({to:oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.theLazyCoon(accounts[1],web3.utils.toWei('1000', 'ether')).encodeABI()})
        balance1 = await oracle.balanceOf(accounts[2])
       dispBal1 = await oracle.balanceOf(accounts[1])
-      await web3.eth.sendTransaction({to:oracle.address,from:accounts[1],gas:7000000,data:oracle2.methods.beginDispute(1,res[1],2).encodeABI()})
       count = await oracle.getUintVar(web3.utils.keccak256("disputeCount"));
       //vote 1 passes
       await web3.eth.sendTransaction({to:oracle.address,from:accounts[3],gas:7000000,data:oracle2.methods.vote(1,true).encodeABI()})
@@ -202,7 +196,6 @@ contract('v2 Tests', function(accounts) {
       assert(vars[2] == 0, "staker should be staked");
    });
    it("Test multiple dispute rounds - failing, then passing", async function () {
-      await web3.eth.sendTransaction({to:oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.theLazyCoon(accounts[1],web3.utils.toWei('1000', 'ether')).encodeABI()})
         for(var i = 0;i<5;i++){
            res = await web3.eth.sendTransaction({to:oracle.address,from:accounts[i],gas:7000000,data:oracle2.methods.testSubmitMiningSolution("nonce",[1,2,3,4,5],[1200,1300,1400,1500,1600]).encodeABI()})
         }
