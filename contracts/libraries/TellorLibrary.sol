@@ -27,7 +27,7 @@ library TellorLibrary {
     //Emits upon a successful Mine, indicates the blocktime at point of the mine and the value mined
     event NewValue(uint256[5] _requestId, uint256 _time, uint256[5] _value, uint256 _totalTips, bytes32 indexed _currentChallenge);
     //Emits upon each mine (5 total) and shows the miner, nonce, and value submitted
-    event NonceSubmitted(address indexed _miner, string _nonce, uint256[5] _requestId, uint256[5] _value, bytes32 indexed_currentChallenge);
+    event NonceSubmitted(address indexed _miner, string _nonce, uint256[5] _requestId, uint256[5] _value, bytes32 indexed _currentChallenge);
     event OwnershipTransferred(address indexed _previousOwner, address indexed _newOwner);
     event OwnershipProposed(address indexed _previousOwner, address indexed _newOwner);
 
@@ -122,7 +122,7 @@ event print(uint num);
                 _requestId,
                 _timeOfLastNewValue,
                 a,
-                self.uintVars[keccak256("currentTotalTips")] * 2,//what should this be?
+                self.uintVars[keccak256("runningTips")],//what should this be?
                 self.currentChallenge
             );
         //map the timeOfLastValue to the requestId that was just mined
@@ -493,7 +493,7 @@ event print(uint num);
         internal
     {
 //require miner is staked
-        require(self.stakerDetails[msg.sender].currentStatus == 1, "Miner status is not staker");
+ require(self.stakerDetails[msg.sender].currentStatus == 1, "Miner status is not staker");
         //has to be a better way to do this...
         for(uint i=0;i<5;i++){
             require(_requestId[i] ==  self.currentMiners[i].value,"Request ID is wrong");
@@ -514,9 +514,13 @@ event print(uint num);
         //require the miner did not receive awards in the last hour
         //
         self.uintVars[keccak256(abi.encodePacked(msg.sender))] = now;
-        uint _thisTip = self.uintVars[keccak256("currentTotalTips")] / 2 / (5-self.uintVars[keccak256("slotProgress")]);
+        if(self.uintVars[keccak256("slotProgress")] == 0){
+            self.uintVars[keccak256("runningTips")] = self.uintVars[keccak256("currentTotalTips")];
+        }
+        uint _thisTip = self.uintVars[keccak256("runningTips")] / 2 / 5 + self.uintVars[keccak256("currentTotalTips")]/(5-self.uintVars[keccak256("slotProgress")]);
         TellorTransfer.doTransfer(self, address(this), msg.sender, self.uintVars[keccak256("currentReward")]  + _thisTip);
         self.uintVars[keccak256("currentTotalTips")] -= _thisTip;
+
         //Save the miner and value received
         _tblock.minersByValue[1][self.uintVars[keccak256("slotProgress")]]= msg.sender;
 
