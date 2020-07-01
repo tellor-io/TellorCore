@@ -349,9 +349,9 @@ event print(uint num);
         if(self.uintVars[keccak256("slotProgress")] == 0){
             self.uintVars[keccak256("runningTips")] = self.uintVars[keccak256("currentTotalTips")];
         }
-        uint _thisTip = self.uintVars[keccak256("runningTips")] / 2 / 5 + self.uintVars[keccak256("currentTotalTips")]/(5-self.uintVars[keccak256("slotProgress")]);
-        TellorTransfer.doTransfer(self, address(this), msg.sender, self.uintVars[keccak256("currentReward")]  + _thisTip);
-        self.uintVars[keccak256("currentTotalTips")] -= _thisTip;
+        uint _extraTip = (self.uintVars[keccak256("currentTotalTips")]-self.uintVars[keccak256("runningTips")])/(5-self.uintVars[keccak256("slotProgress")]);
+        TellorTransfer.doTransfer(self, address(this), msg.sender, self.uintVars[keccak256("currentReward")]  + self.uintVars[keccak256("runningTips")] / 2 / 5 + _extraTip);
+        self.uintVars[keccak256("currentTotalTips")] -= _extraTip;
 
         //Save the miner and value received
         _tblock.minersByValue[1][self.uintVars[keccak256("slotProgress")]]= msg.sender;
@@ -517,9 +517,9 @@ event print(uint num);
         if(self.uintVars[keccak256("slotProgress")] == 0){
             self.uintVars[keccak256("runningTips")] = self.uintVars[keccak256("currentTotalTips")];
         }
-        uint _thisTip = self.uintVars[keccak256("runningTips")] / 2 / 5 + self.uintVars[keccak256("currentTotalTips")]/(5-self.uintVars[keccak256("slotProgress")]);
-        TellorTransfer.doTransfer(self, address(this), msg.sender, self.uintVars[keccak256("currentReward")]  + _thisTip);
-        self.uintVars[keccak256("currentTotalTips")] -= _thisTip;
+        uint _extraTip = (self.uintVars[keccak256("currentTotalTips")]-self.uintVars[keccak256("runningTips")])/(5-self.uintVars[keccak256("slotProgress")]);
+        TellorTransfer.doTransfer(self, address(this), msg.sender, self.uintVars[keccak256("currentReward")]  + self.uintVars[keccak256("runningTips")] / 2 / 5 + _extraTip);
+        self.uintVars[keccak256("currentTotalTips")] -= _extraTip;
 
         //Save the miner and value received
         _tblock.minersByValue[1][self.uintVars[keccak256("slotProgress")]]= msg.sender;
