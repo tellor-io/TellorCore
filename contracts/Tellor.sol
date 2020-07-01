@@ -80,7 +80,7 @@ contract Tellor {
 
 
     /**
-    * @dev Proof of work is called by the miner when they submit the solution (proof of work and value)
+    * @dev This is called by the miner when they submit the PoW solution (proof of work and value)
     * @param _nonce uint submitted by miner
     * @param _requestId the apiId being mined
     * @param _value of api query
@@ -91,7 +91,7 @@ contract Tellor {
     }
 
     /**
-    * @dev Proof of work is called by the miner when they submit the solution (proof of work and value)
+    * @dev This is called by the miner when they submit the PoW solution (proof of work and value)
     * @param _nonce uint submitted by miner
     * @param _requestId is the array of the 5 PSR's being mined
     * @param _value is an array of 5 values
@@ -100,15 +100,27 @@ contract Tellor {
         tellor.submitMiningSolution(_nonce,_requestId, _value);
     }
 
-
-
+    /*******************TEST Functions NOT INCLUDED ON PRODUCTION/MAINNET/RINKEBY******/
+    /**
+    * @dev This is a test function to submit the value without a PoW solution used only for testing
+    * @param _nonce uint submitted by miner
+    * @param _requestId is the array of the 5 PSR's being mined
+    * @param _value retreived by the query
+    */
     function testSubmitMiningSolution(string calldata _nonce, uint256 _requestId, uint256 _value) external {
         tellor.testSubmitMiningSolution(_nonce, _requestId, _value);
     }
 
+    /**
+    * @dev This is a test function to submit the 5 values without a PoW solution used only for testing
+    * @param _nonce uint submitted by miner
+    * @param _requestId is the array of the 5 PSR's being mined
+    * @param _value is an array of 5 values
+    */
     function testSubmitMiningSolution(string calldata _nonce,uint256[5] calldata _requestId, uint256[5] calldata _value) external {
         tellor.testSubmitMiningSolution(_nonce,_requestId, _value);
     }
+    /***************END TEST Functions NOT INCLUDED ON PRODUCTION/MAINNET/RINKEBY******/
 
     /**
     * @dev Allows the current owner to propose transfer control of the contract to a
@@ -203,22 +215,44 @@ contract Tellor {
         return 18;
     }
 
+    /**
+    * @dev Getter for the current variables that include the 5 requests Id's
+    * @return the challenge, 5 requestsId, difficulty and tip
+    */
     function getNewCurrentVariables() external view returns(bytes32 _challenge,uint[5] memory _requestIds,uint256 _difficutly, uint256 _tip){
         return tellor.getNewCurrentVariables();
     }
 
+    /**
+    * @dev Getter for the top tipped 5 requests Id's
+    * @return the 5 requestsId
+    */
     function getTopRequestIDs() external view returns(uint256[5] memory _requestIds){
         return tellor.getTopRequestIDs();
     }
+
+    /**
+    * @dev Getter for the 5 requests Id's next in line to get mined
+    * @return the 5 requestsId
+    */
     function getNewVariablesOnDeck() external view returns (uint256[5] memory idsOnDeck, uint256[5] memory tipsOnDeck) {
         return tellor.getNewVariablesOnDeck();
     }
 
+    /**
+    * @dev Updates the Tellor address after a proposed fork has 
+    * passed the vote and day has gone by without a dispute
+    * @_disputeId the disputeId for the proposed fork
+    */
      function updateTellor(uint _disputeId) external{
         return tellor.updateTellor(_disputeId);
-     }
+    }
 
+    /**
+    * @dev Allows disputer to unlock the dispute fee
+    * @param _disputeId
+    */
      function unlockDisputeFee (uint _disputeId) external{
         return tellor.unlockDisputeFee(_disputeId);
-     }
+    }
  }

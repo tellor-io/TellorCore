@@ -39,7 +39,7 @@ library TellorLibrary {
         TellorTransfer.updateBalanceAtNow(self.balances[_address],_amount);
     } 
 
-event print(uint num);
+
     /**
     * @dev Add tip to Request value from oracle
     * @param _requestId being requested to be mined
@@ -370,7 +370,7 @@ event print(uint num);
             newBlock(self, _nonce, _requestId);
             self.uintVars[keccak256("slotProgress")] = 0;
         }
-        emit print(self.uintVars[keccak256("slotProgress")]);
+        
     }
 
     /**
@@ -492,8 +492,8 @@ event print(uint num);
     function testSubmitMiningSolution(TellorStorage.TellorStorageStruct storage self, string memory _nonce,uint256[5] memory _requestId, uint256[5] memory _value)
         internal
     {
-//require miner is staked
- require(self.stakerDetails[msg.sender].currentStatus == 1, "Miner status is not staker");
+        //require miner is staked
+        require(self.stakerDetails[msg.sender].currentStatus == 1, "Miner status is not staker");
         //has to be a better way to do this...
         for(uint i=0;i<5;i++){
             require(_requestId[i] ==  self.currentMiners[i].value,"Request ID is wrong");
@@ -538,7 +538,7 @@ event print(uint num);
             newBlock(self, _nonce, _requestId);
             self.uintVars[keccak256("slotProgress")] = 0;
         }
-        emit print(self.uintVars[keccak256("slotProgress")]);
+        
     }
 
 

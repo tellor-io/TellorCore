@@ -225,6 +225,11 @@ library TellorDispute {
         self.disputesById[disputeId].disputeUintVars[keccak256("minExecutionDate")] = now + 7 days;
     }
 
+    /**
+    * @dev Updates the Tellor address after a proposed fork has 
+    * passed the vote and day has gone by without a dispute
+    * @_disputeId the disputeId for the proposed fork
+    */
     function updateTellor(TellorStorage.TellorStorageStruct storage self, uint _disputeId) internal {
         bytes32 _hash = self.disputesById[_disputeId].hash;
         uint256 origID = self.disputeIdByDisputeHash[_hash];
@@ -235,6 +240,10 @@ library TellorDispute {
         self.addressVars[keccak256("tellorContract")] = disp.proposedForkAddress;
     }
 
+    /**
+    * @dev Allows disputer to unlock the dispute fee
+    * @param _disputeId
+    */
     function unlockDisputeFee (TellorStorage.TellorStorageStruct storage self, uint _disputeId) internal {
         bytes32 _hash = self.disputesById[_disputeId].hash;
         uint256 origID = self.disputeIdByDisputeHash[_hash];
@@ -299,7 +308,10 @@ library TellorDispute {
             }
     }
 
-
+    /**
+    * @dev This function upates the minimun dispute fee as a function of the amount
+    * of staked miners
+    */
     function updateMinDisputeFee(TellorStorage.TellorStorageStruct storage self) public {
         self.uintVars[keccak256("disputeFee")] = SafeMath.max(15e18,
                 (self.uintVars[keccak256("stakeAmount")]-
