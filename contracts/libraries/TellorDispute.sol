@@ -1,7 +1,7 @@
 pragma solidity >=0.5.0 <0.7.0;
 import "./TellorStorage.sol";
 import "./TellorTransfer.sol";
-//import "./SafeMath.sol";
+
 
 /**
 * @title Tellor Dispute

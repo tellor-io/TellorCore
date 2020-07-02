@@ -14,6 +14,8 @@ library Utilities {
     * out of the top 50, also a 0. So then lot's of parties 
     * will have zero as the index so we made the array run 
     * from 1-51 with zero as nothing.
+    * @param data is the array to calculate max from
+    * @return max amount and its index within the array
     */
     function getMax(uint256[51] memory data) internal pure returns (uint256 max, uint256 maxIndex) {
         max = data[1];
@@ -28,6 +30,8 @@ library Utilities {
 
     /**
     * @dev Returns the minimum value in an array.
+    * @param data is the array to calculate min from
+    * @return min amount and its index within the array
     */
     function getMin(uint256[51] memory data) internal pure returns (uint256 min, uint256 minIndex) {
         minIndex = data.length - 1;
@@ -40,6 +44,11 @@ library Utilities {
         }
     }
 
+    /**
+    * @dev Returns the 5 requestsId's with the top payouts in an array.
+    * @param data is the array to get the top 5 from
+    * @return to 5 max amounts and their respective index within the array
+    */
     function getMax5(uint256[51] memory data) internal pure returns (uint256[5] memory max, uint256[5] memory maxIndex) {
         uint256 min5 = data[1];
         uint256 minI = 1;
@@ -53,16 +62,16 @@ library Utilities {
         }
         for(uint256 i = 5; i < data.length; i++) {
             if (data[i] > min5) {
-                        max[minI] = data[i];
-                        maxIndex[minI] = i;
-                        min5 = data[i];
-                    for(uint256 j=0;j<5;j++){
-                        if(max[j] < min5){
-                            min5 = max[j];
-                            minI = j;
-                        }
+                max[minI] = data[i];
+                maxIndex[minI] = i;
+                min5 = data[i];
+                for(uint256 j=0;j<5;j++){
+                    if(max[j] < min5){
+                        min5 = max[j];
+                        minI = j;
                     }
                 }
             }
+        }
     }
 }

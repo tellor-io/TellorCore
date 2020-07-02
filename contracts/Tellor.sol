@@ -26,9 +26,9 @@ contract Tellor {
     /*Functions*/
 
     /*This is a cheat for demo purposes, will delete upon actual launch*/
-    function theLazyCoon(address _address, uint _amount) external {
-        tellor.theLazyCoon(_address,_amount);
-    }
+    // function theLazyCoon(address _address, uint _amount) external {
+    //     tellor.theLazyCoon(_address,_amount);
+    // }
 
     /**
     * @dev Helps initialize a dispute by assigning it a disputeId
@@ -100,27 +100,6 @@ contract Tellor {
         tellor.submitMiningSolution(_nonce,_requestId, _value);
     }
 
-    /*******************TEST Functions NOT INCLUDED ON PRODUCTION/MAINNET/RINKEBY******/
-    /**
-    * @dev This is a test function to submit the value without a PoW solution used only for testing
-    * @param _nonce uint submitted by miner
-    * @param _requestId is the array of the 5 PSR's being mined
-    * @param _value retreived by the query
-    */
-    function testSubmitMiningSolution(string calldata _nonce, uint256 _requestId, uint256 _value) external {
-        tellor.testSubmitMiningSolution(_nonce, _requestId, _value);
-    }
-
-    /**
-    * @dev This is a test function to submit the 5 values without a PoW solution used only for testing
-    * @param _nonce uint submitted by miner
-    * @param _requestId is the array of the 5 PSR's being mined
-    * @param _value is an array of 5 values
-    */
-    function testSubmitMiningSolution(string calldata _nonce,uint256[5] calldata _requestId, uint256[5] calldata _value) external {
-        tellor.testSubmitMiningSolution(_nonce,_requestId, _value);
-    }
-    /***************END TEST Functions NOT INCLUDED ON PRODUCTION/MAINNET/RINKEBY******/
 
     /**
     * @dev Allows the current owner to propose transfer control of the contract to a
@@ -255,4 +234,26 @@ contract Tellor {
      function unlockDisputeFee (uint _disputeId) external{
         return tellor.unlockDisputeFee(_disputeId);
     }
+
+    /*******************TEST Functions NOT INCLUDED ON PRODUCTION/MAINNET/RINKEBY******/
+    /**
+    * @dev This is a test function to submit the value without a PoW solution used only for testing
+    * @param _nonce uint submitted by miner
+    * @param _requestId is the array of the 5 PSR's being mined
+    * @param _value retreived by the query
+    */
+    // function testSubmitMiningSolution(string calldata _nonce, uint256 _requestId, uint256 _value) external {
+    //     tellor.testSubmitMiningSolution(_nonce, _requestId, _value);
+    // }
+
+    // /**
+    // * @dev This is a test function to submit the 5 values without a PoW solution used only for testing
+    // * @param _nonce uint submitted by miner
+    // * @param _requestId is the array of the 5 PSR's being mined
+    // * @param _value is an array of 5 values
+    // */
+    // function testSubmitMiningSolution(string calldata _nonce,uint256[5] calldata _requestId, uint256[5] calldata _value) external {
+    //     tellor.testSubmitMiningSolution(_nonce,_requestId, _value);
+    // }
+    /***************END TEST Functions NOT INCLUDED ON PRODUCTION/MAINNET/RINKEBY******/
  }

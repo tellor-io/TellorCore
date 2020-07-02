@@ -5,8 +5,8 @@ import "./TellorTransfer.sol";
 import "./TellorDispute.sol";
 import "./Utilities.sol";
 /**
-* itle Tellor Dispute
-* @dev Contais the methods related to miners staking and unstaking. Tellor.sol
+* itle Tellor Stake
+* @dev Contains the methods related to miners staking and unstaking. Tellor.sol
 * references this library for function's logic.
 */
 
@@ -122,15 +122,20 @@ library TellorStake {
         emit NewStake(staker);
     }
 
+    /**
+    * @dev Getter function for the requestId being mined 
+    * @return variables for the current minin event: Challenge, 5 RequestId, difficulty and Totaltips
+    */
     function getNewCurrentVariables(TellorStorage.TellorStorageStruct storage self) internal view returns(bytes32 _challenge,uint[5] memory _requestIds,uint256 _difficutly, uint256 _tip){
         for(uint i=0;i<5;i++){
             _requestIds[i] =  self.currentMiners[i].value;
         }
         return (self.currentChallenge,_requestIds,self.uintVars[keccak256("difficulty")],self.uintVars[keccak256("currentTotalTips")]);
     }
-        /**
+
+    /**
     * @dev Getter function for next requestId on queue/request with highest payout at time the function is called
-    * @return onDeck/info on request with highest payout-- RequestId, Totaltips, and API query string
+    * @return onDeck/info on top 5 requests(highest payout)-- RequestId, Totaltips
     */
     function getNewVariablesOnDeck(TellorStorage.TellorStorageStruct storage self) internal view returns (uint256[5] memory idsOnDeck, uint256[5] memory tipsOnDeck) {
         idsOnDeck = getTopRequestIDs(self);
@@ -139,11 +144,10 @@ library TellorStake {
         }
     }
 
-        /**
-    * @dev Getter function for the request with highest payout. This function is used within the getVariablesOnDeck function
-    * @return uint _requestId of request with highest payout at the time the function is called
+    /**
+    * @dev Getter function for the top 5 requests with highest payouts. This function is used within the getNewVariablesOnDeck function
+    * @return uint256[5] is an array with the top 5(highest payout) _requestIds at the time the function is called
     */
-    //should we think of way to tip to the next mining event?
     function getTopRequestIDs(TellorStorage.TellorStorageStruct storage self) internal view returns (uint256[5] memory _requestIds) {
         uint256[5] memory _max;
         uint256[5] memory _index;

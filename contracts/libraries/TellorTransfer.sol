@@ -5,7 +5,7 @@ import "./TellorStorage.sol";
 
 /**
 * @title Tellor Transfer
-* @dev Contais the methods related to transfers and ERC20. Tellor.sol and TellorGetters.sol
+* @dev Contains the methods related to transfers and ERC20. Tellor.sol and TellorGetters.sol
 * reference this library for function's logic.
 */
 library TellorTransfer {
