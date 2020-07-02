@@ -158,11 +158,9 @@ library TellorDispute {
         //Ensure this has not already been executed/tallied
         require(disp.executed == false, "Dispute has been already executed");
         require(now > disp.disputeUintVars[keccak256("minExecutionDate")], "Time for voting haven't elapsed");
+        require(disp.reportingParty != address(0));
         //If the vote is not a proposed fork
         if (disp.isPropFork == false) {
-                //Ensure this has not already been executed/tallied
-                require(disp.executed == false, "Dispute has been already executed");
-                require(disp.reportingParty != address(0));
                 //Ensure the time for voting has elapsed
                     TellorStorage.StakeInfo storage stakes = self.stakerDetails[disp.reportedMiner];
                     //If the vote for disputing a value is succesful(disp.tally >0) then unstake the reported
