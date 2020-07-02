@@ -221,7 +221,7 @@ contract Tellor {
     /**
     * @dev Updates the Tellor address after a proposed fork has 
     * passed the vote and day has gone by without a dispute
-    * @_disputeId the disputeId for the proposed fork
+    * @param _disputeId the disputeId for the proposed fork
     */
      function updateTellor(uint _disputeId) external{
         return tellor.updateTellor(_disputeId);
@@ -229,7 +229,7 @@ contract Tellor {
 
     /**
     * @dev Allows disputer to unlock the dispute fee
-    * @param _disputeId
+    * @param _disputeId to unlock fee from
     */
      function unlockDisputeFee (uint _disputeId) external{
         return tellor.unlockDisputeFee(_disputeId);

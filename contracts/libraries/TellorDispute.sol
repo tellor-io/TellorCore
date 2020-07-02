@@ -226,7 +226,7 @@ library TellorDispute {
     /**
     * @dev Updates the Tellor address after a proposed fork has 
     * passed the vote and day has gone by without a dispute
-    * @_disputeId the disputeId for the proposed fork
+    * @param _disputeId the disputeId for the proposed fork
     */
     function updateTellor(TellorStorage.TellorStorageStruct storage self, uint _disputeId) internal {
         bytes32 _hash = self.disputesById[_disputeId].hash;
@@ -240,7 +240,7 @@ library TellorDispute {
 
     /**
     * @dev Allows disputer to unlock the dispute fee
-    * @param _disputeId
+    * @param _disputeId to unlock fee from
     */
     function unlockDisputeFee (TellorStorage.TellorStorageStruct storage self, uint _disputeId) internal {
         bytes32 _hash = self.disputesById[_disputeId].hash;
