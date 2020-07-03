@@ -269,12 +269,7 @@ library TellorDispute {
                         _id = origID;
                     }
                     TellorStorage.Dispute storage disp2 = self.disputesById[_id];
-                    if(last.disputeVotePassed == disp2.disputeVotePassed){
-                        TellorTransfer.doTransfer(self,address(this),disp2.reportingParty,disp2.disputeUintVars[keccak256("fee")]);
-                    }
-                    else{
-                        TellorTransfer.doTransfer(self,address(this),last.reportingParty,disp2.disputeUintVars[keccak256("fee")]);
-                    }
+                    TellorTransfer.doTransfer(self,address(this),disp2.reportingParty,disp2.disputeUintVars[keccak256("fee")]);
                 }
             }
             else {
@@ -292,7 +287,7 @@ library TellorDispute {
                     if(_id != 0){
                         last = self.disputesById[_id];//handling if happens during an upgrade
                     }
-                    TellorTransfer.doTransfer(self,address(this),last.reportedMiner,last.disputeUintVars[keccak256("fee")]);
+                    TellorTransfer.doTransfer(self,address(this),last.reportedMiner,self.disputesById[_id].disputeUintVars[keccak256("fee")]);
                 }
             }
     }
