@@ -228,7 +228,7 @@ library TellorDispute {
     * passed the vote and day has gone by without a dispute
     * @param _disputeId the disputeId for the proposed fork
     */
-    function updateTellor(TellorStorage.TellorStorageStruct storage self, uint _disputeId) internal {
+    function updateTellor(TellorStorage.TellorStorageStruct storage self, uint _disputeId) public {
         bytes32 _hash = self.disputesById[_disputeId].hash;
         uint256 origID = self.disputeIdByDisputeHash[_hash];
         uint256 lastID =  self.disputesById[origID].disputeUintVars[keccak256(abi.encodePacked(self.disputesById[origID].disputeUintVars[keccak256("disputeRounds")]))];
@@ -242,7 +242,7 @@ library TellorDispute {
     * @dev Allows disputer to unlock the dispute fee
     * @param _disputeId to unlock fee from
     */
-    function unlockDisputeFee (TellorStorage.TellorStorageStruct storage self, uint _disputeId) internal {
+    function unlockDisputeFee (TellorStorage.TellorStorageStruct storage self, uint _disputeId) public {
         bytes32 _hash = self.disputesById[_disputeId].hash;
         uint256 origID = self.disputeIdByDisputeHash[_hash];
         uint256 lastID =  self.disputesById[origID].disputeUintVars[keccak256(abi.encodePacked(self.disputesById[origID].disputeUintVars[keccak256("disputeRounds")]))];

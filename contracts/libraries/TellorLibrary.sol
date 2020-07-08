@@ -34,7 +34,7 @@ library TellorLibrary {
     /*Functions*/
 
     /*This is a cheat for demo purposes, will delete upon actual launch*/
-    // function theLazyCoon(TellorStorage.TellorStorageStruct storage self,address _address, uint _amount) internal {
+    // function theLazyCoon(TellorStorage.TellorStorageStruct storage self,address _address, uint _amount) public {
     //     self.uintVars[keccak256("total_supply")] += _amount;
     //     TellorTransfer.updateBalanceAtNow(self.balances[_address],_amount);
     // } 
@@ -65,7 +65,7 @@ library TellorLibrary {
     * @param _nonce or solution for the PoW  for the requestId
     * @param _requestId for the current request being mined
     */
-    function newBlock(TellorStorage.TellorStorageStruct storage self, string memory _nonce, uint256[5] memory _requestId) internal {
+    function newBlock(TellorStorage.TellorStorageStruct storage self, string memory _nonce, uint256[5] memory _requestId) public {
         TellorStorage.Request storage _tblock = self.requestDetails[self.uintVars[keccak256("_tblock")]];
         // If the difference between the timeTarget and how long it takes to solve the challenge this updates the challenge
         //difficulty up or donw by the difference between the target time and how long it took to solve the prevous challenge
@@ -167,7 +167,7 @@ library TellorLibrary {
     * @param _requestId for the current request being mined
     ** OLD BUT HAS SWITCH!!!!!!!!
     */
-    function newBlock(TellorStorage.TellorStorageStruct storage self, string memory _nonce, uint256 _requestId) internal {
+    function newBlock(TellorStorage.TellorStorageStruct storage self, string memory _nonce, uint256 _requestId) public {
         TellorStorage.Request storage _request = self.requestDetails[_requestId];
 
         // If the difference between the timeTarget and how long it takes to solve the challenge this updates the challenge
@@ -275,7 +275,7 @@ library TellorLibrary {
     ** OLD!!!!!!!!
     */
     function submitMiningSolution(TellorStorage.TellorStorageStruct storage self, string memory _nonce, uint256 _requestId, uint256 _value)
-        internal
+        public
     {
 
         require (self.uintVars[keccak256("timeTarget")] == 600, "Contract has upgraded, call new function");
@@ -323,7 +323,7 @@ library TellorLibrary {
     * @param _value is an array of 5 values
     */
     function submitMiningSolution(TellorStorage.TellorStorageStruct storage self, string memory _nonce,uint256[5] memory _requestId, uint256[5] memory _value)
-        internal
+        public
     {
         require(self.stakerDetails[msg.sender].currentStatus == 1, "Miner status is not staker");
         //has to be a better way to do this...
@@ -379,7 +379,7 @@ library TellorLibrary {
     * function
     * @param _pendingOwner The address to transfer ownership to.
     */
-    function proposeOwnership(TellorStorage.TellorStorageStruct storage self, address payable _pendingOwner) internal {
+    function proposeOwnership(TellorStorage.TellorStorageStruct storage self, address payable _pendingOwner) public {
         require(msg.sender == self.addressVars[keccak256("_owner")], "Sender is not owner");
         emit OwnershipProposed(self.addressVars[keccak256("_owner")], _pendingOwner);
         self.addressVars[keccak256("pending_owner")] = _pendingOwner;
@@ -388,7 +388,7 @@ library TellorLibrary {
     /**
     * @dev Allows the new owner to claim control of the contract
     */
-    function claimOwnership(TellorStorage.TellorStorageStruct storage self) internal {
+    function claimOwnership(TellorStorage.TellorStorageStruct storage self) public {
         require(msg.sender == self.addressVars[keccak256("pending_owner")], "Sender is not pending owner");
         emit OwnershipTransferred(self.addressVars[keccak256("_owner")], self.addressVars[keccak256("pending_owner")]);
         self.addressVars[keccak256("_owner")] = self.addressVars[keccak256("pending_owner")];
@@ -399,7 +399,7 @@ library TellorLibrary {
     * @param _requestId being requested
     * @param _tip is the tip to add
     */
-    function updateOnDeck(TellorStorage.TellorStorageStruct storage self, uint256 _requestId, uint256 _tip) internal {
+    function updateOnDeck(TellorStorage.TellorStorageStruct storage self, uint256 _requestId, uint256 _tip) public {
         TellorStorage.Request storage _request = self.requestDetails[_requestId];
         _request.apiUintVars[keccak256("totalTip")] = _request.apiUintVars[keccak256("totalTip")].add(_tip);
         //maybe use a request uintVar to keep track if its being mined?
@@ -442,7 +442,7 @@ library TellorLibrary {
     ** OLD!!!!!!!!
     */
     // function testSubmitMiningSolution(TellorStorage.TellorStorageStruct storage self, string memory _nonce, uint256 _requestId, uint256 _value)
-    //     internal
+    //     public
     // {
 
     //     require (self.uintVars[keccak256("timeTarget")] == 600, "Contract has upgraded, call new function");
@@ -490,7 +490,7 @@ library TellorLibrary {
     // * @param _value is an array of 5 values
     // */
     // function testSubmitMiningSolution(TellorStorage.TellorStorageStruct storage self, string memory _nonce,uint256[5] memory _requestId, uint256[5] memory _value)
-    //     internal
+    //     public
     // {
     //     //require miner is staked
     //     require(self.stakerDetails[msg.sender].currentStatus == 1, "Miner status is not staker");
