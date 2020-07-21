@@ -95,7 +95,16 @@ library TellorDispute {
         self.disputesById[disputeId].disputeUintVars[keccak256("minerSlot")] = _minerIndex;
         self.disputesById[disputeId].disputeUintVars[keccak256("fee")] = _fee;
   
-        TellorTransfer.doTransfer(self, msg.sender, address(this),_fee);
+        if (_minerIndex == 2) {
+            self.requestDetails[_requestId].apiUintVars[keccak256("disputeCount")] = self.requestDetails[_requestId].apiUintVars[keccak256("disputeCount")] +1;
+            //update dispute fee for this case
+            TellorTransfer.doTransfer(self, msg.sender, address(this), 1000e18*self.requestDetails[_requestId].apiUintVars[keccak256("disputeCount")]);
+        } else {
+            //transfer fee adjusted based on number of miners if the minerIndex is not 2(official value)
+            TellorTransfer.doTransfer(self, msg.sender, address(this),_fee);
+        }
+
+   
 
         //Values are sorted as they come in and the official value is the median of the first five
         //So the "official value" miner is always minerIndex==2. If the official value is being

@@ -126,7 +126,7 @@ library TellorStake {
     * @dev Getter function for the requestId being mined 
     * @return variables for the current minin event: Challenge, 5 RequestId, difficulty and Totaltips
     */
-    function getNewCurrentVariables(TellorStorage.TellorStorageStruct storage self) internal view returns(bytes32 _challenge,uint[5] memory _requestIds,uint256 _difficutly, uint256 _tip){
+    function getNewCurrentVariables(TellorStorage.TellorStorageStruct storage self) internal view returns(bytes32 _challenge,uint[5] memory _requestIds,uint256 _difficulty, uint256 _tip){
         for(uint i=0;i<5;i++){
             _requestIds[i] =  self.currentMiners[i].value;
         }
