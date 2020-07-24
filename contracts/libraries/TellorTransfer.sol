@@ -74,7 +74,7 @@ library TellorTransfer {
     * @param _amount to transfer
     */
     function doTransfer(TellorStorage.TellorStorageStruct storage self, address _from, address _to, uint256 _amount) public {
-        require(_amount > 0, "Tried to send non-positive amount");
+        require(_amount != 0, "Tried to send non-positive amount");
         require(_to != address(0), "Receiver is 0 address");
         //allowedToTrade checks the stakeAmount is removed from balance if the _user is staked
         require(allowedToTrade(self, _from, _amount), "Stake amount was not removed from balance");
@@ -118,7 +118,7 @@ library TellorTransfer {
     function getBalanceAt(TellorStorage.Checkpoint[] storage checkpoints, uint256 _block) public view returns (uint256) {
         if (checkpoints.length == 0) return 0;
         if (_block >= checkpoints[checkpoints.length - 1].fromBlock) return checkpoints[checkpoints.length - 1].value;
-        if (_block < checkpoints[0].fromBlock) return 0;
+        //if (_block < checkpoints[0].fromBlock) return 0;
         // Binary search of the value in the array
         uint256 min = 0;
         uint256 max = checkpoints.length - 1;
@@ -141,8 +141,8 @@ library TellorTransfer {
     * @return true if they are allowed to spend the amount being checked
     */
     function allowedToTrade(TellorStorage.TellorStorageStruct storage self, address _user, uint256 _amount) public view returns (bool) {
-        if (self.stakerDetails[_user].currentStatus > 0 && self.stakerDetails[_user].currentStatus < 4) {
-            //Removes the stakeAmount from balance if the _user is staked
+        if (self.stakerDetails[_user].currentStatus != 0 && self.stakerDetails[_user].currentStatus < 4) {
+            //Subtracts the stakeAmount from balance if the _user is staked
             if (balanceOf(self, _user).sub(self.uintVars[keccak256("stakeAmount")]).sub(_amount) >= 0) {
                 return true;
             }

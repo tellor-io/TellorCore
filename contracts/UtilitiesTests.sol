@@ -44,7 +44,7 @@ contract UtilitiesTests {
     * @param requests is an array of length 51
     * @return the top 5 and their respective index within the array
     */
-    function testgetMax5(uint256[51] memory requests) public view returns (uint256[5] memory _max, uint256[5] memory _index) {
+    function testgetMax5(uint256[51] memory requests) public pure returns (uint256[5] memory _max, uint256[5] memory _index) {
         (_max, _index) = Utilities.getMax5(requests);
     }
 
@@ -53,7 +53,7 @@ contract UtilitiesTests {
     * @param requests is an array of length 51
     * @return the min and its respective index within the array
     */
-    function testgetMins(uint256[51] memory requests) public view returns (uint256 _min, uint256 _index) {
+    function testgetMins(uint256[51] memory requests) public pure returns (uint256 _min, uint256 _index) {
         (_min, _index) = Utilities.getMin(requests);
     }
 

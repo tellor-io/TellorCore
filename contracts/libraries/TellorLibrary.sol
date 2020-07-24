@@ -39,8 +39,8 @@ library TellorLibrary {
     * mine the onDeckQueryHash, or the api with the highest payout pool
     */
     function addTip(TellorStorage.TellorStorageStruct storage self, uint256 _requestId, uint256 _tip) public {
-        require(_requestId > 0, "RequestId is 0");
-        require(_tip > 0, "Tip should be greater than 0");
+        require(_requestId != 0, "RequestId is 0");
+        require(_tip != 0, "Tip should be greater than 0");
         require(_requestId <= self.uintVars[keccak256("requestCount")]+1, "RequestId is not less than count");
         if(_requestId > self.uintVars[keccak256("requestCount")]){
             self.uintVars[keccak256("requestCount")]++;
@@ -329,7 +329,7 @@ library TellorLibrary {
                 || (now - (now % 1 minutes)) - self.uintVars[keccak256("timeOfLastNewValue")] >= 15 minutes,
             "Incorrect nonce for current challenge"
         );
-        require(now - self.uintVars[keccak256(abi.encodePacked(msg.sender))] > 1 hours);
+        require(now - self.uintVars[keccak256(abi.encodePacked(msg.sender))] > 1 hours, "Miner can only win rewards once per hour");
 
         //Make sure the miner does not submit a value more than once
         require(self.minersByChallenge[self.currentChallenge][msg.sender] == false, "Miner already submitted the value");

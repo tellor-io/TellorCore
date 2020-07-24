@@ -5,7 +5,7 @@ pragma solidity ^0.5.0;
 
 library Utilities {
     /**
-    * @dev Returns the minimum value in an array.
+    * @dev Returns the max value in an array.
     * The zero position here is ignored. It's because 
     * there's no null in solidity and we map each address 
     * to an index in this array. So when we get 51 parties, 

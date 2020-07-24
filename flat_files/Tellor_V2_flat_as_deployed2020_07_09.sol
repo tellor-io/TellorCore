@@ -16,7 +16,7 @@ library TellorTransfer {
     event Approval(address indexed _owner, address indexed _spender, uint256 _value); //ERC20 Approval event
     event Transfer(address indexed _from, address indexed _to, uint256 _value); //ERC20 Transfer Event
 
-    /*Functions*/
+    /*Functions*/ 
 
     /**
     * @dev Allows for a transfer of tokens to _to
@@ -120,7 +120,7 @@ library TellorTransfer {
     function getBalanceAt(TellorStorage.Checkpoint[] storage checkpoints, uint256 _block) public view returns (uint256) {
         if (checkpoints.length == 0) return 0;
         if (_block >= checkpoints[checkpoints.length - 1].fromBlock) return checkpoints[checkpoints.length - 1].value;
-        if (_block < checkpoints[0].fromBlock) return 0;
+        //if (_block < checkpoints[0].fromBlock) return 0;
         // Binary search of the value in the array
         uint256 min = 0;
         uint256 max = checkpoints.length - 1;
@@ -1360,7 +1360,8 @@ library TellorLibrary {
         require(_requestId > 0, "RequestId is 0");
         require(_tip > 0, "Tip should be greater than 0");
         require(_requestId <= self.uintVars[keccak256("requestCount")]+1, "RequestId is not less than count");
-        if(_requestId > self.uintVars[keccak256("requestCount")]){
+        //if(_requestId > self.uintVars[keccak256("requestCount")]){ ///???how it used to be
+        if(_requestId == self.uintVars[keccak256("requestCount")] + 1){ ///???recomended in audit
             self.uintVars[keccak256("requestCount")]++;
         }
         TellorTransfer.doTransfer(self, msg.sender, address(this), _tip);
@@ -1711,6 +1712,8 @@ library TellorLibrary {
         TellorStorage.Request storage _request = self.requestDetails[_requestId];
         _request.apiUintVars[keccak256("totalTip")] = _request.apiUintVars[keccak256("totalTip")].add(_tip);
         //maybe use a request uintVar to keep track if its being mined?
+        //The currentMiners[5] array is being used to save the top 5 requestsId's 
+        //Whenever any of this id's receives a tip the total tip for the next block being mined is updated
         if(self.currentMiners[0].value == _requestId || self.currentMiners[1].value== _requestId ||self.currentMiners[2].value == _requestId||self.currentMiners[3].value== _requestId || self.currentMiners[4].value== _requestId ){
             self.uintVars[keccak256("currentTotalTips")] += _tip;
         }

@@ -153,7 +153,7 @@ library TellorStake {
         uint256[5] memory _index;
         (_max, _index) = Utilities.getMax5(self.requestQ);
         for(uint i=0;i<5;i++){
-            if(_max[i] > 0){
+            if(_max[i] != 0){
                 _requestIds[i] = self.requestIdByRequestQIndex[_index[i]];
             }
             else{

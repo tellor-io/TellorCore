@@ -188,7 +188,7 @@ library TellorGettersLibrary {
     */
     function getLastNewValueById(TellorStorage.TellorStorageStruct storage self, uint256 _requestId) internal view returns (uint256, bool) {
         TellorStorage.Request storage _request = self.requestDetails[_requestId];
-        if (_request.requestTimestamps.length > 0) {
+        if (_request.requestTimestamps.length != 0) {
             return (retrieveData(self, _requestId, _request.requestTimestamps[_request.requestTimestamps.length - 1]), true);
         } else {
             return (0, false);

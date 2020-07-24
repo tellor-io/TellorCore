@@ -15,7 +15,7 @@ library TellorDispute {
     //emitted when a new dispute is initialized
     event NewDispute(uint256 indexed _disputeId, uint256 indexed _requestId, uint256 _timestamp, address _miner);
     //emitted when a new vote happens
-    event Voted(uint256 indexed _disputeID, bool _position, address indexed _voter);
+    event Voted(uint256 indexed _disputeID, bool _position, address indexed _voter, uint256 indexed _voteWeight);
     //emitted upon dispute tally
     event DisputeVoteTallied(uint256 indexed _disputeID, int256 _result, address indexed _reportedMiner, address _reportingParty, bool _active);
     event NewTellorAddress(address _newTellor); //emmited when a proposed fork is voted true
@@ -35,7 +35,7 @@ library TellorDispute {
         TellorStorage.Request storage _request = self.requestDetails[_requestId];
         //require that no more than a day( (24 hours * 60 minutes)/10minutes=144 blocks) has gone by since the value was "mined"
         //require(now - _timestamp <= 1 days, "The value was mined more than a day ago");
-        require(_request.minedBlockNum[_timestamp] > 0, "Mined block is 0");
+        require(_request.minedBlockNum[_timestamp] != 0, "Mined block is 0");
         require(_minerIndex < 5, "Miner index is wrong");
 
         //_miner is the miner being disputed. For every mined value 5 miners are saved in an array and the _minerIndex
@@ -52,7 +52,7 @@ library TellorDispute {
         //Sets the new disputeCount as the disputeId
         uint256 disputeId = self.uintVars[keccak256("disputeCount")];
                 //Ensures that a dispute is not already open for the that miner, requestId and timestamp
-        if(self.disputeIdByDisputeHash[_hash] > 0){
+        if(self.disputeIdByDisputeHash[_hash] != 0){
             self.disputesById[disputeId].disputeUintVars[keccak256("origID")] = self.disputeIdByDisputeHash[_hash];
 
         }
@@ -134,7 +134,7 @@ library TellorDispute {
         require(disp.voted[msg.sender] != true, "Sender has already voted");
 
         //Requre that the user had a balance >0 at time/blockNumber the disupte began
-        require(voteWeight > 0, "User balance is 0");
+        require(voteWeight != 0, "User balance is 0");
 
         //ensures miners that are under dispute cannot vote
         require(self.stakerDetails[msg.sender].currentStatus != 3, "Miner is under dispute");
@@ -154,11 +154,11 @@ library TellorDispute {
         }
 
         //Let the network know the user has voted on the dispute and their casted vote
-        emit Voted(_disputeId, _supportsDispute, msg.sender);
+        emit Voted(_disputeId, _supportsDispute, msg.sender, voteWeight);
     }
 
     /**
-    * @dev tallies the votes.
+    * @dev tallies the votes and locks the stake disbursement(currentStatus = 4) if the vote passes
     * @param _disputeId is the dispute id
     */
     function tallyVotes(TellorStorage.TellorStorageStruct storage self, uint256 _disputeId) public {
@@ -201,7 +201,7 @@ library TellorDispute {
         TellorTransfer.doTransfer(self, msg.sender, address(this), 100e18); //This is the fork fee (just 100 tokens flat, no refunds)
         self.uintVars[keccak256("disputeCount")]++;
         uint256 disputeId = self.uintVars[keccak256("disputeCount")];
-        if(self.disputeIdByDisputeHash[_hash] > 0){
+        if(self.disputeIdByDisputeHash[_hash] != 0){
             self.disputesById[disputeId].disputeUintVars[keccak256("origID")] = self.disputeIdByDisputeHash[_hash];
         }
         else{
@@ -260,6 +260,7 @@ library TellorDispute {
         }
         TellorStorage.Dispute storage disp = self.disputesById[origID];
         TellorStorage.Dispute storage last = self.disputesById[lastID];
+                //disputeRounds is increased by 1 so that the _id is not a negative number when it is the first time a dispute is initiated
                 if(disp.disputeUintVars[keccak256("disputeRounds")] == 0){
                   disp.disputeUintVars[keccak256("disputeRounds")] = 1;  
                 }
