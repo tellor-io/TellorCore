@@ -70,7 +70,15 @@ library TellorDispute {
                 require(now - self.disputesById[lastID].disputeUintVars[keccak256("tallyDate")] <= 1 days, "Time for voting haven't elapsed");
             }
         }
-        uint256 _fee = self.uintVars[keccak256("disputeFee")] * self.disputesById[origID].disputeUintVars[keccak256("disputeRounds")];
+        uint256 _fee;
+        if (_minerIndex == 2) {
+            self.requestDetails[_requestId].apiUintVars[keccak256("disputeCount")] = self.requestDetails[_requestId].apiUintVars[keccak256("disputeCount")] +1;
+            //update dispute fee for this case
+            _fee = 1000e18*self.requestDetails[_requestId].apiUintVars[keccak256("disputeCount")];
+        } else {
+
+            _fee = self.uintVars[keccak256("disputeFee")] * self.disputesById[origID].disputeUintVars[keccak256("disputeRounds")];
+        }
         
         //maps the dispute hash to the disputeId
 
@@ -94,15 +102,7 @@ library TellorDispute {
         self.disputesById[disputeId].disputeUintVars[keccak256("blockNumber")] = block.number;
         self.disputesById[disputeId].disputeUintVars[keccak256("minerSlot")] = _minerIndex;
         self.disputesById[disputeId].disputeUintVars[keccak256("fee")] = _fee;
-  
-        if (_minerIndex == 2) {
-            self.requestDetails[_requestId].apiUintVars[keccak256("disputeCount")] = self.requestDetails[_requestId].apiUintVars[keccak256("disputeCount")] +1;
-            //update dispute fee for this case
-            TellorTransfer.doTransfer(self, msg.sender, address(this), 1000e18*self.requestDetails[_requestId].apiUintVars[keccak256("disputeCount")]);
-        } else {
-            //transfer fee adjusted based on number of miners if the minerIndex is not 2(official value)
-            TellorTransfer.doTransfer(self, msg.sender, address(this),_fee);
-        }
+        TellorTransfer.doTransfer(self, msg.sender, address(this),_fee);
 
    
 
@@ -288,14 +288,8 @@ library TellorDispute {
                         _id = origID;
                     }
                     TellorStorage.Dispute storage disp2 = self.disputesById[_id];
-
-                        if (disp.disputeUintVars[keccak256("minerSlot")] == 2) {
-                            TellorTransfer.doTransfer(self,address(this), disp2.reportingParty, 1000e18*self.requestDetails[disp.disputeUintVars[keccak256("requestId")]].apiUintVars[keccak256("disputeCount")]);
-                        } else {
-                            //transfer fee adjusted based on number of miners if the minerIndex is not 2(official value)
-                            TellorTransfer.doTransfer(self,address(this), disp2.reportingParty, disp2.disputeUintVars[keccak256("fee")]);
-                        }
-
+                        //transfer fee adjusted based on number of miners if the minerIndex is not 2(official value)
+                        TellorTransfer.doTransfer(self,address(this), disp2.reportingParty, disp2.disputeUintVars[keccak256("fee")]);
                 }
             }
             else {
@@ -313,16 +307,13 @@ library TellorDispute {
                     if(_id != 0){
                         last = self.disputesById[_id];//handling if happens during an upgrade
                     }
-
-                if (disp.disputeUintVars[keccak256("minerSlot")] == 2) {
-                    TellorTransfer.doTransfer(self,address(this), last.reportedMiner, 1000e18*self.requestDetails[disp.disputeUintVars[keccak256("requestId")]].apiUintVars[keccak256("disputeCount")]);
-                    } else {
-                    //transfer fee adjusted based on number of miners if the minerIndex is not 2(official value)
                     TellorTransfer.doTransfer(self,address(this),last.reportedMiner,self.disputesById[_id].disputeUintVars[keccak256("fee")]);
                 }
-
-                }
             }
+
+            if (disp.disputeUintVars[keccak256("minerSlot")] == 2) {
+                self.requestDetails[disp.disputeUintVars[keccak256("requestId")]].apiUintVars[keccak256("disputeCount")]--;
+            } 
     }
 
     /**
