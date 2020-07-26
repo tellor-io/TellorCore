@@ -361,8 +361,9 @@ contract('Mining Tests', function(accounts) {
         dispBal2 = await oracle.balanceOf(accounts[1])
         console.log('reported miner', web3.utils.fromWei(balance1) - web3.utils.fromWei(balance2))
         console.log('disputer' , web3.utils.fromWei(dispBal2)- web3.utils.fromWei(dispBal1))
-        //assert(web3.utils.fromWei(balance1) - web3.utils.fromWei(balance2) >1000,"reported miner's balance should change correctly");
-        //assert(web3.utils.fromWei(dispBal2)- web3.utils.fromWei(dispBal1) == 1000, "disputing party's balance should change correctly")
+        assert(web3.utils.fromWei(balance1) - web3.utils.fromWei(balance2) > 999.99,"reported miner's balance should change correctly");
+        assert(web3.utils.fromWei(balance1) - web3.utils.fromWei(balance2) <=1000,"reported miner's balance should change correctly");
+        assert(web3.utils.fromWei(dispBal2)- web3.utils.fromWei(dispBal1) == 1000, "disputing party's balance should change correctly")
         s =  await oracle.getStakerInfo(accounts[2])
         assert(s != 1, " Not staked" );
     dispBal4 = await oracle.balanceOf(accounts[4])
@@ -595,8 +596,8 @@ contract('Mining Tests', function(accounts) {
         dispBal2 = await oracle.balanceOf(accounts[1])
         let df = await oracle.getUintVar(web3.utils.keccak256("disputeFee"));
         console.log(web3.utils.fromWei(balance2,"ether") - web3.utils.fromWei(balance1,"ether"),web3.utils.fromWei(df),'ether')
-        assert(web3.utils.fromWei(balance2) - web3.utils.fromWei(balance1) == web3.utils.fromWei(await oracle.getUintVar(web3.utils.keccak256("disputeFee"))),"balance1 should equal balance2 plus disputeBal")
-        assert(web3.utils.fromWei(dispBal1) - web3.utils.fromWei(dispBal2) == web3.utils.fromWei(await oracle.getUintVar(web3.utils.keccak256("disputeFee"))))
+        assert(web3.utils.fromWei(balance2) - web3.utils.fromWei(balance1) == 1000,"balance1 should equal balance2 plus disputeBal")
+        assert(web3.utils.fromWei(dispBal1) - web3.utils.fromWei(dispBal2) == 1000,"disputers balance shoudl change properly")
                 s =  await oracle.getStakerInfo(accounts[2])
         assert(s[0] ==1, " Staked" );
     });
