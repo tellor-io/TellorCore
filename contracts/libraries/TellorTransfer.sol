@@ -131,7 +131,6 @@ library TellorTransfer {
         }
         return checkpoints[min].value;
     }
-
     /**
     * @dev This function returns whether or not a given user is allowed to trade a given amount
     * and removing the staked amount from their balance if they are staked
@@ -157,7 +156,7 @@ library TellorTransfer {
     * @param _value is the new balance
     */
     function updateBalanceAtNow(TellorStorage.Checkpoint[] storage checkpoints, uint256 _value) public {
-        if ((checkpoints.length == 0) || (checkpoints[checkpoints.length - 1].fromBlock < block.number)) {
+        if ((checkpoints.length == 0) || (checkpoints[checkpoints.length - 1].fromBlock != block.number)) {
             TellorStorage.Checkpoint storage newCheckPoint = checkpoints[checkpoints.length++];
             newCheckPoint.fromBlock = uint128(block.number);
             newCheckPoint.value = uint128(_value);
