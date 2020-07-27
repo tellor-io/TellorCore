@@ -79,7 +79,7 @@ library TellorDispute {
 
             _fee = self.uintVars[keccak256("disputeFee")] * self.disputesById[origID].disputeUintVars[keccak256("disputeRounds")];
         }
-        _fee = _fee * self.disputesById[origID].disputeUintVars[keccak256("disputeRounds")];
+
         //maps the dispute hash to the disputeId
 
         //maps the dispute to the Dispute struct
