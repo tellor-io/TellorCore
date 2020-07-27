@@ -1,4 +1,5 @@
-pragma solidity >=0.5.0 <0.7.0;
+pragma solidity ^0.5.16;
+
 
 import "./libraries/SafeMath.sol";
 import "./libraries/TellorStorage.sol";
