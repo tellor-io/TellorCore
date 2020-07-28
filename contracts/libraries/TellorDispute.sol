@@ -74,7 +74,7 @@ library TellorDispute {
         if (_minerIndex == 2) {
             self.requestDetails[_requestId].apiUintVars[keccak256("disputeCount")] = self.requestDetails[_requestId].apiUintVars[keccak256("disputeCount")] +1;
             //update dispute fee for this case
-            _fee = 1000e18*self.requestDetails[_requestId].apiUintVars[keccak256("disputeCount")];
+            _fee = self.uintVars[keccak256("stakeAmount")]*self.requestDetails[_requestId].apiUintVars[keccak256("disputeCount")];
         } else {
 
             _fee = self.uintVars[keccak256("disputeFee")] * self.disputesById[origID].disputeUintVars[keccak256("disputeRounds")];
