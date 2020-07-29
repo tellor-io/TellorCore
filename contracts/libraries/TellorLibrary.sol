@@ -120,7 +120,7 @@ library TellorLibrary {
         self.requestIdByTimestamp[_timeOfLastNewValue] = _requestId[0];  ///don't know what to do with this...
 
         if (self.uintVars[keccak256("currentReward")] > 1e18) {
-        self.uintVars[keccak256("currentReward")] = self.uintVars[keccak256("currentReward")] - self.uintVars[keccak256("currentReward")] * 30612633181126/1e18; 
+        self.uintVars[keccak256("currentReward")] = self.uintVars[keccak256("currentReward")] - self.uintVars[keccak256("currentReward")] *  15306316590563/1e18; 
         self.uintVars[keccak256("devShare")] = self.uintVars[keccak256("currentReward")] * 50/100;
         } else {
             self.uintVars[keccak256("currentReward")] = 1e18;
