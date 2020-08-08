@@ -41,13 +41,13 @@ library TellorDispute {
         //_miner is the miner being disputed. For every mined value 5 miners are saved in an array and the _minerIndex
         //provided by the party initiating the dispute
         address _miner = _request.minersByValue[_timestamp][_minerIndex];
-        bytes32 _hash = keccak256(abi.encodePacked(_miner, _requestId, _timestamp));
+        bytes32 _hash = keccak256(abi.encode(_miner, _requestId, _timestamp));
 
 
 
         //Increase the dispute count by 1
 
-        self.uintVars[keccak256("disputeCount")] = self.uintVars[keccak256("disputeCount")] + 1;
+        self.uintVars[keccak256("disputeCount")]++;
 
         //Sets the new disputeCount as the disputeId
         uint256 disputeId = self.uintVars[keccak256("disputeCount")];
@@ -166,7 +166,7 @@ library TellorDispute {
 
         //Ensure this has not already been executed/tallied
         require(disp.executed == false, "Dispute has been already executed");
-        require(now > disp.disputeUintVars[keccak256("minExecutionDate")], "Time for voting haven't elapsed");
+        require(now >= disp.disputeUintVars[keccak256("minExecutionDate")], "Time for voting haven't elapsed");
         require(disp.reportingParty != address(0));
         //If the vote is not a proposed fork
         if (disp.isPropFork == false) {
@@ -197,7 +197,7 @@ library TellorDispute {
     * @param _propNewTellorAddress address for new proposed Tellor
     */
     function proposeFork(TellorStorage.TellorStorageStruct storage self, address _propNewTellorAddress) public {
-        bytes32 _hash = keccak256(abi.encodePacked(_propNewTellorAddress));
+        bytes32 _hash = keccak256(abi.encode(_propNewTellorAddress));
         TellorTransfer.doTransfer(self, msg.sender, address(this), 100e18); //This is the fork fee (just 100 tokens flat, no refunds)
         self.uintVars[keccak256("disputeCount")]++;
         uint256 disputeId = self.uintVars[keccak256("disputeCount")];
@@ -321,10 +321,10 @@ library TellorDispute {
     * of staked miners
     */
     function updateMinDisputeFee(TellorStorage.TellorStorageStruct storage self) public {
+        uint256 stakeAmount = self.uintVars[keccak256("stakeAmount")];
+        uint256 targetMiners = self.uintVars[keccak256("stakeAmount")];
         self.uintVars[keccak256("disputeFee")] = SafeMath.max(15e18,
-                (self.uintVars[keccak256("stakeAmount")]-
-                (self.uintVars[keccak256("stakeAmount")]* 
-                (SafeMath.min(self.uintVars[keccak256("targetMiners")],self.uintVars[keccak256("stakerCount")])*1000)/
-                self.uintVars[keccak256("targetMiners")])/1000));
+                (stakeAmount-(stakeAmount*(SafeMath.min(targetMiners,self.uintVars[keccak256("stakerCount")])*1000)/
+                targetMiners)/1000));
     }
 }

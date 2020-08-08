@@ -20,7 +20,7 @@ library Utilities {
     function getMax(uint256[51] memory data) internal pure returns (uint256 max, uint256 maxIndex) {
         max = data[1];
         maxIndex = 1;
-        for (uint256 i = 1; i < data.length; i++) {
+        for (uint256 i = 2; i < data.length; i++) {
             if (data[i] > max) {
                 max = data[i];
                 maxIndex = i;
@@ -36,7 +36,7 @@ library Utilities {
     function getMin(uint256[51] memory data) internal pure returns (uint256 min, uint256 minIndex) {
         minIndex = data.length - 1;
         min = data[minIndex];
-        for (uint256 i = data.length - 1; i > 0; i--) {
+        for (uint256 i = data.length - 2; i > 0; i--) {
             if (data[i] < min) {
                 min = data[i];
                 minIndex = i;
