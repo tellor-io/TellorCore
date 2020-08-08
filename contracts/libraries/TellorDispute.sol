@@ -181,11 +181,9 @@ library TellorDispute {
                     if(stakes.currentStatus == 3){
                         stakes.currentStatus = 4;
                     }
-        } else {
-            if (disp.tally > 0 && uint(disp.tally) >= ((self.uintVars[keccak256("total_supply")] * 10) / 100)) {
-                disp.disputeVotePassed = true;
-                emit NewTellorAddress(disp.proposedForkAddress);
-            }
+        } else if (disp.tally > 0 && uint(disp.tally) >= ((self.uintVars[keccak256("total_supply")] * 10) / 100)) {
+            disp.disputeVotePassed = true;
+            emit NewTellorAddress(disp.proposedForkAddress);
         }
         disp.disputeUintVars[keccak256("tallyDate")] = now;
         disp.executed = true;
@@ -295,12 +293,13 @@ library TellorDispute {
             else {
                 stakes.currentStatus = 1;
                 TellorStorage.Request storage _request = self.requestDetails[disp.disputeUintVars[keccak256("requestId")]];
+                uint256 tstamp = disp.disputeUintVars[keccak256("timestamp")];
                 if(disp.disputeUintVars[keccak256("minerSlot")] == 2) {
                     //note we still don't put timestamp back into array (is this an issue? (shouldn't be))
-                  _request.finalValues[disp.disputeUintVars[keccak256("timestamp")]] = disp.disputeUintVars[keccak256("value")];
+                  _request.finalValues[tstamp] = disp.disputeUintVars[keccak256("value")];
                 }
-                if (_request.inDispute[disp.disputeUintVars[keccak256("timestamp")]] == true) {
-                    _request.inDispute[disp.disputeUintVars[keccak256("timestamp")]] = false;
+                if (_request.inDispute[tstamp] == true) {
+                    _request.inDispute[tstamp] = false;
                 }
                 for(uint i = 0; i < disp.disputeUintVars[keccak256("disputeRounds")];i++){
                     uint256 _id = disp.disputeUintVars[keccak256(abi.encodePacked(disp.disputeUintVars[keccak256("disputeRounds")]-i))];
