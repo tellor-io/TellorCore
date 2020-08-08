@@ -64,11 +64,12 @@ library TellorLibrary {
         //difficulty up or donw by the difference between the target time and how long it took to solve the prevous challenge
         //otherwise it sets it to 1
         int256 _change = int256(SafeMath.min(1200, (now - self.uintVars[keccak256("timeOfLastValue")])));
-        _change = (int256(SafeMath.max(int256(self.uintVars[keccak256("difficulty")]) * (int256(self.uintVars[keccak256("timeTarget")]),_change) - _change)) / 4000;
+        int256 _diff = int256(self.uintVars[keccak256("difficulty")]);
+        _change = (int256(SafeMath.max(_diff *int256(self.uintVars[keccak256("timeTarget")]),_change)) - _change) / 4000;
         if (_change == 0) {
                 _change = 1;
             }
-        self.uintVars[keccak256("difficulty")]  = uint256(SafeMath.max(int256(self.uintVars[keccak256("difficulty")])+ _change,1));
+        self.uintVars[keccak256("difficulty")]  = uint256(SafeMath.max(_diff + _change,1));
         //Sets time of value submission rounded to 1 minute
         uint256 _timeOfLastNewValue = now - (now % 1 minutes);
         self.uintVars[keccak256("timeOfLastNewValue")] = _timeOfLastNewValue;
@@ -153,12 +154,13 @@ library TellorLibrary {
         //difficulty up or donw by the difference between the target time and how long it took to solve the prevous challenge
         //otherwise it sets it to 1
         int256 _change = int256(SafeMath.min(1200, (now - self.uintVars[keccak256("timeOfLastNewValue")])));
-        _change = (int256(SafeMath.max(int256(self.uintVars[keccak256("difficulty")]) * (int256(self.uintVars[keccak256("timeTarget")]),_change) - _change)) / 4000;
-
+       int256 _diff = int256(self.uintVars[keccak256("difficulty")]);
+        _change = (int256(SafeMath.max(_diff *int256(self.uintVars[keccak256("timeTarget")]),_change)) - _change) / 4000;
+        
         if (_change == 0) {
                 _change = 1;
             }
-        self.uintVars[keccak256("difficulty")]  = uint256(SafeMath.max(int256(self.uintVars[keccak256("difficulty")])+ _change,1));
+        self.uintVars[keccak256("difficulty")]  = uint256(SafeMath.max(_diff+ _change,1));
         //Sets time of value submission rounded to 1 minute
         uint256 _timeOfLastNewValue = now - (now % 1 minutes);
         self.uintVars[keccak256("timeOfLastNewValue")] = _timeOfLastNewValue;

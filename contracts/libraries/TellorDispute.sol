@@ -250,8 +250,7 @@ library TellorDispute {
     * @param _disputeId to unlock fee from
     */
     function unlockDisputeFee (TellorStorage.TellorStorageStruct storage self, uint _disputeId) public {
-        bytes32 _hash = self.disputesById[_disputeId].hash;
-        uint256 origID = self.disputeIdByDisputeHash[_hash];
+        uint256 origID = self.disputeIdByDisputeHash[self.disputesById[_disputeId].hash];
         uint256 lastID =  self.disputesById[origID].disputeUintVars[keccak256(abi.encodePacked(self.disputesById[origID].disputeUintVars[keccak256("disputeRounds")]))];
         if(lastID == 0){
             lastID = origID;
@@ -287,7 +286,7 @@ library TellorDispute {
                     }
                     TellorStorage.Dispute storage disp2 = self.disputesById[_id];
                         //transfer fee adjusted based on number of miners if the minerIndex is not 2(official value)
-                        TellorTransfer.doTransfer(self,address(this), disp2.reportingParty, disp2.disputeUintVars[keccak256("fee")]);
+                    TellorTransfer.doTransfer(self,address(this), disp2.reportingParty, disp2.disputeUintVars[keccak256("fee")]);
                 }
             }
             else {
@@ -321,7 +320,7 @@ library TellorDispute {
     */
     function updateMinDisputeFee(TellorStorage.TellorStorageStruct storage self) public {
         uint256 stakeAmount = self.uintVars[keccak256("stakeAmount")];
-        uint256 targetMiners = self.uintVars[keccak256("stakeAmount")];
+        uint256 targetMiners = self.uintVars[keccak256("targetMiners")];
         self.uintVars[keccak256("disputeFee")] = SafeMath.max(15e18,
                 (stakeAmount-(stakeAmount*(SafeMath.min(targetMiners,self.uintVars[keccak256("stakerCount")])*1000)/
                 targetMiners)/1000));

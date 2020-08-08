@@ -102,18 +102,19 @@ library TellorTransfer {
     * @return The balance at _blockNumber specified
     */
     function balanceOfAt(TellorStorage.TellorStorageStruct storage self, address _user, uint256 _blockNumber) public view returns (uint256) {
-        if ((self.balances[_user].length == 0) || (self.balances[_user][0].fromBlock > _blockNumber)) {
+        TellorStorage.Checkpoint[] storage checkpoints = self.balances[_user];
+        if (checkpoints.length == 0|| checkpoints[0].fromBlock > _blockNumber) {
             return 0;
         } else {
-            if (_block >= checkpoints[checkpoints.length - 1].fromBlock) return checkpoints[checkpoints.length - 1].value;
+            if (_blockNumber >= checkpoints[checkpoints.length - 1].fromBlock) return checkpoints[checkpoints.length - 1].value;
             // Binary search of the value in the array
             uint256 min = 0;
             uint256 max = checkpoints.length - 2;
             while (max > min) {
                 uint256 mid = (max + min + 1) / 2;
-                if  (checkpoints[mid].fromBlock == _block){
+                if  (checkpoints[mid].fromBlock ==_blockNumber){
                     return checkpoints[mid].value;
-                }else if(checkpoints[mid].fromBlock < _block) {
+                }else if(checkpoints[mid].fromBlock < _blockNumber) {
                     min = mid;
                 } else {
                     max = mid - 1;
