@@ -78,9 +78,9 @@ library TellorTransfer {
         require(_to != address(0), "Receiver is 0 address");
         //allowedToTrade checks the stakeAmount is removed from balance if the _user is staked
         require(allowedToTrade(self, _from, _amount), "Stake amount was not removed from balance");
-        uint256 previousBalance = balanceOfAt(self, _from, block.number);
+        uint256 previousBalance = balanceOf(self, _from);
         updateBalanceAtNow(self.balances[_from], previousBalance - _amount);
-        previousBalance = balanceOfAt(self, _to, block.number);
+        previousBalance = balanceOf(self,_to);
         require(previousBalance + _amount >= previousBalance, "Overflow happened"); // Check for overflow
         updateBalanceAtNow(self.balances[_to], previousBalance + _amount);
         emit Transfer(_from, _to, _amount);
@@ -105,31 +105,22 @@ library TellorTransfer {
         if ((self.balances[_user].length == 0) || (self.balances[_user][0].fromBlock > _blockNumber)) {
             return 0;
         } else {
-            return getBalanceAt(self.balances[_user], _blockNumber);
-        }
-    }
-
-    /**
-    * @dev Getter for balance for owner on the specified _block number
-    * @param checkpoints gets the mapping for the balances[owner]
-    * @param _block is the block number to search the balance on
-    * @return the balance at the checkpoint
-    */
-    function getBalanceAt(TellorStorage.Checkpoint[] storage checkpoints, uint256 _block) public view returns (uint256) {
-        if (checkpoints.length == 0) return 0;
-        if (_block >= checkpoints[checkpoints.length - 1].fromBlock) return checkpoints[checkpoints.length - 1].value;
-        // Binary search of the value in the array
-        uint256 min = 0;
-        uint256 max = checkpoints.length - 1;
-        while (max > min) {
-            uint256 mid = (max + min + 1) / 2;
-            if (checkpoints[mid].fromBlock <= _block) {
-                min = mid;
-            } else {
-                max = mid - 1;
+            if (_block >= checkpoints[checkpoints.length - 1].fromBlock) return checkpoints[checkpoints.length - 1].value;
+            // Binary search of the value in the array
+            uint256 min = 0;
+            uint256 max = checkpoints.length - 2;
+            while (max > min) {
+                uint256 mid = (max + min + 1) / 2;
+                if  (checkpoints[mid].fromBlock == _block){
+                    return checkpoints[mid].value;
+                }else if(checkpoints[mid].fromBlock < _block) {
+                    min = mid;
+                } else {
+                    max = mid - 1;
+                }
             }
+            return checkpoints[min].value;
         }
-        return checkpoints[min].value;
     }
     /**
     * @dev This function returns whether or not a given user is allowed to trade a given amount
