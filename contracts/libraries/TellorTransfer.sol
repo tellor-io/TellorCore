@@ -77,7 +77,7 @@ library TellorTransfer {
         require(_amount != 0, "Tried to send non-positive amount");
         require(_to != address(0), "Receiver is 0 address");
         //allowedToTrade checks the stakeAmount is removed from balance if the _user is staked
-        require(allowedToTrade(self, _from, _amount), "Stake amount was not removed from balance");
+        require(allowedToTrade(self, _from, _amount), "Should have sufficient balance to trade");
         uint256 previousBalance = balanceOf(self, _from);
         updateBalanceAtNow(self.balances[_from], previousBalance - _amount);
         previousBalance = balanceOf(self,_to);
@@ -132,10 +132,10 @@ library TellorTransfer {
     function allowedToTrade(TellorStorage.TellorStorageStruct storage self, address _user, uint256 _amount) public view returns (bool) {
         if (self.stakerDetails[_user].currentStatus != 0 && self.stakerDetails[_user].currentStatus < 4) {
             //Subtracts the stakeAmount from balance if the _user is staked
-            if (balanceOf(self, _user).sub(self.uintVars[keccak256("stakeAmount")]).sub(_amount) >= 0) {
+            if (balanceOf(self, _user)- self.uintVars[keccak256("stakeAmount")] -_amount >= 0) {
                 return true;
             }
-        } else if (balanceOf(self, _user).sub(_amount) >= 0) {
+        } else if (balanceOf(self, _user) -_amount >= 0) {
             return true;
         }
         return false;
@@ -148,10 +148,10 @@ library TellorTransfer {
     */
     function updateBalanceAtNow(TellorStorage.Checkpoint[] storage checkpoints, uint256 _value) public {
         if ((checkpoints.length == 0) || (checkpoints[checkpoints.length - 1].fromBlock != block.number)) {
-           checkpoints[checkpoints.length++] =TellorStorage.Checkpoint({
+           checkpoints.push(TellorStorage.Checkpoint({
                 fromBlock : uint128(block.number),
                 value : uint128(_value)
-            });
+            }));
         } else {
             TellorStorage.Checkpoint storage oldCheckPoint = checkpoints[checkpoints.length - 1];
             oldCheckPoint.value = uint128(_value);
