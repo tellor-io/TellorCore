@@ -64,20 +64,11 @@ library TellorLibrary {
         //difficulty up or donw by the difference between the target time and how long it took to solve the prevous challenge
         //otherwise it sets it to 1
         int256 _change = int256(SafeMath.min(1200, (now - self.uintVars[keccak256("timeOfLastValue")])));
-        _change = (int256(self.uintVars[keccak256("difficulty")]) * (int256(self.uintVars[keccak256("timeTarget")]) - _change)) / 4000;
-        if (_change < 2 && _change > -2) {
-            if (_change >= 0) {
+        _change = (int256(SafeMath.max(int256(self.uintVars[keccak256("difficulty")]) * (int256(self.uintVars[keccak256("timeTarget")]),_change) - _change)) / 4000;
+        if (_change == 0) {
                 _change = 1;
-            } else {
-                _change = -1;
             }
-        }
-
-        if ((int256(self.uintVars[keccak256("difficulty")]) + _change) <= 0) {
-            self.uintVars[keccak256("difficulty")] = 1;
-        } else {
-            self.uintVars[keccak256("difficulty")] = uint256(int256(self.uintVars[keccak256("difficulty")]) + _change);
-        }
+        self.uintVars[keccak256("difficulty")]  = uint256(SafeMath.max(int256(self.uintVars[keccak256("difficulty")])+ _change,1));
         //Sets time of value submission rounded to 1 minute
         uint256 _timeOfLastNewValue = now - (now % 1 minutes);
         self.uintVars[keccak256("timeOfLastNewValue")] = _timeOfLastNewValue;
@@ -127,10 +118,7 @@ library TellorLibrary {
         }
         //update the total supply
         self.uintVars[keccak256("total_supply")] +=  self.uintVars[keccak256("devShare")] + self.uintVars[keccak256("currentReward")]*5 - (self.uintVars[keccak256("currentTotalTips")]);
-        //transfer to zero address ( do not need, just leave it in addressThis)
-        //TellorTransfer.doTransfer(self, address(this), address(0x0), self.uintVars[keccak256("currentTotalTips")]);
-        //pay the dev-share
-        TellorTransfer.doTransfer(self, address(this), self.addressVars[keccak256("_owner")],  self.uintVars[keccak256("devShare")]); //The ten there is the devshare
+        TellorTransfer.doTransfer(self, address(this), self.addressVars[keccak256("_owner")],  self.uintVars[keccak256("devShare")]);
         //add timeOfLastValue to the newValueTimestamps array
         self.newValueTimestamps.push(_timeOfLastNewValue);
         self.uintVars[keccak256("_tblock")] ++;
@@ -142,7 +130,7 @@ library TellorLibrary {
             self.uintVars[keccak256("currentTotalTips")] += self.requestDetails[_topId[i]].apiUintVars[keccak256("totalTip")];
         }
         //Issue the the next challenge
-        self.currentChallenge = keccak256(abi.encodePacked(_nonce, self.currentChallenge, blockhash(block.number - 1))); // Save hash for next proof
+        self.currentChallenge = keccak256(abi.encode(_nonce, self.currentChallenge, blockhash(block.number - 1))); // Save hash for next proof
         emit NewChallenge(
             self.currentChallenge,
             _topId,
@@ -165,22 +153,12 @@ library TellorLibrary {
         //difficulty up or donw by the difference between the target time and how long it took to solve the prevous challenge
         //otherwise it sets it to 1
         int256 _change = int256(SafeMath.min(1200, (now - self.uintVars[keccak256("timeOfLastNewValue")])));
-        _change = (int256(self.uintVars[keccak256("difficulty")]) * (int256(self.uintVars[keccak256("timeTarget")]) - _change)) / 4000;
+        _change = (int256(SafeMath.max(int256(self.uintVars[keccak256("difficulty")]) * (int256(self.uintVars[keccak256("timeTarget")]),_change) - _change)) / 4000;
 
-        if (_change < 2 && _change > -2) {
-            if (_change >= 0) {
+        if (_change == 0) {
                 _change = 1;
-            } else {
-                _change = -1;
             }
-        }
-
-        if ((int256(self.uintVars[keccak256("difficulty")]) + _change) <= 0) {
-            self.uintVars[keccak256("difficulty")] = 1;
-        } else {
-            self.uintVars[keccak256("difficulty")] = uint256(int256(self.uintVars[keccak256("difficulty")]) + _change);
-        }
-
+        self.uintVars[keccak256("difficulty")]  = uint256(SafeMath.max(int256(self.uintVars[keccak256("difficulty")])+ _change,1));
         //Sets time of value submission rounded to 1 minute
         uint256 _timeOfLastNewValue = now - (now % 1 minutes);
         self.uintVars[keccak256("timeOfLastNewValue")] = _timeOfLastNewValue;
@@ -221,7 +199,7 @@ library TellorLibrary {
         //update the total supply
         self.uintVars[keccak256("total_supply")] +=  self.uintVars[keccak256("devShare")] + self.uintVars[keccak256("currentReward")]*5 ;
         //pay the dev-share
-        TellorTransfer.doTransfer(self, address(this), self.addressVars[keccak256("_owner")],  self.uintVars[keccak256("devShare")]); //The ten there is the devshare
+        TellorTransfer.doTransfer(self, address(this), self.addressVars[keccak256("_owner")],  self.uintVars[keccak256("devShare")]);
         //Save the official(finalValue), timestamp of it, 5 miners and their submitted values for it, and its block number
         _request.finalValues[_timeOfLastNewValue] = a[2].value;
         _request.requestTimestamps.push(_timeOfLastNewValue);
@@ -249,7 +227,7 @@ library TellorLibrary {
             self.requestQ[self.requestDetails[i+1].apiUintVars[keccak256("requestQPosition")]] = 0;
             self.uintVars[keccak256("currentTotalTips")] += self.requestDetails[i+1].apiUintVars[keccak256("totalTip")];
         }
-        self.currentChallenge = keccak256(abi.encodePacked(_nonce, self.currentChallenge, blockhash(block.number - 1))); // Save hash for next proof
+        self.currentChallenge = keccak256(abi.encode(_nonce, self.currentChallenge, blockhash(block.number - 1))); // Save hash for next proof
         emit NewChallenge(
             self.currentChallenge,
             [uint256(1),uint256(2),uint256(3),uint256(4),uint256(5)],
@@ -298,7 +276,6 @@ library TellorLibrary {
 
         //Update the miner status to true once they submit a value so they don't submit more than once
         self.minersByChallenge[self.currentChallenge][msg.sender] = true;
-        //If 5 values have been received, adjust the difficulty otherwise sort the values until 5 are received
         if (self.uintVars[keccak256("slotProgress")] == 5) {
             newBlock(self, _nonce, _requestId);
         }
@@ -356,7 +333,6 @@ library TellorLibrary {
         //Update the miner status to true once they submit a value so they don't submit more than once
         self.minersByChallenge[self.currentChallenge][msg.sender] = true;
         emit NonceSubmitted(msg.sender, _nonce, _requestId, _value, self.currentChallenge);
-        //If 5 values have been received, adjust the difficulty otherwise sort the values until 5 are received
         if (self.uintVars[keccak256("slotProgress")] == 5) {
             newBlock(self, _nonce, _requestId);
             self.uintVars[keccak256("slotProgress")] = 0;
