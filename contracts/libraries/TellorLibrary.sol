@@ -65,7 +65,7 @@ library TellorLibrary {
         //otherwise it sets it to 1
         int256 _change = int256(SafeMath.min(1200, (now - self.uintVars[keccak256("timeOfLastValue")])));
         int256 _diff = int256(self.uintVars[keccak256("difficulty")]);
-        _change = (int256(SafeMath.max(_diff *int256(self.uintVars[keccak256("timeTarget")]),_change)) - _change) / 4000;
+        _change = (_diff * (int256(self.uintVars[keccak256("timeTarget")]) - _change)) / 4000;
         if (_change == 0) {
                 _change = 1;
             }
@@ -155,7 +155,7 @@ library TellorLibrary {
         //otherwise it sets it to 1
         int256 _change = int256(SafeMath.min(1200, (now - self.uintVars[keccak256("timeOfLastNewValue")])));
        int256 _diff = int256(self.uintVars[keccak256("difficulty")]);
-        _change = (int256(SafeMath.max(_diff *int256(self.uintVars[keccak256("timeTarget")]),_change)) - _change) / 4000;
+        _change = (_diff * (int256(self.uintVars[keccak256("timeTarget")]) - _change)) / 4000;
         
         if (_change == 0) {
                 _change = 1;
