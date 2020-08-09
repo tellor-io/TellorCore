@@ -48,138 +48,138 @@ contract('Mining Tests', function(accounts) {
         // }
     });
 
-   //  it("test utilities",async function(){
-   //      var myArr = []
-   //      for(var i=50;i>=0;i--){
-   //          myArr.push(i)
-   //      }
-   //      utilities = await UtilitiesTests.new(oracle.address)
-   //      top5N = await utilities.testgetMax5(myArr)
-   //      let q = await oracle.getRequestQ();
-   //      for(var i=0;i<5;i++){
-   //          assert(top5N['_max'][i] == myArr[i+1])
-   //          assert(top5N['_index'][i] == i+1)
-   //      }
+    it("test utilities",async function(){
+        var myArr = []
+        for(var i=50;i>=0;i--){
+            myArr.push(i)
+        }
+        utilities = await UtilitiesTests.new(oracle.address)
+        top5N = await utilities.testgetMax5(myArr)
+        let q = await oracle.getRequestQ();
+        for(var i=0;i<5;i++){
+            assert(top5N['_max'][i] == myArr[i+1])
+            assert(top5N['_index'][i] == i+1)
+        }
 
-   //  });
-   //  it("getVariables", async function(){
-   //      vars = await web3.eth.call({to:oracle.address,from:accounts[0],data:oracle2.methods.getNewCurrentVariables().encodeABI()})
+    });
+    it("getVariables", async function(){
+        vars = await web3.eth.call({to:oracle.address,from:accounts[0],data:oracle2.methods.getNewCurrentVariables().encodeABI()})
         
-   //      vars =  await oracle2.methods.getNewCurrentVariables().call()
-   //      assert(vars['1'].length == 5, "ids should be populated");
-   //      assert(vars['2'] > 0, "difficulty should be correct")
-   //      assert(vars['3'] > 0, "tip should be correct");  
-   //  });
-   //  it("getTopRequestIDs", async function(){
-   //      vars = await oracle2.methods.getTopRequestIDs().call()
-   //      for(var i = 0;i<5;i++){
-   //          assert(vars[0]= i+6)
-   //      }
-   //  });
-   //  it("Test miner", async function () {
-   //      for(var i = 0;i<5;i++){
-   //          await web3.eth.sendTransaction({to:oracle.address,from:accounts[i],gas:10000000,data:oracle2.methods.testSubmitMiningSolution("nonce",[1,2,3,4,5],[1200,1300,1400,1500,1600]).encodeABI()})
-   //      }
-   //      vars = await oracle.getLastNewValueById(5);
-   //      assert(vars[0] > 0, "value should be positive");
-   //      assert(vars[1] == true, "value should be there")
-   // });
-   //  it("Test Miner decreasing payout", async function () {
-   //      balances = []
-   //      for(var i = 0;i<6;i++){
-   //          balances[i] = await oracle.balanceOf(accounts[i]);
-   //      }
-   //      for(var i = 0;i<5;i++){
-   //          await web3.eth.sendTransaction({to:oracle.address,from:accounts[i],gas:7000000,data:oracle2.methods.testSubmitMiningSolution("nonce",[1,2,3,4,5],[1200,1300,1400,1500,1600]).encodeABI()})
-   //      }
-   //      new_balances = []
-   //      for(var i = 0;i<6;i++){
-   //          new_balances[i] = await oracle.balanceOf(accounts[i]);
-   //      }
-   //      changes = []
-   //              for(var i = 0;i<6;i++){
-   //          changes[i] = new_balances[i] - balances[i]
-   //      }
-   //      vars =  await oracle2.methods.getNewCurrentVariables().call()
-   //      for(var i = 0;i<5;i++){
-   //          await web3.eth.sendTransaction({to:oracle.address,from:accounts[i],gas:7000000,data:oracle2.methods.testSubmitMiningSolution("nonce",vars['1'],[1200,1300,1400,1500,1600]).encodeABI()})
-   //      }
-   //      new_balances2 = []
-   //      for(var i = 0;i<6;i++){
-   //          new_balances2[i] = await oracle.balanceOf(accounts[i]);
-   //      }
-   //      changes2 = []
-   //      for(var i = 0;i<6;i++){
-   //          changes2[i] = new_balances2[i] - new_balances[i]
-   //      }
-   //      assert(changes2[1] < changes[1]);
-   //      assert(changes2[2] < changes[2]);
-   //      assert(changes2[3] < changes[4]);
-   //      assert(changes2[4] < changes[4]);
-   //      assert(changes2[0] < changes[0], "miner payout should be decreasing");
-   //  });
-   // it("Test Difficulty Adjustment", async function () {
-   //      for(var i = 0;i<5;i++){
-   //          await web3.eth.sendTransaction({to:oracle.address,from:accounts[i],gas:7000000,data:oracle2.methods.testSubmitMiningSolution("nonce",[1,2,3,4,5],[1200,1300,1400,1500,1600]).encodeABI()})
-   //      }
-   //      diff1 =await oracle2.methods.getNewCurrentVariables().call()
-   //      assert(diff1[2] > 1, "difficulty greater than 1");//difficulty not changing.....
-   //      vars =  await oracle2.methods.getNewCurrentVariables().call()
-   //      for(var i = 0;i<5;i++){
-   //          await web3.eth.sendTransaction({to:oracle.address,from:accounts[i],gas:7000000,data:oracle2.methods.testSubmitMiningSolution("nonce",vars['1'],[1200,1300,1400,1500,1600]).encodeABI()})
-   //      }
-   //      vars = await oracle2.methods.getNewCurrentVariables().call()
-   //      assert(vars[2] > diff1[2], "difficulty should continue to move up");
-   //  });
-   //  it("Test Get MinersbyValue ", async function () {
-   //      let res;
-   //      for(var i = 0;i<5;i++){
-   //          res = await web3.eth.sendTransaction({to:oracle.address,from:accounts[i],gas:7000000,data:oracle2.methods.testSubmitMiningSolution("nonce",[1,2,3,4,5],[1200,1300,1400,1500,1600]).encodeABI()})
-   //      }    
-   //      res = web3.eth.abi.decodeParameters(['uint256[5]','uint256','uint256[5]','uint256'],res.logs['2'].data)
-   //      var miners = await oracle.getMinersByRequestIdAndTimestamp(1, res[1]);
-   //      for(var i=0;i<5;i++){
-   //      	assert(miners[i] == accounts[i], "miner should be correct")
-   //      }
-   //  });
+        vars =  await oracle2.methods.getNewCurrentVariables().call()
+        assert(vars['1'].length == 5, "ids should be populated");
+        assert(vars['2'] > 0, "difficulty should be correct")
+        assert(vars['3'] > 0, "tip should be correct");  
+    });
+    it("getTopRequestIDs", async function(){
+        vars = await oracle2.methods.getTopRequestIDs().call()
+        for(var i = 0;i<5;i++){
+            assert(vars[0]= i+6)
+        }
+    });
+    it("Test miner", async function () {
+        for(var i = 0;i<5;i++){
+            await web3.eth.sendTransaction({to:oracle.address,from:accounts[i],gas:10000000,data:oracle2.methods.testSubmitMiningSolution("nonce",[1,2,3,4,5],[1200,1300,1400,1500,1600]).encodeABI()})
+        }
+        vars = await oracle.getLastNewValueById(5);
+        assert(vars[0] > 0, "value should be positive");
+        assert(vars[1] == true, "value should be there")
+   });
+    it("Test Miner decreasing payout", async function () {
+        balances = []
+        for(var i = 0;i<6;i++){
+            balances[i] = await oracle.balanceOf(accounts[i]);
+        }
+        for(var i = 0;i<5;i++){
+            await web3.eth.sendTransaction({to:oracle.address,from:accounts[i],gas:7000000,data:oracle2.methods.testSubmitMiningSolution("nonce",[1,2,3,4,5],[1200,1300,1400,1500,1600]).encodeABI()})
+        }
+        new_balances = []
+        for(var i = 0;i<6;i++){
+            new_balances[i] = await oracle.balanceOf(accounts[i]);
+        }
+        changes = []
+                for(var i = 0;i<6;i++){
+            changes[i] = new_balances[i] - balances[i]
+        }
+        vars =  await oracle2.methods.getNewCurrentVariables().call()
+        for(var i = 0;i<5;i++){
+            await web3.eth.sendTransaction({to:oracle.address,from:accounts[i],gas:7000000,data:oracle2.methods.testSubmitMiningSolution("nonce",vars['1'],[1200,1300,1400,1500,1600]).encodeABI()})
+        }
+        new_balances2 = []
+        for(var i = 0;i<6;i++){
+            new_balances2[i] = await oracle.balanceOf(accounts[i]);
+        }
+        changes2 = []
+        for(var i = 0;i<6;i++){
+            changes2[i] = new_balances2[i] - new_balances[i]
+        }
+        assert(changes2[1] < changes[1]);
+        assert(changes2[2] < changes[2]);
+        assert(changes2[3] < changes[4]);
+        assert(changes2[4] < changes[4]);
+        assert(changes2[0] < changes[0], "miner payout should be decreasing");
+    });
+   it("Test Difficulty Adjustment", async function () {
+        for(var i = 0;i<5;i++){
+            await web3.eth.sendTransaction({to:oracle.address,from:accounts[i],gas:7000000,data:oracle2.methods.testSubmitMiningSolution("nonce",[1,2,3,4,5],[1200,1300,1400,1500,1600]).encodeABI()})
+        }
+        diff1 =await oracle2.methods.getNewCurrentVariables().call()
+        assert(diff1[2] > 1, "difficulty greater than 1");//difficulty not changing.....
+        vars =  await oracle2.methods.getNewCurrentVariables().call()
+        for(var i = 0;i<5;i++){
+            await web3.eth.sendTransaction({to:oracle.address,from:accounts[i],gas:7000000,data:oracle2.methods.testSubmitMiningSolution("nonce",vars['1'],[1200,1300,1400,1500,1600]).encodeABI()})
+        }
+        vars = await oracle2.methods.getNewCurrentVariables().call()
+        assert(vars[2] > diff1[2], "difficulty should continue to move up");
+    });
+    it("Test Get MinersbyValue ", async function () {
+        let res;
+        for(var i = 0;i<5;i++){
+            res = await web3.eth.sendTransaction({to:oracle.address,from:accounts[i],gas:7000000,data:oracle2.methods.testSubmitMiningSolution("nonce",[1,2,3,4,5],[1200,1300,1400,1500,1600]).encodeABI()})
+        }    
+        res = web3.eth.abi.decodeParameters(['uint256[5]','uint256','uint256[5]','uint256'],res.logs['2'].data)
+        var miners = await oracle.getMinersByRequestIdAndTimestamp(1, res[1]);
+        for(var i=0;i<5;i++){
+        	assert(miners[i] == accounts[i], "miner should be correct")
+        }
+    });
     
-   //  it("Test dev Share", async function(){
-   //      begbal = await oracle.balanceOf(accounts[0]);
-   //      for(var i = 1;i<6;i++){
-   //          await web3.eth.sendTransaction({to:oracle.address,from:accounts[i],gas:7000000,data:oracle2.methods.testSubmitMiningSolution("nonce",[1,2,3,4,5],[1200,1300,1400,1500,1600]).encodeABI()})
-   //      }
-   //      endbal = await oracle.balanceOf(accounts[0]);
-   //      assert((endbal - begbal)/1e18  >= 1.2, "devShare")
-   //      assert((endbal - begbal)/1e18  <= 1.25, "devShare2")
-   //  }); 
+    it("Test dev Share", async function(){
+        begbal = await oracle.balanceOf(accounts[0]);
+        for(var i = 1;i<6;i++){
+            await web3.eth.sendTransaction({to:oracle.address,from:accounts[i],gas:7000000,data:oracle2.methods.testSubmitMiningSolution("nonce",[1,2,3,4,5],[1200,1300,1400,1500,1600]).encodeABI()})
+        }
+        endbal = await oracle.balanceOf(accounts[0]);
+        assert((endbal - begbal)/1e18  >= 1.2, "devShare")
+        assert((endbal - begbal)/1e18  <= 1.25, "devShare2")
+    }); 
 
-   //  it("Test miner, alternating api request on Q and auto select", async function () {
-   //      for(var i = 0;i<5;i++){
-   //          await web3.eth.sendTransaction({to:oracle.address,from:accounts[i],gas:7000000,data:oracle2.methods.testSubmitMiningSolution("nonce",[1,2,3,4,5],[1200,1300,1400,1500,1600]).encodeABI()})
-   //      }
-   //      vars =  await oracle2.methods.getNewCurrentVariables().call()
-   //      for(var i = 0;i<5;i++){
-   //          await web3.eth.sendTransaction({to:oracle.address,from:accounts[i],gas:7000000,data:oracle2.methods.testSubmitMiningSolution("nonce",vars['1'],[1200,1300,1400,1500,1600]).encodeABI()})
-   //      }
-   //      await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.addTip(30,1000).encodeABI()});  
-   //      data = await oracle2.methods.getNewVariablesOnDeck().call();
-   //      assert(data[0].includes('30'), 'ID on deck should be 30');
-   //      assert(data[1][2] >1000, 'Tip should be over 1000');
-   //      await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.addTip(31,2000).encodeABI()});
-   //      data = await oracle2.methods.getNewVariablesOnDeck().call();
-   //       var x=0;
-   //       for(var i =0;i<5;i++){
-   //       	if(data[0][i] == 30){
-   //       		assert(data[1][i] >1000)
-   //       		x++;
-   //       	}
-   //       	else if(data[0][i]==31){
-   //       		assert(data[1][i]>2000)
-   //       		x++
-   //       	}
-   //       }
-   //      assert(x==2);
-   //  });
+    it("Test miner, alternating api request on Q and auto select", async function () {
+        for(var i = 0;i<5;i++){
+            await web3.eth.sendTransaction({to:oracle.address,from:accounts[i],gas:7000000,data:oracle2.methods.testSubmitMiningSolution("nonce",[1,2,3,4,5],[1200,1300,1400,1500,1600]).encodeABI()})
+        }
+        vars =  await oracle2.methods.getNewCurrentVariables().call()
+        for(var i = 0;i<5;i++){
+            await web3.eth.sendTransaction({to:oracle.address,from:accounts[i],gas:7000000,data:oracle2.methods.testSubmitMiningSolution("nonce",vars['1'],[1200,1300,1400,1500,1600]).encodeABI()})
+        }
+        await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.addTip(30,1000).encodeABI()});  
+        data = await oracle2.methods.getNewVariablesOnDeck().call();
+        assert(data[0].includes('30'), 'ID on deck should be 30');
+        assert(data[1][2] >1000, 'Tip should be over 1000');
+        await web3.eth.sendTransaction({to: oracle.address,from:accounts[2],gas:7000000,data:oracle2.methods.addTip(31,2000).encodeABI()});
+        data = await oracle2.methods.getNewVariablesOnDeck().call();
+         var x=0;
+         for(var i =0;i<5;i++){
+         	if(data[0][i] == 30){
+         		assert(data[1][i] >1000)
+         		x++;
+         	}
+         	else if(data[0][i]==31){
+         		assert(data[1][i]>2000)
+         		x++
+         	}
+         }
+        assert(x==2);
+    });
 
 
     it("Test dispute", async function () {

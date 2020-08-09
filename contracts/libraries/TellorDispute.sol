@@ -276,6 +276,7 @@ library TellorDispute {
                 updateMinDisputeFee(self);
                 //Decreases the stakerCount since the miner's stake is being slashed
                 if(stakes.currentStatus == 4){
+                    stakes.currentStatus = 5;
                     TellorTransfer.doTransfer(self,disp.reportedMiner,disp.reportingParty,self.uintVars[keccak256("stakeAmount")]);
                     stakes.currentStatus =0 ;
                 }

@@ -131,12 +131,12 @@ library TellorTransfer {
     * @return true if they are allowed to spend the amount being checked
     */
     function allowedToTrade(TellorStorage.TellorStorageStruct storage self, address _user, uint256 _amount) public view returns (bool) {
-        if (self.stakerDetails[_user].currentStatus != 0 && self.stakerDetails[_user].currentStatus < 4) {
+        if (self.stakerDetails[_user].currentStatus != 0 && self.stakerDetails[_user].currentStatus < 5) {
             //Subtracts the stakeAmount from balance if the _user is staked
-            if (balanceOf(self, _user)- self.uintVars[keccak256("stakeAmount")] -_amount >= 0) {
+            if (balanceOf(self, _user)- self.uintVars[keccak256("stakeAmount")] >= _amount) {
                 return true;
             }
-        } else if (balanceOf(self, _user) -_amount >= 0) {
+        } else if (balanceOf(self, _user) >= _amount) {
             return true;
         }
         return false;
