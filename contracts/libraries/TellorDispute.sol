@@ -41,7 +41,7 @@ library TellorDispute {
         //_miner is the miner being disputed. For every mined value 5 miners are saved in an array and the _minerIndex
         //provided by the party initiating the dispute
         address _miner = _request.minersByValue[_timestamp][_minerIndex];
-        bytes32 _hash = keccak256(abi.encode(_miner, _requestId, _timestamp));
+        bytes32 _hash = keccak256(abi.encodePacked(_miner, _requestId, _timestamp));
 
 
 
