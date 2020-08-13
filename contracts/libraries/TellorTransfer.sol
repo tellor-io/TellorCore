@@ -146,7 +146,7 @@ library TellorTransfer {
     * @param _value is the new balance
     */
     function updateBalanceAtNow(TellorStorage.Checkpoint[] storage checkpoints, uint256 _value) public {
-        if (checkpoints[checkpoints.length - 1].fromBlock != block.number) {
+        if (checkpoints.length == 0 || checkpoints[checkpoints.length - 1].fromBlock != block.number) {
            checkpoints.push(TellorStorage.Checkpoint({
                 fromBlock : uint128(block.number),
                 value : uint128(_value)
