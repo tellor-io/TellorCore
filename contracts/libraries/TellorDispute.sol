@@ -54,16 +54,16 @@ library TellorDispute {
                 //Ensures that a dispute is not already open for the that miner, requestId and timestamp
         uint256 hashId = self.disputeIdByDisputeHash[_hash];
         if(hashId != 0){
-            self.disputesById[disputeId].disputeUintVars[keccak256("origID")] = self.disputeIdByDisputeHash[_hash];
+            self.disputesById[disputeId].disputeUintVars[keccak256("origID")] = hashId;
 
         }
         else{
             self.disputeIdByDisputeHash[_hash] = disputeId;
+            hashId = disputeId;
         }
         uint256 origID = hashId;
-
-        self.disputesById[origID].disputeUintVars[keccak256("disputeRounds")]++;
-        uint256 dispRounds = self.disputesById[origID].disputeUintVars[keccak256("disputeRounds")];
+        uint256 dispRounds = self.disputesById[origID].disputeUintVars[keccak256("disputeRounds")] + 1;
+        self.disputesById[origID].disputeUintVars[keccak256("disputeRounds")] = dispRounds;
         self.disputesById[origID].disputeUintVars[keccak256(abi.encode(dispRounds))] = disputeId;
         if(disputeId != origID){
             uint256 lastID =  self.disputesById[origID].disputeUintVars[keccak256(abi.encode(dispRounds-1))];
