@@ -66,65 +66,65 @@ contract('Full Mining Tests', function(accounts) {
         }
     });
     console.log('START MINING RIG!!');
-  //   it("Test miner", async function () {
-		// var logMineWatcher = await promisifyLogWatch(oracle.address,'NewValue(uint256[5],uint256,uint256[5],uint256,bytes32)');
-  //       res = web3.eth.abi.decodeParameters(['uint256','uint256'],logMineWatcher.data);
-  //       assert(res['1'] > 0, "value should be positive");
-  //  });
+    it("Test miner", async function () {
+		var logMineWatcher = await promisifyLogWatch(oracle.address,'NewValue(uint256[5],uint256,uint256[5],uint256,bytes32)');
+        res = web3.eth.abi.decodeParameters(['uint256','uint256'],logMineWatcher.data);
+        assert(res['1'] > 0, "value should be positive");
+   });
 
- 	// it("Test 2 Mines", async function () {
-  //       for(var i = 0;i < 2;i++){
-  //           logMineWatcher = await promisifyLogWatch(oracle.address,'NewValue(uint256[5],uint256,uint256[5],uint256,bytes32)');//or Event Mine?
-  //   	}
-  //       res = web3.eth.abi.decodeParameters(['uint256','uint256'],logMineWatcher.data);
-  //       assert(res[0] > 0, "value should be positive");
-  //   });
+ 	it("Test 2 Mines", async function () {
+        for(var i = 0;i < 2;i++){
+            logMineWatcher = await promisifyLogWatch(oracle.address,'NewValue(uint256[5],uint256,uint256[5],uint256,bytes32)');//or Event Mine?
+    	}
+        res = web3.eth.abi.decodeParameters(['uint256','uint256'],logMineWatcher.data);
+        assert(res[0] > 0, "value should be positive");
+    });
        
-  // it("Test Total Supply Increase", async function () {
-  //       initTotalSupply = await oracle.totalSupply();
-  //       logMineWatcher = await promisifyLogWatch(oracle.address,'NewValue(uint256[5],uint256,uint256[5],uint256,bytes32)');//or Event Mine?
-  //       newTotalSupply = await oracle.totalSupply();
-  //       it= await web3.utils.fromWei(initTotalSupply, 'ether');
-  //       ts= await web3.utils.fromWei(newTotalSupply, 'ether');    
-  //       assert(ts-it >= 13,"Difference should equal the payout");
-  //       assert(ts-it < 15,"Difference should equal the payout");
-  //   });
+  it("Test Total Supply Increase", async function () {
+        initTotalSupply = await oracle.totalSupply();
+        logMineWatcher = await promisifyLogWatch(oracle.address,'NewValue(uint256[5],uint256,uint256[5],uint256,bytes32)');//or Event Mine?
+        newTotalSupply = await oracle.totalSupply();
+        it= await web3.utils.fromWei(initTotalSupply, 'ether');
+        ts= await web3.utils.fromWei(newTotalSupply, 'ether');    
+        assert(ts-it >= 13,"Difference should equal the payout");
+        assert(ts-it < 15,"Difference should equal the payout");
+    });
 
-  // it("Test Total Supply decreasing increase", async function () {
-  //       initTotalSupply = await oracle.totalSupply();
-  //       logMineWatcher = await promisifyLogWatch(oracle.address,'NewValue(uint256[5],uint256,uint256[5],uint256,bytes32)');//or Event Mine?
-  //       newTotalSupply = await oracle.totalSupply();
-  //       it= await web3.utils.fromWei(initTotalSupply, 'ether');
-  //       ts= await web3.utils.fromWei(newTotalSupply, 'ether');         
-  //       tsChange = ts-it
-  //       initTotalSupply = await oracle.totalSupply();
-  //       logMineWatcher = await promisifyLogWatch(oracle.address,'NewValue(uint256[5],uint256,uint256[5],uint256,bytes32)');//or Event Mine?
-  //       newTotalSupply = await oracle.totalSupply();
-  //       it= await web3.utils.fromWei(initTotalSupply, 'ether');
-  //       ts= await web3.utils.fromWei(newTotalSupply, 'ether');   
-  //       tsChange2 = ts-it      
-  //       assert(tsChange2 < tsChange,"TS change should go down");
-  //   });
-  //   it("Test Is Data", async function () {
-  //       res = await promisifyLogWatch(oracle.address, 'NewValue(uint256[5],uint256,uint256[5],uint256,bytes32)');//or Event Mine?
-  //       res = web3.eth.abi.decodeParameters(['uint256[5]','uint256','uint256[5]','uint256'],res.data) 
-  //       data = await oracle.getMinedBlockNum(1,res[1]);
-  //       assert(data > 0, "Should be true if Data exist for that point in time");
-  //   });
-  //   it("Test Get Last Query", async function () {
-  //       res = await promisifyLogWatch(oracle.address, 'NewValue(uint256[5],uint256,uint256[5],uint256,bytes32)');//or Event Mine?
-  //       res = web3.eth.abi.decodeParameters(['uint256[5]','uint256','uint256[5]','uint256'],res.data)   
-  //       res2 = await oracle.getLastNewValue();
-  //       assert(res2 = res[0][4], "Ensure data exist for the last mine value");
-  //   });
-  //   it("Test Data Read", async function () {
-  //       res = await promisifyLogWatch(oracle.address, 'NewValue(uint256[5],uint256,uint256[5],uint256,bytes32)');//or Event Mine?
-  //       res = web3.eth.abi.decodeParameters(['uint256[5]','uint256','uint256[5]','uint256'],res.data)      
-  //       res2 = await oracle.retrieveData(1,res[1]);
-  //       assert(res2 = res[0][1], "Ensure data exist for the last mine value");
-  //       res2 = await oracle.getTimestampbyRequestIDandIndex(2,0);
-  //       assert(res2 == res[1]);
-  //   });
+  it("Test Total Supply decreasing increase", async function () {
+        initTotalSupply = await oracle.totalSupply();
+        logMineWatcher = await promisifyLogWatch(oracle.address,'NewValue(uint256[5],uint256,uint256[5],uint256,bytes32)');//or Event Mine?
+        newTotalSupply = await oracle.totalSupply();
+        it= await web3.utils.fromWei(initTotalSupply, 'ether');
+        ts= await web3.utils.fromWei(newTotalSupply, 'ether');         
+        tsChange = ts-it
+        initTotalSupply = await oracle.totalSupply();
+        logMineWatcher = await promisifyLogWatch(oracle.address,'NewValue(uint256[5],uint256,uint256[5],uint256,bytes32)');//or Event Mine?
+        newTotalSupply = await oracle.totalSupply();
+        it= await web3.utils.fromWei(initTotalSupply, 'ether');
+        ts= await web3.utils.fromWei(newTotalSupply, 'ether');   
+        tsChange2 = ts-it      
+        assert(tsChange2 < tsChange,"TS change should go down");
+    });
+    it("Test Is Data", async function () {
+        res = await promisifyLogWatch(oracle.address, 'NewValue(uint256[5],uint256,uint256[5],uint256,bytes32)');//or Event Mine?
+        res = web3.eth.abi.decodeParameters(['uint256[5]','uint256','uint256[5]','uint256'],res.data) 
+        data = await oracle.getMinedBlockNum(1,res[1]);
+        assert(data > 0, "Should be true if Data exist for that point in time");
+    });
+    it("Test Get Last Query", async function () {
+        res = await promisifyLogWatch(oracle.address, 'NewValue(uint256[5],uint256,uint256[5],uint256,bytes32)');//or Event Mine?
+        res = web3.eth.abi.decodeParameters(['uint256[5]','uint256','uint256[5]','uint256'],res.data)   
+        res2 = await oracle.getLastNewValue();
+        assert(res2 = res[0][4], "Ensure data exist for the last mine value");
+    });
+    it("Test Data Read", async function () {
+        res = await promisifyLogWatch(oracle.address, 'NewValue(uint256[5],uint256,uint256[5],uint256,bytes32)');//or Event Mine?
+        res = web3.eth.abi.decodeParameters(['uint256[5]','uint256','uint256[5]','uint256'],res.data)      
+        res2 = await oracle.retrieveData(1,res[1]);
+        assert(res2 = res[0][1], "Ensure data exist for the last mine value");
+        res2 = await oracle.getTimestampbyRequestIDandIndex(2,0);
+        assert(res2 == res[1]);
+    });
     it("Test Miner Payout", async function () {
         balances = []
         for(var i = 0;i<6;i++){
