@@ -28,7 +28,7 @@ function sleep_s(secs) {
   while ((+new Date) < secs);
 }
 
-let myarr = [10]
+let myarr = [52]
 
 module.exports = function() {
     let ins = Oracle.at(myOracle).then(ins=>{

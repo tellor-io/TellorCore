@@ -42,9 +42,10 @@ library TellorLibrary {
     function addTip(TellorStorage.TellorStorageStruct storage self, uint256 _requestId, uint256 _tip) public {
         require(_requestId != 0, "RequestId is 0");
         require(_tip != 0, "Tip should be greater than 0");
-        require(_requestId <= self.uintVars[keccak256("requestCount")]+1, "RequestId is not less than count");
-        if(_requestId > self.uintVars[keccak256("requestCount")]){
-            self.uintVars[keccak256("requestCount")]++;
+        uint256 _count =self.uintVars[keccak256("requestCount")];
+        require(_requestId <= _count + 1, "RequestId is not less than count");
+        if(_requestId == _count + 1){
+            self.uintVars[keccak256("requestCount")] = _count + 1;
         }
         TellorTransfer.doTransfer(self, msg.sender, address(this), _tip);
         //Update the information for the request that should be mined next based on the tip submitted
@@ -109,11 +110,11 @@ library TellorLibrary {
                 self.currentChallenge
             );
         //map the timeOfLastValue to the requestId that was just mined
-        self.requestIdByTimestamp[_timeOfLastNewValue] = _requestId[0];  ///don't know what to do with this...
-
+        self.requestIdByTimestamp[_timeOfLastNewValue] = _requestId[0];
         if (self.uintVars[keccak256("currentReward")] > 1e18) {
-        self.uintVars[keccak256("currentReward")] = self.uintVars[keccak256("currentReward")] - self.uintVars[keccak256("currentReward")] *  15306316590563/1e18; 
-        self.uintVars[keccak256("devShare")] = self.uintVars[keccak256("currentReward")] * 50/100;
+            //These number represent the inflation adjustement that started in 03/2019
+            self.uintVars[keccak256("currentReward")] = self.uintVars[keccak256("currentReward")] - self.uintVars[keccak256("currentReward")] *  15306316590563/1e18; 
+            self.uintVars[keccak256("devShare")] = self.uintVars[keccak256("currentReward")] * 50/100;
         } else {
             self.uintVars[keccak256("currentReward")] = 1e18;
         }
@@ -145,7 +146,7 @@ library TellorLibrary {
     * 5 values received, pays the miners, the dev share and assigns a new challenge
     * @param _nonce or solution for the PoW  for the requestId
     * @param _requestId for the current request being mined
-    ** OLD BUT HAS SWITCH!!!!!!!!
+    ** OLD BUT HAS SWITCH!!!!!!!!  -- Overladed function called once
     */
     function newBlock(TellorStorage.TellorStorageStruct storage self, string memory _nonce, uint256 _requestId) public {
         TellorStorage.Request storage _request = self.requestDetails[_requestId];
@@ -243,7 +244,7 @@ library TellorLibrary {
     * @param _nonce uint submitted by miner
     * @param _requestId the apiId being mined
     * @param _value of api query
-    ** OLD!!!!!!!!
+    ** OLD but used for switch - Overloaded function!!!!!!!!
     */
     function submitMiningSolution(TellorStorage.TellorStorageStruct storage self, string memory _nonce, uint256 _requestId, uint256 _value)
         public
@@ -309,13 +310,13 @@ library TellorLibrary {
                 || (now - (now % 1 minutes)) - self.uintVars[keccak256("timeOfLastNewValue")] >= 15 minutes,
             "Incorrect nonce for current challenge"
         );
-        require(now - self.uintVars[keccak256(abi.encodePacked(msg.sender))] > 1 hours, "Miner can only win rewards once per hour");
+        require(now - self.uintVars[keccak256(abi.encode(msg.sender))] > 1 hours, "Miner can only win rewards once per hour");
 
         //Make sure the miner does not submit a value more than once
         require(self.minersByChallenge[self.currentChallenge][msg.sender] == false, "Miner already submitted the value");
         //require the miner did not receive awards in the last hour
         //
-        self.uintVars[keccak256(abi.encodePacked(msg.sender))] = now;
+        self.uintVars[keccak256(abi.encode(msg.sender))] = now;
         if(self.uintVars[keccak256("slotProgress")] == 0){
             self.uintVars[keccak256("runningTips")] = self.uintVars[keccak256("currentTotalTips")];
         }
@@ -478,7 +479,7 @@ library TellorLibrary {
         require(self.minersByChallenge[self.currentChallenge][msg.sender] == false, "Miner already submitted the value");
         //require the miner did not receive awards in the last hour
         //
-        self.uintVars[keccak256(abi.encodePacked(msg.sender))] = now;
+        self.uintVars[keccak256(abi.encode(msg.sender))] = now;
         if(self.uintVars[keccak256("slotProgress")] == 0){
             self.uintVars[keccak256("runningTips")] = self.uintVars[keccak256("currentTotalTips")];
         }

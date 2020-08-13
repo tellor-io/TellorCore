@@ -53,6 +53,7 @@ library TellorTransfer {
     */
     function approve(TellorStorage.TellorStorageStruct storage self, address _spender, uint256 _amount) public returns (bool) {
         require(_spender != address(0), "Spender is 0-address");
+        require(self.allowed[msg.sender][_spender] == 0, "Spender is already approved");
         self.allowed[msg.sender][_spender] = _amount;
         emit Approval(msg.sender, _spender, _amount);
         return true;
@@ -76,7 +77,6 @@ library TellorTransfer {
     function doTransfer(TellorStorage.TellorStorageStruct storage self, address _from, address _to, uint256 _amount) public {
         require(_amount != 0, "Tried to send non-positive amount");
         require(_to != address(0), "Receiver is 0 address");
-        //allowedToTrade checks the stakeAmount is removed from balance if the _user is staked
         require(allowedToTrade(self, _from, _amount), "Should have sufficient balance to trade");
         uint256 previousBalance = balanceOf(self, _from);
         updateBalanceAtNow(self.balances[_from], previousBalance - _amount);
@@ -136,10 +136,8 @@ library TellorTransfer {
             if (balanceOf(self, _user)- self.uintVars[keccak256("stakeAmount")] >= _amount) {
                 return true;
             }
-        } else if (balanceOf(self, _user) >= _amount) {
-            return true;
-        }
-        return false;
+        } 
+        return (balanceOf(self, _user) >= _amount);
     }
 
     /**
@@ -148,7 +146,7 @@ library TellorTransfer {
     * @param _value is the new balance
     */
     function updateBalanceAtNow(TellorStorage.Checkpoint[] storage checkpoints, uint256 _value) public {
-        if ((checkpoints.length == 0) || (checkpoints[checkpoints.length - 1].fromBlock != block.number)) {
+        if (checkpoints[checkpoints.length - 1].fromBlock != block.number) {
            checkpoints.push(TellorStorage.Checkpoint({
                 fromBlock : uint128(block.number),
                 value : uint128(_value)

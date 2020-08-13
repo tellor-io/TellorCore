@@ -37,7 +37,7 @@ library TellorStorage {
     }
 
     struct StakeInfo {
-        uint256 currentStatus; //0-not Staked, 1=Staked, 2=LockedForWithdraw 3= OnDispute 4=ReadyForUnlocking
+        uint256 currentStatus; //0-not Staked, 1=Staked, 2=LockedForWithdraw 3= OnDispute 4=ReadyForUnlocking 5=Unlocked
         uint256 startDate; //stake start date
     }
 

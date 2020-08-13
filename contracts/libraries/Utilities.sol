@@ -18,8 +18,8 @@ library Utilities {
     * @return max amount and its index within the array
     */
     function getMax(uint256[51] memory data) internal pure returns (uint256 max, uint256 maxIndex) {
-        max = data[1];
         maxIndex = 1;
+        max = data[maxIndex];
         for (uint256 i = 2; i < data.length; i++) {
             if (data[i] > max) {
                 max = data[i];
