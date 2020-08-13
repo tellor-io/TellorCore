@@ -136,6 +136,7 @@ library TellorTransfer {
             if (balanceOf(self, _user)- self.uintVars[keccak256("stakeAmount")] >= _amount) {
                 return true;
             }
+            return false;
         } 
         return (balanceOf(self, _user) >= _amount);
     }
