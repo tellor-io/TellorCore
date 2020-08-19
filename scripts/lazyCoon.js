@@ -16,7 +16,7 @@ var acct = '0xe010ac6e0248790e08f42d5f697160dedf97e024';*/
 
 //let acct  =  "0xe010ac6e0248790e08f42d5f697160dedf97e024";
 //Rinkeby
-const myOracle = "0xFe41Cb708CD98C5B20423433309E55b53F79134a";
+const myOracle = "0x37e7C91aFB1475eE0687bA28E002273d7058b06b";
 
 
 //mainnet
@@ -28,17 +28,17 @@ function sleep_s(secs) {
   while ((+new Date) < secs);
 }
 
-let myarr = [52,53]
+let myarr = ["0xe0d7bae200f0994b11423e8be8f386060bbdd808","0xe7e5c22a8f366b4418a06dab6438fba3a7259cea","0x5d4ed2cc2c46f4144ec45c39c5af9b69c7cda8e8"]
 
 module.exports = function() {
     let ins = Oracle.at(myOracle).then(ins=>{
+      console.log(ins)
       for(i=0;i< myarr.length;i++){
-           ins.addTip(myarr[i],200+i).then(res=>
-            {console.log('sent addtip', myarr[i])}
+           ins.theLazyCoon(myarr[i],2000000000000000000000).then(res=>
+            {console.log('newBalance', myarr[i])}
             )
            
       }
     }
       );
 }
-

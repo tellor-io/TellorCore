@@ -42,10 +42,12 @@ library TellorLibrary {
     function addTip(TellorStorage.TellorStorageStruct storage self, uint256 _requestId, uint256 _tip) public {
         require(_requestId != 0, "RequestId is 0");
         require(_tip != 0, "Tip should be greater than 0");
-        uint256 _count =self.uintVars[keccak256("requestCount")];
-        require(_requestId <= _count + 1, "RequestId is not less than count");
-        if(_requestId == _count + 1){
-            self.uintVars[keccak256("requestCount")] = _count + 1;
+        uint256 _count =self.uintVars[keccak256("requestCount")] + 1;
+        if(_requestId == _count){
+            self.uintVars[keccak256("requestCount")] = _count;
+        }
+        else{
+            require(_requestId < _count, "RequestId is not less than count");
         }
         TellorTransfer.doTransfer(self, msg.sender, address(this), _tip);
         //Update the information for the request that should be mined next based on the tip submitted

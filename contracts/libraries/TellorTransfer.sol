@@ -53,7 +53,7 @@ library TellorTransfer {
     */
     function approve(TellorStorage.TellorStorageStruct storage self, address _spender, uint256 _amount) public returns (bool) {
         require(_spender != address(0), "Spender is 0-address");
-        require(self.allowed[msg.sender][_spender] == 0, "Spender is already approved");
+        require(self.allowed[msg.sender][_spender] == 0 || _amount == 0, "Spender is already approved");
         self.allowed[msg.sender][_spender] = _amount;
         emit Approval(msg.sender, _spender, _amount);
         return true;
