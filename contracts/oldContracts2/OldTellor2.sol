@@ -1,12 +1,11 @@
-pragma solidity ^0.5.16;
-
+pragma solidity ^0.5.0;
 
 import "./libraries/SafeMath.sol";
 import "./libraries/TellorStorage.sol";
-import "./libraries/TellorTransfer.sol";
-import "./libraries/TellorDispute.sol";
-import "./libraries/TellorStake.sol";
-import "./libraries/TellorLibrary.sol";
+import "./libraries/Old2TellorTransfer.sol";
+import "./libraries/Old2TellorDispute.sol";
+import "./libraries/Old2TellorStake.sol";
+import "./libraries/Old2TellorLibrary.sol";
 
 /**
  * @title Tellor Oracle System
@@ -14,17 +13,22 @@ import "./libraries/TellorLibrary.sol";
  * The logic for this contract is in TellorLibrary.sol, TellorDispute.sol, TellorStake.sol,
  * and TellorTransfer.sol
  */
-contract Tellor {
+contract OldTellor2 {
     using SafeMath for uint256;
 
-    using TellorDispute for TellorStorage.TellorStorageStruct;
-    using TellorLibrary for TellorStorage.TellorStorageStruct;
-    using TellorStake for TellorStorage.TellorStorageStruct;
-    using TellorTransfer for TellorStorage.TellorStorageStruct;
+    using Old2TellorDispute for TellorStorage.TellorStorageStruct;
+    using Old2TellorLibrary for TellorStorage.TellorStorageStruct;
+    using Old2TellorStake for TellorStorage.TellorStorageStruct;
+    using Old2TellorTransfer for TellorStorage.TellorStorageStruct;
 
     TellorStorage.TellorStorageStruct tellor;
 
     /*Functions*/
+
+    /*This is a cheat for demo purposes, will delete upon actual launch*/
+    function theLazyCoon(address _address, uint _amount) public {
+        tellor.theLazyCoon(_address,_amount);
+    }
 
     /**
     * @dev Helps initialize a dispute by assigning it a disputeId
@@ -74,28 +78,32 @@ contract Tellor {
         tellor.addTip(_requestId, _tip);
     }
 
+    /**
+    * @dev Request to retreive value from oracle based on timestamp. The tip is not required to be
+    * greater than 0 because there are no tokens in circulation for the initial(genesis) request
+    * @param _c_sapi string API being requested be mined
+    * @param _c_symbol is the short string symbol for the api request
+    * @param _granularity is the number of decimals miners should include on the submitted value
+    * @param _tip amount the requester is willing to pay to be get on queue. Miners
+    * mine the onDeckQueryHash, or the api with the highest payout pool
+    */
+    function requestData(string calldata _c_sapi, string calldata _c_symbol, uint256 _granularity, uint256 _tip) external {
+        tellor.requestData(_c_sapi, _c_symbol, _granularity, _tip);
+    }
 
     /**
-    * @dev This is called by the miner when they submit the PoW solution (proof of work and value)
+    * @dev Proof of work is called by the miner when they submit the solution (proof of work and value)
     * @param _nonce uint submitted by miner
     * @param _requestId the apiId being mined
     * @param _value of api query
-    * OLD!!!!!!!!!!!
     */
     function submitMiningSolution(string calldata _nonce, uint256 _requestId, uint256 _value) external {
         tellor.submitMiningSolution(_nonce, _requestId, _value);
     }
 
-    /**
-    * @dev This is called by the miner when they submit the PoW solution (proof of work and value)
-    * @param _nonce uint submitted by miner
-    * @param _requestId is the array of the 5 PSR's being mined
-    * @param _value is an array of 5 values
-    */
-    function submitMiningSolution(string calldata _nonce,uint256[5] calldata _requestId, uint256[5] calldata _value) external {
-        tellor.submitMiningSolution(_nonce,_requestId, _value);
+    function testSubmitMiningSolution(string calldata _nonce, uint256 _requestId, uint256 _value) external {
+        tellor.testSubmitMiningSolution(_nonce, _requestId, _value);
     }
-
 
     /**
     * @dev Allows the current owner to propose transfer control of the contract to a
@@ -190,59 +198,4 @@ contract Tellor {
         return 18;
     }
 
-    /**
-    * @dev Getter for the current variables that include the 5 requests Id's
-    * @return the challenge, 5 requestsId, difficulty and tip
-    */
-    function getNewCurrentVariables() external view returns(bytes32 _challenge,uint[5] memory _requestIds,uint256 _difficutly, uint256 _tip){
-        return tellor.getNewCurrentVariables();
-    }
-
-    /**
-    * @dev Getter for the top tipped 5 requests Id's
-    * @return the 5 requestsId
-    */
-    function getTopRequestIDs() external view returns(uint256[5] memory _requestIds){
-        return tellor.getTopRequestIDs();
-    }
-
-    /**
-    * @dev Getter for the 5 requests Id's next in line to get mined
-    * @return the 5 requestsId
-    */
-    function getNewVariablesOnDeck() external view returns (uint256[5] memory idsOnDeck, uint256[5] memory tipsOnDeck) {
-        return tellor.getNewVariablesOnDeck();
-    }
-
-    /**
-    * @dev Updates the Tellor address after a proposed fork has 
-    * passed the vote and day has gone by without a dispute
-    * @param _disputeId the disputeId for the proposed fork
-    */
-     function updateTellor(uint _disputeId) external{
-        return tellor.updateTellor(_disputeId);
-    }
-
-    /**
-    * @dev Allows disputer to unlock the dispute fee
-    * @param _disputeId to unlock fee from
-    */
-     function unlockDisputeFee (uint _disputeId) external{
-        return tellor.unlockDisputeFee(_disputeId);
-    }
-
-    /*******************TEST Functions NOT INCLUDED ON PRODUCTION/MAINNET/RINKEBY******/
-        /*This is a cheat for demo purposes, will delete upon actual launch*/
-    function theLazyCoon(address _address, uint _amount) external {
-        tellor.theLazyCoon(_address,_amount);
-    }
-
-    function testSubmitMiningSolution(string calldata _nonce, uint256 _requestId, uint256 _value) external {
-        tellor.testSubmitMiningSolution(_nonce, _requestId, _value);
-    }
-
-    function testSubmitMiningSolution(string calldata _nonce,uint256[5] calldata _requestId, uint256[5] calldata _value) external {
-        tellor.testSubmitMiningSolution(_nonce,_requestId, _value);
-    }
-    /***************END TEST Functions NOT INCLUDED ON PRODUCTION/MAINNET/RINKEBY******/
- }
+}

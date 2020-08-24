@@ -2,7 +2,7 @@ pragma solidity ^0.5.0;
 
 import "./SafeMath.sol";
 import "./TellorStorage.sol";
-import "./Utilities.sol";
+import "./Old2Utilities.sol";
 
 /**
 * @title Tellor Getters Library
@@ -46,7 +46,7 @@ library TellorGettersLibrary {
     * @param _miner address that you want to know if they solved the challenge
     * @return true if the _miner address provided solved the
     */
-    function didMine(TellorStorage.TellorStorageStruct storage self, bytes32 _challenge, address _miner) public view returns (bool) {
+    function didMine(TellorStorage.TellorStorageStruct storage self, bytes32 _challenge, address _miner) internal view returns (bool) {
         return self.minersByChallenge[_challenge][_miner];
     }
 
@@ -188,7 +188,7 @@ library TellorGettersLibrary {
     */
     function getLastNewValueById(TellorStorage.TellorStorageStruct storage self, uint256 _requestId) internal view returns (uint256, bool) {
         TellorStorage.Request storage _request = self.requestDetails[_requestId];
-        if (_request.requestTimestamps.length != 0) {
+        if (_request.requestTimestamps.length > 0) {
             return (retrieveData(self, _requestId, _request.requestTimestamps[_request.requestTimestamps.length - 1]), true);
         } else {
             return (0, false);
@@ -400,13 +400,13 @@ library TellorGettersLibrary {
     function getTopRequestID(TellorStorage.TellorStorageStruct storage self) internal view returns (uint256 _requestId) {
         uint256 _max;
         uint256 _index;
-        (_max, _index) = Utilities.getMax(self.requestQ);
+        (_max, _index) = Old2Utilities.getMax(self.requestQ);
         _requestId = self.requestIdByRequestQIndex[_index];
     }
 
     /**
     * @dev Gets the 5 miners who mined the value for the specified requestId/_timestamp
-    * @param _requestId to looku p
+    * @param _requestId to look up
     * @param _timestamp is the timestamp to look up miners for
     * @return bool true if requestId/timestamp is under dispute
     */

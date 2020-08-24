@@ -1,7 +1,7 @@
 pragma solidity ^0.5.0;
 
 import "./SafeMath.sol";
-import "./Utilities.sol";
+import "./OldUtilities.sol";
 import "./TellorStorage.sol";
 import "./OldTellorTransfer.sol";
 import "./OldTellorDispute.sol";
@@ -308,7 +308,7 @@ library OldTellorLibrary{
             if(_request.apiUintVars[keccak256("requestQPosition")] == 0){
                 uint _min;
                 uint _index;
-                (_min,_index) = Utilities.getMin(self.requestQ);
+                (_min,_index) = OldUtilities.getMin(self.requestQ);
                 //we have to zero out the oldOne
                 //if the _payout is greater than the current minimum payout in the requestQ[51] or if the minimum is zero
                 //then add it to the requestQ array aand map its index information to the requestId and the apiUintvars
@@ -325,5 +325,45 @@ library OldTellorLibrary{
             }
         }
     }
+
+    //for testing
+        /**
+    * @dev Proof of work is called by the miner when they submit the solution (proof of work and value)
+    * @param _nonce uint submitted by miner
+    * @param _requestId the apiId being mined
+    * @param _value of api query
+    */
+    function testSubmitMiningSolution(TellorStorage.TellorStorageStruct storage self,string memory _nonce, uint _requestId, uint _value) public{
+        //requre miner is staked
+        require(self.stakerDetails[msg.sender].currentStatus == 1);
+
+        //Check the miner is submitting the pow for the current request Id
+        require(_requestId == self.uintVars[keccak256("currentRequestId")]);
+        
+        //Saving the challenge information as unique by using the msg.sender
+        //require(uint(sha256(abi.encodePacked(ripemd160(abi.encodePacked(keccak256(abi.encodePacked(self.currentChallenge,msg.sender,_nonce))))))) % self.uintVars[keccak256("difficulty")] == 0);
+        
+        //Make sure the miner does not submit a value more than once
+        require(self.minersByChallenge[self.currentChallenge][msg.sender] == false); 
+        
+        //Save the miner and value received
+        self.currentMiners[self.uintVars[keccak256("slotProgress")]].value = _value;
+        self.currentMiners[self.uintVars[keccak256("slotProgress")]].miner = msg.sender;
+        
+        //Add to the count how many values have been submitted, since only 5 are taken per request
+        self.uintVars[keccak256("slotProgress")]++;
+        
+        //Update the miner status to true once they submit a value so they don't submit more than once
+        self.minersByChallenge[self.currentChallenge][msg.sender] = true;
+
+        emit NonceSubmitted(msg.sender,_nonce,_requestId,_value,self.currentChallenge);
+        
+        //If 5 values have been received, adjust the difficulty otherwise sort the values until 5 are received
+        if(self.uintVars[keccak256("slotProgress")] == 5) { 
+            newBlock(self,_nonce,_requestId);
+        }
+    }
+
+
 }
 

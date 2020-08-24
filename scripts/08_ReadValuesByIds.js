@@ -28,17 +28,19 @@ function sleep_s(secs) {
   while ((+new Date) < secs);
 }
 
-let myarr = [52,53]
-
 module.exports = function() {
-    let ins = Oracle.at(myOracle).then(ins=>{
-      for(i=0;i< myarr.length;i++){
-           ins.addTip(myarr[i],200+i).then(res=>
-            {console.log('sent addtip', myarr[i])}
-            )
-           
-      }
+
+  async function requestData() {
+    let ins = await Oracle.at(myOracle);
+    let master = await TellorMaster.at(myOracle);
+
+    for(i=1;i<52;i++){
+           vars = await master.getLastNewValueById(i)
+           console.log('Request ID:',i, vars[0]*1, vars[1])
     }
-      );
+    process.exit()
+    }
+  
+  requestData();
 }
 

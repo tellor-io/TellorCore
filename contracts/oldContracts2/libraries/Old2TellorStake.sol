@@ -1,17 +1,16 @@
-pragma solidity ^0.5.16;
-
+pragma solidity ^0.5.0;
 
 import "./TellorStorage.sol";
-import "./TellorTransfer.sol";
-import "./TellorDispute.sol";
-import "./Utilities.sol";
+import "./Old2TellorTransfer.sol";
+import "./Old2TellorDispute.sol";
+
 /**
-* itle Tellor Stake
-* @dev Contains the methods related to miners staking and unstaking. Tellor.sol
+* itle Tellor Dispute
+* @dev Contais the methods related to miners staking and unstaking. Tellor.sol
 * references this library for function's logic.
 */
 
-library TellorStake {
+library Old2TellorStake {
     event NewStake(address indexed _sender); //Emits upon new staker
     event StakeWithdrawn(address indexed _sender); //Emits when a staker is now no longer staked
     event StakeWithdrawRequested(address indexed _sender); //Emits when a staker begins the 7 day withdraw period
@@ -25,7 +24,7 @@ library TellorStake {
     function init(TellorStorage.TellorStorageStruct storage self) public {
         require(self.uintVars[keccak256("decimals")] == 0, "Too many decimals");
         //Give this contract 6000 Tellor Tributes so that it can stake the initial 6 miners
-        TellorTransfer.updateBalanceAtNow(self.balances[address(this)], 2**256 - 1 - 6000e18);
+         Old2TellorTransfer.updateBalanceAtNow(self.balances[address(this)], 2**256 - 1 - 6000e18);
 
         // //the initial 5 miner addresses are specfied below
         // //changed payable[5] to 6
@@ -41,7 +40,7 @@ library TellorStake {
         for (uint256 i = 0; i < 6; i++) {
             //6th miner to allow for dispute
             //Miner balance is set at 1000e18 at the block that this function is ran
-            TellorTransfer.updateBalanceAtNow(self.balances[_initalMiners[i]], 1000e18);
+             Old2TellorTransfer.updateBalanceAtNow(self.balances[_initalMiners[i]], 1000e18);
 
             newStake(self, _initalMiners[i]);
         }
@@ -77,9 +76,7 @@ library TellorStake {
 
         //Reduce the staker count
         self.uintVars[keccak256("stakerCount")] -= 1;
-
-        //Update the minimum dispute fee that is based on the number of stakers 
-        TellorDispute.updateMinDisputeFee(self);
+         Old2TellorDispute.updateDisputeFee(self);
         emit StakeWithdrawRequested(msg.sender);
     }
 
@@ -102,7 +99,7 @@ library TellorStake {
     function depositStake(TellorStorage.TellorStorageStruct storage self) public {
         newStake(self, msg.sender);
         //self adjusting disputeFee
-        TellorDispute.updateMinDisputeFee(self);
+         Old2TellorDispute.updateDisputeFee(self);
     }
 
     /**
@@ -111,7 +108,7 @@ library TellorStake {
     * and updates the number of stakers in the system.
     */
     function newStake(TellorStorage.TellorStorageStruct storage self, address staker) internal {
-        require(TellorTransfer.balanceOf(self, staker) >= self.uintVars[keccak256("stakeAmount")], "Balance is lower than stake amount");
+        require( Old2TellorTransfer.balanceOf(self, staker) >= self.uintVars[keccak256("stakeAmount")], "Balance is lower than stake amount");
         //Ensure they can only stake if they are not currrently staked or if their stake time frame has ended
         //and they are currently locked for witdhraw
         require(self.stakerDetails[staker].currentStatus == 0 || self.stakerDetails[staker].currentStatus == 2, "Miner is in the wrong state");
@@ -122,47 +119,4 @@ library TellorStake {
         });
         emit NewStake(staker);
     }
-
-    /**
-    * @dev Getter function for the requestId being mined 
-    * @return variables for the current minin event: Challenge, 5 RequestId, difficulty and Totaltips
-    */
-    function getNewCurrentVariables(TellorStorage.TellorStorageStruct storage self) internal view returns(bytes32 _challenge,uint[5] memory _requestIds,uint256 _difficulty, uint256 _tip){
-        for(uint i=0;i<5;i++){
-            _requestIds[i] =  self.currentMiners[i].value;
-        }
-        return (self.currentChallenge,_requestIds,self.uintVars[keccak256("difficulty")],self.uintVars[keccak256("currentTotalTips")]);
-    }
-
-    /**
-    * @dev Getter function for next requestId on queue/request with highest payout at time the function is called
-    * @return onDeck/info on top 5 requests(highest payout)-- RequestId, Totaltips
-    */
-    function getNewVariablesOnDeck(TellorStorage.TellorStorageStruct storage self) internal view returns (uint256[5] memory idsOnDeck, uint256[5] memory tipsOnDeck) {
-        idsOnDeck = getTopRequestIDs(self);
-        for(uint i = 0;i<5;i++){
-            tipsOnDeck[i] = self.requestDetails[idsOnDeck[i]].apiUintVars[keccak256("totalTip")];
-        }
-    }
-
-    /**
-    * @dev Getter function for the top 5 requests with highest payouts. This function is used within the getNewVariablesOnDeck function
-    * @return uint256[5] is an array with the top 5(highest payout) _requestIds at the time the function is called
-    */
-    function getTopRequestIDs(TellorStorage.TellorStorageStruct storage self) internal view returns (uint256[5] memory _requestIds) {
-        uint256[5] memory _max;
-        uint256[5] memory _index;
-        (_max, _index) = Utilities.getMax5(self.requestQ);
-        for(uint i=0;i<5;i++){
-            if(_max[i] != 0){
-                _requestIds[i] = self.requestIdByRequestQIndex[_index[i]];
-            }
-            else{
-                _requestIds[i] = self.currentMiners[4-i].value;
-            }
-        }
-    }
-
-
-   
 }

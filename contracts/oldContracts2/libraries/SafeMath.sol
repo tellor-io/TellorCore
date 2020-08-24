@@ -1,4 +1,4 @@
-pragma solidity ^0.5.16;
+pragma solidity ^0.5.0;
 
 //Slightly modified SafeMath library - includes a min and max function, removes useless div function
 library SafeMath {

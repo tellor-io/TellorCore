@@ -16,7 +16,7 @@ var acct = '0xe010ac6e0248790e08f42d5f697160dedf97e024';*/
 
 //let acct  =  "0xe010ac6e0248790e08f42d5f697160dedf97e024";
 //Rinkeby
-const myOracle = "0xFe41Cb708CD98C5B20423433309E55b53F79134a";
+const myOracle = '0x0Ba45A8b5d5575935B8158a88C631E9F9C95a2e5';
 
 
 //mainnet
@@ -28,17 +28,15 @@ function sleep_s(secs) {
   while ((+new Date) < secs);
 }
 
-let myarr = [52,53]
+let myarr = [10]
 
 module.exports = function() {
-    let ins = Oracle.at(myOracle).then(ins=>{
-      for(i=0;i< myarr.length;i++){
-           ins.addTip(myarr[i],200+i).then(res=>
-            {console.log('sent addtip', myarr[i])}
-            )
-           
-      }
-    }
-      );
+    let ins = TellorMaster.at(myOracle).then(ins=>{
+      console.log("here")
+             ins.getAllDisputeVars(30).call().then(res=>
+              {console.log('sent addtip',res)}
+              )
+             
+    });
 }
 

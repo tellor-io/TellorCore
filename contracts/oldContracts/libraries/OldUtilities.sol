@@ -3,7 +3,7 @@ pragma solidity ^0.5.0;
 //Functions for retrieving min and Max in 51 length array (requestQ)
 //Taken partly from: https://github.com/modular-network/ethereum-libraries-array-utils/blob/master/contracts/Array256Lib.sol
 
-library Utilities{
+library OldUtilities{
 
     /**
     * @dev Returns the minimum value in an array.

@@ -2,7 +2,7 @@ pragma solidity ^0.5.0;
 
 import "./SafeMath.sol";
 import "./TellorStorage.sol";
-import "./Utilities.sol";
+import "./OldUtilities.sol";
 
 /**
 * @title Tellor Getters Library
@@ -182,16 +182,6 @@ library TellorGettersLibrary{
         return self.requestDetails[_requestId].minersByValue[_timestamp];
     }
 
-
-    /**
-    * @dev Get the name of the token
-    * @return string of the token name
-    */
-    function getName(TellorStorage.TellorStorageStruct storage self) internal pure returns(string memory){
-        return "Tellor Tributes";
-    }
-
-
     /**
     * @dev Counts the number of values that have been submited for the request 
     * if called for the currentRequest being mined it can tell you how many miners have submitted a value for that
@@ -295,14 +285,6 @@ library TellorGettersLibrary{
         return self.requestDetails[_requestId].valuesByTimestamp[_timestamp];
     }
 
-    /**
-    * @dev Get the symbol of the token
-    * @return string of the token symbol
-    */
-    function getSymbol(TellorStorage.TellorStorageStruct storage self) internal pure returns(string memory){
-        return "TT";
-    } 
-
 
     /**
     * @dev Gets the timestamp for the value based on their index
@@ -346,7 +328,7 @@ library TellorGettersLibrary{
     function getTopRequestID(TellorStorage.TellorStorageStruct storage self) internal view returns(uint _requestId){
             uint _max;
             uint _index;
-            (_max,_index) = Utilities.getMax(self.requestQ);
+            (_max,_index) = OldUtilities.getMax(self.requestQ);
              _requestId = self.requestIdByRequestQIndex[_index];
     }
 

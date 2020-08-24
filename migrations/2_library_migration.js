@@ -39,7 +39,6 @@ module.exports = async function (deployer) {
   await deployer.link(TellorTransfer,TellorDispute);
   await deployer.deploy(TellorDispute);
   //sleep_s(30);
-
   // deploy stake
   await deployer.link(TellorTransfer,TellorStake);
   await deployer.link(TellorDispute,TellorStake);
