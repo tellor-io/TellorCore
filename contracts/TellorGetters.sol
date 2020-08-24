@@ -84,6 +84,7 @@ contract TellorGetters {
     * These are examples of how the variables are saved within other functions:
     * addressVars[keccak256("_owner")]
     * addressVars[keccak256("tellorContract")]
+    * @return address of the requested variable 
     */
     function getAddressVars(bytes32 _data) external view returns (address) {
         return tellor.getAddressVars(_data);
@@ -186,14 +187,6 @@ contract TellorGetters {
     }
 
     /**
-    * @dev Get the name of the token
-    * return string of the token name
-    */
-/*    function getName() external view returns (string memory) {
-        return tellor.getName();
-    }
-*/
-    /**
     * @dev Counts the number of values that have been submited for the request
     * if called for the currentRequest being mined it can tell you how many miners have submitted a value for that
     * request so far
@@ -286,13 +279,6 @@ contract TellorGetters {
         return tellor.getSubmissionsByTimestamp(_requestId, _timestamp);
     }
 
-    /**
-    * @dev Get the symbol of the token
-    * return string of the token symbol
-    */
-/*    function getSymbol() external view returns (string memory) {
-        return tellor.getSymbol();
-    }*/
 
     /**
     * @dev Gets the timestamp for the value based on their index

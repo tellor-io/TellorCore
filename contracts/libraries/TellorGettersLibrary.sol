@@ -66,6 +66,7 @@ library TellorGettersLibrary {
     * These are examples of how the variables are saved within other functions:
     * addressVars[keccak256("_owner")]
     * addressVars[keccak256("tellorContract")]
+    * @return address requested
     */
     function getAddressVars(TellorStorage.TellorStorageStruct storage self, bytes32 _data) internal view returns (address) {
         return self.addressVars[_data];
@@ -224,14 +225,6 @@ library TellorGettersLibrary {
     }
 
     /**
-    * @dev Get the name of the token
-    * @return string of the token name
-    */
-/*    function getName(TellorStorage.TellorStorageStruct storage self) internal pure returns (string memory) {
-        return "Tellor Tributes";
-    }*/
-
-    /**
     * @dev Counts the number of values that have been submited for the request
     * if called for the currentRequest being mined it can tell you how many miners have submitted a value for that
     * request so far
@@ -344,14 +337,6 @@ library TellorGettersLibrary {
     {
         return self.requestDetails[_requestId].valuesByTimestamp[_timestamp];
     }
-
-    /**
-    * @dev Get the symbol of the token
-    * @return string of the token symbol
-    */
-/*    function getSymbol(TellorStorage.TellorStorageStruct storage self) internal pure returns (string memory) {
-        return "TT";
-    }*/
 
     /**
     * @dev Gets the timestamp for the value based on their index

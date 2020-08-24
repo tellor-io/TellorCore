@@ -79,6 +79,7 @@ library TellorStorage {
         // address keccak256("tellorContract");//Tellor address
         // address  keccak256("_owner");//Tellor Owner address
         // address  keccak256("_deity");//Tellor Owner that can do things at will
+        // address  keccak256("pending_owner"); // The proposed new owner
         mapping(bytes32 => uint256) uintVars;
         //uint fields in the Tellor contract are saved the uintVars mapping
         //e.g. uintVars[keccak256("decimals")] = uint
@@ -97,6 +98,11 @@ library TellorStorage {
         // keccak256("slotProgress");//Number of miners who have mined this value so far
         // keccak256("miningReward");//Mining Reward in PoWo tokens given to all miners per value
         // keccak256("timeTarget"); //The time between blocks (mined Oracle values)
+        // keccak256("_tblock"); //
+        // keccak256("runningTips"); // VAriable to track running tips
+        // keccak256("currentReward"); // The current reward
+        // keccak256("devShare"); // The amount directed towards th devShare
+        // keccak256("currentTotalTips"); //
         //This is a boolean that tells you if a given challenge has been completed by a given miner
         mapping(bytes32 => mapping(address => bool)) minersByChallenge;
         mapping(uint256 => uint256) requestIdByTimestamp; //minedTimestamp to apiId
