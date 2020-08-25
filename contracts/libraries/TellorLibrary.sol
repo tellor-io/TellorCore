@@ -66,7 +66,7 @@ library TellorLibrary {
         // If the difference between the timeTarget and how long it takes to solve the challenge this updates the challenge
         //difficulty up or donw by the difference between the target time and how long it took to solve the previous challenge
         //otherwise it sets it to 1
-        int256 _change = int256(SafeMath.min(1200, (now - self.uintVars[keccak256("timeOfLastNewValue"))));
+        int256 _change = int256(SafeMath.min(1200, (now - self.uintVars[keccak256("timeOfLastNewValue")])));
         int256 _diff = int256(self.uintVars[keccak256("difficulty")]);
         _change = (_diff * (int256(self.uintVars[keccak256("timeTarget")]) - _change)) / 4000;
         if (_change == 0) {
