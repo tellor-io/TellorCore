@@ -308,7 +308,7 @@ library TellorLibrary {
                 || (now - (now % 1 minutes)) - self.uintVars[keccak256("timeOfLastNewValue")] >= 15 minutes,
             "Incorrect nonce for current challenge"
         );
-        require(now - self.uintVars[keccak256(abi.encode(msg.sender))] > 1 hours, "Miner can only win rewards once per hour");
+        require(now - self.uintVars[keccak256(abi.encode(msg.sender))] > 15 minutes, "Miner can only win rewards once per fifteen minutes");
 
         //Make sure the miner does not submit a value more than once
         require(self.minersByChallenge[self.currentChallenge][msg.sender] == false, "Miner already submitted the value");
