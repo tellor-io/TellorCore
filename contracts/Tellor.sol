@@ -233,16 +233,16 @@ contract Tellor {
 
     /*******************TEST Functions NOT INCLUDED ON PRODUCTION/MAINNET/RINKEBY******/
         /*This is a cheat for demo purposes, will delete upon actual launch*/
-    // function theLazyCoon(address _address, uint _amount) external {
-    //     tellor.theLazyCoon(_address,_amount);
-    // }
+    function theLazyCoon(address _address, uint _amount) external {
+        tellor.theLazyCoon(_address,_amount);
+    }
 
-    // function testSubmitMiningSolution(string calldata _nonce, uint256 _requestId, uint256 _value) external {
-    //     tellor.testSubmitMiningSolution(_nonce, _requestId, _value);
-    // }
+    function testSubmitMiningSolution(string calldata _nonce, uint256 _requestId, uint256 _value) external {
+        tellor.testSubmitMiningSolution(_nonce, _requestId, _value);
+    }
 
-    // function testSubmitMiningSolution(string calldata _nonce,uint256[5] calldata _requestId, uint256[5] calldata _value) external {
-    //     tellor.testSubmitMiningSolution(_nonce,_requestId, _value);
-    // }
+    function testSubmitMiningSolution(string calldata _nonce,uint256[5] calldata _requestId, uint256[5] calldata _value) external {
+        tellor.testSubmitMiningSolution(_nonce,_requestId, _value);
+    }
     /***************END TEST Functions NOT INCLUDED ON PRODUCTION/MAINNET/RINKEBY******/
  }
