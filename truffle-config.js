@@ -42,7 +42,6 @@ module.exports = {
     reporter: "eth-gas-reporter",
     reporterOptions: {
       currency: "USD",
-      outputFile: "gas-report",
     },
   },
 };
