@@ -131,10 +131,13 @@ library TellorLibrary {
             );
         //map the timeOfLastValue to the requestId that was just mined
         self.requestIdByTimestamp[_timeOfLastNewValue] = _requestId[0];
-        if (self.uintVars[currentReward] > 1e18) {
+
+        uint _currReward = self.uintVars[currentReward]; 
+        if (_currReward > 1e18) {
             //These number represent the inflation adjustement that started in 03/2019
-            self.uintVars[currentReward] = self.uintVars[currentReward] - self.uintVars[currentReward] *  15306316590563/1e18; 
-            self.uintVars[devShare] = self.uintVars[currentReward] * 50/100;
+            _currReward = _currReward - _currReward *  15306316590563/1e18; 
+            self.uintVars[devShare] = _currReward * 50/100;
+            self.uintVars[currentReward] = _currReward;
         } else {
             self.uintVars[currentReward] = 1e18;
         }
@@ -310,8 +313,8 @@ library TellorLibrary {
     * @param _requestId is the array of the 5 PSR's being mined
     * @param _value is an array of 5 values
     */
-    function submitMiningSolution(TellorStorage.TellorStorageStruct storage self, string memory _nonce,uint256[5] memory _requestId, uint256[5] memory _value)
-        public
+    function submitMiningSolution(TellorStorage.TellorStorageStruct storage self, string calldata _nonce,uint256[5] calldata _requestId, uint256[5] calldata _value)
+        external
     {
         require(self.stakerDetails[msg.sender].currentStatus == 1, "Miner status is not staker");
         for(uint i=0;i<5;i++){
@@ -332,6 +335,41 @@ library TellorLibrary {
         //Make sure the miner does not submit a value more than once
         require(self.minersByChallenge[self.currentChallenge][msg.sender] == false, "Miner already submitted the value");
         //require the miner did not receive awards in the last hour
+        // self.uintVars[_hashMsgSender] = now;
+        // uint256 _slotProgress = self.uintVars[slotProgress]; 
+        // if(_slotProgress == 0){
+        //     self.uintVars[runningTips] = self.uintVars[currentTotalTips];
+        // }
+        // uint _extraTip = (self.uintVars[currentTotalTips]-self.uintVars[runningTips])/(5-_slotProgress);
+        // TellorTransfer.doTransfer(self, address(this), msg.sender, self.uintVars[currentReward]  + self.uintVars[runningTips] / 2 / 5 + _extraTip);
+        // self.uintVars[currentTotalTips] -= _extraTip;
+
+        // //Save the miner and value received
+        // _tblock.minersByValue[1][_slotProgress]= msg.sender;
+
+        // //this will fill the currentMiners array
+    
+        // _tblock.valuesByTimestamp[0][_slotProgress] = _value[0];
+        // _tblock.valuesByTimestamp[1][_slotProgress] = _value[1];
+        // _tblock.valuesByTimestamp[2][_slotProgress] = _value[2];
+        // _tblock.valuesByTimestamp[3][_slotProgress] = _value[3];
+        // _tblock.valuesByTimestamp[4][_slotProgress] = _value[4];
+
+        
+        // self.uintVars[slotProgress]++;
+        // //Update the miner status to true once they submit a value so they don't submit more than once
+        // self.minersByChallenge[self.currentChallenge][msg.sender] = true;
+        // emit NonceSubmitted(msg.sender, _nonce, _requestId, _value, self.currentChallenge);
+        // if (_slotProgress + 1 == 5) { //slotProgress has been incremented, but we're using the variable on stack to save gas
+        //     newBlock(self, _nonce, _requestId);
+        //     self.uintVars[slotProgress] = 0;
+        // }
+        _submit2(self, _nonce, _requestId, _value);
+    }
+
+    function _submit2(TellorStorage.TellorStorageStruct storage self, string memory _nonce,uint256[5] memory _requestId, uint256[5] memory _value) internal {
+        TellorStorage.Request storage _tblock = self.requestDetails[self.uintVars[_tBlock]];
+        bytes32 _hashMsgSender = keccak256(abi.encode(msg.sender));
         self.uintVars[_hashMsgSender] = now;
         uint256 _slotProgress = self.uintVars[slotProgress]; 
         if(_slotProgress == 0){
@@ -345,10 +383,14 @@ library TellorLibrary {
         _tblock.minersByValue[1][_slotProgress]= msg.sender;
 
         //this will fill the currentMiners array
-        for (uint j = 0; j < 5; j++) {
-            _tblock.valuesByTimestamp[j][_slotProgress] = _value[j];
+    
+        _tblock.valuesByTimestamp[0][_slotProgress] = _value[0];
+        _tblock.valuesByTimestamp[1][_slotProgress] = _value[1];
+        _tblock.valuesByTimestamp[2][_slotProgress] = _value[2];
+        _tblock.valuesByTimestamp[3][_slotProgress] = _value[3];
+        _tblock.valuesByTimestamp[4][_slotProgress] = _value[4];
 
-        }
+        
         self.uintVars[slotProgress]++;
         //Update the miner status to true once they submit a value so they don't submit more than once
         self.minersByChallenge[self.currentChallenge][msg.sender] = true;
@@ -357,7 +399,6 @@ library TellorLibrary {
             newBlock(self, _nonce, _requestId);
             self.uintVars[slotProgress] = 0;
         }
-        
     }
 
     /**

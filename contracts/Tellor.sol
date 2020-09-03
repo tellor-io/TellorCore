@@ -83,7 +83,7 @@ contract Tellor {
     * 
     */
     function submitMiningSolution(string calldata _nonce, uint256 _requestId, uint256 _value) external {
-        tellor.submitMiningSolution(_nonce, _requestId, _value);
+        // tellor.submitMiningSolution(_nonce, _requestId, _value);
     }
 
     /**
