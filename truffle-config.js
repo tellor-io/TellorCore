@@ -44,4 +44,11 @@ module.exports = {
       currency: "USD",
     },
   },
+
+  solc: {
+    optimizer: {
+      enabled: true,
+      runs: 200,
+    },
+  },
 };
