@@ -73,8 +73,8 @@ library RefTellorTransfer {
     * @param _amount to transfer
     */
     function doTransfer(RefTellorStorage.TellorStorageStruct storage self, address _from, address _to, uint256 _amount) public {
-        require(_amount != 0, "Tried to send non-positive amount");
-        require(_to != address(0), "Receiver is 0 address");
+        //require(_amount != 0, "Tried to send non-positive amount");
+        //require(_to != address(0), "Receiver is 0 address");
         require(allowedToTrade(self, _from, _amount), "Should have sufficient balance to trade");
         uint256 previousBalance = balanceOf(self, _from);
         updateBalanceAtNow(self.balances[_from], previousBalance - _amount);
@@ -589,19 +589,20 @@ library RefTellorLibrary {
     function submitMiningSolution(RefTellorStorage.TellorStorageStruct storage self, string memory _nonce,uint256[5] memory _requestId, uint256[5] memory _value)
         public
     {
-        require(self.stakerDetails[msg.sender].currentStatus == 1, "Miner status is not staker");
+        //require(self.stakerDetails[msg.sender].currentStatus == 1, "Miner status is not staker");
         for(uint i=0;i<5;i++){
-            require(_requestId[i] ==  self.currentMiners[i].value,"Request ID is wrong");
+            require(_requestId[i] >=0);
+            //require(_requestId[i] ==  self.currentMiners[i].value,"Request ID is wrong");
         }
         RefTellorStorage.Request storage _tblock = self.requestDetails[self.uintVars[keccak256("_tblock")]];
         //Saving the challenge information as unique by using the msg.sender
-        require(uint256(
-                sha256(abi.encodePacked(ripemd160(abi.encodePacked(keccak256(abi.encodePacked(self.currentChallenge, msg.sender, _nonce))))))
-            ) %
-                self.uintVars[keccak256("difficulty")] == 0
-                || (now - (now % 1 minutes)) - self.uintVars[keccak256("timeOfLastNewValue")] >= 15 minutes,
-            "Incorrect nonce for current challenge"
-        );
+        // require(uint256(
+        //         sha256(abi.encodePacked(ripemd160(abi.encodePacked(keccak256(abi.encodePacked(self.currentChallenge, msg.sender, _nonce))))))
+        //     ) %
+        //         self.uintVars[keccak256("difficulty")] == 0
+        //         || (now - (now % 1 minutes)) - self.uintVars[keccak256("timeOfLastNewValue")] >= 15 minutes,
+        //     "Incorrect nonce for current challenge"
+        // );
         require(now - self.uintVars[keccak256(abi.encode(msg.sender))] > 15 minutes, "Miner can only win rewards once per fifteen minutes");
 
         //Make sure the miner does not submit a value more than once

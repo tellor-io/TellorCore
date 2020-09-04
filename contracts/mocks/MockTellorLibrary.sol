@@ -206,10 +206,10 @@ library MockTellorTransfer {
     * @param _amount to transfer
     */
     function doTransfer(MockTellorStorage.TellorStorageStruct storage self, address _from, address _to, uint256 _amount) public {
-        require(_amount != 0, "Tried to send non-positive amount");
-        require(_to != address(0), "Receiver is 0 address");
-        require(allowedToTrade(self, _from, _amount), "Should have sufficient balance to trade");
+        //require(_amount != 0, "Tried to send non-positive amount");
+        //require(_to != address(0), "Receiver is 0 address");
         uint256 previousBalance = balanceOf(self, _from);
+        require(_allowedToTrade(self.stakerDetails[msg.sender].currentStatus,self.uintVars[stakeAmount], _from, _amount, previousBalance), "Should have sufficient balance to trade");
         updateBalanceAtNow(self.balances[_from], previousBalance - _amount);
         previousBalance = balanceOf(self,_to);
         require(previousBalance + _amount >= previousBalance, "Overflow happened"); // Check for overflow
@@ -287,6 +287,19 @@ library MockTellorTransfer {
             MockTellorStorage.Checkpoint storage oldCheckPoint = checkpoints[checkpoints.length - 1];
             oldCheckPoint.value = uint128(_value);
         }
+    }
+
+    //INTERNAL FUNCTIONS
+
+    function _allowedToTrade(uint _currentStatus, uint _stakeAmount, address _user, uint256 _amount, uint256 _balance) internal pure returns(bool){
+        if (_currentStatus != 0 && _currentStatus < 5) {
+        //Subtracts the stakeAmount from balance if the _user is staked
+            if (_balance - _stakeAmount >= _amount) {
+                return true;
+            }
+            return false;
+        } 
+        return (_balance >= _amount);
     }
 }
 
@@ -509,7 +522,7 @@ library MockTellorLibrary {
         //map the timeOfLastValue to the requestId that was just mined
         self.requestIdByTimestamp[_timeOfLastNewValue] = _requestId[0];
 
-        uint _currReward = self.uintVars[currentReward]; 
+        uint _currReward = self.uintVars[currentReward];
         if (_currReward > 1e18) {
             //These number represent the inflation adjustement that started in 03/2019
             _currReward = _currReward - _currReward *  15306316590563/1e18; 
@@ -518,9 +531,10 @@ library MockTellorLibrary {
         } else {
             self.uintVars[currentReward] = 1e18;
         }
+        uint _devShare = self.uintVars[devShare]; 
         //update the total supply
-        self.uintVars[total_supply] +=  self.uintVars[devShare] + self.uintVars[currentReward]*5 - (self.uintVars[currentTotalTips]);
-        MockTellorTransfer.doTransfer(self, address(this), self.addressVars[_owner],  self.uintVars[devShare]);
+        self.uintVars[total_supply] +=  _devShare + self.uintVars[currentReward]*5 - (self.uintVars[currentTotalTips]);
+        MockTellorTransfer.doTransfer(self, address(this), self.addressVars[_owner],  _devShare);
         //add timeOfLastValue to the newValueTimestamps array
         self.newValueTimestamps.push(_timeOfLastNewValue);
         self.uintVars[_tBlock] ++;
@@ -550,89 +564,64 @@ library MockTellorLibrary {
     function submitMiningSolution(MockTellorStorage.TellorStorageStruct storage self, string calldata _nonce,uint256[5] calldata _requestId, uint256[5] calldata _value)
         external
     {
-        require(self.stakerDetails[msg.sender].currentStatus == 1, "Miner status is not staker");
-        for(uint i=0;i<5;i++){
-            require(_requestId[i] ==  self.currentMiners[i].value,"Request ID is wrong");
-        }
-        MockTellorStorage.Request storage _tblock = self.requestDetails[self.uintVars[_tBlock]];
-        //Saving the challenge information as unique by using the msg.sender
-        require(uint256(
-                sha256(abi.encodePacked(ripemd160(abi.encodePacked(keccak256(abi.encodePacked(self.currentChallenge, msg.sender, _nonce))))))
-            ) %
-                self.uintVars[difficulty] == 0
-                || (now - (now % 1 minutes)) - self.uintVars[timeOfLastNewValue] >= 15 minutes,
-            "Incorrect nonce for current challenge"
-        );
         bytes32 _hashMsgSender = keccak256(abi.encode(msg.sender));
         require(now - self.uintVars[_hashMsgSender] > 15 minutes, "Miner can only win rewards once per fifteen minutes");
-
-        //Make sure the miner does not submit a value more than once
-        require(self.minersByChallenge[self.currentChallenge][msg.sender] == false, "Miner already submitted the value");
-        //require the miner did not receive awards in the last hour
-        // self.uintVars[_hashMsgSender] = now;
-        // uint256 _slotProgress = self.uintVars[slotProgress]; 
-        // if(_slotProgress == 0){
-        //     self.uintVars[runningTips] = self.uintVars[currentTotalTips];
-        // }
-        // uint _extraTip = (self.uintVars[currentTotalTips]-self.uintVars[runningTips])/(5-_slotProgress);
-        // TellorTransfer.doTransfer(self, address(this), msg.sender, self.uintVars[currentReward]  + self.uintVars[runningTips] / 2 / 5 + _extraTip);
-        // self.uintVars[currentTotalTips] -= _extraTip;
-
-        // //Save the miner and value received
-        // _tblock.minersByValue[1][_slotProgress]= msg.sender;
-
-        // //this will fill the currentMiners array
-    
-        // _tblock.valuesByTimestamp[0][_slotProgress] = _value[0];
-        // _tblock.valuesByTimestamp[1][_slotProgress] = _value[1];
-        // _tblock.valuesByTimestamp[2][_slotProgress] = _value[2];
-        // _tblock.valuesByTimestamp[3][_slotProgress] = _value[3];
-        // _tblock.valuesByTimestamp[4][_slotProgress] = _value[4];
-
-        
-        // self.uintVars[slotProgress]++;
-        // //Update the miner status to true once they submit a value so they don't submit more than once
-        // self.minersByChallenge[self.currentChallenge][msg.sender] = true;
-        // emit NonceSubmitted(msg.sender, _nonce, _requestId, _value, self.currentChallenge);
-        // if (_slotProgress + 1 == 5) { //slotProgress has been incremented, but we're using the variable on stack to save gas
-        //     newBlock(self, _nonce, _requestId);
-        //     self.uintVars[slotProgress] = 0;
-        // }
-        _submit2(self, _nonce, _requestId, _value);
-    }
-
-    function _submit2(MockTellorStorage.TellorStorageStruct storage self, string memory _nonce,uint256[5] memory _requestId, uint256[5] memory _value) internal {
-        MockTellorStorage.Request storage _tblock = self.requestDetails[self.uintVars[_tBlock]];
-        bytes32 _hashMsgSender = keccak256(abi.encode(msg.sender));
         self.uintVars[_hashMsgSender] = now;
-        uint256 _slotProgress = self.uintVars[slotProgress]; 
-        if(_slotProgress == 0){
-            self.uintVars[runningTips] = self.uintVars[currentTotalTips];
+
+        // require(self.stakerDetails[msg.sender].currentStatus == 1, "Miner status is not staker");
+        for(uint i=0;i<5;i++){
+            require(_requestId[i] >=0);
+            //require(_requestId[i] ==  self.currentMiners[i].value,"Request ID is wrong");
         }
-        uint _extraTip = (self.uintVars[currentTotalTips]-self.uintVars[runningTips])/(5-_slotProgress);
-        MockTellorTransfer.doTransfer(self, address(this), msg.sender, self.uintVars[currentReward]  + self.uintVars[runningTips] / 2 / 5 + _extraTip);
-        self.uintVars[currentTotalTips] -= _extraTip;
+        // MockTellorStorage.Request storage _tblock = self.requestDetails[self.uintVars[_tBlock]];
+        //Saving the challenge information as unique by using the msg.sender
+        // require(uint256(
+        //         sha256(abi.encodePacked(ripemd160(abi.encodePacked(keccak256(abi.encodePacked(self.currentChallenge, msg.sender, _nonce))))))
+        //     ) %
+        //         self.uintVars[difficulty] == 0
+        //         || (now - (now % 1 minutes)) - self.uintVars[timeOfLastNewValue] >= 15 minutes,
+        //     "Incorrect nonce for current challenge"
+        // );
+        
+        //Saving Variables to Stack
+        bytes32 _currChallenge = self.currentChallenge;
+        uint256 _slotProgress = self.uintVars[slotProgress]; 
 
-        //Save the miner and value received
-        _tblock.minersByValue[1][_slotProgress]= msg.sender;
+        //Checking and updating Miner Status
+        require(self.minersByChallenge[_currChallenge][msg.sender] == false, "Miner already submitted the value");
+        self.minersByChallenge[_currChallenge][msg.sender] = true;
 
-        //this will fill the currentMiners array
-    
+        //Updating Request
+        MockTellorStorage.Request storage _tblock = self.requestDetails[self.uintVars[_tBlock]];
+        _tblock.minersByValue[1][_slotProgress]= msg.sender; 
+        //Assigng directly is cheaper than using a for loop
         _tblock.valuesByTimestamp[0][_slotProgress] = _value[0];
         _tblock.valuesByTimestamp[1][_slotProgress] = _value[1];
         _tblock.valuesByTimestamp[2][_slotProgress] = _value[2];
         _tblock.valuesByTimestamp[3][_slotProgress] = _value[3];
         _tblock.valuesByTimestamp[4][_slotProgress] = _value[4];
 
-        
+        //Paying Miner Rewards
+        _payReward(self, _slotProgress);
         self.uintVars[slotProgress]++;
-        //Update the miner status to true once they submit a value so they don't submit more than once
-        self.minersByChallenge[self.currentChallenge][msg.sender] = true;
-        emit NonceSubmitted(msg.sender, _nonce, _requestId, _value, self.currentChallenge);
+        
         if (_slotProgress + 1 == 5) { //slotProgress has been incremented, but we're using the variable on stack to save gas
             newBlock(self, _nonce, _requestId);
             self.uintVars[slotProgress] = 0;
         }
+        emit NonceSubmitted(msg.sender, _nonce, _requestId, _value, _currChallenge);
+    }
+
+    function _payReward(MockTellorStorage.TellorStorageStruct storage self, uint _slotProgress) internal {
+        uint _runningTips = self.uintVars[runningTips]; 
+        uint _currentTotalTips = self.uintVars[currentTotalTips];
+        if(_slotProgress == 0){
+            _runningTips = _currentTotalTips;
+            self.uintVars[runningTips] = _currentTotalTips;
+        }
+        uint _extraTip = (_currentTotalTips-_runningTips)/(5-_slotProgress);
+        MockTellorTransfer.doTransfer(self, address(this), msg.sender, self.uintVars[currentReward]  + _runningTips / 2 / 5 + _extraTip);
+        self.uintVars[currentTotalTips] -= _extraTip;
     }
 
     /**
