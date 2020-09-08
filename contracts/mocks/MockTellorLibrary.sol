@@ -108,7 +108,7 @@ library MockTellorStorage {
         mapping(uint256 => uint256) minedBlockNum; //[apiId][minedTimestamp]=>block.number
         mapping(uint256 => uint256) finalValues;
         mapping(uint256 => bool) inDispute; //checks if API id is in dispute or finalized.
-        mapping(uint256 => address[5]) minersByValue;
+        mapping(uint256 => mapping(uint => address)) minersByValue;
         mapping(uint256 => uint256[5]) valuesByTimestamp;
     }
 
@@ -154,7 +154,7 @@ library MockTellorTransfer {
     * @return true if transfer is successful
     */
     function transfer(MockTellorStorage.TellorStorageStruct storage self, address _to, uint256 _amount) public returns (bool success) {
-        doTransfer(self, msg.sender, _to, _amount);
+        _doTransfer(self, msg.sender, _to, _amount);
         return true;
     }
 
@@ -205,16 +205,37 @@ library MockTellorTransfer {
     * @param _to addres to transfer to
     * @param _amount to transfer
     */
-    function doTransfer(MockTellorStorage.TellorStorageStruct storage self, address _from, address _to, uint256 _amount) public {
+    function doTransfer(MockTellorStorage.TellorStorageStruct storage self, address _from, address _to, uint256 _amount) internal {
         //require(_amount != 0, "Tried to send non-positive amount");
         //require(_to != address(0), "Receiver is 0 address");
         uint256 previousBalance = balanceOf(self, _from);
         require(_allowedToTrade(self.stakerDetails[msg.sender].currentStatus,self.uintVars[stakeAmount], _from, _amount, previousBalance), "Should have sufficient balance to trade");
         updateBalanceAtNow(self.balances[_from], previousBalance - _amount);
         previousBalance = balanceOf(self,_to);
-        require(previousBalance + _amount >= previousBalance, "Overflow happened"); // Check for overflow
         updateBalanceAtNow(self.balances[_to], previousBalance + _amount);
         emit Transfer(_from, _to, _amount);
+    }
+
+    function _doTransfer(MockTellorStorage.TellorStorageStruct storage self, address _from, address _to, uint256 _amount) internal {
+        uint256 previousBalance = balanceOfAt(self, _from, block.number);
+        uint256 _currentStatus = self.stakerDetails[msg.sender].currentStatus;
+        if(_currentStatus != 0 && _currentStatus < 5)
+            require((previousBalance - self.uintVars[stakeAmount]) >= _amount, "Not allowed to transfer2");
+        
+        require(previousBalance >= _amount, "Not allowed to transfer3");
+        uint balLen = self.balances[_from].length; 
+        if (balLen == 0 || self.balances[_from][balLen - 1].fromBlock != block.number) {
+           self.balances[_from].push(MockTellorStorage.Checkpoint({
+                fromBlock : uint128(block.number),
+                value : uint128(_amount)
+            }));
+        } else {
+            self.balances[_from][balLen - 1].value = uint128(_amount);
+        }
+        previousBalance = balanceOf(self,_to);
+        updateBalanceAtNow(self.balances[_to], previousBalance + _amount);
+        emit Transfer(_from, _to, _amount);
+
     }
 
     /**
@@ -277,21 +298,20 @@ library MockTellorTransfer {
     * @param checkpoints gets the mapping for the balances[owner]
     * @param _value is the new balance
     */
-    function updateBalanceAtNow(MockTellorStorage.Checkpoint[] storage checkpoints, uint256 _value) public {
+    function updateBalanceAtNow(MockTellorStorage.Checkpoint[] storage checkpoints, uint256 _value) internal {
         if (checkpoints.length == 0 || checkpoints[checkpoints.length - 1].fromBlock != block.number) {
            checkpoints.push(MockTellorStorage.Checkpoint({
                 fromBlock : uint128(block.number),
                 value : uint128(_value)
             }));
         } else {
-            MockTellorStorage.Checkpoint storage oldCheckPoint = checkpoints[checkpoints.length - 1];
-            oldCheckPoint.value = uint128(_value);
+            checkpoints[checkpoints.length - 1].value = uint128(_value);
         }
     }
 
     //INTERNAL FUNCTIONS
 
-    function _allowedToTrade(uint _currentStatus, uint _stakeAmount, address _user, uint256 _amount, uint256 _balance) internal pure returns(bool){
+    function _allowedToTrade(uint _currentStatus, uint _stakeAmount, address/* _user*/, uint256 _amount, uint256 _balance) internal pure returns(bool){
         if (_currentStatus != 0 && _currentStatus < 5) {
         //Subtracts the stakeAmount from balance if the _user is staked
             if (_balance - _stakeAmount >= _amount) {
@@ -447,7 +467,7 @@ library MockTellorLibrary {
     * @param _tip amount the requester is willing to pay to be get on queue. Miners
     * mine the onDeckQueryHash, or the api with the highest payout pool
     */
-    function addTip(MockTellorStorage.TellorStorageStruct storage self, uint256 _requestId, uint256 _tip) public {
+    function addTip(MockTellorStorage.TellorStorageStruct storage self, uint256 _requestId, uint256 _tip) external {
         require(_requestId != 0, "RequestId is 0");
         require(_tip != 0, "Tip should be greater than 0");
         uint256 _count =self.uintVars[requestCount] + 1;
@@ -482,12 +502,23 @@ library MockTellorLibrary {
             }
         self.uintVars[difficulty]  = uint256(MockSafeMath.max(_diff + _change,1));
         //Sets time of value submission rounded to 1 minute
+        bytes32 _currChallenge = self.currentChallenge;
         uint256 _timeOfLastNewValue = now - (now % 1 minutes);
         self.uintVars[timeOfLastNewValue] = _timeOfLastNewValue;
         uint[5] memory a; 
         for (uint k = 0; k < 5; k++) {
-            a =  _tblock.valuesByTimestamp[k];
-            address[5] memory b = _tblock.minersByValue[1];
+            // Ugly, but way cheaper
+            a[0] = _tblock.valuesByTimestamp[k][0];
+            a[0] = _tblock.valuesByTimestamp[k][1];
+            a[0] = _tblock.valuesByTimestamp[k][2];
+            a[0] = _tblock.valuesByTimestamp[k][3];
+            a[0] = _tblock.valuesByTimestamp[k][4];
+            address[5] memory b; 
+            b[0]= _tblock.minersByValue[1][0];
+            b[1]= _tblock.minersByValue[1][1];
+            b[2]= _tblock.minersByValue[1][2];
+            b[3]= _tblock.minersByValue[1][3];
+            b[4]= _tblock.minersByValue[1][4];
             for (uint i = 1; i < 5; i++) {
                 uint256 temp = a[i];
                 address temp2 = b[i];
@@ -507,8 +538,19 @@ library MockTellorLibrary {
             _request.finalValues[_timeOfLastNewValue] = a[2];
             _request.requestTimestamps.push(_timeOfLastNewValue);
             //these are miners by timestamp
-            _request.minersByValue[_timeOfLastNewValue] = [b[0], b[1], b[2], b[3], b[4]];
-            _request.valuesByTimestamp[_timeOfLastNewValue] = [a[0],a[1],a[2],a[3],a[4]];
+            // _request.minersByValue[_timeOfLastNewValue] = [b[0], b[1], b[2], b[3], b[4]];
+            // Awful, but saves gas
+            _request.minersByValue[_timeOfLastNewValue][0] = b[0];
+            _request.minersByValue[_timeOfLastNewValue][1] = b[1];
+            _request.minersByValue[_timeOfLastNewValue][2] = b[2];
+            _request.minersByValue[_timeOfLastNewValue][3] = b[3];
+            _request.minersByValue[_timeOfLastNewValue][4] = b[4];
+            _request.valuesByTimestamp[_timeOfLastNewValue][0] = a[0];
+            _request.valuesByTimestamp[_timeOfLastNewValue][1] = a[1];
+            _request.valuesByTimestamp[_timeOfLastNewValue][2] = a[2];
+            _request.valuesByTimestamp[_timeOfLastNewValue][3] = a[3];
+            _request.valuesByTimestamp[_timeOfLastNewValue][4] = a[4];
+            // _request.valuesByTimestamp[_timeOfLastNewValue] = [a[0],a[1],a[2],a[3],a[4]];
             _request.minedBlockNum[_timeOfLastNewValue] = block.number;
             _request.apiUintVars[totalTip] = 0;
         }
@@ -517,7 +559,7 @@ library MockTellorLibrary {
                 _timeOfLastNewValue,
                 a,
                 self.uintVars[runningTips],
-                self.currentChallenge
+                _currChallenge
             );
         //map the timeOfLastValue to the requestId that was just mined
         self.requestIdByTimestamp[_timeOfLastNewValue] = _requestId[0];
@@ -534,7 +576,7 @@ library MockTellorLibrary {
         uint _devShare = self.uintVars[devShare]; 
         //update the total supply
         self.uintVars[total_supply] +=  _devShare + self.uintVars[currentReward]*5 - (self.uintVars[currentTotalTips]);
-        MockTellorTransfer.doTransfer(self, address(this), self.addressVars[_owner],  _devShare);
+        MockTellorTransfer._doTransfer(self, address(this), self.addressVars[_owner],  _devShare);
         //add timeOfLastValue to the newValueTimestamps array
         self.newValueTimestamps.push(_timeOfLastNewValue);
         self.uintVars[_tBlock] ++;
@@ -546,9 +588,11 @@ library MockTellorLibrary {
             self.uintVars[currentTotalTips] += self.requestDetails[_topId[i]].apiUintVars[totalTip];
         }
         //Issue the the next challenge
-        self.currentChallenge = keccak256(abi.encode(_nonce, self.currentChallenge, blockhash(block.number - 1))); // Save hash for next proof
+       
+        _currChallenge = keccak256(abi.encode(_nonce, _currChallenge, blockhash(block.number - 1)));
+        self.currentChallenge = _currChallenge; // Save hash for next proof
         emit NewChallenge(
-            self.currentChallenge,
+            _currChallenge,
             _topId,
             self.uintVars[difficulty],
             self.uintVars[currentTotalTips]
@@ -620,7 +664,7 @@ library MockTellorLibrary {
             self.uintVars[runningTips] = _currentTotalTips;
         }
         uint _extraTip = (_currentTotalTips-_runningTips)/(5-_slotProgress);
-        MockTellorTransfer.doTransfer(self, address(this), msg.sender, self.uintVars[currentReward]  + _runningTips / 2 / 5 + _extraTip);
+        MockTellorTransfer._doTransfer(self, address(this), msg.sender, self.uintVars[currentReward]  + _runningTips / 2 / 5 + _extraTip);
         self.uintVars[currentTotalTips] -= _extraTip;
     }
 
