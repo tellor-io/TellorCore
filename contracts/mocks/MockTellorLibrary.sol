@@ -108,7 +108,7 @@ library MockTellorStorage {
         mapping(uint256 => uint256) minedBlockNum; //[apiId][minedTimestamp]=>block.number
         mapping(uint256 => uint256) finalValues;
         mapping(uint256 => bool) inDispute; //checks if API id is in dispute or finalized.
-        mapping(uint256 => mapping(uint => address)) minersByValue;
+        mapping(uint256 => address[5]) minersByValue;
         mapping(uint256 => uint256[5]) valuesByTimestamp;
     }
 
@@ -507,53 +507,34 @@ library MockTellorLibrary {
         self.uintVars[timeOfLastNewValue] = _timeOfLastNewValue;
         uint[5] memory a; 
         for (uint k = 0; k < 5; k++) {
-            // Ugly, but way cheaper
-            a[0] = _tblock.valuesByTimestamp[k][0];
-            a[0] = _tblock.valuesByTimestamp[k][1];
-            a[0] = _tblock.valuesByTimestamp[k][2];
-            a[0] = _tblock.valuesByTimestamp[k][3];
-            a[0] = _tblock.valuesByTimestamp[k][4];
-            address[5] memory b; 
-            b[0]= _tblock.minersByValue[1][0];
-            b[1]= _tblock.minersByValue[1][1];
-            b[2]= _tblock.minersByValue[1][2];
-            b[3]= _tblock.minersByValue[1][3];
-            b[4]= _tblock.minersByValue[1][4];
             for (uint i = 1; i < 5; i++) {
-                uint256 temp = a[i];
-                address temp2 = b[i];
+                uint256 temp = _tblock.valuesByTimestamp[k][i];
+                address temp2 = _tblock.minersByValue[i][i];
                 uint256 j = i;
-                while (j > 0 && temp < a[j - 1]) {
-                    a[j] = a[j - 1];
-                    b[j] = b[j - 1];
+                while (j > 0 && temp < _tblock.valuesByTimestamp[k][j - 1]) {
+                    _tblock.valuesByTimestamp[k][j] = _tblock.valuesByTimestamp[k][j - 1];
+                    _tblock.minersByValue[i][j] = _tblock.minersByValue[i][j - 1];
                     j--;
                 }
                 if (j < i) {
-                    a[j] = temp;
-                    b[j] = temp2;
+                    _tblock.valuesByTimestamp[k][j] = temp;
+                    _tblock.minersByValue[i][j] = temp2;
                 }
             }
             MockTellorStorage.Request storage _request = self.requestDetails[_requestId[k]];
             //Save the official(finalValue), timestamp of it, 5 miners and their submitted values for it, and its block number
+            a = _tblock.valuesByTimestamp[k];
             _request.finalValues[_timeOfLastNewValue] = a[2];
             _request.requestTimestamps.push(_timeOfLastNewValue);
             //these are miners by timestamp
+            // uint[5] memory valsByT = [a[0],a[1],a[2],a[3],a[4]];
+            // _request.valuesByTimestamp[_timeOfLastNewValue] =  [a[0],a[1],a[2],a[3],a[4]];
+            // address[5] memory minsByT = [b[0], b[1], b[2], b[3], b[4]];
             // _request.minersByValue[_timeOfLastNewValue] = [b[0], b[1], b[2], b[3], b[4]];
-            // Awful, but saves gas
-            _request.minersByValue[_timeOfLastNewValue][0] = b[0];
-            _request.minersByValue[_timeOfLastNewValue][1] = b[1];
-            _request.minersByValue[_timeOfLastNewValue][2] = b[2];
-            _request.minersByValue[_timeOfLastNewValue][3] = b[3];
-            _request.minersByValue[_timeOfLastNewValue][4] = b[4];
-            _request.valuesByTimestamp[_timeOfLastNewValue][0] = a[0];
-            _request.valuesByTimestamp[_timeOfLastNewValue][1] = a[1];
-            _request.valuesByTimestamp[_timeOfLastNewValue][2] = a[2];
-            _request.valuesByTimestamp[_timeOfLastNewValue][3] = a[3];
-            _request.valuesByTimestamp[_timeOfLastNewValue][4] = a[4];
-            // _request.valuesByTimestamp[_timeOfLastNewValue] = [a[0],a[1],a[2],a[3],a[4]];
             _request.minedBlockNum[_timeOfLastNewValue] = block.number;
             _request.apiUintVars[totalTip] = 0;
         }
+            //WARNING I feel like this event should be inside the loop, right?
             emit NewValue(
                 _requestId,
                 _timeOfLastNewValue,
@@ -563,22 +544,26 @@ library MockTellorLibrary {
             );
         //map the timeOfLastValue to the requestId that was just mined
         self.requestIdByTimestamp[_timeOfLastNewValue] = _requestId[0];
+        //add timeOfLastValue to the newValueTimestamps array
+        self.newValueTimestamps.push(_timeOfLastNewValue);
 
         uint _currReward = self.uintVars[currentReward];
+        //WARNING Reusing _timeOfLastNewValue to avoid stack too deep
+        _timeOfLastNewValue = _currReward; 
         if (_currReward > 1e18) {
             //These number represent the inflation adjustement that started in 03/2019
             _currReward = _currReward - _currReward *  15306316590563/1e18; 
             self.uintVars[devShare] = _currReward * 50/100;
-            self.uintVars[currentReward] = _currReward;
+            _timeOfLastNewValue = _currReward;
         } else {
-            self.uintVars[currentReward] = 1e18;
+            _timeOfLastNewValue = 1e18;
         }
+        self.uintVars[currentReward] = _timeOfLastNewValue;
+        _currReward = _timeOfLastNewValue;
         uint _devShare = self.uintVars[devShare]; 
         //update the total supply
-        self.uintVars[total_supply] +=  _devShare + self.uintVars[currentReward]*5 - (self.uintVars[currentTotalTips]);
-        MockTellorTransfer._doTransfer(self, address(this), self.addressVars[_owner],  _devShare);
-        //add timeOfLastValue to the newValueTimestamps array
-        self.newValueTimestamps.push(_timeOfLastNewValue);
+        self.uintVars[total_supply] +=  _devShare + _currReward*5 - (self.uintVars[currentTotalTips]);
+        MockTellorTransfer.doTransfer(self, address(this), self.addressVars[_owner],  _devShare);
         self.uintVars[_tBlock] ++;
 
         uint256[5] memory _topId = MockTellorStake.getTopRequestIDs(self);
@@ -613,10 +598,15 @@ library MockTellorLibrary {
         self.uintVars[_hashMsgSender] = now;
 
         // require(self.stakerDetails[msg.sender].currentStatus == 1, "Miner status is not staker");
-        for(uint i=0;i<5;i++){
-            require(_requestId[i] >=0);
-            //require(_requestId[i] ==  self.currentMiners[i].value,"Request ID is wrong");
-        }
+        // for(uint i=0;i<5;i++){
+        //     require(_requestId[i] >=0);
+        //     //require(_requestId[i] ==  self.currentMiners[i].value,"Request ID is wrong");
+        // }
+        require(_requestId[0] >=0);
+        require(_requestId[1] >=0);
+        require(_requestId[2] >=0);
+        require(_requestId[3] >=0);
+        require(_requestId[4] >=0);
         // MockTellorStorage.Request storage _tblock = self.requestDetails[self.uintVars[_tBlock]];
         //Saving the challenge information as unique by using the msg.sender
         // require(uint256(
