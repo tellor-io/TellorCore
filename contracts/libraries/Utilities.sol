@@ -60,7 +60,7 @@ library Utilities {
                 minI = j;
             }
         }
-        for(uint256 i = 5; i < data.length; i++) {
+        for(uint256 i = 6; i < data.length; i++) {
             if (data[i] > min5) {
                 max[minI] = data[i];
                 maxIndex[minI] = i;

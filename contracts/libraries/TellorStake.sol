@@ -144,7 +144,7 @@ library TellorStake {
             tipsOnDeck[i] = self.requestDetails[idsOnDeck[i]].apiUintVars[keccak256("totalTip")];
         }
     }
-
+    
     /**
     * @dev Getter function for the top 5 requests with highest payouts. This function is used within the getNewVariablesOnDeck function
     * @return uint256[5] is an array with the top 5(highest payout) _requestIds at the time the function is called
