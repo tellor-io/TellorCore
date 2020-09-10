@@ -243,6 +243,6 @@ contract Tellor {
 
     // function testSubmitMiningSolution(string calldata _nonce,uint256[5] calldata _requestId, uint256[5] calldata _value) external {
     //     tellor.testSubmitMiningSolution(_nonce,_requestId, _value);
-    // }
+    //}
     /***************END TEST Functions NOT INCLUDED ON PRODUCTION/MAINNET/RINKEBY******/
  }

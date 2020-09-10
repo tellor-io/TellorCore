@@ -14,6 +14,8 @@ library TellorTransfer {
     event Approval(address indexed _owner, address indexed _spender, uint256 _value); //ERC20 Approval event
     event Transfer(address indexed _from, address indexed _to, uint256 _value); //ERC20 Transfer Event
 
+    bytes32 public constant stakeAmount = 0x7be108969d31a3f0b261465c71f2b0ba9301cd914d55d9091c3b36a49d4d41b2; //keccak256("stakeAmount")
+
     /*Functions*/
 
     /**
@@ -102,7 +104,7 @@ library TellorTransfer {
     * @return The balance at _blockNumber specified
     */
     function balanceOfAt(TellorStorage.TellorStorageStruct storage self, address _user, uint256 _blockNumber) public view returns (uint256) {
-        TellorStorage.Checkpoint[] storage checkpoints = self.balances[_user];
+        TellorStorage.Checkpoint[] memory checkpoints = self.balances[_user];
         if (checkpoints.length == 0|| checkpoints[0].fromBlock > _blockNumber) {
             return 0;
         } else {
@@ -130,10 +132,10 @@ library TellorTransfer {
     * @param _amount to check if the user can spend
     * @return true if they are allowed to spend the amount being checked
     */
-    function allowedToTrade(TellorStorage.TellorStorageStruct storage self, address _user, uint256 _amount) public view returns (bool) {
+    function allowedToTrade(TellorStorage.TellorStorageStruct storage self, address _user, uint256 _amount) public view returns (bool) { 
         if (self.stakerDetails[_user].currentStatus != 0 && self.stakerDetails[_user].currentStatus < 5) {
             //Subtracts the stakeAmount from balance if the _user is staked
-            if (balanceOf(self, _user)- self.uintVars[keccak256("stakeAmount")] >= _amount) {
+            if (balanceOf(self, _user)- self.uintVars[stakeAmount] >= _amount) {
                 return true;
             }
             return false;
