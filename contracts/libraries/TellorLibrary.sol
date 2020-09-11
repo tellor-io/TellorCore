@@ -116,7 +116,9 @@ library TellorLibrary {
             a = _tblock.valuesByTimestamp[k];
             _request.finalValues[_timeOfLastNewValue] = a[2];
             _request.minersByValue[_timeOfLastNewValue] = _tblock.minersByValue[k];
+            _request.valuesByTimestamp[_timeOfLastNewValue] = _tblock.valuesByTimestamp[k];
             delete _tblock.minersByValue[k];
+            delete _tblock.valuesByTimestamp[k];
             _request.requestTimestamps.push(_timeOfLastNewValue);
             _request.minedBlockNum[_timeOfLastNewValue] = block.number;
             _request.apiUintVars[totalTip] = 0;
