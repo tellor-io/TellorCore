@@ -51,7 +51,7 @@ library Utilities {
     */
     function getMax5(uint256[51] memory data) internal pure returns (uint256[5] memory max, uint256[5] memory maxIndex) {
         uint256 min5 = data[1];
-        uint256 minI = 1;
+        uint256 minI = 0;
         for(uint256 j=0;j<5;j++){
             max[j]= data[j+1];//max[0]=data[1]
             maxIndex[j] = j+1;//maxIndex[0]= 1

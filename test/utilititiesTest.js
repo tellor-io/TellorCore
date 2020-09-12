@@ -21,12 +21,10 @@ contract("Utilities Tests", function(accounts) {
       let queue = [0];
       let ref = [0];
       for (var i = 0; i < 50; i++) {
-        let x = Math.floor(Math.random() * 98) + 1;
+        let x = Math.floor(Math.random() * 998) + 1;
         queue.push(x);
         ref.push(x);
       }
-      queue[2] = 1000;
-      ref[2] = 1000;
       // console.log(queue);
 
       let res = await utilities.testgetMax5(queue);
@@ -40,21 +38,12 @@ contract("Utilities Tests", function(accounts) {
         idexes.push(res["1"][i].toNumber());
       }
       let svals = values.sort((a, b) => a - b);
-      // console.log(sorted);
-      // console.log(values);
-      // for (var i = 0; i < 5; i++) {
-      if (svals[0] != sorted[0]) {
-        console.log(values);
-        console.log(sorted);
-        console.log(ref);
-        // }
-        // assert(svals[i] == sorted[i], "Value supposed to be on the top5");
+      for (var i = 0; i < 5; i++) {
+        assert(svals[i] == sorted[i], "Value supposed to be on the top5");
       }
     };
 
-    for (var k = 0; k < 100; k++) {
-      console.log("K", k);
-
+    for (var k = 0; k < 25; k++) {
       await testGetMax();
     }
   });
