@@ -18,11 +18,16 @@ contract("Utilities Tests", function(accounts) {
   });
   it("Test possible duplicates on top Requests", async function() {
     const testGetMax = async () => {
-      let queue = [];
-      for (var i = 0; i < 51; i++) {
-        queue.push(Math.floor(Math.random() * 98) + 1);
+      let queue = [0];
+      let ref = [0];
+      for (var i = 0; i < 50; i++) {
+        let x = Math.floor(Math.random() * 98) + 1;
+        queue.push(x);
+        ref.push(x);
       }
-      console.log(queue);
+      queue[2] = 1000;
+      ref[2] = 1000;
+      // console.log(queue);
 
       let res = await utilities.testgetMax5(queue);
       let values = [];
@@ -35,10 +40,14 @@ contract("Utilities Tests", function(accounts) {
         idexes.push(res["1"][i].toNumber());
       }
       let svals = values.sort((a, b) => a - b);
-      console.log(values);
-      console.log(sorted);
-      // console.log(queue);
-      for (var i = 0; i < 5; i++) {
+      // console.log(sorted);
+      // console.log(values);
+      // for (var i = 0; i < 5; i++) {
+      if (svals[0] != sorted[0]) {
+        console.log(values);
+        console.log(sorted);
+        console.log(ref);
+        // }
         // assert(svals[i] == sorted[i], "Value supposed to be on the top5");
       }
     };
