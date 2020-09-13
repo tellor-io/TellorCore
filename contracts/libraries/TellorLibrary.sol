@@ -99,22 +99,26 @@ library TellorLibrary {
         for (uint k = 0; k < 5; k++) {
             for (uint i = 1; i < 5; i++) {
                 uint256 temp = _tblock.valuesByTimestamp[k][i];
-                address temp2 = _tblock.minersByValue[i][i];
+                address temp2 = _tblock.minersByValue[k][i];
                 uint256 j = i;
                 while (j > 0 && temp < _tblock.valuesByTimestamp[k][j - 1]) {
                     _tblock.valuesByTimestamp[k][j] = _tblock.valuesByTimestamp[k][j - 1];
-                    _tblock.minersByValue[i][j] = _tblock.minersByValue[i][j - 1];
+                    _tblock.minersByValue[k][j] = _tblock.minersByValue[k][j - 1];
                     j--;
                 }
                 if (j < i) {
                     _tblock.valuesByTimestamp[k][j] = temp;
-                    _tblock.minersByValue[i][j] = temp2;
+                    _tblock.minersByValue[k][j] = temp2;
                 }
             }
             TellorStorage.Request storage _request = self.requestDetails[_requestId[k]];
             //Save the official(finalValue), timestamp of it, 5 miners and their submitted values for it, and its block number
             a = _tblock.valuesByTimestamp[k];
             _request.finalValues[_timeOfLastNewValue] = a[2];
+            _request.minersByValue[_timeOfLastNewValue] = _tblock.minersByValue[k];
+            _request.valuesByTimestamp[_timeOfLastNewValue] = _tblock.valuesByTimestamp[k];
+            delete _tblock.minersByValue[k];
+            delete _tblock.valuesByTimestamp[k];
             _request.requestTimestamps.push(_timeOfLastNewValue);
             _request.minedBlockNum[_timeOfLastNewValue] = block.number;
             _request.apiUintVars[totalTip] = 0;
@@ -356,6 +360,11 @@ library TellorLibrary {
         _tblock.valuesByTimestamp[2][_slotProgress] = _value[2];
         _tblock.valuesByTimestamp[3][_slotProgress] = _value[3];
         _tblock.valuesByTimestamp[4][_slotProgress] = _value[4];
+        _tblock.minersByValue[0][self.uintVars[slotProgress]]= msg.sender;
+        _tblock.minersByValue[1][self.uintVars[slotProgress]]= msg.sender;
+        _tblock.minersByValue[2][self.uintVars[slotProgress]]= msg.sender;
+        _tblock.minersByValue[3][self.uintVars[slotProgress]]= msg.sender;
+        _tblock.minersByValue[4][self.uintVars[slotProgress]]= msg.sender;
 
         //Internal Function Added to allow for more stack variables
         _payReward(self, _slotProgress);
@@ -529,7 +538,11 @@ library TellorLibrary {
         self.uintVars[currentTotalTips] -= _extraTip;
 
         //Save the miner and value received
+        _tblock.minersByValue[0][self.uintVars[slotProgress]]= msg.sender;
         _tblock.minersByValue[1][self.uintVars[slotProgress]]= msg.sender;
+        _tblock.minersByValue[2][self.uintVars[slotProgress]]= msg.sender;
+        _tblock.minersByValue[3][self.uintVars[slotProgress]]= msg.sender;
+        _tblock.minersByValue[4][self.uintVars[slotProgress]]= msg.sender;
 
         //this will fill the currentMiners array
         for (uint j = 0; j < 5; j++) {
