@@ -92,7 +92,7 @@
 //     }
 //     res = web3.eth.abi.decodeParameters(
 //       ["uint256[5]", "uint256", "uint256[5]", "uint256"],
-//       res.logs["2"].data
+//       res.logs["1"].data
 //     );
 //     balance1 = await oracle.balanceOf(accounts[2]);
 //     blocknum = await oracle.getMinedBlockNum(1, res[1]);
@@ -140,7 +140,7 @@
 //     }
 //     res = web3.eth.abi.decodeParameters(
 //       ["uint256[5]", "uint256", "uint256[5]", "uint256"],
-//       res.logs["2"].data
+//       res.logs["1"].data
 //     );
 //     await web3.eth.sendTransaction({
 //       to: oracle.address,
@@ -306,7 +306,7 @@
 //     }
 //     res = web3.eth.abi.decodeParameters(
 //       ["uint256[5]", "uint256", "uint256[5]", "uint256"],
-//       res.logs["2"].data
+//       res.logs["1"].data
 //     );
 //     balance1 = await oracle.balanceOf(accounts[2]);
 //     dispBal1 = await oracle.balanceOf(accounts[1]);
@@ -409,7 +409,7 @@
 //     }
 //     res = web3.eth.abi.decodeParameters(
 //       ["uint256[5]", "uint256", "uint256[5]", "uint256"],
-//       res.logs["2"].data
+//       res.logs["1"].data
 //     );
 //     balance1 = await oracle.balanceOf(accounts[2]);
 //     dispBal1 = await oracle.balanceOf(accounts[1]);
@@ -526,7 +526,7 @@
 //     }
 //     res = web3.eth.abi.decodeParameters(
 //       ["uint256[5]", "uint256", "uint256[5]", "uint256"],
-//       res.logs["2"].data
+//       res.logs["1"].data
 //     );
 //     balance1 = await oracle.balanceOf(accounts[2]);
 //     dispBal1 = await oracle.balanceOf(accounts[1]);
@@ -835,7 +835,7 @@
 //     }
 //     res = web3.eth.abi.decodeParameters(
 //       ["uint256[5]", "uint256", "uint256[5]", "uint256"],
-//       res.logs["2"].data
+//       res.logs["1"].data
 //     );
 //     await web3.eth.sendTransaction({
 //       to: oracle.address,
@@ -968,7 +968,7 @@
 //     }
 //     res = web3.eth.abi.decodeParameters(
 //       ["uint256[5]", "uint256", "uint256[5]", "uint256"],
-//       res.logs["2"].data
+//       res.logs["1"].data
 //     );
 //     await web3.eth.sendTransaction({
 //       to: oracle.address,
