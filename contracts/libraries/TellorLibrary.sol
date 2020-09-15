@@ -539,9 +539,6 @@ library TellorLibrary {
         //Update the miner status to true once they submit a value so they don't submit more than once
         self.minersByChallenge[_currChallenge][msg.sender] = true;
 
-        //require the miner did not receive awards in the last hour
-        // require(now - self.uintVars[_hashMsgSender] > 1 hours);
-
         //Updating Request
         TellorStorage.Request storage _tblock = self.requestDetails[self.uintVars[_tBlock]];
         _tblock.minersByValue[1][_slotProgress]= msg.sender; 
