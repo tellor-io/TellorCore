@@ -1,78 +1,78 @@
-// const Web3 = require("web3");
-// const web3 = new Web3(
-//   new Web3.providers.WebsocketProvider("ws://localhost:8545")
-// );
-// const helper = require("./helpers/test_helpers");
-// const TellorMaster = artifacts.require("./TellorMaster.sol");
-// const Tellor = artifacts.require("./Tellor.sol"); // globally injected artifacts helper
-// var oracleAbi = Tellor.abi;
-// var oracleByte = Tellor.bytecode;
-// var OldTellor = artifacts.require("./oldContracts/OldTellor.sol");
-// var oldTellorABI = OldTellor.abi;
-// var UtilitiesTests = artifacts.require("./UtilitiesTests.sol");
+const Web3 = require("web3");
+const web3 = new Web3(
+  new Web3.providers.WebsocketProvider("ws://localhost:8545")
+);
+const helper = require("./helpers/test_helpers");
+const TellorMaster = artifacts.require("./TellorMaster.sol");
+const Tellor = artifacts.require("./Tellor.sol"); // globally injected artifacts helper
+var oracleAbi = Tellor.abi;
+var oracleByte = Tellor.bytecode;
+var OldTellor = artifacts.require("./oldContracts/OldTellor.sol");
+var oldTellorABI = OldTellor.abi;
+var UtilitiesTests = artifacts.require("./UtilitiesTests.sol");
 
-// var masterAbi = TellorMaster.abi;
-// var api = "json(https://api.gdax.com/products/BTC-USD/ticker).price";
-// var api2 = "json(https://api.gdax.com/products/ETH-USD/ticker).price";
+var masterAbi = TellorMaster.abi;
+var api = "json(https://api.gdax.com/products/BTC-USD/ticker).price";
+var api2 = "json(https://api.gdax.com/products/ETH-USD/ticker).price";
 
-// contract("Mining Tests", function(accounts) {
-//   let oracleBase;
-//   let oracle;
-//   let oracle2;
-//   let master;
-//   let oldTellor;
-//   let oldTellorinst;
-//   let utilities;
+contract("Mining Tests", function(accounts) {
+  let oracleBase;
+  let oracle;
+  let oracle2;
+  let master;
+  let oldTellor;
+  let oldTellorinst;
+  let utilities;
 
-//   beforeEach("Setup contract for each test", async function() {
-//     oldTellor = await OldTellor.new();
-//     oracle = await TellorMaster.new(oldTellor.address);
-//     master = await new web3.eth.Contract(masterAbi, oracle.address);
-//     oldTellorinst = await new web3.eth.Contract(
-//       oldTellorABI,
-//       oldTellor.address
-//     );
-//     for (var i = 0; i < 6; i++) {
-//       await web3.eth.sendTransaction({
-//         to: oracle.address,
-//         from: accounts[0],
-//         gas: 7000000,
-//         data: oldTellorinst.methods
-//           .theLazyCoon(accounts[i], web3.utils.toWei("5000", "ether"))
-//           .encodeABI(),
-//       });
-//     }
-//     for (var i = 0; i < 52; i++) {
-//       x = "USD" + i;
-//       apix = api + i;
-//       await web3.eth.sendTransaction({
-//         to: oracle.address,
-//         from: accounts[0],
-//         gas: 7000000,
-//         data: oldTellorinst.methods
-//           .requestData(apix, x, 1000, 52 - i)
-//           .encodeABI(),
-//       });
-//     }
-//     let q = await oracle.getRequestQ();
-//     //Deploy new upgraded Tellor
-//     oracleBase = await Tellor.new();
-//     oracle2 = await new web3.eth.Contract(oracleAbi, oracle.address);
-//     await oracle.changeTellorContract(oracleBase.address);
-//     for (var i = 0; i < 5; i++) {
-//       await web3.eth.sendTransaction({
-//         to: oracle.address,
-//         from: accounts[i],
-//         gas: 7000000,
-//         data: oracle2.methods[
-//           "testSubmitMiningSolution(string,uint256,uint256)"
-//         ]("nonce", 1, 1200).encodeABI(),
-//       });
-//     }
-//     // for(var i = 1;i<6;i++){
-//     //     await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.addTip(i,i).encodeABI()})
-//     // }
-//   });
+  beforeEach("Setup contract for each test", async function() {
+    oldTellor = await OldTellor.new();
+    oracle = await TellorMaster.new(oldTellor.address);
+    master = await new web3.eth.Contract(masterAbi, oracle.address);
+    oldTellorinst = await new web3.eth.Contract(
+      oldTellorABI,
+      oldTellor.address
+    );
+    for (var i = 0; i < 6; i++) {
+      await web3.eth.sendTransaction({
+        to: oracle.address,
+        from: accounts[0],
+        gas: 7000000,
+        data: oldTellorinst.methods
+          .theLazyCoon(accounts[i], web3.utils.toWei("5000", "ether"))
+          .encodeABI(),
+      });
+    }
+    for (var i = 0; i < 52; i++) {
+      x = "USD" + i;
+      apix = api + i;
+      await web3.eth.sendTransaction({
+        to: oracle.address,
+        from: accounts[0],
+        gas: 7000000,
+        data: oldTellorinst.methods
+          .requestData(apix, x, 1000, 52 - i)
+          .encodeABI(),
+      });
+    }
+    let q = await oracle.getRequestQ();
+    //Deploy new upgraded Tellor
+    oracleBase = await Tellor.new();
+    oracle2 = await new web3.eth.Contract(oracleAbi, oracle.address);
+    await oracle.changeTellorContract(oracleBase.address);
+    for (var i = 0; i < 5; i++) {
+      await web3.eth.sendTransaction({
+        to: oracle.address,
+        from: accounts[i],
+        gas: 7000000,
+        data: oracle2.methods[
+          "testSubmitMiningSolution(string,uint256,uint256)"
+        ]("nonce", 1, 1200).encodeABI(),
+      });
+    }
+    // for(var i = 1;i<6;i++){
+    //     await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.addTip(i,i).encodeABI()})
+    // }
+  });
 
 //   // it("test utilities", async function() {
 //   //   var myArr = [];
@@ -1071,229 +1071,229 @@
 //     );
 //   });
   
-//   it("Test 50 requests, proper booting, and mining of 5", async function() {
-//     vars = await oracle2.methods.getNewCurrentVariables().call();
-//     for (var i = 0; i < 5; i++) {
-//       await web3.eth.sendTransaction({
-//         to: oracle.address,
-//         from: accounts[i],
-//         gas: 7000000,
-//         data: oracle2.methods
-//           .testSubmitMiningSolution("nonce", vars["1"], [
-//             1200,
-//             1300,
-//             1400,
-//             1500,
-//             1600,
-//           ])
-//           .encodeABI(),
-//       });
-//     }
-//     for (var i = 1; i <= 10; i++) {
-//       apix = "api" + i;
-//       await web3.eth.sendTransaction({
-//         to: oracle.address,
-//         from: accounts[2],
-//         gas: 7000000,
-//         data: oracle2.methods.addTip(i + 2, i).encodeABI(),
-//       });
-//     }
-//     await web3.eth.sendTransaction({
-//       to: oracle.address,
-//       from: accounts[2],
-//       gas: 7000000,
-//       data: oracle2.methods.addTip(1, 11).encodeABI(),
-//     });
-//     vars = await oracle2.methods.getNewCurrentVariables().call();
-//     for (var i = 0; i < 5; i++) {
-//       res = await web3.eth.sendTransaction({
-//         to: oracle.address,
-//         from: accounts[i],
-//         gas: 7000000,
-//         data: oracle2.methods
-//           .testSubmitMiningSolution("nonce", vars["1"], [
-//             1200,
-//             1300,
-//             1400,
-//             1500,
-//             1600,
-//           ])
-//           .encodeABI(),
-//       });
-//     }
-//     res = web3.eth.abi.decodeParameters(
-//       ["uint256[5]", "uint256", "uint256[5]", "uint256"],
-//       res.logs["1"].data
-//     );
-//     data = await oracle.getMinedBlockNum(2, res[1]);
-//     console.log("data1", data*1 )
-//     assert(data*1 > 0, "Should be true if Data exist for that point in time");
-//     for (var i = 11; i <= 20; i++) {
-//       apix = "api" + i;
-//       await web3.eth.sendTransaction({
-//         to: oracle.address,
-//         from: accounts[2],
-//         gas: 7000000,
-//         data: oracle2.methods.addTip(i + 2, i).encodeABI(),
-//       });
-//     }
-//     await web3.eth.sendTransaction({
-//       to: oracle.address,
-//       from: accounts[2],
-//       gas: 7000000,
-//       data: oracle2.methods.addTip(2, 21).encodeABI(),
-//     });
-//     vars = await oracle2.methods.getNewCurrentVariables().call();
-//     for (var i = 0; i < 5; i++) {
-//       res = await web3.eth.sendTransaction({
-//         to: oracle.address,
-//         from: accounts[i],
-//         gas: 7000000,
-//         data: oracle2.methods
-//           .testSubmitMiningSolution("nonce", vars["1"], [
-//             1200,
-//             1300,
-//             1400,
-//             1500,
-//             1600,
-//           ])
-//           .encodeABI(),
-//       });
-//     }
-//     res = web3.eth.abi.decodeParameters(
-//       ["uint256[5]", "uint256", "uint256[5]", "uint256"],
-//       res.logs["1"].data
-//     );
-//     data = await oracle.getMinedBlockNum(1, res[1]);
-//     console.log("data2", data *1)
-//     assert(data*1 > 0, "Should be true if Data exist for that point in time");
-//     for (var i = 21; i <= 30; i++) {
-//       apix = "api" + i;
-//       await web3.eth.sendTransaction({
-//         to: oracle.address,
-//         from: accounts[2],
-//         gas: 7000000,
-//         data: oracle2.methods.addTip(i + 2, i).encodeABI(),
-//       });
-//     }
-//     await web3.eth.sendTransaction({
-//       to: oracle.address,
-//       from: accounts[2],
-//       gas: 7000000,
-//       data: oracle2.methods.addTip(1, 31).encodeABI(),
-//     });
-//     vars = await oracle2.methods.getNewCurrentVariables().call();
-//     for (var i = 0; i < 5; i++) {
-//       res = await web3.eth.sendTransaction({
-//         to: oracle.address,
-//         from: accounts[i],
-//         gas: 7000000,
-//         data: oracle2.methods
-//           .testSubmitMiningSolution("nonce", vars["1"], [
-//             1200,
-//             1300,
-//             1400,
-//             1500,
-//             1600,
-//           ])
-//           .encodeABI(),
-//       });
-//     }
-//     res = web3.eth.abi.decodeParameters(
-//       ["uint256[5]", "uint256", "uint256[5]", "uint256"],
-//       res.logs["1"].data
-//     );
-//     data = await oracle.getMinedBlockNum(2, res[1]);
-//     console.log("data3", data*1)
-//     //assert(data*1 > 0, "Should be true if Data exist for that point in time");
-//     for (var i = 31; i <= 40; i++) {
-//       await web3.eth.sendTransaction({
-//         to: oracle.address,
-//         from: accounts[2],
-//         gas: 7000000,
-//         data: oracle2.methods.addTip(i + 2, i).encodeABI(),
-//       });
-//     }
-//     await web3.eth.sendTransaction({
-//       to: oracle.address,
-//       from: accounts[2],
-//       gas: 7000000,
-//       data: oracle2.methods.addTip(2, 41).encodeABI(),
-//     });
-//     vars = await oracle2.methods.getNewCurrentVariables().call();
-//     for (var i = 0; i < 5; i++) {
-//       res = await web3.eth.sendTransaction({
-//         to: oracle.address,
-//         from: accounts[i],
-//         gas: 7000000,
-//         data: oracle2.methods
-//           .testSubmitMiningSolution("nonce", vars["1"], [
-//             1200,
-//             1300,
-//             1400,
-//             1500,
-//             1600,
-//           ])
-//           .encodeABI(),
-//       });
-//     }
-//     res = web3.eth.abi.decodeParameters(
-//       ["uint256[5]", "uint256", "uint256[5]", "uint256"],
-//       res.logs["1"].data
-//     );
-//     data = await oracle.getMinedBlockNum(1, res[1]);
-//     console.log("data4", data*1)
-//     assert(data > 0, "Should be true if Data exist for that point in time");
-//     for (var i = 41; i <= 55; i++) {
-//       apix = "api" + i;
-//       await web3.eth.sendTransaction({
-//         to: oracle.address,
-//         from: accounts[2],
-//         gas: 7000000,
-//         data: oracle2.methods.addTip(i + 2, i).encodeABI(),
-//       });
-//     }
-//     await web3.eth.sendTransaction({
-//       to: oracle.address,
-//       from: accounts[2],
-//       gas: 7000000,
-//       data: oracle2.methods.addTip(1, 56).encodeABI(),
-//     });
-//     vars = await oracle2.methods.getNewCurrentVariables().call();
-//     for (var i = 0; i < 5; i++) {
-//       res = await web3.eth.sendTransaction({
-//         to: oracle.address,
-//         from: accounts[i],
-//         gas: 7000000,
-//         data: oracle2.methods
-//           .testSubmitMiningSolution("nonce", vars["1"], [
-//             1200,
-//             1300,
-//             1400,
-//             1500,
-//             1600,
-//           ])
-//           .encodeABI(),
-//       });
-//     }
-//     res = web3.eth.abi.decodeParameters(
-//       ["uint256[5]", "uint256", "uint256[5]", "uint256"],
-//       res.logs["1"].data
-//     );
-//     data = await oracle.getMinedBlockNum(2, res[1]);
-//     console.log("data5", data*1)
-//     assert(data*1 > 0, "Should be true if Data exist for that point in time");
-//     apiVars = await oracle.getRequestVars(52);
-//     apiIdforpayoutPoolIndex = await oracle.getRequestIdByRequestQIndex(50);
-//     vars = await oracle2.methods.getNewVariablesOnDeck().call();
-//     let apiOnQ = vars["0"];
-//     apiIdforpayoutPoolIndex2 = await oracle.getRequestIdByRequestQIndex(49);
-//     assert(apiIdforpayoutPoolIndex == 1, "position 1 should be booted");
-//     assert(vars["1"].includes("51"), "API on Q payout should be 51");
-//     assert(apiOnQ.includes("51"), "API on Q should be 51");
-//     assert(apiVars[5] == 51, "value at position 52 should have correct value");
-//     assert(apiIdforpayoutPoolIndex2 == 3, "position 2 should be in same place");
-//   });
+  it("Test 50 requests, proper booting, and mining of 5", async function() {
+    vars = await oracle2.methods.getNewCurrentVariables().call();
+    for (var i = 0; i < 5; i++) {
+      await web3.eth.sendTransaction({
+        to: oracle.address,
+        from: accounts[i],
+        gas: 7000000,
+        data: oracle2.methods
+          .testSubmitMiningSolution("nonce", vars["1"], [
+            1200,
+            1300,
+            1400,
+            1500,
+            1600,
+          ])
+          .encodeABI(),
+      });
+    }
+    for (var i = 1; i <= 10; i++) {
+      apix = "api" + i;
+      await web3.eth.sendTransaction({
+        to: oracle.address,
+        from: accounts[2],
+        gas: 7000000,
+        data: oracle2.methods.addTip(i + 2, i).encodeABI(),
+      });
+    }
+    await web3.eth.sendTransaction({
+      to: oracle.address,
+      from: accounts[2],
+      gas: 7000000,
+      data: oracle2.methods.addTip(1, 11).encodeABI(),
+    });
+    vars = await oracle2.methods.getNewCurrentVariables().call();
+    for (var i = 0; i < 5; i++) {
+      res = await web3.eth.sendTransaction({
+        to: oracle.address,
+        from: accounts[i],
+        gas: 7000000,
+        data: oracle2.methods
+          .testSubmitMiningSolution("nonce", vars["1"], [
+            1200,
+            1300,
+            1400,
+            1500,
+            1600,
+          ])
+          .encodeABI(),
+      });
+    }
+    res = web3.eth.abi.decodeParameters(
+      ["uint256[5]", "uint256", "uint256[5]", "uint256"],
+      res.logs["1"].data
+    );
+    data = await oracle.getMinedBlockNum(2, res[1]);
+    console.log("data1", data*1 )
+    assert(data*1 > 0, "Should be true if Data exist for that point in time");
+    for (var i = 11; i <= 20; i++) {
+      apix = "api" + i;
+      await web3.eth.sendTransaction({
+        to: oracle.address,
+        from: accounts[2],
+        gas: 7000000,
+        data: oracle2.methods.addTip(i + 2, i).encodeABI(),
+      });
+    }
+    await web3.eth.sendTransaction({
+      to: oracle.address,
+      from: accounts[2],
+      gas: 7000000,
+      data: oracle2.methods.addTip(2, 21).encodeABI(),
+    });
+    vars = await oracle2.methods.getNewCurrentVariables().call();
+    for (var i = 0; i < 5; i++) {
+      res = await web3.eth.sendTransaction({
+        to: oracle.address,
+        from: accounts[i],
+        gas: 7000000,
+        data: oracle2.methods
+          .testSubmitMiningSolution("nonce", vars["1"], [
+            1200,
+            1300,
+            1400,
+            1500,
+            1600,
+          ])
+          .encodeABI(),
+      });
+    }
+    res = web3.eth.abi.decodeParameters(
+      ["uint256[5]", "uint256", "uint256[5]", "uint256"],
+      res.logs["1"].data
+    );
+    data = await oracle.getMinedBlockNum(1, res[1]);
+    console.log("data2", data *1)
+    assert(data*1 > 0, "Should be true if Data exist for that point in time");
+    for (var i = 21; i <= 30; i++) {
+      apix = "api" + i;
+      await web3.eth.sendTransaction({
+        to: oracle.address,
+        from: accounts[2],
+        gas: 7000000,
+        data: oracle2.methods.addTip(i + 2, i).encodeABI(),
+      });
+    }
+    await web3.eth.sendTransaction({
+      to: oracle.address,
+      from: accounts[2],
+      gas: 7000000,
+      data: oracle2.methods.addTip(1, 31).encodeABI(),
+    });
+    vars = await oracle2.methods.getNewCurrentVariables().call();
+    for (var i = 0; i < 5; i++) {
+      res = await web3.eth.sendTransaction({
+        to: oracle.address,
+        from: accounts[i],
+        gas: 7000000,
+        data: oracle2.methods
+          .testSubmitMiningSolution("nonce", vars["1"], [
+            1200,
+            1300,
+            1400,
+            1500,
+            1600,
+          ])
+          .encodeABI(),
+      });
+    }
+    res = web3.eth.abi.decodeParameters(
+      ["uint256[5]", "uint256", "uint256[5]", "uint256"],
+      res.logs["1"].data
+    );
+    data = await oracle.getMinedBlockNum(2, res[1]);
+    console.log("data3", data*1)
+    //assert(data*1 > 0, "Should be true if Data exist for that point in time");
+    for (var i = 31; i <= 40; i++) {
+      await web3.eth.sendTransaction({
+        to: oracle.address,
+        from: accounts[2],
+        gas: 7000000,
+        data: oracle2.methods.addTip(i + 2, i).encodeABI(),
+      });
+    }
+    await web3.eth.sendTransaction({
+      to: oracle.address,
+      from: accounts[2],
+      gas: 7000000,
+      data: oracle2.methods.addTip(2, 41).encodeABI(),
+    });
+    vars = await oracle2.methods.getNewCurrentVariables().call();
+    for (var i = 0; i < 5; i++) {
+      res = await web3.eth.sendTransaction({
+        to: oracle.address,
+        from: accounts[i],
+        gas: 7000000,
+        data: oracle2.methods
+          .testSubmitMiningSolution("nonce", vars["1"], [
+            1200,
+            1300,
+            1400,
+            1500,
+            1600,
+          ])
+          .encodeABI(),
+      });
+    }
+    res = web3.eth.abi.decodeParameters(
+      ["uint256[5]", "uint256", "uint256[5]", "uint256"],
+      res.logs["1"].data
+    );
+    data = await oracle.getMinedBlockNum(1, res[1]);
+    console.log("data4", data*1)
+    assert(data > 0, "Should be true if Data exist for that point in time");
+    for (var i = 41; i <= 55; i++) {
+      apix = "api" + i;
+      await web3.eth.sendTransaction({
+        to: oracle.address,
+        from: accounts[2],
+        gas: 7000000,
+        data: oracle2.methods.addTip(i + 2, i).encodeABI(),
+      });
+    }
+    await web3.eth.sendTransaction({
+      to: oracle.address,
+      from: accounts[2],
+      gas: 7000000,
+      data: oracle2.methods.addTip(1, 56).encodeABI(),
+    });
+    vars = await oracle2.methods.getNewCurrentVariables().call();
+    for (var i = 0; i < 5; i++) {
+      res = await web3.eth.sendTransaction({
+        to: oracle.address,
+        from: accounts[i],
+        gas: 7000000,
+        data: oracle2.methods
+          .testSubmitMiningSolution("nonce", vars["1"], [
+            1200,
+            1300,
+            1400,
+            1500,
+            1600,
+          ])
+          .encodeABI(),
+      });
+    }
+    res = web3.eth.abi.decodeParameters(
+      ["uint256[5]", "uint256", "uint256[5]", "uint256"],
+      res.logs["1"].data
+    );
+    data = await oracle.getMinedBlockNum(2, res[1]);
+    console.log("data5", data*1)
+    assert(data*1 > 0, "Should be true if Data exist for that point in time");
+    apiVars = await oracle.getRequestVars(52);
+    apiIdforpayoutPoolIndex = await oracle.getRequestIdByRequestQIndex(50);
+    vars = await oracle2.methods.getNewVariablesOnDeck().call();
+    let apiOnQ = vars["0"];
+    apiIdforpayoutPoolIndex2 = await oracle.getRequestIdByRequestQIndex(49);
+    assert(apiIdforpayoutPoolIndex == 1, "position 1 should be booted");
+    assert(vars["1"].includes("51"), "API on Q payout should be 51");
+    assert(apiOnQ.includes("51"), "API on Q should be 51");
+    assert(apiVars[5] == 51, "value at position 52 should have correct value");
+    assert(apiIdforpayoutPoolIndex2 == 3, "position 2 should be in same place");
+  });
 //   it("Test Throw on Multiple Disputes", async function() {
 //     vars = await oracle2.methods.getNewCurrentVariables().call();
 //     for (var i = 0; i < 5; i++) {
@@ -1496,4 +1496,4 @@
 //     }
 //   });
   
-// });
+ });
