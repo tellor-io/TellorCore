@@ -1,4 +1,3 @@
-/*
 const Web3 = require("web3");
 const web3 = new Web3(
   new Web3.providers.WebsocketProvider("ws://localhost:8545")
@@ -88,207 +87,207 @@ contract("Mining Tests", function(accounts) {
       assert(top5N["_index"][i] == i + 1);
     }
   });
-  */
-  // it("getVariables", async function() {
-  //   vars = await web3.eth.call({
-  //     to: oracle.address,
-  //     from: accounts[0],
-  //     data: oracle2.methods.getNewCurrentVariables().encodeABI(),
-  //   });
+  
+  it("getVariables", async function() {
+    vars = await web3.eth.call({
+      to: oracle.address,
+      from: accounts[0],
+      data: oracle2.methods.getNewCurrentVariables().encodeABI(),
+    });
 
-  //   vars = await oracle2.methods.getNewCurrentVariables().call();
-  //   assert(vars["1"].length == 5, "ids should be populated");
-  //   assert(vars["2"] > 0, "difficulty should be correct");
-  //   assert(vars["3"] > 0, "tip should be correct");
-  // });
-  // it("getTopRequestIDs", async function() {
-  //   vars = await oracle2.methods.getTopRequestIDs().call();
-  //   for (var i = 0; i < 5; i++) {
-  //     assert((vars[0] = i + 6));
-  //   }
-  // });
-  // it("Test miner", async function() {
-  //   for (var i = 0; i < 5; i++) {
-  //     await web3.eth.sendTransaction({
-  //       to: oracle.address,
-  //       from: accounts[i],
-  //       gas: 10000000,
-  //       data: oracle2.methods
-  //         .testSubmitMiningSolution(
-  //           "nonce",
-  //           [1, 2, 3, 4, 5],
-  //           [1200, 1300, 1400, 1500, 1600]
-  //         )
-  //         .encodeABI(),
-  //     });
-  //   }
-  //   vars = await oracle.getLastNewValueById(5);
-  //   assert(vars[0] > 0, "value should be positive");
-  //   assert(vars[1] == true, "value should be there");
-  // });
-  // it("Test Miner decreasing payout", async function() {
-  //   balances = [];
-  //   for (var i = 0; i < 6; i++) {
-  //     balances[i] = await oracle.balanceOf(accounts[i]);
-  //   }
-  //   for (var i = 0; i < 5; i++) {
-  //     await web3.eth.sendTransaction({
-  //       to: oracle.address,
-  //       from: accounts[i],
-  //       gas: 7000000,
-  //       data: oracle2.methods
-  //         .testSubmitMiningSolution(
-  //           "nonce",
-  //           [1, 2, 3, 4, 5],
-  //           [1200, 1300, 1400, 1500, 1600]
-  //         )
-  //         .encodeABI(),
-  //     });
-  //   }
-  //   new_balances = [];
-  //   for (var i = 0; i < 6; i++) {
-  //     new_balances[i] = await oracle.balanceOf(accounts[i]);
-  //   }
-  //   changes = [];
-  //   for (var i = 0; i < 6; i++) {
-  //     changes[i] = new_balances[i] - balances[i];
-  //   }
-  //   vars = await oracle2.methods.getNewCurrentVariables().call();
-  //   for (var i = 0; i < 5; i++) {
-  //     await web3.eth.sendTransaction({
-  //       to: oracle.address,
-  //       from: accounts[i],
-  //       gas: 7000000,
-  //       data: oracle2.methods
-  //         .testSubmitMiningSolution("nonce", vars["1"], [
-  //           1200,
-  //           1300,
-  //           1400,
-  //           1500,
-  //           1600,
-  //         ])
-  //         .encodeABI(),
-  //     });
-  //   }
-  //   new_balances2 = [];
-  //   for (var i = 0; i < 6; i++) {
-  //     new_balances2[i] = await oracle.balanceOf(accounts[i]);
-  //   }
-  //   changes2 = [];
-  //   for (var i = 0; i < 6; i++) {
-  //     changes2[i] = new_balances2[i] - new_balances[i];
-  //   }
-  //   assert(changes2[1] < changes[1]);
-  //   assert(changes2[2] < changes[2]);
-  //   assert(changes2[3] < changes[4]);
-  //   assert(changes2[4] < changes[4]);
-  //   assert(changes2[0] < changes[0], "miner payout should be decreasing");
-  // });
-  // it("Test Difficulty Adjustment", async function() {
-  //   for (var i = 0; i < 5; i++) {
-  //     await web3.eth.sendTransaction({
-  //       to: oracle.address,
-  //       from: accounts[i],
-  //       gas: 7000000,
-  //       data: oracle2.methods
-  //         .testSubmitMiningSolution(
-  //           "nonce",
-  //           [1, 2, 3, 4, 5],
-  //           [1200, 1300, 1400, 1500, 1600]
-  //         )
-  //         .encodeABI(),
-  //     });
-  //   }
-  //   diff1 = await oracle2.methods.getNewCurrentVariables().call();
-  //   assert(diff1[2] > 1, "difficulty greater than 1"); //difficulty not changing.....
-  //   vars = await oracle2.methods.getNewCurrentVariables().call();
-  //   for (var i = 0; i < 5; i++) {
-  //     await web3.eth.sendTransaction({
-  //       to: oracle.address,
-  //       from: accounts[i],
-  //       gas: 7000000,
-  //       data: oracle2.methods
-  //         .testSubmitMiningSolution("nonce", vars["1"], [
-  //           1200,
-  //           1300,
-  //           1400,
-  //           1500,
-  //           1600,
-  //         ])
-  //         .encodeABI(),
-  //     });
-  //   }
-  //   vars = await oracle2.methods.getNewCurrentVariables().call();
-  //   assert(vars[2] > diff1[2], "difficulty should continue to move up");
-  // });
-  // it("Test Get MinersbyValue ", async function() {
-  //   //Here we're testing with randomized values. This way, we can be sure that
-  //   //both the values and the miners are being properly sorted
-  //   let res;
-  //   let prices = [1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900];
-  //   let requestValues = [[], [], [], [], []];
-  //   let minersByVal = { 0: {}, 1: {}, 2: {}, 3: {}, 4: {} };
+    vars = await oracle2.methods.getNewCurrentVariables().call();
+    assert(vars["1"].length == 5, "ids should be populated");
+    assert(vars["2"] > 0, "difficulty should be correct");
+    assert(vars["3"] > 0, "tip should be correct");
+  });
+  it("getTopRequestIDs", async function() {
+    vars = await oracle2.methods.getTopRequestIDs().call();
+    for (var i = 0; i < 5; i++) {
+      assert((vars[0] = i + 6));
+    }
+  });
+  it("Test miner", async function() {
+    for (var i = 0; i < 5; i++) {
+      await web3.eth.sendTransaction({
+        to: oracle.address,
+        from: accounts[i],
+        gas: 10000000,
+        data: oracle2.methods
+          .testSubmitMiningSolution(
+            "nonce",
+            [1, 2, 3, 4, 5],
+            [1200, 1300, 1400, 1500, 1600]
+          )
+          .encodeABI(),
+      });
+    }
+    vars = await oracle.getLastNewValueById(5);
+    assert(vars[0] > 0, "value should be positive");
+    assert(vars[1] == true, "value should be there");
+  });
+  it("Test Miner decreasing payout", async function() {
+    balances = [];
+    for (var i = 0; i < 6; i++) {
+      balances[i] = await oracle.balanceOf(accounts[i]);
+    }
+    for (var i = 0; i < 5; i++) {
+      await web3.eth.sendTransaction({
+        to: oracle.address,
+        from: accounts[i],
+        gas: 7000000,
+        data: oracle2.methods
+          .testSubmitMiningSolution(
+            "nonce",
+            [1, 2, 3, 4, 5],
+            [1200, 1300, 1400, 1500, 1600]
+          )
+          .encodeABI(),
+      });
+    }
+    new_balances = [];
+    for (var i = 0; i < 6; i++) {
+      new_balances[i] = await oracle.balanceOf(accounts[i]);
+    }
+    changes = [];
+    for (var i = 0; i < 6; i++) {
+      changes[i] = new_balances[i] - balances[i];
+    }
+    vars = await oracle2.methods.getNewCurrentVariables().call();
+    for (var i = 0; i < 5; i++) {
+      await web3.eth.sendTransaction({
+        to: oracle.address,
+        from: accounts[i],
+        gas: 7000000,
+        data: oracle2.methods
+          .testSubmitMiningSolution("nonce", vars["1"], [
+            1200,
+            1300,
+            1400,
+            1500,
+            1600,
+          ])
+          .encodeABI(),
+      });
+    }
+    new_balances2 = [];
+    for (var i = 0; i < 6; i++) {
+      new_balances2[i] = await oracle.balanceOf(accounts[i]);
+    }
+    changes2 = [];
+    for (var i = 0; i < 6; i++) {
+      changes2[i] = new_balances2[i] - new_balances[i];
+    }
+    assert(changes2[1] < changes[1]);
+    assert(changes2[2] < changes[2]);
+    assert(changes2[3] < changes[4]);
+    assert(changes2[4] < changes[4]);
+    assert(changes2[0] < changes[0], "miner payout should be decreasing");
+  });
+  it("Test Difficulty Adjustment", async function() {
+    for (var i = 0; i < 5; i++) {
+      await web3.eth.sendTransaction({
+        to: oracle.address,
+        from: accounts[i],
+        gas: 7000000,
+        data: oracle2.methods
+          .testSubmitMiningSolution(
+            "nonce",
+            [1, 2, 3, 4, 5],
+            [1200, 1300, 1400, 1500, 1600]
+          )
+          .encodeABI(),
+      });
+    }
+    diff1 = await oracle2.methods.getNewCurrentVariables().call();
+    assert(diff1[2] > 1, "difficulty greater than 1"); //difficulty not changing.....
+    vars = await oracle2.methods.getNewCurrentVariables().call();
+    for (var i = 0; i < 5; i++) {
+      await web3.eth.sendTransaction({
+        to: oracle.address,
+        from: accounts[i],
+        gas: 7000000,
+        data: oracle2.methods
+          .testSubmitMiningSolution("nonce", vars["1"], [
+            1200,
+            1300,
+            1400,
+            1500,
+            1600,
+          ])
+          .encodeABI(),
+      });
+    }
+    vars = await oracle2.methods.getNewCurrentVariables().call();
+    assert(vars[2] > diff1[2], "difficulty should continue to move up");
+  });
+  it("Test Get MinersbyValue ", async function() {
+    //Here we're testing with randomized values. This way, we can be sure that
+    //both the values and the miners are being properly sorted
+    let res;
+    let prices = [1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900];
+    let requestValues = [[], [], [], [], []];
+    let minersByVal = { 0: {}, 1: {}, 2: {}, 3: {}, 4: {} };
 
-  //   for (var i = 0; i < 5; i++) {
-  //     //Getting a random number
-  //     let vals = [];
-  //     for (var j = 0; j < 5; j++) {
-  //       let rd = Math.floor(Math.random() * (7 - 0));
-  //       vals.push(prices[rd]);
-  //       requestValues[j].push(prices[rd]);
-  //       minersByVal[j][accounts[i]] = prices[rd];
-  //     }
+    for (var i = 0; i < 5; i++) {
+      //Getting a random number
+      let vals = [];
+      for (var j = 0; j < 5; j++) {
+        let rd = Math.floor(Math.random() * (7 - 0));
+        vals.push(prices[rd]);
+        requestValues[j].push(prices[rd]);
+        minersByVal[j][accounts[i]] = prices[rd];
+      }
 
-  //     res = await web3.eth.sendTransaction({
-  //       to: oracle.address,
-  //       from: accounts[i],
-  //       gas: 7000000,
-  //       data: oracle2.methods
-  //         .testSubmitMiningSolution("nonce", [1, 2, 3, 4, 5], vals)
-  //         .encodeABI(),
-  //     });
-  //   }
+      res = await web3.eth.sendTransaction({
+        to: oracle.address,
+        from: accounts[i],
+        gas: 7000000,
+        data: oracle2.methods
+          .testSubmitMiningSolution("nonce", [1, 2, 3, 4, 5], vals)
+          .encodeABI(),
+      });
+    }
 
-  //   res = web3.eth.abi.decodeParameters(
-  //     ["uint256[5]", "uint256", "uint256[5]", "uint256"],
-  //     res.logs["2"].data
-  //   );
+    res = web3.eth.abi.decodeParameters(
+      ["uint256[5]", "uint256", "uint256[5]", "uint256"],
+      res.logs["2"].data
+    );
 
-  //   for (var i = 0; i < 5; i++) {
-  //     let sortReq = requestValues[i].sort();
-  //     var values = await oracle.getSubmissionsByTimestamp(i + 1, res[1]);
-  //     var miners = await oracle.getMinersByRequestIdAndTimestamp(i + 1, res[1]);
-  //     for (var j = 0; j < 5; j++) {
-  //       assert(
-  //         minersByVal[i.toString()][miners[j]] == values[j].toNumber(),
-  //         "wrong miner to value relationship"
-  //       );
-  //       assert(values[j].toNumber() == sortReq[j], "wrong value"); //Make sure that the medians are right
-  //     }
-  //   }
-  // });
+    for (var i = 0; i < 5; i++) {
+      let sortReq = requestValues[i].sort();
+      var values = await oracle.getSubmissionsByTimestamp(i + 1, res[1]);
+      var miners = await oracle.getMinersByRequestIdAndTimestamp(i + 1, res[1]);
+      for (var j = 0; j < 5; j++) {
+        assert(
+          minersByVal[i.toString()][miners[j]] == values[j].toNumber(),
+          "wrong miner to value relationship"
+        );
+        assert(values[j].toNumber() == sortReq[j], "wrong value"); //Make sure that the medians are right
+      }
+    }
+  });
 
-  // it("Test dev Share", async function() {
-  //   begbal = await oracle.balanceOf(accounts[0]);
-  //   for (var i = 1; i < 6; i++) {
-  //     await web3.eth.sendTransaction({
-  //       to: oracle.address,
-  //       from: accounts[i],
-  //       gas: 7000000,
-  //       data: oracle2.methods
-  //         .testSubmitMiningSolution(
-  //           "nonce",
-  //           [1, 2, 3, 4, 5],
-  //           [1200, 1300, 1400, 1500, 1600]
-  //         )
-  //         .encodeABI(),
-  //     });
-  //   }
-  //   endbal = await oracle.balanceOf(accounts[0]);
-  //   assert((endbal - begbal) / 1e18 >= 1.2, "devShare");
-  //   assert((endbal - begbal) / 1e18 <= 1.25, "devShare2");
-  // });
-/*
+  it("Test dev Share", async function() {
+    begbal = await oracle.balanceOf(accounts[0]);
+    for (var i = 1; i < 6; i++) {
+      await web3.eth.sendTransaction({
+        to: oracle.address,
+        from: accounts[i],
+        gas: 7000000,
+        data: oracle2.methods
+          .testSubmitMiningSolution(
+            "nonce",
+            [1, 2, 3, 4, 5],
+            [1200, 1300, 1400, 1500, 1600]
+          )
+          .encodeABI(),
+      });
+    }
+    endbal = await oracle.balanceOf(accounts[0]);
+    assert((endbal - begbal) / 1e18 >= 1.2, "devShare");
+    assert((endbal - begbal) / 1e18 <= 1.25, "devShare2");
+  });
+
   it("Test miner, alternating api request on Q and auto select", async function() {
     for (var i = 0; i < 5; i++) {
       await web3.eth.sendTransaction({
@@ -331,6 +330,7 @@ contract("Mining Tests", function(accounts) {
     //assert(data[0].includes("30"), "ID on deck should be 30");
     console.log(data[0])
     console.log(data[1][1]*1)
+    /*
     //assert(data[1][1] > 1000, "Tip should be over 1000");
     await web3.eth.sendTransaction({
       to: oracle.address,
@@ -350,8 +350,9 @@ contract("Mining Tests", function(accounts) {
       }
     }
    // assert(x == 2);
+   */
   });
-*/
+
   // it("Test dispute", async function() {
   //   for (var i = 0; i < 5; i++) {
   //     res = await web3.eth.sendTransaction({
@@ -1492,5 +1493,5 @@ contract("Mining Tests", function(accounts) {
       assert(s[0] == 1, " Staked");
     }
   });
+  */
 });
-*/
