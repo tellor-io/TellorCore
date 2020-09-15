@@ -665,7 +665,7 @@ contract("Mining Tests", function(accounts) {
       }
       resVars[j] = web3.eth.abi.decodeParameters(
         ["uint256[5]", "uint256", "uint256[5]", "uint256"],
-        res.logs["2"].data
+        res.logs["1"].data
       );
       await helper.advanceTime(1000);
     }
@@ -895,7 +895,7 @@ contract("Mining Tests", function(accounts) {
       }
       resVars[j] = web3.eth.abi.decodeParameters(
         ["uint256[5]", "uint256", "uint256[5]", "uint256"],
-        res.logs["2"].data
+        res.logs["1"].data
       );
       await helper.advanceTime(1000);
     }
@@ -1123,7 +1123,7 @@ contract("Mining Tests", function(accounts) {
     }
     res = web3.eth.abi.decodeParameters(
       ["uint256[5]", "uint256", "uint256[5]", "uint256"],
-      res.logs["2"].data
+      res.logs["1"].data
     );
     data = await oracle.getMinedBlockNum(2, res[1]);
     console.log("data1", data*1 )
@@ -1162,7 +1162,7 @@ contract("Mining Tests", function(accounts) {
     }
     res = web3.eth.abi.decodeParameters(
       ["uint256[5]", "uint256", "uint256[5]", "uint256"],
-      res.logs["2"].data
+      res.logs["1"].data
     );
     data = await oracle.getMinedBlockNum(1, res[1]);
     console.log("data2", data *1)
@@ -1201,7 +1201,7 @@ contract("Mining Tests", function(accounts) {
     }
     res = web3.eth.abi.decodeParameters(
       ["uint256[5]", "uint256", "uint256[5]", "uint256"],
-      res.logs["2"].data
+      res.logs["1"].data
     );
     data = await oracle.getMinedBlockNum(2, res[1]);
     console.log("data3", data*1)
@@ -1239,7 +1239,7 @@ contract("Mining Tests", function(accounts) {
     }
     res = web3.eth.abi.decodeParameters(
       ["uint256[5]", "uint256", "uint256[5]", "uint256"],
-      res.logs["2"].data
+      res.logs["1"].data
     );
     data = await oracle.getMinedBlockNum(1, res[1]);
     assert(data > 0, "Should be true if Data exist for that point in time");
@@ -1277,7 +1277,7 @@ contract("Mining Tests", function(accounts) {
     }
     res = web3.eth.abi.decodeParameters(
       ["uint256[5]", "uint256", "uint256[5]", "uint256"],
-      res.logs["2"].data
+      res.logs["1"].data
     );
     data = await oracle.getMinedBlockNum(2, res[1]);
     //console.log("data4", data*1)
@@ -1313,7 +1313,7 @@ contract("Mining Tests", function(accounts) {
     }
     res = web3.eth.abi.decodeParameters(
       ["uint256[5]", "uint256", "uint256[5]", "uint256"],
-      res.logs["2"].data
+      res.logs["1"].data
     );
     balance1 = await oracle.balanceOf(accounts[2], { from: accounts[4] });
     await web3.eth.sendTransaction({
@@ -1370,7 +1370,7 @@ contract("Mining Tests", function(accounts) {
     }
     res = web3.eth.abi.decodeParameters(
       ["uint256[5]", "uint256", "uint256[5]", "uint256"],
-      res.logs["2"].data
+      res.logs["1"].data
     );
     balance1 = await oracle.balanceOf(accounts[2]);
     await web3.eth.sendTransaction({
@@ -1445,7 +1445,7 @@ contract("Mining Tests", function(accounts) {
       }
       res = web3.eth.abi.decodeParameters(
         ["uint256[5]", "uint256", "uint256[5]", "uint256"],
-        res.logs["2"].data
+        res.logs["1"].data
       );
       let miners = await oracle.getMinersByRequestIdAndTimestamp(
         vars["1"][0],
