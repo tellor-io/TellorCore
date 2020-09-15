@@ -513,8 +513,7 @@ library TellorLibrary {
     {
         bytes32 _hashMsgSender = keccak256(abi.encode(msg.sender));
         require(self.stakerDetails[msg.sender].currentStatus == 1, "Miner status is not staker");
-        //has to be a better way to do this...
-        require(now - self.uintVars[_hashMsgSender] > 15 minutes, "Miner can only win rewards once per 15 min");
+        //require(now - self.uintVars[_hashMsgSender] > 15 minutes, "Miner can only win rewards once per 15 min");
         require(_requestId[0] ==  self.currentMiners[0].value,"Request ID is wrong");
         require(_requestId[1] ==  self.currentMiners[1].value,"Request ID is wrong");
         require(_requestId[2] ==  self.currentMiners[2].value,"Request ID is wrong");

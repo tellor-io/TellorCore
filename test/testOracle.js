@@ -1,3 +1,4 @@
+/*
 const Web3 = require("web3");
 const web3 = new Web3(
   new Web3.providers.WebsocketProvider("ws://localhost:8545")
@@ -87,6 +88,7 @@ contract("Mining Tests", function(accounts) {
       assert(top5N["_index"][i] == i + 1);
     }
   });
+  */
   // it("getVariables", async function() {
   //   vars = await web3.eth.call({
   //     to: oracle.address,
@@ -286,7 +288,7 @@ contract("Mining Tests", function(accounts) {
   //   assert((endbal - begbal) / 1e18 >= 1.2, "devShare");
   //   assert((endbal - begbal) / 1e18 <= 1.25, "devShare2");
   // });
-
+/*
   it("Test miner, alternating api request on Q and auto select", async function() {
     for (var i = 0; i < 5; i++) {
       await web3.eth.sendTransaction({
@@ -349,7 +351,7 @@ contract("Mining Tests", function(accounts) {
     }
    // assert(x == 2);
   });
-
+*/
   // it("Test dispute", async function() {
   //   for (var i = 0; i < 5; i++) {
   //     res = await web3.eth.sendTransaction({
@@ -1066,6 +1068,7 @@ contract("Mining Tests", function(accounts) {
   //     "Request ID 1 should have 8 mines"
   //   );
   // });
+  /*
   it("Test 50 requests, proper booting, and mining of 5", async function() {
     vars = await oracle2.methods.getNewCurrentVariables().call();
     for (var i = 0; i < 5; i++) {
@@ -1490,3 +1493,4 @@ contract("Mining Tests", function(accounts) {
     }
   });
 });
+*/
