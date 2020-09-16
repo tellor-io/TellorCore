@@ -48,7 +48,7 @@ module.exports = {
   solc: {
     optimizer: {
       enabled: true,
-      runs: 5000000,
+      runs: 5000,
     },
   },
 };

@@ -13,7 +13,7 @@ var TellorMaster = artifacts.require("./TellorMaster.sol");
 *this will link the Factory and Tellor Library
 
 *These commands that need to be ran:
-*truffle migrate --network rinkeby
+*truffle migrate --network rinkeby -f 1 --to 2 --skip-dry-run
 *truffle exec scripts/Migrate_1.js --network rinkeby
 *truffle exec scripts/Migrate_2.js --network rinkeby
 */
