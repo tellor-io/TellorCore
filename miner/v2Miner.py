@@ -58,40 +58,41 @@ def mine(challenge, public_address, difficulty):
                                                 d = jsonParser(r);
                                                 _block = int(d['result'],16)
                                                 if(last_block != _block):
-                                                                _challenge,_apiId,_difficulty,_apiString,_granularity = getVariables();
+                                                                _challenge,_apiId,_difficulty = getVariables(5);
                                                                 if challenge != _challenge:
                                                                                 return 0;
 
 
 def masterMiner():
                 miners_started = 0
-                challenge,apiId,difficulty = getVariables(50);
-                while True:
-                                nonce = mine(str(challenge),public_keys[miners_started],difficulty);
-                                if(nonce > 0):
-                                                print ("You guessed the hash!");
-                                                value = [1000,2000,3000,4000,5000]
-                                                print('Value',value);
-                                                xxx = 0
-                                                apiIdstring=""
-                                                valuestring=""
-                                                while xxx < 5:
-                                                    apiIdstring += str(apiId[xxx]) +" "
-                                                    valuestring += str(value[xxx]) +" "
-                                                    xxx += 1
+                challenge,apiId,difficulty = getVariables(70);
+                if difficulty > 0:
+                    while True:
+                                    nonce = mine(str(challenge),public_keys[miners_started],difficulty);
+                                    if(nonce > 0):
+                                                    print ("You guessed the hash!");
+                                                    value = [1000,2000,3000,4000,5000]
+                                                    print('Value',value);
+                                                    xxx = 0
+                                                    apiIdstring=""
+                                                    valuestring=""
+                                                    while xxx < 5:
+                                                        apiIdstring += str(apiId[xxx]) +" "
+                                                        valuestring += str(value[xxx]) +" "
+                                                        xxx += 1
 
-                                                arg_string =""+ str(nonce) + " "+ str(apiIdstring) +" " + str(valuestring)+" "+str(contract_address)+" "+str(public_keys[miners_started])+" "+str(private_keys[miners_started])
-                                                print("arg string", arg_string)
-                                                execute_js('testSubmitterv2.js',arg_string);
-                                                miners_started += 1 
-                                                if(miners_started % 5 == 0):
-                                                                time.sleep(20);
-                                                                challenge,apiId,difficulty= getVariables(0);
-                                                                if(miners_started == 10):
-                                                                    miners_started = 0;
-                                else:
-                                                challenge,apiId,difficulty = getVariables(0); 
-                                                print('variables grabbed')
+                                                    arg_string =""+ str(nonce) + " "+ str(apiIdstring) +" " + str(valuestring)+" "+str(contract_address)+" "+str(public_keys[miners_started])+" "+str(private_keys[miners_started])
+                                                    print("arg string", arg_string)
+                                                    execute_js('testSubmitterv2.js',arg_string);
+                                                    miners_started += 1 
+                                                    if(miners_started % 5 == 0):
+                                                                    time.sleep(20);
+                                                                    challenge,apiId,difficulty= getVariables(0);
+                                                                    if(miners_started == 10):
+                                                                        miners_started = 0;
+                                    else:
+                                                    challenge,apiId,difficulty = getVariables(0); 
+                                                    print('variables grabbed')
                 print('Miner Stopping')
 
 def getVariables(_offset):
@@ -124,7 +125,7 @@ def getVariables(_offset):
                                 except:
                                                 tries += 1
                                                 print('Oh no...not working')
-                return 0,0,0,0,0
+                return 0,0,0
 
 def jsonParser(_info):
                 my_json = _info.content
