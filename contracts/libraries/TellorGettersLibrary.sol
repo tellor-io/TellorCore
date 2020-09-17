@@ -46,7 +46,7 @@ library TellorGettersLibrary {
     * @param _miner address that you want to know if they solved the challenge
     * @return true if the _miner address provided solved the
     */
-    function didMine(TellorStorage.TellorStorageStruct storage self, bytes32 _challenge, address _miner) public view returns (bool) {
+    function didMine(TellorStorage.TellorStorageStruct storage self, bytes32 _challenge, address _miner) internal view returns (bool) {
         return self.minersByChallenge[_challenge][_miner];
     }
 
