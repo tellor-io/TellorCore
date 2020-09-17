@@ -64,7 +64,7 @@ contract TellorGetters {
     * @param _miner address that you want to know if they solved the challenge
     * @return true if the _miner address provided solved the
     */
-    function didMine(bytes32 _challenge, address _miner) external returns (bool) {
+    function didMine(bytes32 _challenge, address _miner) external view returns (bool) {
         return tellor.didMine(_challenge, _miner);
     }
 
