@@ -65,12 +65,12 @@ module.exports = async function (deployer) {
   //sleep_s(60);
 
   //deploy tellor master
-  await deployer.link(TellorTransfer,TellorMaster);
-  await deployer.link(TellorGettersLibrary,TellorMaster);
-  await deployer.link(TellorStake,TellorMaster);
-  await deployer.deploy(Tellor).then(async function() {
-    await deployer.deploy(TellorMaster, Tellor.address)
-  });
+  // await deployer.link(TellorTransfer,TellorMaster);
+  // await deployer.link(TellorGettersLibrary,TellorMaster);
+  // await deployer.link(TellorStake,TellorMaster);
+  // await deployer.deploy(Tellor).then(async function() {
+  //   await deployer.deploy(TellorMaster, Tellor.address)
+  // });
 
 
 

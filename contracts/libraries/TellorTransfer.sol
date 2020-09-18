@@ -104,7 +104,7 @@ library TellorTransfer {
     * @return The balance at _blockNumber specified
     */
     function balanceOfAt(TellorStorage.TellorStorageStruct storage self, address _user, uint256 _blockNumber) public view returns (uint256) {
-        TellorStorage.Checkpoint[] memory checkpoints = self.balances[_user];
+        TellorStorage.Checkpoint[] storage checkpoints = self.balances[_user];
         if (checkpoints.length == 0|| checkpoints[0].fromBlock > _blockNumber) {
             return 0;
         } else {
