@@ -373,6 +373,7 @@ library TellorLibrary {
 
         //If 5 values have been received, adjust the difficulty otherwise sort the values until 5 are received         
         if (_slotProgress + 1 == 5) { //slotProgress has been incremented, but we're using the variable on stack to save gas
+            self.uintVars[currentTotalTips] = 0;
             newBlock(self, _nonce, _requestId);
             self.uintVars[slotProgress] = 0;
         }
