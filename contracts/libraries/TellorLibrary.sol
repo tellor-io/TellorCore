@@ -153,7 +153,7 @@ library TellorLibrary {
         self.uintVars[total_supply] +=  _devShare + _currReward*5 - (self.uintVars[currentTotalTips]);
         TellorTransfer.doTransfer(self, address(this), self.addressVars[_owner],  _devShare);
         self.uintVars[_tBlock] ++;
-
+        self.uintVars[currentTotalTips] = 0;
         uint256[5] memory _topId = TellorStake.getTopRequestIDs(self);
         for(uint i = 0; i< 5;i++){
             self.currentMiners[i].value = _topId[i];

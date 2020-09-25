@@ -70,6 +70,33 @@
 //       });
 //     }
 //   });
+//     it("Test zeroing out of currentTips", async function() {
+//     await web3.eth.sendTransaction({
+//       to: oracle.address,
+//       from: accounts[2],
+//       gas: 7000000,
+//       data: oracle2.methods.addTip(1,100000000000).encodeABI(),
+//     });
+//     for (var i = 0; i < 5; i++) {
+//       res = await web3.eth.sendTransaction({
+//         to: oracle.address,
+//         from: accounts[i],
+//         gas: 7000000,
+//         data: oracle2.methods
+//           .testSubmitMiningSolution(
+//             "nonce",
+//             [1, 2, 3, 4, 5],
+//             [1200, 1300, 1400, 1500, 1600]
+//           )
+//           .encodeABI(),
+//       });
+//     }
+//     console.log(await oracle.getUintVar(web3.utils.keccak256("currentTotalTips")))
+//     assert(
+//       (await oracle.getUintVar(web3.utils.keccak256("currentTotalTips"))) == 0
+//     );
+//   });
+
 //   it("Test lower difficulty target (5 min)", async function() {
 //     assert(
 //       (await oracle.getUintVar(web3.utils.keccak256("timeTarget"))) == 300

@@ -232,7 +232,7 @@ contract Tellor {
     }
 
     /*******************TEST Functions NOT INCLUDED ON PRODUCTION/MAINNET/RINKEBY******/
-    // /*This is a cheat for demo purposes, will delete upon actual launch*/
+    /*This is a cheat for demo purposes, will delete upon actual launch*/
     // function theLazyCoon(address _address, uint _amount) external {
     //     tellor.theLazyCoon(_address,_amount);
     // }
