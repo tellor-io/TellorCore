@@ -64,8 +64,8 @@ contract("Further Tests w/ Upgrade", function(accounts) {
         from: accounts[i],
         gas: 7000000,
         data: oracle2.methods[
-          "testSubmitMiningSolution(string,uint256,uint256)"
-        ]("nonce", 1, 1200).encodeABI(),
+          "testSubmitMiningSolution(string,uint256[5],uint256[5])"
+        ]("nonce", [1, 2, 3, 4, 5], [1100, 1200, 1300, 1400, 1500]).encodeABI(),
       });
     }
   });

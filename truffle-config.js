@@ -51,4 +51,6 @@ module.exports = {
       //runs: 5000,
     },
   },
+
+  plugins: ["solidity-coverage"],
 };
