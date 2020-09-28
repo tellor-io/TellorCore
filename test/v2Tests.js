@@ -5,6 +5,8 @@
 // const helper = require("./helpers/test_helpers");
 const TellorMaster = artifacts.require("./TellorMaster.sol");
 const Tellor = artifacts.require("./mocks/TellorTest.sol"); // globally injected artifacts helper
+const TellorLibraryTest = artifacts.require("TellorLibraryTest");
+
 var oracleAbi = Tellor.abi;
 var oracleByte = Tellor.bytecode;
 var OldTellor = artifacts.require("./oldContracts/OldTellor.sol");
@@ -23,8 +25,13 @@ contract("v2 Tests", function(accounts) {
   let oldTellor;
   let oldTellorinst;
   let utilities;
+  let tellorTest;
+  let tellorTransfer;
+  let testLib;
 
   beforeEach("Setup contract for each test", async function() {
+    // testLib = await TellorLibraryTest.new();
+    // await Tellor.link(TellorLibraryTest, testLib.address);
     //deploy old, request, update address, mine old challenge.
     oldTellor = await OldTellor.new();
     oracle = await TellorMaster.new(oldTellor.address);
