@@ -1,6 +1,6 @@
 pragma solidity ^0.5.0;
 
-import "./TellorStorage.sol";
+import "./Old2TellorStorage.sol";
 import "./Old2TellorTransfer.sol";
 import "./Old2TellorDispute.sol";
 
@@ -21,7 +21,7 @@ library Old2TellorStake {
     * @dev This function stakes the five initial miners, sets the supply and all the constant variables.
     * This function is called by the constructor function on TellorMaster.sol
     */
-    function init(TellorStorage.TellorStorageStruct storage self) public {
+    function init(Old2TellorStorage.TellorStorageStruct storage self) public {
         require(self.uintVars[keccak256("decimals")] == 0, "Too many decimals");
         //Give this contract 6000 Tellor Tributes so that it can stake the initial 6 miners
          Old2TellorTransfer.updateBalanceAtNow(self.balances[address(this)], 2**256 - 1 - 6000e18);
@@ -62,8 +62,8 @@ library Old2TellorStake {
     * once they lock for withdraw(stakes.currentStatus = 2) they are locked for 7 days before they
     * can withdraw the deposit
     */
-    function requestStakingWithdraw(TellorStorage.TellorStorageStruct storage self) public {
-        TellorStorage.StakeInfo storage stakes = self.stakerDetails[msg.sender];
+    function requestStakingWithdraw(Old2TellorStorage.TellorStorageStruct storage self) public {
+        Old2TellorStorage.StakeInfo storage stakes = self.stakerDetails[msg.sender];
         //Require that the miner is staked
         require(stakes.currentStatus == 1, "Miner is not staked");
 
@@ -83,8 +83,8 @@ library Old2TellorStake {
     /**
     * @dev This function allows users to withdraw their stake after a 7 day waiting period from request
     */
-    function withdrawStake(TellorStorage.TellorStorageStruct storage self) public {
-        TellorStorage.StakeInfo storage stakes = self.stakerDetails[msg.sender];
+    function withdrawStake(Old2TellorStorage.TellorStorageStruct storage self) public {
+        Old2TellorStorage.StakeInfo storage stakes = self.stakerDetails[msg.sender];
         //Require the staker has locked for withdraw(currentStatus ==2) and that 7 days have
         //passed by since they locked for withdraw
         require(now - (now % 86400) - stakes.startDate >= 7 days, "7 days didn't pass");
@@ -96,7 +96,7 @@ library Old2TellorStake {
     /**
     * @dev This function allows miners to deposit their stake.
     */
-    function depositStake(TellorStorage.TellorStorageStruct storage self) public {
+    function depositStake(Old2TellorStorage.TellorStorageStruct storage self) public {
         newStake(self, msg.sender);
         //self adjusting disputeFee
          Old2TellorDispute.updateDisputeFee(self);
@@ -107,13 +107,13 @@ library Old2TellorStake {
     * The function updates their status/state and status start date so they are locked it so they can't withdraw
     * and updates the number of stakers in the system.
     */
-    function newStake(TellorStorage.TellorStorageStruct storage self, address staker) internal {
+    function newStake(Old2TellorStorage.TellorStorageStruct storage self, address staker) internal {
         require( Old2TellorTransfer.balanceOf(self, staker) >= self.uintVars[keccak256("stakeAmount")], "Balance is lower than stake amount");
         //Ensure they can only stake if they are not currrently staked or if their stake time frame has ended
         //and they are currently locked for witdhraw
         require(self.stakerDetails[staker].currentStatus == 0 || self.stakerDetails[staker].currentStatus == 2, "Miner is in the wrong state");
         self.uintVars[keccak256("stakerCount")] += 1;
-        self.stakerDetails[staker] = TellorStorage.StakeInfo({
+        self.stakerDetails[staker] = Old2TellorStorage.StakeInfo({
             currentStatus: 1, //this resets their stake start date to today
             startDate: now - (now % 86400)
         });

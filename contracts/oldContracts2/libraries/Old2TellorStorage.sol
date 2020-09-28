@@ -5,7 +5,7 @@ pragma solidity ^0.5.0;
  * @dev Contains all the variables/structs used by Tellor
  */
 
-library TellorStorage {
+library Old2TellorStorage {
     //Internal struct for use in proof-of-work submission
     struct Details {
         uint256 value;

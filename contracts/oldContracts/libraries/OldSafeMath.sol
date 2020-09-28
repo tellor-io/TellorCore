@@ -1,7 +1,7 @@
 pragma solidity ^0.5.0;
 
 //Slightly modified SafeMath library - includes a min and max function, removes useless div function
-library SafeMath {
+library OldSafeMath {
 
   function add(uint256 a, uint256 b) internal pure returns (uint256) {
     uint256 c = a + b;

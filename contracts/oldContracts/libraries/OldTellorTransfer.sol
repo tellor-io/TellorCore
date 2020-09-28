@@ -1,7 +1,7 @@
 pragma solidity ^0.5.0;
 
-import "./SafeMath.sol";
-import "./TellorStorage.sol";
+import "./OldSafeMath.sol";
+import "./OldTellorStorage.sol";
 
 
 /**
@@ -10,7 +10,7 @@ import "./TellorStorage.sol";
 * reference this library for function's logic.
 */
 library OldTellorTransfer {
-    using SafeMath for uint256;
+    using OldSafeMath for uint256;
 
     event Approval(address indexed _owner, address indexed _spender, uint256 _value);//ERC20 Approval event
     event Transfer(address indexed _from, address indexed _to, uint256 _value);//ERC20 Transfer Event
@@ -23,7 +23,7 @@ library OldTellorTransfer {
     * @param _amount The amount of tokens to send
     * @return true if transfer is successful
     */
-    function transfer(TellorStorage.TellorStorageStruct storage self, address _to, uint256 _amount) public returns (bool success) {
+    function transfer(OldTellorStorage.TellorStorageStruct storage self, address _to, uint256 _amount) public returns (bool success) {
         doTransfer(self,msg.sender, _to, _amount);
         return true;
     }
@@ -37,7 +37,7 @@ library OldTellorTransfer {
     * @param _amount The amount of tokens to be transferred
     * @return True if the transfer was successful
     */
-    function transferFrom(TellorStorage.TellorStorageStruct storage self, address _from, address _to, uint256 _amount) public returns (bool success) {
+    function transferFrom(OldTellorStorage.TellorStorageStruct storage self, address _from, address _to, uint256 _amount) public returns (bool success) {
         require(self.allowed[_from][msg.sender] >= _amount);
         self.allowed[_from][msg.sender] -= _amount;
         doTransfer(self,_from, _to, _amount);
@@ -51,7 +51,7 @@ library OldTellorTransfer {
     * @param _amount amount the spender is being approved for
     * @return true if spender appproved successfully
     */
-    function approve(TellorStorage.TellorStorageStruct storage self, address _spender, uint _amount) public returns (bool) {
+    function approve(OldTellorStorage.TellorStorageStruct storage self, address _spender, uint _amount) public returns (bool) {
         require(allowedToTrade(self,msg.sender,_amount));
         require(_spender != address(0));
         self.allowed[msg.sender][_spender] = _amount;
@@ -65,7 +65,7 @@ library OldTellorTransfer {
     * @param _spender address of spender of parties said balance
     * @return Returns the remaining allowance of tokens granted to the _spender from the _user
     */
-    function allowance(TellorStorage.TellorStorageStruct storage self,address _user, address _spender) public view returns (uint) {
+    function allowance(OldTellorStorage.TellorStorageStruct storage self,address _user, address _spender) public view returns (uint) {
        return self.allowed[_user][_spender]; 
     }
 
@@ -76,7 +76,7 @@ library OldTellorTransfer {
     * @param _to addres to transfer to
     * @param _amount to transfer
     */
-    function doTransfer(TellorStorage.TellorStorageStruct storage self, address _from, address _to, uint _amount) public {
+    function doTransfer(OldTellorStorage.TellorStorageStruct storage self, address _from, address _to, uint _amount) public {
         require(_amount > 0);
         require(_to != address(0));
         require(allowedToTrade(self,_from,_amount)); //allowedToTrade checks the stakeAmount is removed from balance if the _user is staked
@@ -94,7 +94,7 @@ library OldTellorTransfer {
     * @param _user is the owner address used to look up the balance
     * @return Returns the balance associated with the passed in _user
     */
-    function balanceOf(TellorStorage.TellorStorageStruct storage self,address _user) public view returns (uint) {
+    function balanceOf(OldTellorStorage.TellorStorageStruct storage self,address _user) public view returns (uint) {
         return balanceOfAt(self,_user, block.number);
     }
 
@@ -105,7 +105,7 @@ library OldTellorTransfer {
     * @param _blockNumber The block number when the balance is queried
     * @return The balance at _blockNumber specified
     */
-    function balanceOfAt(TellorStorage.TellorStorageStruct storage self,address _user, uint _blockNumber) public view returns (uint) {
+    function balanceOfAt(OldTellorStorage.TellorStorageStruct storage self,address _user, uint _blockNumber) public view returns (uint) {
         if ((self.balances[_user].length == 0) || (self.balances[_user][0].fromBlock > _blockNumber)) {
                 return 0;
         }
@@ -121,7 +121,7 @@ library OldTellorTransfer {
     * @param _block is the block number to search the balance on
     * @return the balance at the checkpoint
     */
-    function getBalanceAt(TellorStorage.Checkpoint[] storage checkpoints, uint _block) view public returns (uint) {
+    function getBalanceAt(OldTellorStorage.Checkpoint[] storage checkpoints, uint _block) view public returns (uint) {
         if (checkpoints.length == 0) return 0;
         if (_block >= checkpoints[checkpoints.length-1].fromBlock)
             return checkpoints[checkpoints.length-1].value;
@@ -148,7 +148,7 @@ library OldTellorTransfer {
     * @param _amount to check if the user can spend
     * @return true if they are allowed to spend the amount being checked
     */
-    function allowedToTrade(TellorStorage.TellorStorageStruct storage self,address _user,uint _amount) public view returns(bool) {
+    function allowedToTrade(OldTellorStorage.TellorStorageStruct storage self,address _user,uint _amount) public view returns(bool) {
         if(self.stakerDetails[_user].currentStatus >0){
             //Removes the stakeAmount from balance if the _user is staked
             if(balanceOf(self,_user).sub(self.uintVars[keccak256("stakeAmount")]).sub(_amount) >= 0){
@@ -167,13 +167,13 @@ library OldTellorTransfer {
     * @param checkpoints gets the mapping for the balances[owner]
     * @param _value is the new balance
     */
-    function updateBalanceAtNow(TellorStorage.Checkpoint[] storage checkpoints, uint _value) public {
+    function updateBalanceAtNow(OldTellorStorage.Checkpoint[] storage checkpoints, uint _value) public {
         if ((checkpoints.length == 0) || (checkpoints[checkpoints.length -1].fromBlock < block.number)) {
-               TellorStorage.Checkpoint storage newCheckPoint = checkpoints[ checkpoints.length++ ];
+               OldTellorStorage.Checkpoint storage newCheckPoint = checkpoints[ checkpoints.length++ ];
                newCheckPoint.fromBlock =  uint128(block.number);
                newCheckPoint.value = uint128(_value);
         } else {
-               TellorStorage.Checkpoint storage oldCheckPoint = checkpoints[checkpoints.length-1];
+               OldTellorStorage.Checkpoint storage oldCheckPoint = checkpoints[checkpoints.length-1];
                oldCheckPoint.value = uint128(_value);
         }
     }

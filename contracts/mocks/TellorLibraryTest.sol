@@ -1,8 +1,8 @@
 pragma solidity ^0.5.16;
 
 
-import "../../contracts/libraries/SafeMath.sol";
-import "../../contracts/libraries/TellorLibrary.sol";
+import "../libraries/SafeMath.sol";
+import "../libraries/TellorLibrary.sol";
 /**
  * @title Tellor Oracle System Library
  * @dev Contains the functions' logic for the Tellor contract where miners can submit the proof of work

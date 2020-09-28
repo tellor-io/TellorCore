@@ -1,13 +1,13 @@
 pragma solidity ^0.5.16;
 
 
-import "../../contracts/Tellor.sol";
-import "../../contracts/libraries/SafeMath.sol";
-import "../../contracts/libraries/TellorStorage.sol";
-import "../../contracts/libraries/TellorTransfer.sol";
-import "../../contracts/libraries/TellorDispute.sol";
-import "../../contracts/libraries/TellorStake.sol";
-import "../../contracts/libraries/TellorLibrary.sol";
+import "../Tellor.sol";
+import "../libraries/SafeMath.sol";
+import "../libraries/TellorStorage.sol";
+import "../libraries/TellorTransfer.sol";
+import "../libraries/TellorDispute.sol";
+import "../libraries/TellorStake.sol";
+import "../libraries/TellorLibrary.sol";
 import "./TellorLibraryTest.sol";
 
 /**

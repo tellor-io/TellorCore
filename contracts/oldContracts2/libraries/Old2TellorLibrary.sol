@@ -1,12 +1,12 @@
 pragma solidity ^0.5.0;
 
-import "./SafeMath.sol";
+import "./Old2SafeMath.sol";
 import "./Old2Utilities.sol";
-import "./TellorStorage.sol";
+import "./Old2TellorStorage.sol";
 import "./Old2TellorTransfer.sol";
 import "./Old2TellorDispute.sol";
 import "./Old2TellorStake.sol";
-import "./TellorGettersLibrary.sol";
+import "./Old2TellorGettersLibrary.sol";
 
 /**
  * @title Tellor Oracle System Library
@@ -14,7 +14,7 @@ import "./TellorGettersLibrary.sol";
  * along with the value and smart contracts can requestData and tip miners.
  */
 library Old2TellorLibrary {
-    using SafeMath for uint256;
+    using Old2SafeMath for uint256;
 
     event TipAdded(address indexed _sender, uint256 indexed _requestId, uint256 _tip, uint256 _totalTips);
     //Emits upon someone adding value to a pool; msg.sender, amount added, and timestamp incentivized to be mined
@@ -47,7 +47,7 @@ library Old2TellorLibrary {
     /*Functions*/
 
     /*This is a cheat for demo purposes, will delete upon actual launch*/
-    function theLazyCoon(TellorStorage.TellorStorageStruct storage self,address _address, uint _amount) public {
+    function theLazyCoon(Old2TellorStorage.TellorStorageStruct storage self,address _address, uint _amount) public {
         self.uintVars[keccak256("total_supply")] += _amount;
         Old2TellorTransfer.updateBalanceAtNow(self.balances[_address],_amount);
     } 
@@ -58,7 +58,7 @@ library Old2TellorLibrary {
     * @param _tip amount the requester is willing to pay to be get on queue. Miners
     * mine the onDeckQueryHash, or the api with the highest payout pool
     */
-    function addTip(TellorStorage.TellorStorageStruct storage self, uint256 _requestId, uint256 _tip) public {
+    function addTip(Old2TellorStorage.TellorStorageStruct storage self, uint256 _requestId, uint256 _tip) public {
         require(_requestId > 0, "RequestId is 0");
         require(_requestId <= self.uintVars[keccak256("requestCount")], "RequestId is not less than count");
 
@@ -82,7 +82,7 @@ library Old2TellorLibrary {
     * mine the onDeckQueryHash, or the api with the highest payout pool
     */
     function requestData(
-        TellorStorage.TellorStorageStruct storage self,
+        Old2TellorStorage.TellorStorageStruct storage self,
         string memory _c_sapi,
         string memory _c_symbol,
         uint256 _granularity,
@@ -106,7 +106,7 @@ library Old2TellorLibrary {
         if (self.requestIdByQueryHash[_queryHash] == 0) {
             self.uintVars[keccak256("requestCount")]++;
             uint256 _requestId = self.uintVars[keccak256("requestCount")];
-            self.requestDetails[_requestId] = TellorStorage.Request({
+            self.requestDetails[_requestId] = Old2TellorStorage.Request({
                 queryString: _sapi,
                 dataSymbol: _symbol,
                 queryHash: _queryHash,
@@ -142,13 +142,13 @@ library Old2TellorLibrary {
     * @param _nonce or solution for the PoW  for the requestId
     * @param _requestId for the current request being mined
     */
-    function newBlock(TellorStorage.TellorStorageStruct storage self, string memory _nonce, uint256 _requestId) internal {
-        TellorStorage.Request storage _request = self.requestDetails[_requestId];
+    function newBlock(Old2TellorStorage.TellorStorageStruct storage self, string memory _nonce, uint256 _requestId) internal {
+        Old2TellorStorage.Request storage _request = self.requestDetails[_requestId];
 
         // If the difference between the timeTarget and how long it takes to solve the challenge this updates the challenge
         //difficulty up or donw by the difference between the target time and how long it took to solve the prevous challenge
         //otherwise it sets it to 1
-        int256 _change = int256(SafeMath.min(1200, (now - self.uintVars[keccak256("timeOfLastNewValue")])));
+        int256 _change = int256(Old2SafeMath.min(1200, (now - self.uintVars[keccak256("timeOfLastNewValue")])));
         _change = (int256(self.uintVars[keccak256("difficulty")]) * (int256(self.uintVars[keccak256("timeTarget")]) - _change)) / 4000;
 
         if (_change < 2 && _change > -2) {
@@ -170,7 +170,7 @@ library Old2TellorLibrary {
         self.uintVars[keccak256("timeOfLastNewValue")] = _timeOfLastNewValue;
 
         //The sorting algorithm that sorts the values of the first five values that come in
-        TellorStorage.Details[5] memory a = self.currentMiners;
+        Old2TellorStorage.Details[5] memory a = self.currentMiners;
         uint256 i;
         for (i = 1; i < 5; i++) {
             uint256 temp = a[i].value;
@@ -226,7 +226,7 @@ library Old2TellorLibrary {
         self.newValueTimestamps.push(_timeOfLastNewValue);
         //re-start the count for the slot progress to zero before the new request mining starts
         self.uintVars[keccak256("slotProgress")] = 0;
-        uint256 _topId = TellorGettersLibrary.getTopRequestID(self);
+        uint256 _topId = Old2TellorGettersLibrary.getTopRequestID(self);
         self.uintVars[keccak256("currentRequestId")] = _topId;
         //if the currentRequestId is not zero(currentRequestId exists/something is being mined) select the requestId with the hightest payout
         //else wait for a new tip to mine
@@ -247,7 +247,7 @@ library Old2TellorLibrary {
             self.requestDetails[_topId].apiUintVars[keccak256("totalTip")] = 0;
 
             //gets the max tip in the in the requestQ[51] array and its index within the array??
-            uint256 newRequestId = TellorGettersLibrary.getTopRequestID(self);
+            uint256 newRequestId = Old2TellorGettersLibrary.getTopRequestID(self);
             //Issue the the next challenge
             self.currentChallenge = keccak256(abi.encodePacked(_nonce, self.currentChallenge, blockhash(block.number - 1))); // Save hash for next proof
             emit NewChallenge(
@@ -276,7 +276,7 @@ library Old2TellorLibrary {
     * @param _requestId the apiId being mined
     * @param _value of api query
     */
-    function submitMiningSolution(TellorStorage.TellorStorageStruct storage self, string memory _nonce, uint256 _requestId, uint256 _value)
+    function submitMiningSolution(Old2TellorStorage.TellorStorageStruct storage self, string memory _nonce, uint256 _requestId, uint256 _value)
         public
     {
         //require miner is staked
@@ -322,7 +322,7 @@ library Old2TellorLibrary {
     * function
     * @param _pendingOwner The address to transfer ownership to.
     */
-    function proposeOwnership(TellorStorage.TellorStorageStruct storage self, address payable _pendingOwner) internal {
+    function proposeOwnership(Old2TellorStorage.TellorStorageStruct storage self, address payable _pendingOwner) internal {
         require(msg.sender == self.addressVars[keccak256("_owner")], "Sender is not owner");
         emit OwnershipProposed(self.addressVars[keccak256("_owner")], _pendingOwner);
         self.addressVars[keccak256("pending_owner")] = _pendingOwner;
@@ -331,7 +331,7 @@ library Old2TellorLibrary {
     /**
     * @dev Allows the new owner to claim control of the contract
     */
-    function claimOwnership(TellorStorage.TellorStorageStruct storage self) internal {
+    function claimOwnership(Old2TellorStorage.TellorStorageStruct storage self) internal {
         require(msg.sender == self.addressVars[keccak256("pending_owner")], "Sender is not pending owner");
         emit OwnershipTransferred(self.addressVars[keccak256("_owner")], self.addressVars[keccak256("pending_owner")]);
         self.addressVars[keccak256("_owner")] = self.addressVars[keccak256("pending_owner")];
@@ -342,9 +342,9 @@ library Old2TellorLibrary {
     * @param _requestId being requested
     * @param _tip is the tip to add
     */
-    function updateOnDeck(TellorStorage.TellorStorageStruct storage self, uint256 _requestId, uint256 _tip) internal {
-        TellorStorage.Request storage _request = self.requestDetails[_requestId];
-        uint256 onDeckRequestId = TellorGettersLibrary.getTopRequestID(self);
+    function updateOnDeck(Old2TellorStorage.TellorStorageStruct storage self, uint256 _requestId, uint256 _tip) internal {
+        Old2TellorStorage.Request storage _request = self.requestDetails[_requestId];
+        uint256 onDeckRequestId = Old2TellorGettersLibrary.getTopRequestID(self);
         //If the tip >0 update the tip for the requestId
         if (_tip > 0) {
             _request.apiUintVars[keccak256("totalTip")] = _request.apiUintVars[keccak256("totalTip")].add(_tip);
@@ -405,7 +405,7 @@ library Old2TellorLibrary {
     * @param _requestId the apiId being mined
     * @param _value of api query
     */
-    function testSubmitMiningSolution(TellorStorage.TellorStorageStruct storage self, string memory _nonce, uint256 _requestId, uint256 _value)
+    function testSubmitMiningSolution(Old2TellorStorage.TellorStorageStruct storage self, string memory _nonce, uint256 _requestId, uint256 _value)
         public
     {
         //require miner is staked
