@@ -84,13 +84,17 @@ library TellorLibrary {
         // If the difference between the timeTarget and how long it takes to solve the challenge this updates the challenge
         //difficulty up or donw by the difference between the target time and how long it took to solve the previous challenge
         //otherwise it sets it to 1
-        int256 _change = int256(SafeMath.min(1200, (now - self.uintVars[timeOfLastNewValue])));
+        uint timeDiff = now - self.uintVars[timeOfLastNewValue];
+        int256 _change = int256(SafeMath.min(1200, timeDiff));
         int256 _diff = int256(self.uintVars[difficulty]);
         _change = (_diff * (int256(self.uintVars[timeTarget]) - _change)) / 4000;
         if (_change == 0) {
                 _change = 1;
             }
         self.uintVars[difficulty]  = uint256(SafeMath.max(_diff + _change,1));
+
+
+        timeDiff = timeDiff / 1 minutes;
         //Sets time of value submission rounded to 1 minute
         bytes32 _currChallenge = self.currentChallenge;
         uint256 _timeOfLastNewValue = now - (now % 1 minutes);
@@ -135,25 +139,11 @@ library TellorLibrary {
         //add timeOfLastValue to the newValueTimestamps array
         self.newValueTimestamps.push(_timeOfLastNewValue);
 
-        uint _currReward = self.uintVars[currentReward];
-        //WARNING Reusing _timeOfLastNewValue to avoid stack too deep
-        _timeOfLastNewValue = _currReward; 
-        if (_currReward > 1e18) {
-            //These number represent the inflation adjustement that started in 03/2019
-            _currReward = _currReward - _currReward *  15306316590563/1e18; 
-            self.uintVars[devShare] = _currReward * 50/100;
-            _timeOfLastNewValue = _currReward;
-        } else {
-            _timeOfLastNewValue = 1e18;
-        }
-        self.uintVars[currentReward] = _timeOfLastNewValue;
-        _currReward = _timeOfLastNewValue;
-        uint _devShare = self.uintVars[devShare]; 
-        //update the total supply
-        self.uintVars[total_supply] +=  _devShare + _currReward*5 - (self.uintVars[currentTotalTips]);
-        TellorTransfer.doTransfer(self, address(this), self.addressVars[_owner],  _devShare);
+        address[5] memory miners = self.requestDetails[_requestId[0]].minersByValue[0];
+        //payMinersRewards
+        _payReward(self, timeDiff, miners);
+        
         self.uintVars[_tBlock] ++;
-        self.uintVars[currentTotalTips] = 0;
         uint256[5] memory _topId = TellorStake.getTopRequestIDs(self);
         for(uint i = 0; i< 5;i++){
             self.currentMiners[i].value = _topId[i];
@@ -219,14 +209,14 @@ library TellorLibrary {
         _tblock.valuesByTimestamp[2][_slotProgress] = _value[2];
         _tblock.valuesByTimestamp[3][_slotProgress] = _value[3];
         _tblock.valuesByTimestamp[4][_slotProgress] = _value[4];
-        _tblock.minersByValue[0][self.uintVars[slotProgress]]= msg.sender;
-        _tblock.minersByValue[1][self.uintVars[slotProgress]]= msg.sender;
-        _tblock.minersByValue[2][self.uintVars[slotProgress]]= msg.sender;
-        _tblock.minersByValue[3][self.uintVars[slotProgress]]= msg.sender;
-        _tblock.minersByValue[4][self.uintVars[slotProgress]]= msg.sender;
+        _tblock.minersByValue[0][_slotProgress]= msg.sender;
+        _tblock.minersByValue[1][_slotProgress]= msg.sender;
+        _tblock.minersByValue[2][_slotProgress]= msg.sender;
+        _tblock.minersByValue[3][_slotProgress]= msg.sender;
+        _tblock.minersByValue[4][_slotProgress]= msg.sender;
 
         //Internal Function Added to allow for more stack variables
-        _payReward(self, _slotProgress);
+        // _payReward(self, _slotProgress);
         self.uintVars[slotProgress]++;
 
         //If 5 values have been received, adjust the difficulty otherwise sort the values until 5 are received         
@@ -249,18 +239,28 @@ library TellorLibrary {
 
      /**
     * @dev Internal function to calculate and pay rewards to miners
-    * @param _slotProgress A value indicating which position is this miner is withing the first 5.
+    * 
     */
-    function _payReward(TellorStorage.TellorStorageStruct storage self, uint _slotProgress) internal {
-        uint _runningTips = self.uintVars[runningTips]; 
+    function _payReward(TellorStorage.TellorStorageStruct storage self, uint _timeDiff, address[5] memory miners) internal {
+        //_timeDiff is how many minutes passed since last block
+        uint _currReward = 1e18;
+        self.uintVars[currentReward] = _currReward; //reward per minute
+
+        uint reward = _timeDiff * _currReward; //each miner get's 
         uint _currentTotalTips = self.uintVars[currentTotalTips];
-        if(_slotProgress == 0){
-            _runningTips = _currentTotalTips;
-            self.uintVars[runningTips] = _currentTotalTips;
-        }
-        uint _extraTip = (_currentTotalTips-_runningTips)/(5-_slotProgress);
-        TellorTransfer.doTransfer(self, address(this), msg.sender, self.uintVars[currentReward]  + _runningTips / 2 / 5 + _extraTip);
-        self.uintVars[currentTotalTips] -= _extraTip;
+        uint _tip = (_currentTotalTips)/5;
+
+        TellorTransfer.doTransfer(self, address(this), miners[0], reward + _tip);
+        TellorTransfer.doTransfer(self, address(this), miners[1], reward + _tip);
+        TellorTransfer.doTransfer(self, address(this), miners[2], reward + _tip);
+        TellorTransfer.doTransfer(self, address(this), miners[3], reward + _tip);
+        TellorTransfer.doTransfer(self, address(this), miners[4], reward + _tip);
+
+        uint _devShare = self.uintVars[devShare]; 
+        //update the total supply
+        self.uintVars[total_supply] +=  _devShare + _currReward*5 - (self.uintVars[currentTotalTips]);
+        TellorTransfer.doTransfer(self, address(this), self.addressVars[_owner],  _devShare);
+        self.uintVars[currentTotalTips] = 0;
     }
 
 
