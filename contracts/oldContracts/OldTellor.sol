@@ -1,7 +1,7 @@
 pragma solidity ^0.5.0;
 
-import "./libraries/SafeMath.sol";
-import "./libraries/TellorStorage.sol";
+import "./libraries/OldSafeMath.sol";
+import "./libraries/OldTellorStorage.sol";
 import "./libraries/OldTellorTransfer.sol";
 import "./libraries/OldTellorDispute.sol";
 import "./libraries/OldTellorStake.sol";
@@ -15,14 +15,14 @@ import "./libraries/OldTellorLibrary.sol";
  */
 contract OldTellor{
 
-    using SafeMath for uint256;
+    using OldSafeMath for uint256;
 
-    using OldTellorDispute for TellorStorage.TellorStorageStruct;
-    using OldTellorLibrary for TellorStorage.TellorStorageStruct;
-    using OldTellorStake for TellorStorage.TellorStorageStruct;
-    using OldTellorTransfer for TellorStorage.TellorStorageStruct;
+    using OldTellorDispute for OldTellorStorage.TellorStorageStruct;
+    using OldTellorLibrary for OldTellorStorage.TellorStorageStruct;
+    using OldTellorStake for OldTellorStorage.TellorStorageStruct;
+    using OldTellorTransfer for OldTellorStorage.TellorStorageStruct;
 
-    TellorStorage.TellorStorageStruct tellor;
+    OldTellorStorage.TellorStorageStruct tellor;
 
     /*Functions*/
     

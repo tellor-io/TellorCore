@@ -1,6 +1,6 @@
 pragma solidity ^0.5.0;
 
-import "./TellorGetters.sol";
+import "./OldTellorGetters.sol";
 
 /**
 * @title Tellor Master
@@ -8,7 +8,7 @@ import "./TellorGetters.sol";
 * The logic for the functions on this contract is saved on the TellorGettersLibrary, TellorTransfer, 
 * TellorGettersLibrary, and TellorStake
 */
-contract OldTellorMaster is TellorGetters{
+contract OldTellorMaster is OldTellorGetters{
     
     event NewTellorAddress(address _newTellor);
 

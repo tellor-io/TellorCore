@@ -1,8 +1,8 @@
 pragma solidity ^0.5.0;
 
-import "./TellorStorage.sol";
+import "./OldTellorStorage.sol";
 import "./OldTellorTransfer.sol";
-//import "./SafeMath.sol";
+//import "./OldSafeMath.sol";
 
 /**
 * @title Tellor Dispute
@@ -11,8 +11,8 @@ import "./OldTellorTransfer.sol";
 
 
 library OldTellorDispute {
-    using SafeMath for uint256;
-    using SafeMath for int256;
+    using OldSafeMath for uint256;
+    using OldSafeMath for int256;
 
     event NewDispute(uint indexed _disputeId, uint indexed _requestId, uint _timestamp, address _miner);//emitted when a new dispute is initialized
     event Voted(uint indexed _disputeID, bool _position, address indexed _voter);//emitted when a new vote happens
@@ -30,8 +30,8 @@ library OldTellorDispute {
     * @param _minerIndex the index of the miner that submitted the value being disputed. Since each official value
     * requires 5 miners to submit a value.
     */
-    function beginDispute(TellorStorage.TellorStorageStruct storage self,uint _requestId, uint _timestamp,uint _minerIndex) public {
-        TellorStorage.Request storage _request = self.requestDetails[_requestId];
+    function beginDispute(OldTellorStorage.TellorStorageStruct storage self,uint _requestId, uint _timestamp,uint _minerIndex) public {
+        OldTellorStorage.Request storage _request = self.requestDetails[_requestId];
         //require that no more than a day( (24 hours * 60 minutes)/10minutes=144 blocks) has gone by since the value was "mined"
         require(block.number- _request.minedBlockNum[_timestamp]<= 144);//This is 
         require(_request.minedBlockNum[_timestamp] > 0);
@@ -55,7 +55,7 @@ library OldTellorDispute {
         //maps the dispute hash to the disputeId
         self.disputeIdByDisputeHash[_hash] = disputeId;
         //maps the dispute to the Dispute struct
-        self.disputesById[disputeId] = TellorStorage.Dispute({
+        self.disputesById[disputeId] = OldTellorStorage.Dispute({
             hash:_hash,
             isPropFork: false,
             reportedMiner: _miner,
@@ -91,8 +91,8 @@ library OldTellorDispute {
     * @param _disputeId is the dispute id
     * @param _supportsDispute is the vote (true=the dispute has basis false = vote against dispute)
     */
-    function vote(TellorStorage.TellorStorageStruct storage self, uint _disputeId, bool _supportsDispute) public {
-        TellorStorage.Dispute storage disp = self.disputesById[_disputeId];
+    function vote(OldTellorStorage.TellorStorageStruct storage self, uint _disputeId, bool _supportsDispute) public {
+        OldTellorStorage.Dispute storage disp = self.disputesById[_disputeId];
         
         //Get the voteWeight or the balance of the user at the time/blockNumber the disupte began
         uint voteWeight = OldTellorTransfer.balanceOfAt(self,msg.sender,disp.disputeUintVars[keccak256("blockNumber")]);
@@ -132,9 +132,9 @@ library OldTellorDispute {
     * @dev tallies the votes.
     * @param _disputeId is the dispute id
     */
-    function tallyVotes(TellorStorage.TellorStorageStruct storage self, uint _disputeId) public {
-        TellorStorage.Dispute storage disp = self.disputesById[_disputeId];
-        TellorStorage.Request storage _request = self.requestDetails[disp.disputeUintVars[keccak256("requestId")]];
+    function tallyVotes(OldTellorStorage.TellorStorageStruct storage self, uint _disputeId) public {
+        OldTellorStorage.Dispute storage disp = self.disputesById[_disputeId];
+        OldTellorStorage.Request storage _request = self.requestDetails[disp.disputeUintVars[keccak256("requestId")]];
 
         //Ensure this has not already been executed/tallied
         require(disp.executed == false);
@@ -144,7 +144,7 @@ library OldTellorDispute {
 
         //If the vote is not a proposed fork 
         if (disp.isPropFork== false){
-        TellorStorage.StakeInfo storage stakes = self.stakerDetails[disp.reportedMiner];  
+        OldTellorStorage.StakeInfo storage stakes = self.stakerDetails[disp.reportedMiner];  
             //If the vote for disputing a value is succesful(disp.tally >0) then unstake the reported 
             // miner and transfer the stakeAmount and dispute fee to the reporting party 
             if (disp.tally > 0 ) { 
@@ -204,14 +204,14 @@ library OldTellorDispute {
     * @dev Allows for a fork to be proposed
     * @param _propNewTellorAddress address for new proposed Tellor
     */
-    function proposeFork(TellorStorage.TellorStorageStruct storage self, address _propNewTellorAddress) public {
+    function proposeFork(OldTellorStorage.TellorStorageStruct storage self, address _propNewTellorAddress) public {
         bytes32 _hash = keccak256(abi.encodePacked(_propNewTellorAddress));
         require(self.disputeIdByDisputeHash[_hash] == 0);
         OldTellorTransfer.doTransfer(self, msg.sender,address(this), self.uintVars[keccak256("disputeFee")]);//This is the fork fee
         self.uintVars[keccak256("disputeCount")]++;
         uint disputeId = self.uintVars[keccak256("disputeCount")];
         self.disputeIdByDisputeHash[_hash] = disputeId;
-        self.disputesById[disputeId] = TellorStorage.Dispute({
+        self.disputesById[disputeId] = OldTellorStorage.Dispute({
             hash: _hash,
             isPropFork: true,
             reportedMiner: msg.sender, 
@@ -231,12 +231,12 @@ library OldTellorDispute {
     * @dev this function allows the dispute fee to fluctuate based on the number of miners on the system.
     * The floor for the fee is 15e18.
     */
-    function updateDisputeFee(TellorStorage.TellorStorageStruct storage self) public {
+    function updateDisputeFee(OldTellorStorage.TellorStorageStruct storage self) public {
             //if the number of staked miners divided by the target count of staked miners is less than 1
             if(self.uintVars[keccak256("stakerCount")]*1000/self.uintVars[keccak256("targetMiners")] < 1000){
                 //Set the dispute fee at stakeAmt * (1- stakerCount/targetMiners)
                 //or at the its minimum of 15e18 
-                self.uintVars[keccak256("disputeFee")] = SafeMath.max(15e18,self.uintVars[keccak256("stakeAmount")].mul(1000 - self.uintVars[keccak256("stakerCount")]*1000/self.uintVars[keccak256("targetMiners")])/1000);
+                self.uintVars[keccak256("disputeFee")] = OldSafeMath.max(15e18,self.uintVars[keccak256("stakeAmount")].mul(1000 - self.uintVars[keccak256("stakerCount")]*1000/self.uintVars[keccak256("targetMiners")])/1000);
             }
             else{
                 //otherwise set the dispute fee at 15e18 (the floor/minimum fee allowed)
