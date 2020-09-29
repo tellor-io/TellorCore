@@ -12,7 +12,7 @@ const helper = require("./helpers/test_helpers");
 const Utilities = artifacts.require("./libraries/Utilities.sol");
 const UtilitiesTests = artifacts.require("./UtilitiesTests.sol");
 const TellorMaster = artifacts.require("./TellorMaster.sol");
-const Tellor = artifacts.require("./Tellor.sol"); // globally injected artifacts helper
+const Tellor = artifacts.require("./TellorTest.sol"); // globally injected artifacts helper
 
 var oracleAbi = Tellor.abi;
 var masterAbi = TellorMaster.abi;

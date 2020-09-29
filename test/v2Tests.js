@@ -2,7 +2,7 @@
 // const web3 = new Web3(
 //   new Web3.providers.WebsocketProvider("ws://localhost:8545")
 // );
-// const helper = require("./helpers/test_helpers");
+const helper = require("./helpers/test_helpers");
 const TellorMaster = artifacts.require("./TellorMaster.sol");
 const Tellor = artifacts.require("./mocks/TellorTest.sol"); // globally injected artifacts helper
 const TellorLibraryTest = artifacts.require("TellorLibraryTest");
@@ -71,9 +71,11 @@ contract("v2 Tests", function(accounts) {
         to: oracle.address,
         from: accounts[i],
         gas: 7000000,
-        data: oracle2.methods[
-          "testSubmitMiningSolution(string,uint256[5],uint256[5])"
-        ]("nonce", [1, 2, 3, 4, 5], [1100, 1200, 1300, 1400, 1500]).encodeABI(),
+        data: oracle2.methods["submitMiningSolution(string,uint256,uint256)"](
+          "nonce",
+          1,
+          1200
+        ).encodeABI(),
       });
     }
   });
@@ -787,6 +789,7 @@ contract("v2 Tests", function(accounts) {
       (await oracle.getUintVar(web3.utils.keccak256("requestCount"))) == 53
     );
     let vars = await oracle2.methods.getNewCurrentVariables().call();
+    await helper.advanceTime(60 * 60 * 16);
     for (var i = 0; i < 5; i++) {
       await web3.eth.sendTransaction({
         to: oracle.address,
@@ -803,6 +806,8 @@ contract("v2 Tests", function(accounts) {
           .encodeABI(),
       });
     }
+    console.log("Here");
+    await helper.advanceTime(60 * 60 * 16);
     vars = await oracle2.methods.getNewCurrentVariables().call();
     for (var i = 0; i < 5; i++) {
       await web3.eth.sendTransaction({

@@ -4,7 +4,7 @@ const web3 = new Web3(
 );
 const helper = require("./helpers/test_helpers");
 const TellorMaster = artifacts.require("./TellorMaster.sol");
-const Tellor = artifacts.require("./Tellor.sol"); // globally injected artifacts helper
+const Tellor = artifacts.require("./TellorTest.sol"); // globally injected artifacts helper
 var oracleAbi = Tellor.abi;
 var oracleByte = Tellor.bytecode;
 var OldTellor = artifacts.require("./oldContracts/OldTellor.sol");
@@ -64,9 +64,11 @@ contract("Mining Tests", function(accounts) {
         to: oracle.address,
         from: accounts[i],
         gas: 7000000,
-        data: oracle2.methods[
-          "testSubmitMiningSolution(string,uint256[5],uint256[5])"
-        ]("nonce", [1, 2, 3, 4, 5], [1100, 1200, 1300, 1400, 1500]).encodeABI(),
+        data: oracle2.methods["submitMiningSolution(string,uint256,uint256)"](
+          "nonce",
+          1,
+          1200
+        ).encodeABI(),
       });
     }
     // for(var i = 1;i<6;i++){
@@ -144,6 +146,7 @@ contract("Mining Tests", function(accounts) {
           .encodeABI(),
       });
     }
+    await helper.advanceTime(60 * 60 * 16);
     new_balances = [];
     for (var i = 0; i < 6; i++) {
       new_balances[i] = await oracle.balanceOf(accounts[i]);
@@ -201,6 +204,7 @@ contract("Mining Tests", function(accounts) {
     diff1 = await oracle2.methods.getNewCurrentVariables().call();
     assert(diff1[2] > 1, "difficulty greater than 1"); //difficulty not changing.....
     vars = await oracle2.methods.getNewCurrentVariables().call();
+    await helper.advanceTime(60 * 60 * 16);
     for (var i = 0; i < 5; i++) {
       await web3.eth.sendTransaction({
         to: oracle.address,
@@ -304,6 +308,7 @@ contract("Mining Tests", function(accounts) {
           .encodeABI(),
       });
     }
+    await helper.advanceTime(60 * 60 * 16);
     vars = await oracle2.methods.getNewCurrentVariables().call();
     for (var i = 0; i < 5; i++) {
       await web3.eth.sendTransaction({
@@ -333,6 +338,7 @@ contract("Mining Tests", function(accounts) {
     console.log(data[1][1] * 1);
 
     assert(data[1][1] > 1000, "Tip should be over 1000");
+
     await web3.eth.sendTransaction({
       to: oracle.address,
       from: accounts[2],
@@ -794,6 +800,7 @@ contract("Mining Tests", function(accounts) {
         gas: 7000000,
         data: oldTellorinst.methods.addTip(1, 500).encodeABI(),
       });
+      await helper.advanceTime(60 * 60 * 16);
       for (var i = 0; i < 5; i++) {
         await web3.eth.sendTransaction({
           to: oracle.address,
@@ -816,6 +823,7 @@ contract("Mining Tests", function(accounts) {
     assert(vars[2] > 1, "difficulty should be greater than 1"); //difficulty not changing.....
     await helper.advanceTime(86400 * 20);
     vars = await oracle2.methods.getNewCurrentVariables().call();
+    await helper.advanceTime(60 * 60 * 16);
     for (var i = 0; i < 5; i++) {
       await web3.eth.sendTransaction({
         to: oracle.address,
@@ -1023,6 +1031,7 @@ contract("Mining Tests", function(accounts) {
         gas: 7000000,
         data: oldTellorinst.methods.addTip(1, 500).encodeABI(),
       });
+      await helper.advanceTime(60 * 60 * 16);
       for (var i = 0; i < 5; i++) {
         await web3.eth.sendTransaction({
           to: oracle.address,
@@ -1045,6 +1054,7 @@ contract("Mining Tests", function(accounts) {
     assert(vars[2] > 1, "difficulty should be greater than 1"); //difficulty not changing.....
     await helper.advanceTime(86400 * 20);
     vars = await oracle2.methods.getNewCurrentVariables().call();
+    await helper.advanceTime(60 * 60 * 16);
     for (var i = 0; i < 5; i++) {
       await web3.eth.sendTransaction({
         to: oracle.address,
@@ -1088,6 +1098,7 @@ contract("Mining Tests", function(accounts) {
           .encodeABI(),
       });
     }
+    await helper.advanceTime(60 * 60 * 16);
     for (var i = 1; i <= 10; i++) {
       apix = "api" + i;
       await web3.eth.sendTransaction({
