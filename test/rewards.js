@@ -15,6 +15,10 @@ var masterAbi = TellorMaster.abi;
 var api = "json(https://api.gdax.com/products/BTC-USD/ticker).price";
 var api2 = "json(https://api.gdax.com/products/ETH-USD/ticker).price";
 
+const takeFive = async (times = 1) => {
+  helper.advanceTime(60 * 5 * times);
+};
+
 contract("Further Tests w/ Upgrade", function(accounts) {
   let oracleBase;
   let oracle;
@@ -23,6 +27,11 @@ contract("Further Tests w/ Upgrade", function(accounts) {
   let oldTellor;
   let oldTellorinst;
   let utilities;
+
+  const gerRequestsId = async () => {
+    vars = await oracle2.methods.getNewCurrentVariables().call();
+    return vars["_requestIds"];
+  };
 
   beforeEach("Setup contract for each test", async function() {
     //deploy old, request, update address, mine old challenge.
@@ -70,10 +79,52 @@ contract("Further Tests w/ Upgrade", function(accounts) {
         ).encodeABI(),
       });
     }
+    await helper.advanceTime(60 * 5);
+    for (var i = 0; i < 5; i++) {
+      await web3.eth.sendTransaction({
+        to: oracle.address,
+        from: accounts[i],
+        gas: 10000000,
+        data: oracle2.methods
+          .testSubmitMiningSolution(
+            "nonce",
+            [1, 2, 3, 4, 5],
+            [1200, 1300, 1400, 1500, 1600]
+          )
+          .encodeABI(),
+      });
+    }
   });
-  it("getTopRequestIDs", async function() {
-    let count = await oracle.getUintVar(web3.utils.keccak256("currentReward"));
-    console.log(count.toString());
+  it("Inflation is fixed", async function() {
+    let rew = await oracle.getUintVar(web3.utils.keccak256("currentReward"));
+    assert.equal(rew.toString(), "1000000000000000000");
+  });
+
+  it("Rewards are proportional to time passed", async () => {
+    await takeFive(8); // take * times 5min
+    let ids = await gerRequestsId();
+    let res;
+    let balBef = await oracle.balanceOf(accounts[1]);
+    for (var i = 0; i < 5; i++) {
+      res = await web3.eth.sendTransaction({
+        to: oracle.address,
+        from: accounts[i],
+        gas: 10000000,
+        data: oracle2.methods
+          .testSubmitMiningSolution("nonce", ids, [
+            1200,
+            1300,
+            1400,
+            1500,
+            1600,
+          ])
+          .encodeABI(),
+      });
+    }
+    let balAfter = await oracle.balanceOf(accounts[1]);
+    console.log(balBef.toString());
+    console.log(balAfter.toString());
+    console.log(balAfter.sub(balBef).toString());
   });
 });
 //2499923468417047185

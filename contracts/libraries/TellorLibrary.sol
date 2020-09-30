@@ -139,7 +139,7 @@ library TellorLibrary {
         //add timeOfLastValue to the newValueTimestamps array
         self.newValueTimestamps.push(_timeOfLastNewValue);
 
-        address[5] memory miners = self.requestDetails[_requestId[0]].minersByValue[0];
+        address[5] memory miners = self.requestDetails[_requestId[0]].minersByValue[_timeOfLastNewValue];
         //payMinersRewards
         _payReward(self, timeDiff, miners);
         
@@ -246,7 +246,7 @@ library TellorLibrary {
         uint _currReward = 1e18;
         self.uintVars[currentReward] = _currReward; //reward per minute
 
-        uint reward = _timeDiff * _currReward; //each miner get's 
+        uint reward = _timeDiff * _currReward / 5; //each miner get's 
         uint _currentTotalTips = self.uintVars[currentTotalTips];
         uint _tip = (_currentTotalTips)/5;
 
