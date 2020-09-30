@@ -51,7 +51,6 @@ contract TellorTransition {
     *  Ex: we're not in the middle of a block;
     */
     function _isReady() internal returns(bool){
-        TellorStorage.Request storage _tblock = tellor.requestDetails[tellor.uintVars[keccak256("_tBlock")]];
         if(tellor.uintVars[keccak256("slotProgress")] == 0){
             return true;
         }
