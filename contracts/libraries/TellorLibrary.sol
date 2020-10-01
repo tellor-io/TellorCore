@@ -94,7 +94,6 @@ library TellorLibrary {
         self.uintVars[difficulty]  = uint256(SafeMath.max(_diff + _change,1));
 
 
-        timeDiff = timeDiff / 1 minutes;
         //Sets time of value submission rounded to 1 minute
         bytes32 _currChallenge = self.currentChallenge;
         uint256 _timeOfLastNewValue = now - (now % 1 minutes);
@@ -245,20 +244,19 @@ library TellorLibrary {
         //_timeDiff is how many minutes passed since last block
         uint _currReward = 1e18;
         self.uintVars[currentReward] = _currReward; //reward per minute
-
-        uint reward = _timeDiff * _currReward / 5; //each miner get's 
+        uint reward = _timeDiff* _currReward / 300; //each miner get's 
         uint _currentTotalTips = self.uintVars[currentTotalTips];
-        uint _tip = (_currentTotalTips)/5;
+        uint _tip = (_currentTotalTips)/ 10;
+        uint _devShare = reward / 2;
 
         TellorTransfer.doTransfer(self, address(this), miners[0], reward + _tip);
         TellorTransfer.doTransfer(self, address(this), miners[1], reward + _tip);
         TellorTransfer.doTransfer(self, address(this), miners[2], reward + _tip);
         TellorTransfer.doTransfer(self, address(this), miners[3], reward + _tip);
         TellorTransfer.doTransfer(self, address(this), miners[4], reward + _tip);
-
-        uint _devShare = self.uintVars[devShare]; 
+ 
         //update the total supply
-        self.uintVars[total_supply] +=  _devShare + _currReward*5 - (self.uintVars[currentTotalTips]);
+        self.uintVars[total_supply] +=  _devShare + _currReward * 5 - (self.uintVars[currentTotalTips]);
         TellorTransfer.doTransfer(self, address(this), self.addressVars[_owner],  _devShare);
         self.uintVars[currentTotalTips] = 0;
     }
