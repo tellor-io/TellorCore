@@ -55,7 +55,6 @@ contract("Mining Tests", function(accounts) {
           .encodeABI(),
       });
     }
-    let q = await oracle.getRequestQ();
     //Deploy new upgraded Tellor
     oracleBase = await Tellor.new();
     oracle2 = await new web3.eth.Contract(oracleAbi, oracle.address);

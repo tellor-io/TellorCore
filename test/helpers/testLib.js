@@ -6,6 +6,32 @@ class TestLib {
     this.env = env;
   }
 
+  hash(str) {
+    return web3.utils.keccak256(str);
+  }
+
+  async addTip(id, amount, sender = accounts[2]) {
+    return await web3.eth.sendTransaction({
+      to: this.env.oracle.address,
+      from: sender,
+      gas: 7000000,
+      data: this.env.oracle2.methods.addTip(id, amount).encodeABI(),
+    });
+  }
+
+  async lazyCoon(accs) {
+    for (var i = 0; i < accs.length; i++) {
+      await web3.eth.sendTransaction({
+        to: this.env.oracle.address,
+        from: this.env.accounts[0],
+        gas: 7000000,
+        data: oracle2.methods
+          .theLazyCoon(accs[i], web3.utils.toWei("1100", "ether"))
+          .encodeABI(),
+      });
+    }
+  }
+
   async mineBlock() {
     let vars = await this.getCurrentVars();
     for (var i = 0; i < 5; i++) {
@@ -35,10 +61,6 @@ function initEnv(env) {
   let lib = new TestLib(env);
   return lib;
 }
-
-// async function balanceCurrent(account, unit = "wei") {
-//   return new BN(fromWei(await web3.eth.getBalance(account), unit));
-// }
 
 module.exports = {
   init: initEnv,
