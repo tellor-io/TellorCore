@@ -127,4 +127,3 @@ contract("Further Tests w/ Upgrade", function(accounts) {
     console.log(balAfter.sub(balBef).toString());
   });
 });
-//2499923468417047185

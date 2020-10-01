@@ -256,8 +256,6 @@ contract("Mining Tests", function(accounts) {
       res.logs["1"].data
     );
 
-    console.log("res", res);
-
     for (var i = 0; i < 5; i++) {
       let sortReq = requestValues[i].sort();
       var values = await oracle.getSubmissionsByTimestamp(i + 1, res[1]);
