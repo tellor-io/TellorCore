@@ -1,13 +1,6 @@
-// /**
-//  * This tests the oracle upgrade functions
-//  */
-// const Web3 = require("web3");
-// const web3 = new Web3(
-//   new Web3.providers.WebsocketProvider("ws://localhost:8545")
-// );
 // const helper = require("./helpers/test_helpers");
 // const TellorMaster = artifacts.require("./TellorMaster.sol");
-// const Tellor = artifacts.require("./Tellor.sol"); // globally injected artifacts helper
+// const Tellor = artifacts.require("./TellorTest.sol"); // globally injected artifacts helper
 // var oracleAbi = Tellor.abi;
 // var oracleByte = Tellor.bytecode;
 // var OldTellor = artifacts.require("./oldContracts/OldTellor.sol");
@@ -58,9 +51,11 @@
 //         to: oracle.address,
 //         from: accounts[i],
 //         gas: 7000000,
-//         data: oracle2.methods[
-//           "testSubmitMiningSolution(string,uint256,uint256)"
-//         ]("nonce", 1, 1200).encodeABI(),
+//         data: oracle2.methods["submitMiningSolution(string,uint256,uint256)"](
+//           "nonce",
+//           1,
+//           1200
+//         ).encodeABI(),
 //       });
 //     }
 //     oldTellor2 = await OldTellor2.new();
@@ -80,9 +75,11 @@
 //         to: oracle.address,
 //         from: accounts[i],
 //         gas: 7000000,
-//         data: oracle2.methods[
-//           "testSubmitMiningSolution(string,uint256,uint256)"
-//         ]("nonce", 2, 1200).encodeABI(),
+//         data: oracle2.methods["submitMiningSolution(string,uint256,uint256)"](
+//           "nonce",
+//           2,
+//           1200
+//         ).encodeABI(),
 //       });
 //     }
 //     await web3.eth.sendTransaction({

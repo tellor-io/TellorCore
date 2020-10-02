@@ -1,12 +1,7 @@
-const Web3 = require("web3");
-const web3 = new Web3(
-  new Web3.providers.WebsocketProvider("ws://localhost:8545")
-);
 const helper = require("./helpers/test_helpers");
 const TellorMaster = artifacts.require("./TellorMaster.sol");
 const Tellor = artifacts.require("./TellorTest.sol"); // globally injected artifacts helper
 var oracleAbi = Tellor.abi;
-var oracleByte = Tellor.bytecode;
 var OldTellor = artifacts.require("./oldContracts/OldTellor.sol");
 var oldTellorABI = OldTellor.abi;
 var UtilitiesTests = artifacts.require("./UtilitiesTests.sol");
@@ -15,7 +10,7 @@ var masterAbi = TellorMaster.abi;
 var api = "json(https://api.gdax.com/products/BTC-USD/ticker).price";
 var api2 = "json(https://api.gdax.com/products/ETH-USD/ticker).price";
 
-contract("Further Tests w/ Upgrade", function(accounts) {
+contract("Request and tip tests", function(accounts) {
   let oracleBase;
   let oracle;
   let oracle2;

@@ -3,6 +3,7 @@ const web3 = new Web3(
   new Web3.providers.WebsocketProvider("ws://localhost:8545")
 );
 const helper = require("./helpers/test_helpers");
+const TestLib = require("./helpers/testLib");
 const TellorMaster = artifacts.require("./TellorMaster.sol");
 const Tellor = artifacts.require("./TellorTest.sol"); // globally injected artifacts helper
 var oracleAbi = Tellor.abi;
@@ -23,7 +24,7 @@ contract("Mining Tests", function(accounts) {
   let oldTellor;
   let oldTellorinst;
   let utilities;
-
+  let testLib;
   beforeEach("Setup contract for each test", async function() {
     oldTellor = await OldTellor.new();
     oracle = await TellorMaster.new(oldTellor.address);
@@ -54,7 +55,6 @@ contract("Mining Tests", function(accounts) {
           .encodeABI(),
       });
     }
-    let q = await oracle.getRequestQ();
     //Deploy new upgraded Tellor
     oracleBase = await Tellor.new();
     oracle2 = await new web3.eth.Contract(oracleAbi, oracle.address);
@@ -74,6 +74,20 @@ contract("Mining Tests", function(accounts) {
     // for(var i = 1;i<6;i++){
     //     await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.addTip(i,i).encodeABI()})
     // }
+
+    //This are all the vriables we're passing to the testLib so it can porperly execute functions.
+    let testLibvars = {
+      accounts: accounts,
+      oracleBase: oracleBase,
+      oracle: oracle,
+      oracle2: oracle2,
+      master: master,
+      oldTellor: oldTellor,
+      oldTellorinst: oldTellorinst,
+      utilities: utilities,
+    };
+    testLib = TestLib.init(testLibvars);
+    //console.log(testLib);
   });
 
   it("test utilities", async function() {
@@ -109,20 +123,7 @@ contract("Mining Tests", function(accounts) {
     }
   });
   it("Test miner", async function() {
-    for (var i = 0; i < 5; i++) {
-      await web3.eth.sendTransaction({
-        to: oracle.address,
-        from: accounts[i],
-        gas: 10000000,
-        data: oracle2.methods
-          .testSubmitMiningSolution(
-            "nonce",
-            [1, 2, 3, 4, 5],
-            [1200, 1300, 1400, 1500, 1600]
-          )
-          .encodeABI(),
-      });
-    }
+    await testLib.mineBlock();
     vars = await oracle.getLastNewValueById(5);
     assert(vars[0] > 0, "value should be positive");
     assert(vars[1] == true, "value should be there");
