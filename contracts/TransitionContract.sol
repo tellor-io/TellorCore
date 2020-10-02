@@ -1,10 +1,6 @@
 pragma solidity ^0.5.16;
 
-import "./libraries/SafeMath.sol";
 import "./libraries/TellorStorage.sol";
-import "./libraries/TellorTransfer.sol";
-import "./libraries/TellorGettersLibrary.sol";
-import "./libraries/TellorStake.sol";
 
 /**
 * @title Tellor Master
@@ -12,26 +8,10 @@ import "./libraries/TellorStake.sol";
 */
 contract TellorTransition {
 
-
-    using TellorTransfer for TellorStorage.TellorStorageStruct;
-    using TellorGettersLibrary for TellorStorage.TellorStorageStruct;
-    using TellorStake for TellorStorage.TellorStorageStruct;
-
     TellorStorage.TellorStorageStruct tellor;
 
-    address public newTellor;
-    address public currentTellor;
-
-    /**
-    * @dev The constructor sets the original `tellorStorageOwner` of the contract to the sender
-    * account, the tellor contract to the Tellor master address and owner to the Tellor master owner address
-    * @param _tellorContract is the address for the tellor contract
-    */
-    constructor(address _currentContract, address _newContract) public {
-        currentTellor = _currentContract;
-        newTellor = _newContract;
-    }
-
+    address public constant newTellor = 0x032Aa32e4069318b15e6462CE20926d4d821De90;
+    address public constant currentTellor = 0x6511D2957aa09350494f892Ce2881851f0bb26D3;
 
     /**
     * @dev Function to be executed before the first transaction to new version is called. After performing
@@ -50,22 +30,20 @@ contract TellorTransition {
     * @dev Function to be verify if the system is in the correct state for executing a transition.
     *  Ex: we're not in the middle of a block;
     */
-    function _isReady() internal returns(bool){
+    function _isReady() internal view returns(bool){
         if(tellor.uintVars[keccak256("slotProgress")] == 0){
             return true;
         }
         return false;
     }
 
-   
-    /**
-    * @dev This will perform the transition and then call the the newer Tellor version
-    */
-    function() external payable {
+    function() external payable{
+        
         address addr = currentTellor;
         //If contract is ready, perform the transition and set the definitive address as TellorContract;
         if(_isReady()){
             _transition();
+            addr = newTellor;
         } 
         bytes memory _calldata = msg.data;
         assembly {
