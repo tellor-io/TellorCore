@@ -214,14 +214,13 @@ library TellorLibrary {
         _tblock.minersByValue[3][_slotProgress]= msg.sender;
         _tblock.minersByValue[4][_slotProgress]= msg.sender;
 
-        //Internal Function Added to allow for more stack variables
-        // _payReward(self, _slotProgress);
-        self.uintVars[slotProgress]++;
-
         //If 5 values have been received, adjust the difficulty otherwise sort the values until 5 are received         
         if (_slotProgress + 1 == 5) { //slotProgress has been incremented, but we're using the variable on stack to save gas
             newBlock(self, _nonce, _requestId);
             self.uintVars[slotProgress] = 0;
+        }
+        else{
+            self.uintVars[slotProgress]++;
         }
         emit NonceSubmitted(msg.sender, _nonce, _requestId, _value, _currChallenge);
     }
@@ -244,8 +243,7 @@ library TellorLibrary {
         //_timeDiff is how many minutes passed since last block
         uint _currReward = 1e18;
         uint reward = _timeDiff* _currReward / 300; //each miner get's 
-        uint _currentTotalTips = self.uintVars[currentTotalTips];
-        uint _tip = (_currentTotalTips)/ 10;
+        uint _tip = self.uintVars[currentTotalTips] / 10;
         uint _devShare = reward / 2;
 
         TellorTransfer.doTransfer(self, address(this), miners[0], reward + _tip);
