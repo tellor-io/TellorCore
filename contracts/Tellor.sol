@@ -74,18 +74,6 @@ contract Tellor {
         tellor.addTip(_requestId, _tip);
     }
 
-
-    /**
-    * @dev This is called by the miner when they submit the PoW solution (proof of work and value)
-    * @param _nonce uint submitted by miner
-    * @param _requestId the apiId being mined
-    * @param _value of api query
-    * 
-    */
-    function submitMiningSolution(string calldata _nonce, uint256 _requestId, uint256 _value) external {
-        tellor.submitMiningSolution(_nonce, _requestId, _value);
-    }
-
     /**
     * @dev This is called by the miner when they submit the PoW solution (proof of work and value)
     * @param _nonce uint submitted by miner
