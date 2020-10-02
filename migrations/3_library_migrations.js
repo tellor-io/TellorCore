@@ -4,19 +4,19 @@ var TellorDispute = artifacts.require("./libraries/TellorDispute.sol");
 var TellorStake = artifacts.require("./libraries/TellorStake.sol");
 var TellorLibrary = artifacts.require("./libraries/TellorLibrary.sol");
 var TellorGettersLibrary = artifacts.require("./libraries/TellorGettersLibrary.sol");
-var OldTellor = artifacts.require("./oldContracts/OldTellor.sol");
-var OldTellorMaster = artifacts.require("./oldContracts/OldTellorMaster.sol");
-var OldTellorStake = artifacts.require("./oldContracts/libraries/OldTellorStake.sol");
-var OldTellorTransfer = artifacts.require("./oldContracts/libraries/OldTellorTransfer.sol")
-var OldTellorDispute = artifacts.require("./oldContracts/libraries/OldTellorDispute.sol")
-var OldTellorLibrary = artifacts.require("./oldContracts/libraries/OldTellorLibrary.sol")
-/****Uncomment the body to run this with Truffle migrate for truffle testing*/
+var OldTellor = artifacts.require("tellorlegacy/contracts/oldContracts/OldTellor");
+var OldTellorMaster = artifacts.require("tellorlegacy/contracts/oldContracts/OldTellorMaster");
+var OldTellorStake = artifacts.require("tellorlegacy/contracts/oldContracts/libraries/OldTellorStake");
+var OldTellorTransfer = artifacts.require("tellorlegacy/contracts/oldContracts/libraries/OldTellorTransfer")
+var OldTellorDispute = artifacts.require("tellorlegacy/contracts/oldContracts/libraries/OldTellorDispute")
+var OldTellorLibrary = artifacts.require("tellorlegacy/contracts/oldContracts/libraries/OldTellorLibrary")
 
 /**
 *@dev Use this for setting up contracts for testing 
 *this will link the Factory and Tellor Library
 *These commands that need to be ran:
-*truffle migrate --network rinkeby
+*truffle migrate --network rinkebyorLibrary.sol")
+/****Uncomment the body to run this with Truffle migrate for truffle testi
 *truffle exec scripts/Migrate_1.js --network rinkeby
 *truffle exec scripts/Migrate_2.js --network rinkeby
 */
