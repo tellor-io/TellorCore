@@ -2,11 +2,11 @@
 var TellorLibrary = artifacts.require("./libraries/TellorLibrary.sol");
 var TellorGettersLibrary = artifacts.require("./libraries/TellorGettersLibrary.sol");
 var OldTellor2 = artifacts.require("./oldContracts2/OldTellor2.sol");
-var OldTellorMaster2 = artifacts.require("./oldContracts2/OldTellorMaster2.sol");
-var Old2TellorStake = artifacts.require("./oldContracts2/libraries/Old2TellorStake.sol");
-var Old2TellorTransfer = artifacts.require("./oldContracts2/libraries/Old2TellorTransfer.sol")
-var Old2TellorDispute = artifacts.require("./oldContracts2/libraries/Old2TellorDispute.sol")
-var Old2TellorLibrary = artifacts.require("./oldContracts2/libraries/Old2TellorLibrary.sol")
+var OldTellorMaster2 = artifacts.require("tellorlegacy/contracts/oldContracts2/OldTellorMaster2.sol");
+var Old2TellorStake = artifacts.require("tellorlegacy/contracts/oldContracts2/libraries/Old2TellorStake.sol");
+var Old2TellorTransfer = artifacts.require("tellorlegacy/contracts/oldContracts2/libraries/Old2TellorTransfer.sol")
+var Old2TellorDispute = artifacts.require("tellorlegacy/contracts/oldContracts2/libraries/Old2TellorDispute.sol")
+var Old2TellorLibrary = artifacts.require("tellorlegacy/contracts/oldContracts2/libraries/Old2TellorLibrary.sol")
 /****Uncomment the body to run this with Truffle migrate for truffle testing*/
 
 /**
