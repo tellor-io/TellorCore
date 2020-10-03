@@ -58,7 +58,7 @@
 //         to: oracle.address,
 //         from: accounts[i],
 //         gas: 7000000,
-//         data: oracle2.methods["submitMiningSolution(string,uint256,uint256)"](
+//         data: oracle2.methods["testSubmitMiningSolution(string,uint256,uint256)"](
 //           "nonce",
 //           1,
 //           1200
