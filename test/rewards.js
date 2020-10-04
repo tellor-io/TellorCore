@@ -2,6 +2,7 @@
 // const web3 = new Web3(
 //   new Web3.providers.WebsocketProvider("ws://localhost:8545")
 // );
+// const TransitionContract = artifacts.require("./TellorTransition");
 // const helper = require("./helpers/test_helpers");
 // const TellorMaster = artifacts.require("./TellorMaster.sol");
 // const Tellor = artifacts.require("./TellorTest.sol"); // globally injected artifacts helper
@@ -14,6 +15,10 @@
 // var masterAbi = TellorMaster.abi;
 // var api = "json(https://api.gdax.com/products/BTC-USD/ticker).price";
 // var api2 = "json(https://api.gdax.com/products/ETH-USD/ticker).price";
+
+//   //Hardcoded adress because they need to be known when the TransitionCOntract is compiled
+//   const baseAdd = "0x6511D2957aa09350494f892Ce2881851f0bb26D3";
+//   const newAdd = "0x032Aa32e4069318b15e6462CE20926d4d821De90";
 
 // const takeFive = async (times = 1) => {
 //   helper.advanceTime(60 * 5 * times);
@@ -94,6 +99,33 @@
 //           .encodeABI(),
 //       });
 //     }
+//         let newTellor = await Tellor.new({ from: accounts[9] });
+//     transitionContract = await TransitionContract.new();
+//     newTellor = await Tellor.at(newAdd);
+//     let currTellor = await Tellor.at(baseAdd);
+//     vars = await oracle2.methods.getNewCurrentVariables().call();
+//     await oracle.changeTellorContract(transitionContract.address);
+//     await helper.advanceTime(60 * 16);
+//     for (var i = 0; i < 5; i++) {
+//       await web3.eth.sendTransaction({
+//         to: oracle.address,
+//         from: accounts[i],
+//         gas: 10000000,
+//         data: oracle2.methods
+//           .testSubmitMiningSolution("nonce", vars["1"], [
+//             1200,
+//             1300,
+//             1400,
+//             1500,
+//             1600,
+//           ])
+//           .encodeABI(),
+//       });
+//     }
+//     let add2 = await oracle.getAddressVars(
+//       web3.utils.keccak256("tellorContract")
+//     );
+//     assert(add2 == newTellor.address, "contract should transition properly");
 //   });
 //   it("Inflation is fixed", async function() {
 //     let rew = await oracle.getUintVar(web3.utils.keccak256("currentReward"));

@@ -4,6 +4,7 @@
 // var oracleAbi = Tellor.abi;
 // var masterAbi = TellorMaster.abi;
 
+
 // contract("ERC20 Token Functionality", function(accounts) {
 //   let oracle;
 //   let oracle2;

@@ -1,9 +1,13 @@
 // const helper = require("./helpers/test_helpers");
 // const TellorMaster = artifacts.require("./TellorMaster.sol");
 // const Tellor = artifacts.require("./TellorTest.sol"); // globally injected artifacts helper
-
+// const TransitionContract = artifacts.require("./TellorTransition");
 // var oracleAbi = Tellor.abi;
 // var masterAbi = TellorMaster.abi;
+
+//   //Hardcoded adress because they need to be known when the TransitionCOntract is compiled
+//   const baseAdd = "0x6511D2957aa09350494f892Ce2881851f0bb26D3";
+//   const newAdd = "0x032Aa32e4069318b15e6462CE20926d4d821De90";
 
 // contract("Staking tests", function(accounts) {
 //   let oracle;
@@ -16,6 +20,33 @@
 //     oracle = await TellorMaster.new(oracleBase.address);
 //     master = await new web3.eth.Contract(masterAbi, oracle.address);
 //     oracle2 = await new web3.eth.Contract(oracleAbi, oracleBase.address);
+//         let newTellor = await Tellor.new({ from: accounts[9] });
+//     transitionContract = await TransitionContract.new();
+//     newTellor = await Tellor.at(newAdd);
+//     let currTellor = await Tellor.at(baseAdd);
+//     vars = await oracle2.methods.getNewCurrentVariables().call();
+//     await oracle.changeTellorContract(transitionContract.address);
+//     await helper.advanceTime(60 * 16);
+//     for (var i = 0; i < 5; i++) {
+//       await web3.eth.sendTransaction({
+//         to: oracle.address,
+//         from: accounts[i],
+//         gas: 10000000,
+//         data: oracle2.methods
+//           .testSubmitMiningSolution("nonce", vars["1"], [
+//             1200,
+//             1300,
+//             1400,
+//             1500,
+//             1600,
+//           ])
+//           .encodeABI(),
+//       });
+//     }
+//     let add2 = await oracle.getAddressVars(
+//       web3.utils.keccak256("tellorContract")
+//     );
+//     assert(add2 == newTellor.address, "contract should transition properly");
 //   });
 //   it("Stake miner", async function() {
 //     await web3.eth.sendTransaction({
