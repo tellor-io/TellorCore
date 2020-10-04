@@ -111,6 +111,7 @@
 //       web3.utils.keccak256("tellorContract")
 //     );
 //     assert(add2 == newTellor.address, "contract should transition properly");
+//     await helper.advanceTime(60 * 16);
 //   });
 //   it("Test zeroing out of currentTips", async function() {
 //     await web3.eth.sendTransaction({

@@ -126,6 +126,7 @@
 //       web3.utils.keccak256("tellorContract")
 //     );
 //     assert(add2 == newTellor.address, "contract should transition properly");
+//     await helper.advanceTime(60 * 16);
 //   });
 //   it("Inflation is fixed", async function() {
 //     let rew = await oracle.getUintVar(web3.utils.keccak256("currentReward"));

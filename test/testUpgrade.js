@@ -164,6 +164,7 @@
 //       web3.utils.keccak256("tellorContract")
 //     );
 //     assert(add2 == newTellor.address, "contract should transition properly");
+//     await helper.advanceTime(60 * 16);
 //   });
 //   it("Test upgrade with full queue", async function() {
 //     //deploy old, request, update address, mine old challenge.
