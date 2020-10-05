@@ -133,39 +133,39 @@ library TellorLibraryTest {
     function submitMiningSolution(TellorStorage.TellorStorageStruct storage self, string memory _nonce, uint256 _requestId, uint256 _value)
         public
     {
+        
+    //     require (self.uintVars[timeTarget] == 600, "Contract has upgraded, call new function");
+    //     //require miner is staked
+    //     require(self.stakerDetails[msg.sender].currentStatus == 1, "Miner status is not staker");
 
-        require (self.uintVars[timeTarget] == 600, "Contract has upgraded, call new function");
-        //require miner is staked
-        require(self.stakerDetails[msg.sender].currentStatus == 1, "Miner status is not staker");
+    //     //Check the miner is submitting the pow for the current request Id
+    //     require(_requestId == self.uintVars[currentRequestId], "RequestId is wrong");
 
-        //Check the miner is submitting the pow for the current request Id
-        require(_requestId == self.uintVars[currentRequestId], "RequestId is wrong");
+    //     //Saving the challenge information as unique by using the msg.sender
+    //     //Ignoring difficulty since this can only be called on testing enviroment
+    //     // require(
+    //     //     uint256(
+    //     //         sha256(abi.encodePacked(ripemd160(abi.encodePacked(keccak256(abi.encodePacked(self.currentChallenge, msg.sender, _nonce))))))
+    //     //     ) %
+    //     //         self.uintVars[difficulty] ==
+    //     //         0,
+    //     //     "Incorrect nonce for current challenge"
+    //     // );
 
-        //Saving the challenge information as unique by using the msg.sender
-        //Ignoring difficulty since this can only be called on testing enviroment
-        // require(
-        //     uint256(
-        //         sha256(abi.encodePacked(ripemd160(abi.encodePacked(keccak256(abi.encodePacked(self.currentChallenge, msg.sender, _nonce))))))
-        //     ) %
-        //         self.uintVars[difficulty] ==
-        //         0,
-        //     "Incorrect nonce for current challenge"
-        // );
+    //     //Make sure the miner does not submit a value more than once
+    //     require(self.minersByChallenge[self.currentChallenge][msg.sender] == false, "Miner already submitted the value");
 
-        //Make sure the miner does not submit a value more than once
-        require(self.minersByChallenge[self.currentChallenge][msg.sender] == false, "Miner already submitted the value");
+    //     //Save the miner and value received
+    //     self.currentMiners[self.uintVars[slotProgress]].value = _value;
+    //     self.currentMiners[self.uintVars[slotProgress]].miner = msg.sender;
 
-        //Save the miner and value received
-        self.currentMiners[self.uintVars[slotProgress]].value = _value;
-        self.currentMiners[self.uintVars[slotProgress]].miner = msg.sender;
+    //     //Add to the count how many values have been submitted, since only 5 are taken per request
+    //     self.uintVars[slotProgress]++;
 
-        //Add to the count how many values have been submitted, since only 5 are taken per request
-        self.uintVars[slotProgress]++;
-
-        //Update the miner status to true once they submit a value so they don't submit more than once
-        self.minersByChallenge[self.currentChallenge][msg.sender] = true;
-        if (self.uintVars[slotProgress] == 5) {
-            newBlock(self, _nonce, _requestId);
-        }
+    //     //Update the miner status to true once they submit a value so they don't submit more than once
+    //     self.minersByChallenge[self.currentChallenge][msg.sender] = true;
+    //     if (self.uintVars[slotProgress] == 5) {
+    //         newBlock(self, _nonce, _requestId);
+    //     }
     } 
 }

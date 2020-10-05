@@ -3,6 +3,8 @@
 
 const helper = require("./test_helpers");
 const Tellor = artifacts.require("./TellorTest.sol"); // globally injected artifacts helper
+const ITellorI = artifacts.require("ITellorI.sol");
+const ITellorII = artifacts.require("ITellorII.sol");
 var oracleAbi = Tellor.abi;
 var oracleByte = Tellor.bytecode;
 var OldTellor = artifacts.require("./oldContracts/OldTellor.sol");
@@ -12,6 +14,7 @@ var OldTellor2 = artifacts.require("./oldContracts2/OldTellor2.sol");
 var oldTellor2ABI = OldTellor2.abi;
 var UtilitiesTests = artifacts.require("./UtilitiesTests.sol");
 var masterAbi = TellorMaster.abi;
+
 var api = "json(https://api.gdax.com/products/BTC-USD/ticker).price";
 var api2 = "json(https://api.gdax.com/products/ETH-USD/ticker).price";
 
@@ -76,61 +79,74 @@ function initEnv(env) {
   return lib;
 }
 
+// async function createV2Env(accounts) {
+//   let oracle;
+//   let master;
+//   let oldTellor;
+//   let utilities;
+
+//   oldTellor = await OldTellor.new();
+//   oracle = await TellorMaster.new(oldTellor.address);
+//   master = await ITellorI.at(oracle.address);
+//   for (var i = 0; i < 6; i++) {
+//     await master.theLazyCoon(accounts[i], web3.utils.toWei("5000", "ether"));
+//   }
+//   for (var i = 0; i < 52; i++) {
+//     x = "USD" + i;
+//     apix = api + i;
+//     await master.requestData(apix, x, 1000, 52 - i);
+//   }
+
+//   //Deploy new upgraded Tellor
+//   newOracle = await Tellor.new();
+//   await master.changeTellorContract(newOracle.address);
+//   console.log("here");
+//   master1 = await ITellorII.at(master.address);
+//   console.log("pa");
+//   for (var i = 0; i < 5; i++) {
+//     console.log(i);
+//     await master1.submitMiningSolution("nonce", 1, 1200, { from: accounts[i] });
+//   }
+//   return {
+//     master: master1,
+//   };
+// }
+
 async function createV2Env(accounts) {
+  let oracleBase;
+  let oracle;
+  let oracle2;
+  let master;
+  let oldTellor;
+  var api = "json(https://api.gdax.com/products/BTC-USD/ticker).price";
+
   oldTellor = await OldTellor.new();
   oracle = await TellorMaster.new(oldTellor.address);
-  master = await new web3.eth.Contract(masterAbi, oracle.address);
+  master = await ITellorI.at(oracle.address);
   oldTellorinst = await new web3.eth.Contract(oldTellorABI, oldTellor.address);
   for (var i = 0; i < 6; i++) {
-    await web3.eth.sendTransaction({
-      to: oracle.address,
-      from: accounts[0],
-      gas: 7000000,
-      data: oldTellorinst.methods
-        .theLazyCoon(accounts[i], web3.utils.toWei("5000", "ether"))
-        .encodeABI(),
-    });
+    //print tokens
+    await master.theLazyCoon(accounts[i], web3.utils.toWei("7000", "ether"));
   }
   for (var i = 0; i < 52; i++) {
     x = "USD" + i;
     apix = api + i;
-    await web3.eth.sendTransaction({
-      to: oracle.address,
-      from: accounts[0],
-      gas: 7000000,
-      data: oldTellorinst.methods
-        .requestData(apix, x, 1000, 52 - i)
-        .encodeABI(),
-    });
+    await master.requestData(apix, x, 1000, 0);
   }
   //Deploy new upgraded Tellor
   oracleBase = await Tellor.new();
-  oracle2 = await new web3.eth.Contract(oracleAbi, oracle.address);
-  await oracle.changeTellorContract(oracleBase.address);
+  oracle2 = await ITellorII.at(oracle.address);
+  await master.changeTellorContract(oracleBase.address);
+
   for (var i = 0; i < 5; i++) {
-    await web3.eth.sendTransaction({
-      to: oracle.address,
-      from: accounts[i],
-      gas: 7000000,
-      data: oracle.methods["submitMiningSolution(string,uint256,uint256)"](
-        "nonce",
-        1,
-        1200
-      ).encodeABI(),
-    });
-    return {
-      accounts: accounts,
-      oracleBase: oracleBase,
-      oracle: oracle,
-      oracle2: oracle2,
-      master: master,
-      oldTellor: oldTellor,
-      oldTellorinst: oldTellorinst,
-      utilities: utilities,
-    };
+    oracle2.submitMiningSolution("nonce", 1, 1200, { from: accounts[i] });
   }
+
+  return {
+    master: oracle2,
+  };
 }
 module.exports = {
   init: initEnv,
-  v2Env: createV2Env,
+  getV2: createV2Env,
 };

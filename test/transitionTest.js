@@ -89,6 +89,12 @@ contract("Mining Tests", function(accounts) {
     }
   });
 
+  // it("Test", async () => {
+  //   let transition = await Transition.new();
+  //   let abi = TransitionContract.abi;
+  //   w;
+  // });
+
   it("Should transition correctly at the beginning of a block", async () => {
     let add = await oracle.getAddressVars(
       web3.utils.keccak256("tellorContract")
