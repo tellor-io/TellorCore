@@ -26,51 +26,9 @@ contract("Mining Tests", function(accounts) {
   let utilities;
   let testLib;
   beforeEach("Setup contract for each test", async function() {
-    oldTellor = await OldTellor.new();
-    oracle = await TellorMaster.new(oldTellor.address);
-    master = await new web3.eth.Contract(masterAbi, oracle.address);
-    oldTellorinst = await new web3.eth.Contract(
-      oldTellorABI,
-      oldTellor.address
-    );
-    for (var i = 0; i < 6; i++) {
-      await web3.eth.sendTransaction({
-        to: oracle.address,
-        from: accounts[0],
-        gas: 7000000,
-        data: oldTellorinst.methods
-          .theLazyCoon(accounts[i], web3.utils.toWei("5000", "ether"))
-          .encodeABI(),
-      });
-    }
-    for (var i = 0; i < 52; i++) {
-      x = "USD" + i;
-      apix = api + i;
-      await web3.eth.sendTransaction({
-        to: oracle.address,
-        from: accounts[0],
-        gas: 7000000,
-        data: oldTellorinst.methods
-          .requestData(apix, x, 1000, 52 - i)
-          .encodeABI(),
-      });
-    }
-    //Deploy new upgraded Tellor
-    oracleBase = await Tellor.new();
-    oracle2 = await new web3.eth.Contract(oracleAbi, oracle.address);
-    await oracle.changeTellorContract(oracleBase.address);
-    for (var i = 0; i < 5; i++) {
-      await web3.eth.sendTransaction({
-        to: oracle.address,
-        from: accounts[i],
-        gas: 7000000,
-        data: oracle2.methods["submitMiningSolution(string,uint256,uint256)"](
-          "nonce",
-          1,
-          1200
-        ).encodeABI(),
-      });
-    }
+    lib = await TestLib.v2Env(accounts);
+    console.log(lib);
+
     // for(var i = 1;i<6;i++){
     //     await web3.eth.sendTransaction({to: oracle.address,from:accounts[0],gas:7000000,data:oracle2.methods.addTip(i,i).encodeABI()})
     // }

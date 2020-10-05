@@ -17,6 +17,22 @@ contract("ERC20 Token Functionality", function(accounts) {
     oracle2 = await new web3.eth.Contract(oracleAbi, oracleBase.address);
   });
 
+  it("Get Symbol and decimals", async function() {
+    let symbol = await oracle2.methods.symbol().call();
+    assert.equal(symbol, "TRB", "the Symbol should be TT");
+    data3 = await oracle2.methods.decimals().call();
+    assert(data3 - 0 == 18);
+  });
+  it("Get name", async function() {
+    let name = await oracle2.methods.name().call();
+    assert.equal(name, "Tellor Tributes", "the Name should be Tellor Tributes");
+  });
+
+  it("Total Supply", async function() {
+    supply = await master.methods.totalSupply().call();
+    assert.equal(web3.utils.fromWei(supply), 6000, "Supply should be 6000"); //added miner
+  });
+
   it("Token transfer", async function() {
     await web3.eth.sendTransaction({
       to: oracle.address,
