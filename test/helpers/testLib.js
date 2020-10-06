@@ -1,6 +1,23 @@
 // const { web3, BN } = require("./setup");
 // const { fromWei } = require("web3-utils");
 
+const helper = require("./test_helpers");
+const Tellor = artifacts.require("./TellorTest.sol"); // globally injected artifacts helper
+const ITellorI = artifacts.require("ITellorI.sol");
+const ITellorII = artifacts.require("ITellorII.sol");
+var oracleAbi = Tellor.abi;
+var oracleByte = Tellor.bytecode;
+var OldTellor = artifacts.require("./oldContracts/OldTellor.sol");
+var oldTellorABI = OldTellor.abi;
+const TellorMaster = artifacts.require("./TellorMaster.sol");
+var OldTellor2 = artifacts.require("./oldContracts2/OldTellor2.sol");
+var oldTellor2ABI = OldTellor2.abi;
+var UtilitiesTests = artifacts.require("./UtilitiesTests.sol");
+var masterAbi = TellorMaster.abi;
+
+var api = "json(https://api.gdax.com/products/BTC-USD/ticker).price";
+var api2 = "json(https://api.gdax.com/products/ETH-USD/ticker).price";
+
 class TestLib {
   constructor(env) {
     this.env = env;
@@ -62,6 +79,41 @@ function initEnv(env) {
   return lib;
 }
 
+async function createV2Env(accounts) {
+  let oracleBase;
+  let oracle;
+  let oracle2;
+  let master;
+  let oldTellor;
+  var api = "json(https://api.gdax.com/products/BTC-USD/ticker).price";
+
+  oldTellor = await OldTellor.new();
+  oracle = await TellorMaster.new(oldTellor.address);
+  master = await ITellorI.at(oracle.address);
+  oldTellorinst = await new web3.eth.Contract(oldTellorABI, oldTellor.address);
+  for (var i = 0; i < 6; i++) {
+    //print tokens
+    await master.theLazyCoon(accounts[i], web3.utils.toWei("7000", "ether"));
+  }
+  for (var i = 0; i < 52; i++) {
+    x = "USD" + i;
+    apix = api + i;
+    await master.requestData(apix, x, 1000, 0);
+  }
+  //Deploy new upgraded Tellor
+  oracleBase = await Tellor.new();
+  oracle2 = await ITellorII.at(oracle.address);
+  await master.changeTellorContract(oracleBase.address);
+
+  for (var i = 0; i < 5; i++) {
+    oracle2.submitMiningSolution("nonce", 1, 1200, { from: accounts[i] });
+  }
+
+  return {
+    master: oracle2,
+  };
+}
 module.exports = {
   init: initEnv,
+  getV2: createV2Env,
 };

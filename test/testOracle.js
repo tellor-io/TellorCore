@@ -31,13 +31,6 @@ contract("Mining Tests", function(accounts) {
   let utilities;
   let testLib;
   beforeEach("Setup contract for each test", async function() {
-    oldTellor = await OldTellor.new();
-    oracle = await TellorMaster.new(oldTellor.address);
-    master = await new web3.eth.Contract(masterAbi, oracle.address);
-    oldTellorinst = await new web3.eth.Contract(
-      oldTellorABI,
-      oldTellor.address
-    );
     for (var i = 0; i < 6; i++) {
       await web3.eth.sendTransaction({
         to: oracle.address,

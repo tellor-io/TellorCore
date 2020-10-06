@@ -98,7 +98,6 @@
 //       web3.utils.keccak256("stakeAmount")
 //     );
 //     console.log("stakeAmount", stakeAmount.toString());
-
 //     let newTellor = await Tellor.new({ from: accounts[9] });
 //     transitionContract = await TransitionContract.new();
 

@@ -44,7 +44,6 @@
 //     checkowner = await oracle.getAddressVars(web3.utils.keccak256("_owner"));
 //     assert(checkowner == accounts[2], "new owner acct 2");
 //   });
-
 //   it("Test Deity Functions", async function() {
 //     let owner = await oracle.getAddressVars(web3.utils.keccak256("_deity"));
 //     assert(owner == accounts[0]);
