@@ -1,10 +1,10 @@
 pragma solidity ^0.5.0;
 
-import "./libraries/SafeMath.sol";
-import "./libraries/TellorStorage.sol";
-import "./libraries/TellorTransfer.sol";
-import "./libraries/TellorGettersLibrary.sol";
-import "./libraries/TellorStake.sol";
+import "tellorlegacy/contracts/oldContracts/libraries/OldSafeMath.sol";
+import "tellorlegacy/contracts/oldContracts/libraries/OldTellorStorage.sol";
+import "tellorlegacy/contracts/oldContracts/libraries/OldTellorTransfer.sol";
+import "tellorlegacy/contracts/oldContracts/libraries/OldTellorGettersLibrary.sol";
+import "tellorlegacy/contracts/oldContracts/libraries/OldTellorStake.sol";
 
 /**
 * @title Tellor Getters
@@ -12,13 +12,13 @@ import "./libraries/TellorStake.sol";
 * is saved on the TellorGettersLibrary, TellorTransfer, TellorGettersLibrary, and TellorStake
 */
 contract TellorGetters {
-    using SafeMath for uint256;
+    using OldSafeMath for uint256;
 
-    using TellorTransfer for TellorStorage.TellorStorageStruct;
-    using TellorGettersLibrary for TellorStorage.TellorStorageStruct;
-    using TellorStake for TellorStorage.TellorStorageStruct;
+    using OldTellorTransfer for OldTellorStorage.TellorStorageStruct;
+    using OldTellorGettersLibrary for OldTellorStorage.TellorStorageStruct;
+    using OldTellorStake for OldTellorStorage.TellorStorageStruct;
 
-    TellorStorage.TellorStorageStruct tellor;
+    OldTellorStorage.TellorStorageStruct tellor;
 
     /**
     * @param _user address
