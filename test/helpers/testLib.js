@@ -79,39 +79,6 @@ function initEnv(env) {
   return lib;
 }
 
-// async function createV2Env(accounts) {
-//   let oracle;
-//   let master;
-//   let oldTellor;
-//   let utilities;
-
-//   oldTellor = await OldTellor.new();
-//   oracle = await TellorMaster.new(oldTellor.address);
-//   master = await ITellorI.at(oracle.address);
-//   for (var i = 0; i < 6; i++) {
-//     await master.theLazyCoon(accounts[i], web3.utils.toWei("5000", "ether"));
-//   }
-//   for (var i = 0; i < 52; i++) {
-//     x = "USD" + i;
-//     apix = api + i;
-//     await master.requestData(apix, x, 1000, 52 - i);
-//   }
-
-//   //Deploy new upgraded Tellor
-//   newOracle = await Tellor.new();
-//   await master.changeTellorContract(newOracle.address);
-//   console.log("here");
-//   master1 = await ITellorII.at(master.address);
-//   console.log("pa");
-//   for (var i = 0; i < 5; i++) {
-//     console.log(i);
-//     await master1.submitMiningSolution("nonce", 1, 1200, { from: accounts[i] });
-//   }
-//   return {
-//     master: master1,
-//   };
-// }
-
 async function createV2Env(accounts) {
   let oracleBase;
   let oracle;
