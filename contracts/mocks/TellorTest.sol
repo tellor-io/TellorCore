@@ -28,7 +28,7 @@ contract TellorTest is Tellor {
         tellor._submitMiningSolution(_nonce,_requestId, _value);
     }
 
-    function testSubmitMiningSolution(string calldata _nonce,uint256 _requestId, uint256 _value) external {
+    function submitMiningSolution(string calldata _nonce,uint256 _requestId, uint256 _value) external {
         tellor.submitMiningSolution(_nonce,_requestId, _value);
     }
  }
