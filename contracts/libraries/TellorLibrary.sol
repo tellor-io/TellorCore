@@ -253,7 +253,7 @@ library TellorLibrary {
         TellorTransfer.doTransfer(self, address(this), miners[4], reward + _tip);
  
         //update the total supply
-        self.uintVars[total_supply] +=  _devShare + _currReward * 5 - (self.uintVars[currentTotalTips] / 2);
+        self.uintVars[total_supply] +=  _devShare + reward * 5 - (self.uintVars[currentTotalTips] / 2);
         TellorTransfer.doTransfer(self, address(this), self.addressVars[_owner],  _devShare);
         self.uintVars[currentTotalTips] = 0;
     }
