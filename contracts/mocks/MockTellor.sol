@@ -13,6 +13,12 @@ import "tellorlegacy/contracts/oldContracts2/libraries/Old2TellorStake.sol";
 import "tellorlegacy/contracts/oldContracts2/libraries/Old2TellorTransfer.sol";
 import "tellorlegacy/contracts/oldContracts2/libraries/Old2TellorDispute.sol";
 import "tellorlegacy/contracts/oldContracts2/libraries/Old2TellorLibrary.sol";
+import "tellorlegacy/contracts/v2/v2Tellor.sol";
+import "tellorlegacy/contracts/v2/v2TellorMaster.sol";
+import "tellorlegacy/contracts/v2/libraries/v2TellorStake.sol";
+import "tellorlegacy/contracts/v2/libraries/v2TellorTransfer.sol";
+import "tellorlegacy/contracts/v2/libraries/v2TellorDispute.sol";
+import "tellorlegacy/contracts/v2/libraries/v2TellorLibrary.sol";
 
 
 /**

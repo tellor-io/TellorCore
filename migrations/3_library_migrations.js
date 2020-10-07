@@ -3,16 +3,30 @@ var TellorTransfer = artifacts.require("./libraries/TellorTransfer.sol");
 var TellorDispute = artifacts.require("./libraries/TellorDispute.sol");
 var TellorStake = artifacts.require("./libraries/TellorStake.sol");
 var TellorLibrary = artifacts.require("./libraries/TellorLibrary.sol");
-var TellorGettersLibrary = artifacts.require("./libraries/TellorGettersLibrary.sol");
-var OldTellor = artifacts.require("tellorlegacy/contracts/oldContracts/OldTellor");
-var OldTellorMaster = artifacts.require("tellorlegacy/contracts/oldContracts/OldTellorMaster");
-var OldTellorStake = artifacts.require("tellorlegacy/contracts/oldContracts/libraries/OldTellorStake");
-var OldTellorTransfer = artifacts.require("tellorlegacy/contracts/oldContracts/libraries/OldTellorTransfer")
-var OldTellorDispute = artifacts.require("tellorlegacy/contracts/oldContracts/libraries/OldTellorDispute")
-var OldTellorLibrary = artifacts.require("tellorlegacy/contracts/oldContracts/libraries/OldTellorLibrary")
+var TellorGettersLibrary = artifacts.require(
+  "./libraries/TellorGettersLibrary.sol"
+);
+var OldTellor = artifacts.require(
+  "tellorlegacy/contracts/oldContracts/OldTellor"
+);
+var OldTellorMaster = artifacts.require(
+  "tellorlegacy/contracts/oldContracts/OldTellorMaster"
+);
+var OldTellorStake = artifacts.require(
+  "tellorlegacy/contracts/oldContracts/libraries/OldTellorStake"
+);
+var OldTellorTransfer = artifacts.require(
+  "tellorlegacy/contracts/oldContracts/libraries/OldTellorTransfer"
+);
+var OldTellorDispute = artifacts.require(
+  "tellorlegacy/contracts/oldContracts/libraries/OldTellorDispute"
+);
+var OldTellorLibrary = artifacts.require(
+  "tellorlegacy/contracts/oldContracts/libraries/OldTellorLibrary"
+);
 
 /**
-*@dev Use this for setting up contracts for testing 
+*@dev Use this for setting up contracts for testing
 *this will link the Factory and Tellor Library
 *These commands that need to be ran:
 *truffle migrate --network rinkebyorLibrary.sol")
@@ -26,19 +40,17 @@ var OldTellorLibrary = artifacts.require("tellorlegacy/contracts/oldContracts/li
 // }
 /****Uncomment the body below to run this with Truffle migrate for truffle testing*/
 
-
-module.exports = async function (deployer) {
-
-    //OLD DEPS
+module.exports = async function(deployer) {
+  //OLD DEPS
   await deployer.deploy(OldTellorTransfer);
 
   //deploy dispute
-  await deployer.link(OldTellorTransfer,OldTellorDispute);
+  await deployer.link(OldTellorTransfer, OldTellorDispute);
   await deployer.deploy(OldTellorDispute);
 
-    // deploy stake
-  await deployer.link(OldTellorTransfer,OldTellorStake);
-  await deployer.link(OldTellorDispute,OldTellorStake);
+  // deploy stake
+  await deployer.link(OldTellorTransfer, OldTellorStake);
+  await deployer.link(OldTellorDispute, OldTellorStake);
   await deployer.deploy(OldTellorStake);
 
   // deploy getters lib
@@ -50,21 +62,18 @@ module.exports = async function (deployer) {
   await deployer.link(OldTellorStake, OldTellorLibrary);
   await deployer.deploy(OldTellorLibrary);
 
-
   // deploy tellor
-  await deployer.link(OldTellorTransfer,OldTellor);
-  await deployer.link(OldTellorDispute,OldTellor);
-  await deployer.link(OldTellorStake,OldTellor);
-  await deployer.link(OldTellorLibrary,OldTellor);
+  await deployer.link(OldTellorTransfer, OldTellor);
+  await deployer.link(OldTellorDispute, OldTellor);
+  await deployer.link(OldTellorStake, OldTellor);
+  await deployer.link(OldTellorLibrary, OldTellor);
   await deployer.deploy(OldTellor);
 
   // deploy tellor master
-  await deployer.link(OldTellorTransfer,OldTellorMaster);
-  await deployer.link(TellorGettersLibrary,OldTellorMaster);
-    await deployer.link(OldTellorStake,OldTellorMaster);
+  await deployer.link(OldTellorTransfer, OldTellorMaster);
+  await deployer.link(TellorGettersLibrary, OldTellorMaster);
+  await deployer.link(OldTellorStake, OldTellorMaster);
   await deployer.deploy(OldTellor).then(async function() {
-    await deployer.deploy(OldTellorMaster, OldTellor.address)
+    await deployer.deploy(OldTellorMaster, OldTellor.address);
   });
-
-
 };
