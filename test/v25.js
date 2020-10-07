@@ -35,52 +35,78 @@ contract("Tests for V2.5", function(accounts) {
     };
   });
 
-  describe("Staking and Withdrawing", async () => {
-    it("Stake amount changes correctly", async () => {
-      await upgrade();
+  // describe("Staking and Withdrawing", async () => {
+  //   it("Stake amount changes correctly", async () => {
+  //     await upgrade();
+  //     let stakeAmount = await master.getUintVar(hash("stakeAmount"));
+  //     assert(
+  //       stakeAmount.eq(newStake),
+  //       "contract should set stake amount transition properly"
+  //     );
+  //   });
+
+  //   it("New miner can stake new stake amount", async () => {
+  //     await upgrade();
+
+  //     let staker = accounts[8];
+  //     let info = await master.getStakerInfo(staker);
+
+  //     assert(info["0"].toString() == "0", "Account shouldn't be staked");
+  //     await master.approve(master.address, newStake, { from: staker });
+  //     await master.depositStake({ from: staker });
+
+  //     let info2 = await master.getStakerInfo(staker);
+
+  //     assert(info2["0"].toString() == "1", "Account should be staked");
+  //   });
+
+  //   it("Previous staker can withdraw difference", async () => {
+  //     let staker = accounts[8];
+  //     let previousBal = await master.balanceOf(staker);
+
+  //     await master.approve(master.address, newStake, { from: staker });
+  //     await master.depositStake({ from: staker });
+
+  //     let info = await master.getStakerInfo(staker);
+  //     assert(info["0"].toString() == "1", "Account should be staked");
+
+  //     await upgrade();
+
+  //     let info2 = await master.getStakerInfo(staker);
+  //     assert(info2["0"].toString() == "1", "Account should be staked");
+
+  //     await master.transfer(accounts[0], previousBal.sub(newStake), {
+  //       from: staker,
+  //     });
+
+  //     let newBalance = await master.balanceOf(staker);
+  //     assert(newBalance.eq(newStake), "Staker should have only the stake left");
+  //   });
+  // });
+
+  describe("Handling open disputes during upgrade", async () => {
+    beforeEach(async () => {
       let stakeAmount = await master.getUintVar(hash("stakeAmount"));
-      assert(
-        stakeAmount.eq(newStake),
-        "contract should set stake amount transition properly"
+      await helper.advanceTime(60 * 15);
+      await TestLib.mineBlock(env);
+
+      let count = await master.getNewValueCountbyRequestId("1");
+
+      console.log(count);
+      let timestamp = await master.getTimestampbyRequestIDandIndex(
+        "1",
+        count.toNumber() - 1
       );
+      await master.beginDispute(1, timestamp, 2);
     });
 
-    it("New miner can stake new stake amount", async () => {
-      await upgrade();
+    it("Disputed miner can withdraw unslashed stake", async () => {
+      // await master.vote(1, true, { from: accounts[3] });
+      // await helper.advanceTime(86400 * 3);
+      // await master.tallyVotes(1);
 
-      let staker = accounts[8];
-      let info = await master.getStakerInfo(staker);
-
-      assert(info["0"].toString() == "0", "Account shouldn't be staked");
-      await master.approve(master.address, newStake, { from: staker });
-      await master.depositStake({ from: staker });
-
-      let info2 = await master.getStakerInfo(staker);
-
-      assert(info2["0"].toString() == "1", "Account should be staked");
-    });
-
-    it("Previous staker can withdraw difference", async () => {
-      let staker = accounts[8];
-      let previousBal = await master.balanceOf(staker);
-
-      await master.approve(master.address, newStake, { from: staker });
-      await master.depositStake({ from: staker });
-
-      let info = await master.getStakerInfo(staker);
-      assert(info["0"].toString() == "1", "Account should be staked");
-
-      await upgrade();
-
-      let info2 = await master.getStakerInfo(staker);
-      assert(info2["0"].toString() == "1", "Account should be staked");
-
-      await master.transfer(accounts[0], previousBal.sub(newStake), {
-        from: staker,
-      });
-
-      let newBalance = await master.balanceOf(staker);
-      assert(newBalance.eq(newStake), "Staker should have only the stake left");
+      let dispInfo = await master.getAllDisputeVars(1);
+      console.log(dispInfo);
     });
   });
 });

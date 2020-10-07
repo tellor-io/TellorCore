@@ -16,7 +16,7 @@
     "solc": "^0.5.11",
     "solidity-coverage": "^0.7.10",
     "solium": "^1.2.5",
-    "tellorlegacy": "^1.1.0",
+    "tellorlegacy": "^1.1.1",
     "truffle-flattener": "^1.5.0"
   },
   "dependencies": {
