@@ -39,7 +39,7 @@ contract ITellorII{
     function tallyVotes(uint256 _disputeId) external;
     function proposeFork(address _propNewTellorAddress) external;
     function addTip(uint256 _requestId, uint256 _tip) external;
-    function submitMiningSolution(string calldata _nonce, uint256 _requestId, uint256 _value) external;
+    // function submitMiningSolution(string calldata _nonce, uint256 _requestId, uint256 _value) external;
     function submitMiningSolution(string calldata _nonce,uint256[5] calldata _requestId, uint256[5] calldata _value) external;
     function proposeOwnership(address payable _pendingOwner) external;
     function claimOwnership() external;

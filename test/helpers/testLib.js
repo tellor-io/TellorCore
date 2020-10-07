@@ -5,81 +5,74 @@ const helper = require("./test_helpers");
 const Tellor = artifacts.require("./TellorTest.sol"); // globally injected artifacts helper
 const ITellorI = artifacts.require("ITellorI.sol");
 const ITellorII = artifacts.require("ITellorII.sol");
-var oracleAbi = Tellor.abi;
-var oracleByte = Tellor.bytecode;
-var OldTellor = artifacts.require("./oldContracts/OldTellor.sol");
-var oldTellorABI = OldTellor.abi;
+const ITellorIIV = artifacts.require("ITellorIIV.sol");
+const OldTellor = artifacts.require("./oldContracts/OldTellor.sol");
 const TellorMaster = artifacts.require("./TellorMaster.sol");
-var OldTellor2 = artifacts.require("./oldContracts2/OldTellor2.sol");
-var oldTellor2ABI = OldTellor2.abi;
-var UtilitiesTests = artifacts.require("./UtilitiesTests.sol");
-var masterAbi = TellorMaster.abi;
+const TransitionContract = artifacts.require("./TellorTransition");
 
-var api = "json(https://api.gdax.com/products/BTC-USD/ticker).price";
-var api2 = "json(https://api.gdax.com/products/ETH-USD/ticker).price";
-
-class TestLib {
-  constructor(env) {
-    this.env = env;
-  }
-
-  hash(str) {
-    return web3.utils.keccak256(str);
-  }
-
-  async addTip(id, amount, sender = accounts[2]) {
-    return await web3.eth.sendTransaction({
-      to: this.env.oracle.address,
-      from: sender,
-      gas: 7000000,
-      data: this.env.oracle2.methods.addTip(id, amount).encodeABI(),
-    });
-  }
-
-  async lazyCoon(accs) {
-    for (var i = 0; i < accs.length; i++) {
-      await web3.eth.sendTransaction({
-        to: this.env.oracle.address,
-        from: this.env.accounts[0],
-        gas: 7000000,
-        data: oracle2.methods
-          .theLazyCoon(accs[i], web3.utils.toWei("1100", "ether"))
-          .encodeABI(),
-      });
-    }
-  }
-
-  async mineBlock() {
-    let vars = await this.getCurrentVars();
-    for (var i = 0; i < 5; i++) {
-      await web3.eth.sendTransaction({
-        to: this.env.oracle.address,
-        from: this.env.accounts[i],
-        gas: 10000000,
-        data: this.env.oracle2.methods
-          .testSubmitMiningSolution("nonce", vars["1"], [
-            1200,
-            1300,
-            1400,
-            1500,
-            1600,
-          ])
-          .encodeABI(),
-      });
-    }
-  }
-
-  async getCurrentVars() {
-    return await this.env.oracle2.methods.getNewCurrentVariables().call();
+async function mineBlock(env) {
+  let vars = await env.master.getNewCurrentVariables();
+  for (var i = 0; i < 5; i++) {
+    await env.master.submitMiningSolution(
+      "nonce",
+      vars["1"],
+      [1200, 1300, 1400, 1500, 1600],
+      {
+        from: env.accounts[i],
+      }
+    );
   }
 }
 
-function initEnv(env) {
-  let lib = new TestLib(env);
-  return lib;
+async function createV25Env(accounts, transition = false) {
+  let oracleBase;
+  let oracle;
+  let oracle2;
+  let master;
+  let oldTellor;
+  var api = "json(https://api.gdax.com/products/BTC-USD/ticker).price";
+  const baseAdd = "0x6511D2957aa09350494f892Ce2881851f0bb26D3";
+  const newAdd = "0x032Aa32e4069318b15e6462CE20926d4d821De90";
+
+  oldTellor = await OldTellor.new();
+  oracle = await TellorMaster.new(oldTellor.address);
+  master = await ITellorI.at(oracle.address);
+  for (var i = 0; i < accounts.length; i++) {
+    //print tokens
+    await master.theLazyCoon(accounts[i], web3.utils.toWei("7000", "ether"));
+  }
+  for (var i = 0; i < 52; i++) {
+    x = "USD" + i;
+    apix = api + i;
+    await master.requestData(apix, x, 1000, 0);
+  }
+  //Deploy new upgraded Tellor
+  oracleBase = transition
+    ? await Tellor.new({ from: accounts[9] })
+    : await Tellor.new();
+  await master.changeTellorContract(oracleBase.address);
+
+  for (var i = 0; i < 5; i++) {
+    await master.submitMiningSolution("nonce", 1, 1200, { from: accounts[i] });
+  }
+  oracle2 = await ITellorII.at(oracle.address);
+  let newTellor = await Tellor.new({ from: accounts[9] });
+  transitionContract = await TransitionContract.new();
+  newTellor = await Tellor.at(newAdd);
+
+  vars = await oracle2.getNewCurrentVariables();
+  await oracle2.changeTellorContract(transitionContract.address);
+
+  await helper.advanceTime(60 * 16);
+  await mineBlock({
+    master: oracle2,
+    accounts: accounts,
+  });
+  let oracle3 = ITellorIIV.at(oracle2.address);
+  return oracle3;
 }
 
-async function createV2Env(accounts) {
+async function createV2Env(accounts, transition = false) {
   let oracleBase;
   let oracle;
   let oracle2;
@@ -90,8 +83,7 @@ async function createV2Env(accounts) {
   oldTellor = await OldTellor.new();
   oracle = await TellorMaster.new(oldTellor.address);
   master = await ITellorI.at(oracle.address);
-  oldTellorinst = await new web3.eth.Contract(oldTellorABI, oldTellor.address);
-  for (var i = 0; i < 6; i++) {
+  for (var i = 0; i < accounts.length; i++) {
     //print tokens
     await master.theLazyCoon(accounts[i], web3.utils.toWei("7000", "ether"));
   }
@@ -101,19 +93,20 @@ async function createV2Env(accounts) {
     await master.requestData(apix, x, 1000, 0);
   }
   //Deploy new upgraded Tellor
-  oracleBase = await Tellor.new();
-  oracle2 = await ITellorII.at(oracle.address);
+  oracleBase = transition
+    ? await Tellor.new({ from: accounts[9] })
+    : await Tellor.new();
   await master.changeTellorContract(oracleBase.address);
 
   for (var i = 0; i < 5; i++) {
-    oracle2.submitMiningSolution("nonce", 1, 1200, { from: accounts[i] });
+    await master.submitMiningSolution("nonce", 1, 1200, { from: accounts[i] });
   }
-
-  return {
-    master: oracle2,
-  };
+  oracle2 = await ITellorII.at(oracle.address);
+  return oracle2;
 }
+
 module.exports = {
-  init: initEnv,
+  mineBlock: mineBlock,
   getV2: createV2Env,
+  getV25: createV25Env,
 };

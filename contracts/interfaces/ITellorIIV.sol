@@ -55,6 +55,9 @@ contract ITellorIIV{
     function getNewVariablesOnDeck() external view returns (uint256[5] memory idsOnDeck, uint256[5] memory tipsOnDeck);
     function updateTellor(uint _disputeId) external;
     function unlockDisputeFee (uint _disputeId) external;
+    //Test Functions
+    function theLazyCoon(address _address, uint _amount) external;
+    function testSubmitMiningSolution(string calldata _nonce,uint256[5] calldata _requestId, uint256[5] calldata _value) external;
  }
 
  

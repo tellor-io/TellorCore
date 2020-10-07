@@ -22,7 +22,6 @@
 //   const baseAdd = "0x6511D2957aa09350494f892Ce2881851f0bb26D3";
 //   const newAdd = "0x032Aa32e4069318b15e6462CE20926d4d821De90";
 
-
 // contract("v2 Tests", function(accounts) {
 //   let oracleBase;
 //   let oracle;
