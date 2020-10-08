@@ -132,8 +132,48 @@ async function createV2Env(accounts, transition) {
   return oracle2;
 }
 
+
+async function createV2EnvFull(accounts, transition) {
+  let oracleBase;
+  let oracle;
+  let oracle2;
+  let master;
+  let oldTellor;
+  var api = "json(https://api.gdax.com/products/BTC-USD/ticker).price";
+
+  oldTellor = await OldTellor.new();
+  oracle = await TellorMaster.new(oldTellor.address);
+  master = await ITellorI.at(oracle.address);
+  for (var i = 0; i < accounts.length; i++) {
+    //print tokens
+    await master.theLazyCoon(accounts[i], web3.utils.toWei("7000", "ether"));
+  }
+  for (var i = 0; i < 52; i++) {
+    x = "USD" + i;
+    apix = api + i;
+    await master.requestData(apix, x, 1000, 52-i);
+  }
+  //Deploy new upgraded Tellor
+  oracleBase = transition
+    ? await TellorV2.new({ from: accounts[9] })
+    : await TellorV2.new();
+  await master.changeTellorContract(oracleBase.address);
+
+  for (var i = 0; i < 5; i++) {
+    await master.submitMiningSolution("nonce", 1, 1200, { from: accounts[i] });
+  }
+  oracle2 = await ITellorII.at(oracle.address);
+  await mineBlock({
+    accounts: accounts,
+    master: oracle2,
+  });
+  return oracle2;
+}
+
+
 module.exports = {
   mineBlock: mineBlock,
   getV2: createV2Env,
   getV25: createV25Env,
+  getV2Full: createV2EnvFull,
 };
