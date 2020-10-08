@@ -20,6 +20,7 @@ const BN = web3.utils.BN;
 contract('DidMine test', function(accounts) {
   let master;
   let env;
+  let oracle2;
   //Hardcoded adress because they need to be known when the TransitionCOntract is compiled
   const baseAdd = "0x6511D2957aa09350494f892Ce2881851f0bb26D3";
   const newAdd = "0x032Aa32e4069318b15e6462CE20926d4d821De90";
@@ -29,6 +30,7 @@ contract('DidMine test', function(accounts) {
   const upgrade = async () => {
     let newTellor = await Tellor.new({ from: accounts[9] });
     transitionContract = await TransitionContract.new();
+    oracle2 = await new web3.eth.Contract(oracleAbi, master.address);
     // newTellor = await Tellor.at(newAdd);
 
     vars = await master.getNewCurrentVariables();
@@ -47,11 +49,12 @@ contract('DidMine test', function(accounts) {
 
     it("Test didMine ", async function () {
     	await upgrade();
-        let vars = await master.getNewCurrentVariables()
+    	await helper.advanceTime(60 * 16);
+        let v = await master.getNewCurrentVariables()
+        console.log(v)
         for(var i = 0;i<5;i++){
-            res = await web3.eth.sendTransaction({to:master.address,from:accounts[i],gas:7000000,data:master.methods.submitMiningSolution("nonce",[1,2,3,4,5],[1200,1300,1400,1500,1600]).encodeABI()})
+            res = await web3.eth.sendTransaction({to:master.address,from:accounts[i],gas:7000000,data:oracle2.methods.testSubmitMiningSolution("nonce",v["1"],[1200,1300,1400,1500,1600]).encodeABI()})
         }
-        console.log(vars[0],accounts[2])
         let didMine = await master.didMine(vars[0],accounts[2],{from:accounts[0],gas:7000000});
         assert(didMine);
     });
