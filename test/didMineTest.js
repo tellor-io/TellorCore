@@ -47,11 +47,9 @@ contract('DidMine test', function(accounts) {
 
     it("Test didMine ", async function () {
     	await upgrade();
-    	console.log("1")
-        let vars = await master.getNewCurrentVariables().call()
-        console.log("2")
+        let vars = await master.getNewCurrentVariables()
         for(var i = 0;i<5;i++){
-            res = await web3.eth.sendTransaction({to:oracle.address,from:accounts[i],gas:7000000,data:master.methods.testSubmitMiningSolution("nonce",[1,2,3,4,5],[1200,1300,1400,1500,1600]).encodeABI()})
+            res = await web3.eth.sendTransaction({to:master.address,from:accounts[i],gas:7000000,data:master.methods.submitMiningSolution("nonce",[1,2,3,4,5],[1200,1300,1400,1500,1600]).encodeABI()})
         }
         console.log(vars[0],accounts[2])
         let didMine = await master.didMine(vars[0],accounts[2],{from:accounts[0],gas:7000000});
