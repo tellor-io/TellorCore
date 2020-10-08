@@ -62,7 +62,7 @@ async function createV25Env(accounts, transition = false) {
   for (var i = 0; i < 52; i++) {
     x = "USD" + i;
     apix = api + i;
-    await master.requestData(apix, x, 1000, 0);
+    await master.requestData(apix, x, 1000, 52 - i);
   }
 
   oracleBase = transition
@@ -132,7 +132,6 @@ async function createV2Env(accounts, transition) {
   return oracle2;
 }
 
-
 async function createV2EnvFull(accounts, transition) {
   let oracleBase;
   let oracle;
@@ -151,7 +150,7 @@ async function createV2EnvFull(accounts, transition) {
   for (var i = 0; i < 52; i++) {
     x = "USD" + i;
     apix = api + i;
-    await master.requestData(apix, x, 1000, 52-i);
+    await master.requestData(apix, x, 1000, 52 - i);
   }
   //Deploy new upgraded Tellor
   oracleBase = transition
@@ -169,7 +168,6 @@ async function createV2EnvFull(accounts, transition) {
   });
   return oracle2;
 }
-
 
 module.exports = {
   mineBlock: mineBlock,
