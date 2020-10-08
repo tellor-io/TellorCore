@@ -11,7 +11,7 @@ contract ITellorII{
     function didMine(bytes32 _challenge, address _miner) external view returns (bool);
     function didVote(uint256 _disputeId, address _address) external view returns (bool);
     function getAddressVars(bytes32 _data) external view returns (address);
-    function getAllDisputeVars(uint256 _disputeId) external;
+    function getAllDisputeVars(uint256 _disputeId) external view returns (bytes32, bool, bool, bool, address, address, address, uint256[9] memory, int256);
     function getCurrentVariables() external view returns (bytes32, uint256, uint256, string memory, uint256, uint256);
     function getDisputeIdByDisputeHash(bytes32 _hash) external view returns (uint256);
     function getDisputeUintVars(uint256 _disputeId, bytes32 _data) external view returns (uint256);
@@ -57,4 +57,7 @@ contract ITellorII{
     function getNewVariablesOnDeck() external view returns (uint256[5] memory idsOnDeck, uint256[5] memory tipsOnDeck);
      function updateTellor(uint _disputeId) external;
      function unlockDisputeFee (uint _disputeId) external;
+         //Test Functions
+    function theLazyCoon(address _address, uint _amount) external;
+    function testSubmitMiningSolution(string calldata _nonce,uint256[5] calldata _requestId, uint256[5] calldata _value) external;
  }
