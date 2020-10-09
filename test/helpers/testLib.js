@@ -11,6 +11,7 @@ const TransitionContract = artifacts.require("./TellorTransition");
 async function mineBlock(env) {
   let vars = await env.master.getNewCurrentVariables();
   let miners = 0;
+  let res;
   for (var i = 0; i < env.accounts.length; i++) {
     let info = await env.master.getStakerInfo(env.accounts[i]);
     if (i > 5 && info["0"].toString() != "1") {
@@ -21,7 +22,7 @@ async function mineBlock(env) {
       }
     }
     try {
-      await env.master.submitMiningSolution(
+      res = await env.master.testSubmitMiningSolution(
         "nonce",
         vars["1"],
         [1200, 1300, 1400, 1500, 1600],
@@ -35,11 +36,11 @@ async function mineBlock(env) {
         assert.isTrue(false, "Couldn't mine a block");
       }
     }
-
     if (miners == 5) {
       break;
     }
   }
+  return res;
 }
 
 async function createV25Env(accounts, transition = false) {
