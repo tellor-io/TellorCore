@@ -468,50 +468,6 @@ contract("v2 Tests", function(accounts) {
     // });
 
     // it("Test Throw on Multiple Disputes", async function() {
-    //   vars = await master.getNewCurrentVariables();
-    //   let res = await TestLib.mineBlock(env);
-    //   res = web3.eth.abi.decodeParameters(
-    //     ["uint256[5]", "uint256", "uint256[5]", "uint256"],
-    //     res.logs["0"].data
-    //   );
-    //   balance1 = await master.balanceOf(accounts[2], { from: accounts[4] });
-    //   await master.theLazyCoon(accounts[1], web3.utils.toWei("5000", "ether"));
-
-    //   await master.beginDispute(1, resVars[1], 2);
-
-    //   await helper.expectThrow(master.beginDispute(1, resVars[1], 2));
-    //   let miners = await master.getMinersByRequestIdAndTimestamp(1, res[1]);
-
-    //   let disp = await master.getAllDisputeVars(1);
-    //   let _var = await master.getDisputeIdByDisputeHash(
-    //     web3.utils.soliditySha3(
-    //       { t: "address", v: miners[2] },
-    //       { t: "uint256", v: 1 },
-    //       { t: "uint256", v: res[1] }
-    //     )
-    //   );
-    //   assert(_var == 1, "hash should be same");
-    // });
-    // it("Ensure Miner staked after failed dispute", async function() {
-    //   vars = await master.getNewCurrentVariables();
-    //   await takeFifteen();
-    //   for (var i = 0; i < 5; i++) {
-    //     res = await master.testSubmitMiningSolution("nonce", vars["1"], [
-    //       1200,
-    //       1300,
-    //       1400,
-    //       1500,
-    //       1600,
-    //     ]);
-    //   }
-    //   res = web3.eth.abi.decodeParameters(
-    //     ["uint256[5]", "uint256", "uint256[5]", "uint256"],
-    //     res.logs["0"].data
-    //   );
-    //   balance1 = await master.balanceOf(accounts[2]);
-    //   await master.theLazyCoon(accounts[1], web3.utils.toWei("5000", "ether"));
-    //   dispBal1 = await master.balanceOf(accounts[1]);
-    //   await master.beginDispute(1, resVars[1], 2);
 
     //   count = await await master.getUintVar(
     //     web3.utils.keccak256("disputeCount")
@@ -538,153 +494,81 @@ contract("v2 Tests", function(accounts) {
     //   s = await master.getStakerInfo(accounts[2]);
     //   assert(s[0] == 1, " Staked");
     // });
-
-    // it("Test failed Dispute of different miner Indexes", async function() {
-    //   for (var i = 1; i < 5; i++) {
-    //     await takeFifteen();
-    //     vars = await master.getNewCurrentVariables();
-    //     for (var ii = 1; ii < 6; ii++) {
-    //       res = await master.testSubmitMiningSolution(
-    //         "nonce",
-    //         vars["1"],
-    //         [1200, 1300, 1400, 1500, 1600],
-    //         { from: accounts[ii] }
-    //       );
-    //     }
-    //     res = web3.eth.abi.decodeParameters(
-    //       ["uint256[5]", "uint256", "uint256[5]", "uint256"],
-    //       res.logs["0"].data
-    //     );
-    //     let miners = await master.getMinersByRequestIdAndTimestamp(
-    //       vars["1"][0],
-    //       res[1]
-    //     );
-    //     await master.beginDispute(vars["1"][0], res[1], i - 1);
-
-    //     let disputeVars = await master.getAllDisputeVars(i);
-    //     balance1 = await master.balanceOf(miners[i - 1]);
-    //     assert(disputeVars["4"] == miners[i - 1], "miner should be correct");
-    //     await master.vote(i, false, { from: accounts[i + 1] });
-
-    //     await helper.advanceTime(86400 * 7);
-    //     await master.tallyVotes(i);
-
-    //     await helper.advanceTime(86400 * 2);
-    //     await master.unlockDisputeFee(i, { from: accounts[0] });
-
-    //     assert((await master.isInDispute(vars["1"][0], res[1])) == false);
-    //     balance2 = await master.balanceOf(miners[i - 1]);
-    //     dispVars = await master.getAllDisputeVars(i);
-    //     assert(
-    //       web3.utils.fromWei(balance2) - web3.utils.fromWei(balance1) ==
-    //         web3.utils.fromWei(dispVars[7][8]),
-    //       "reported miner's balance should change correctly"
-    //     );
-    //     s = await master.getStakerInfo(miners[i - 1]);
-    //     assert(s[0] == 1, " Staked");
-    //   }
-    // });
   });
-  //   it("Test multiple dispute rounds -- proposed fork", async function() {
-  //     balance1 = await master.balanceOf(accounts[2]);
-  //     dispBal1 = await master.balanceOf(accounts[1]);
+  it("Test multiple dispute rounds -- proposed fork", async function() {
+    let master = await Tellor.new();
+    await master.proposeFork(master.address, { from: accounts[1] });
 
-  //     let master = await Tellor.new();
-  //     await master.proposeFork(master.address);
+    for (var i = 1; i < 5; i++) {
+      await master.theLazyCoon(accounts[i], web3.utils.toWei("1000", "ether"));
+      await master.vote(1, true, { from: accounts[i] });
+    }
+    await helper.advanceTime(86400 * 8);
+    await master.tallyVotes(1);
 
-  //     for (var i = 1; i < 5; i++) {
-  //       await master.vote(1, true, { from: accounts[i] });
-  //     }
-  //     await helper.advanceTime(86400 * 8);
-  //     await master.tallyVotes(1);
+    await helper.advanceTime(100);
+    dispInfo = await master.getAllDisputeVars(1);
+    assert(dispInfo[2] == true, "Dispute Vote passed");
+    assert(
+      (await master.getAddressVars(hash("tellorContract"))) != master.address
+    );
+    await master.proposeFork(master.address);
 
-  //     await helper.advanceTime(100);
-  //     dispInfo = await master.getAllDisputeVars(1);
-  //     assert(dispInfo[2] == true, "Dispute Vote passed");
-  //     assert(
-  //       (await master.getAddressVars(hash("tellorContract"))) != master.address
-  //     );
-  //     await master.proposeFork(master.address);
+    for (var i = 1; i < 5; i++) {
+      await master.vote(2, false, { from: accounts[i] });
+    }
+    await helper.advanceTime(86400 * 8);
+    await master.tallyVotes(2);
 
-  //     for (var i = 1; i < 5; i++) {
-  //       await master.vote(2, false, { from: accounts[i] });
-  //     }
-  //     await helper.advanceTime(86400 * 8);
-  //     await master.tallyVotes(2);
+    await helper.expectThrow(await master.updateTellor(1)); //try to withdraw
+    await helper.advanceTime(86400 * 8);
+    await helper.expectThrow(await master.updateTellor(2));
+    assert(
+      (await master.getAddressVars(hash("tellorContract"))) != master.address
+    );
+  });
+  it("Test allow tip of current mined ID", async function() {
+    vars = await master.getNewCurrentVariables();
+    await master.addTip(1, 10000);
 
-  //     await helper.expectThrow(await master.updateTellor(1)); //try to withdraw
-  //     await helper.advanceTime(86400 * 8);
-  //     await helper.expectThrow(await master.updateTellor(2));
-  //     assert(
-  //       (await master.getAddressVars(hash("tellorContract"))) != master.address
-  //     );
-  //   });
-  //   it("Test allow tip of current mined ID", async function() {
-  //     vars = await master.getNewCurrentVariables();
-  //     await master.addTip(1, 1000);
+    vars2 = await master.getNewCurrentVariables();
+    assert(vars2[3] - 10000 == vars[3], "tip should be big");
+  });
 
-  //     vars2 = await master.getNewCurrentVariables();
-  //     assert(vars2[3] - 10000 == vars[3], "tip should be big");
-  //   });
+  it("Test token fee burning", async function() {
+    await master.theLazyCoon(accounts[1], web3.utils.toWei("2000", "ether"));
 
-  //   it("Test token fee burning", async function() {
-  //     await master.theLazyCoon(accounts[1], web3.utils.toWei("2000", "ether"));
+    await master.addTip(1, web3.utils.toWei("1000", "ether"));
+    vars = await master.getNewCurrentVariables();
+    assert(vars[3] >= web3.utils.toWei("1000", "ether"), "tip should be big");
+    balances = [];
+    for (var i = 0; i < 6; i++) {
+      balances[i] = await master.balanceOf(accounts[i]);
+    }
+    initTotalSupply = await master.totalSupply();
+    await takeFifteen();
+    await TestLib.mineBlock(env);
+    new_balances = [];
+    for (var i = 0; i < 6; i++) {
+      new_balances[i] = await master.balanceOf(accounts[i]);
+    }
+    changes = [];
+    for (var i = 0; i < 6; i++) {
+      changes[i] = new_balances[i] - balances[i];
+    }
+    newTotalSupply = await master.totalSupply();
 
-  //     await master.addTip(1, web3.utils.toWei("1000", "ether"));
-  //     vars = await master.getNewCurrentVariables();
-  //     assert(vars[3] >= web3.utils.toWei("1000", "ether"), "tip should be big");
-  //     balances = [];
-  //     for (var i = 0; i < 6; i++) {
-  //       balances[i] = await master.balanceOf(accounts[i]);
-  //     }
-  //     initTotalSupply = await master.totalSupply();
-  //     await takeFifteen();
-  //     for (var i = 0; i < 5; i++) {
-  //       res = await master.testSubmitMiningSolution("nonce", vars["1"], [
-  //         1200,
-  //         1300,
-  //         1400,
-  //         1500,
-  //         1600,
-  //       ]);
-  //     }
-  //     new_balances = [];
-  //     for (var i = 0; i < 6; i++) {
-  //       new_balances[i] = await master.balanceOf(accounts[i]);
-  //     }
-  //     changes = [];
-  //     for (var i = 0; i < 6; i++) {
-  //       changes[i] = new_balances[i] - balances[i];
-  //     }
-  //     newTotalSupply = await master.totalSupply();
-  //     assert(changes[0] <= web3.utils.toWei("103.75", "ether"));
-  //     assert(changes[1] <= web3.utils.toWei("102.5", "ether"));
-  //     assert(changes[2] <= web3.utils.toWei("102.5", "ether"));
-  //     assert(changes[3] <= web3.utils.toWei("102.5", "ether"));
-  //     assert(changes[4] <= web3.utils.toWei("102.5", "ether"));
-  //     assert(
-  //       initTotalSupply - newTotalSupply > web3.utils.toWei("480", "ether"),
-  //       "total supply should drop significatntly"
-  //     );
-  //   });
+    assert(changes[0] <= web3.utils.toWei("107.58", "ether"));
+    assert(changes[1] <= web3.utils.toWei("105.72", "ether"));
+    assert(changes[2] <= web3.utils.toWei("105.72", "ether"));
+    assert(changes[3] <= web3.utils.toWei("105.72", "ether"));
+    assert(changes[4] <= web3.utils.toWei("105.72", "ether"));
+    assert(
+      initTotalSupply - newTotalSupply > web3.utils.toWei("479", "ether"),
+      "total supply should drop significatntly"
+    );
+  });
 
-  //   it("Test automatic pulling of top ID's (the last ones)", async function() {
-  //     let vars = await master.getNewCurrentVariables();
-  //     await takeFifteen();
-  //     for (var i = 0; i < 5; i++) {
-  //       res = await master.testSubmitMiningSolution("nonce", vars["1"], [
-  //         1200,
-  //         1300,
-  //         1400,
-  //         1500,
-  //         1600,
-  //       ]);
-  //     }
-  //     vars = await master.getNewCurrentVariables();
-  //     for (var i = 0; i < 5; i++) {
-  //       assert(vars[1][i] == 5 - i);
-  //     }
-  //   });
   it("Test add tip on very far out API id (or on a tblock id?)", async function() {
     await helper.expectThrow(master.addTip(web3.utils.toWei("1"), 1));
     await helper.expectThrow(master.addTip(66, 2000));
@@ -701,17 +585,9 @@ contract("v2 Tests", function(accounts) {
 
     console.log("Here");
     await helper.advanceTime(60 * 60 * 16);
+    await TestLib.mineBlock(env);
     vars = await master.getNewCurrentVariables();
-    for (var i = 0; i < 5; i++) {
-      res = await master.testSubmitMiningSolution("nonce", vars["1"], [
-        1200,
-        1300,
-        1400,
-        1500,
-        1600,
-      ]);
-    }
-    vars = await master.getLastNewValue();
+    // vars = await master.getLastNewValue();
     assert(vars[0] > 0);
   });
   it("Test Proper zeroing of Payout Test", async function() {
@@ -727,14 +603,10 @@ contract("v2 Tests", function(accounts) {
     await master.theLazyCoon(accounts[1], web3.utils.toWei("500", "ether"));
     await takeFifteen();
     let res = await TestLib.mineBlock(env);
-    res = web3.eth.abi.decodeParameters(
-      ["uint256[5]", "uint256", "uint256[5]", "uint256"],
-      res.logs["1"].data
-    );
     await master.theLazyCoon(accounts[1], web3.utils.toWei("5000", "ether"));
-    balance1 = await master.balanceOf(accounts[2]);
-    dispBal1 = await master.balanceOf(accounts[1]);
-    await master.beginDispute(1, res[1], 2);
+    let balance1 = await master.balanceOf(accounts[2]);
+    let dispBal1 = await master.balanceOf(accounts[1]);
+    await startADispute(accounts[1]);
 
     count = await master.getUintVar(web3.utils.keccak256("disputeCount"));
     //vote 1 passes
@@ -750,13 +622,13 @@ contract("v2 Tests", function(accounts) {
       "account 2 should be the disputed miner"
     );
     assert(dispInfo[2] == true, "Dispute Vote passed");
-    assert(web3.utils.fromWei(dispInfo[7][8]) == 1000, "fee should be correct");
+    assert(web3.utils.fromWei(dispInfo[7][8]) == 500, "fee should be correct");
     //vote 2 - fails
     await master.theLazyCoon(accounts[6], web3.utils.toWei("5000", "ether"));
-    await master.beginDispute(1, res[1], 2);
+    await startADispute(accounts[1]);
 
     count = await master.getUintVar(web3.utils.keccak256("disputeCount"));
-    await master.vote(2, true, { from: accounts[6] });
+    await master.vote(2, true, { from: accounts[4] });
     await master.vote(2, true, { from: accounts[6] });
 
     await helper.advanceTime(86400 * 5);
@@ -772,38 +644,31 @@ contract("v2 Tests", function(accounts) {
 
     dispInfo = await master.getAllDisputeVars(1);
     assert(dispInfo[2] == true, "Dispute Vote passed");
-    balance2 = await master.balanceOf(accounts[2]);
-    dispBal2 = await master.balanceOf(accounts[1]);
+    let balance2 = await master.balanceOf(accounts[2]);
+    let dispBal2 = await master.balanceOf(accounts[1]);
     assert(
-      balance1 - balance2 == web3.utils.toWei("1000"),
+      balance1 - balance2 == web3.utils.toWei("500"),
       "reported miner's balance should change correctly"
     );
     assert(
-      dispBal2 - dispBal1 == web3.utils.toWei("1000"),
+      dispBal2 - dispBal1 == web3.utils.toWei("500"),
       "disputing party's balance should change correctly"
     );
   });
   it("Test multiple dispute rounds, assure increasing per dispute round (nonZero)", async function() {
     await master.theLazyCoon(accounts[1], web3.utils.toWei("500", "ether"));
     await takeFifteen();
-    for (var i = 0; i < 5; i++) {
-      res = await master.testSubmitMiningSolution("nonce", vars["1"], [
-        1200,
-        1300,
-        1400,
-        1500,
-        1600,
-      ]);
-    }
-    res = web3.eth.abi.decodeParameters(
-      ["uint256[5]", "uint256", "uint256[5]", "uint256"],
-      res.logs["1"].data
-    );
+    res = await TestLib.mineBlock(env);
+    // console.log(res);
+    // res = web3.eth.abi.decodeParameters(
+    //   ["uint256[5]", "uint256", "uint256[5]", "uint256"],
+    //   res.logs["1"].data
+    // );
     await master.theLazyCoon(accounts[1], web3.utils.toWei("5000", "ether"));
 
-    balance1 = await master.balanceOf(accounts[3]);
-    dispBal1 = await master.balanceOf(accounts[1]);
-    await master.beginDispute(1, res[1], 3);
+    let balance1 = await master.balanceOf(accounts[3]);
+    let dispBal1 = await master.balanceOf(accounts[1]);
+    await startADispute(accounts[1], 1, 3);
 
     count = await master.getUintVar(web3.utils.keccak256("disputeCount"));
     //vote 1 passes
@@ -819,17 +684,13 @@ contract("v2 Tests", function(accounts) {
       "account 2 should be the disputed miner"
     );
     assert(dispInfo[2] == true, "Dispute Vote passed");
-    assert(web3.utils.fromWei(dispInfo[7][8]) == 970, "fee should be correct");
+    assert(web3.utils.fromWei(dispInfo[7][8]) == 500, "fee should be correct");
     //vote 2 - fails
     await master.theLazyCoon(accounts[6], web3.utils.toWei("5000", "ether"));
-    await master.beginDispute(1, res[1], 2);
+    await startADispute(accounts[0], 1, 2);
 
     count = await master.getUintVar(web3.utils.keccak256("disputeCount"));
-    await master.vote(2, true, {
-      to: master.address,
-      from: accounts[6],
-      gas: 7000000,
-    });
+    await master.vote(2, true, { from: accounts[6] });
     await master.vote(2, true, { from: accounts[4] });
 
     await helper.advanceTime(86400 * 5);
@@ -838,7 +699,7 @@ contract("v2 Tests", function(accounts) {
     dispInfo = await master.getAllDisputeVars(2);
     assert(dispInfo[2] == true, "Dispute Vote passes again");
     assert(
-      web3.utils.fromWei(dispInfo[7][8]) == 970 * 2,
+      web3.utils.fromWei(dispInfo[7][8]) == 500 * 2,
       "fee should be correct"
     );
     await helper.advanceTime(86400 * 2);
@@ -848,14 +709,17 @@ contract("v2 Tests", function(accounts) {
 
     dispInfo = await master.getAllDisputeVars(1);
     assert(dispInfo[2] == true, "Dispute Vote passed");
-    balance2 = await master.balanceOf(accounts[3]);
-    dispBal2 = await master.balanceOf(accounts[1]);
+    let balance2 = await master.balanceOf(accounts[3]);
+    let dispBal2 = await master.balanceOf(accounts[1]);
+
     assert(
-      balance1 - balance2 == web3.utils.toWei("1000"),
+      balance1 - balance2 == web3.utils.toWei("500"),
       "reported miner's balance should change correctly"
     );
-    assert(
-      dispBal2 - dispBal1 == web3.utils.toWei("1000"),
+    console.log(dispBal2.sub(dispBal1).toString());
+    assert.equal(
+      dispBal2.sub(dispBal1).toString(),
+      web3.utils.toWei("500"),
       "disputing party's balance should change correctly"
     );
   });
