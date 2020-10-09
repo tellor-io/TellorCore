@@ -22,7 +22,7 @@ async function mineBlock(env) {
       }
     }
     try {
-      res = await env.master.submitMiningSolution(
+      res = await env.master.testSubmitMiningSolution(
         "nonce",
         vars["1"],
         [1200, 1300, 1400, 1500, 1600],
@@ -36,7 +36,6 @@ async function mineBlock(env) {
         assert.isTrue(false, "Couldn't mine a block");
       }
     }
-
     if (miners == 5) {
       break;
     }
