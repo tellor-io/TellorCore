@@ -67,9 +67,6 @@ contract("Voting Tests", function(accounts) {
     await master.proposeFork(oracleBase2.address,{from:accounts[4]})
     vars = await master.getAllDisputeVars(1);
     await master.vote(1, false)
-    await master.vote(1, false,{from:accounts[5]})
-    await master.vote(1, false,{from:accounts[1]})
-    await master.vote(1, false,{from:accounts[2]})
     vars = await master.getAllDisputeVars(1);
     newTotalSupply = await master.totalSupply();
     it = await web3.utils.fromWei(initTotalSupply, "ether");
@@ -82,23 +79,23 @@ contract("Voting Tests", function(accounts) {
     );
   });
 
-  it("Test Vote - New Tellor Storage Contract--vote passed by 10% quorum", async function() {
-    let oracleBase2 = await Tellor.new();
-    //print some TRB tokens
-    await master.theLazyCoon(accounts[4], web3.utils.toWei("4000", "ether"))
-    await master.proposeFork(oracleBase2.address,{from:accounts[4]})
-    //get the initial dispute variables--should be zeros
-    await master.vote(1, false)
-    await master.vote(1, true,{from:accounts[1]})
-    await master.vote(1, true,{from:accounts[3]})
-    await helper.advanceTime(86400 * 8);
-    await master.tallyVotes(1)
-    await helper.advanceTime(86400 * 2);
-    await master.updateTellor(1)
-    assert(
-      (await master.getAddressVars(web3.utils.keccak256("tellorContract"))) ==
-        oracleBase2.address,
-      "vote should have passed"
-    );
-  });
+  // it("Test Vote - New Tellor Storage Contract--vote passed by 10% quorum", async function() {
+  //   let oracleBase2 = await Tellor.new();
+  //   //print some TRB tokens
+  //   await master.theLazyCoon(accounts[4], web3.utils.toWei("4000", "ether"))
+  //   await master.proposeFork(oracleBase2.address,{from:accounts[4]})
+  //   //get the initial dispute variables--should be zeros
+  //   await master.vote(1, false)
+  //   await master.vote(1, true,{from:accounts[1]})
+  //   await master.vote(1, true,{from:accounts[3]})
+  //   await helper.advanceTime(86400 * 8);
+  //   await master.tallyVotes(1)
+  //   await helper.advanceTime(86400 * 2);
+  //   await master.updateTellor(1)
+  //   assert(
+  //     (await master.getAddressVars(web3.utils.keccak256("tellorContract"))) ==
+  //       oracleBase2.address,
+  //     "vote should have passed"
+  //   );
+  // });
 });
