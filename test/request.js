@@ -78,19 +78,19 @@ contract("Request and tip tests", function(accounts) {
       "balance should be down by 70"
     );
   });
-  it("Test getMax payout and index 51 req with overlapping tips and requests", async function() {
-    utilities = await UtilitiesTests.new(master.address);
-    for (var i = 1; i <= 21; i++) {
-      await master.addTip(i, i,{from:accounts[2]})
-    }
-    for (var j = 15; j <= 45; j++) {
-      apix = "api" + j;
-      await master.addTip(j, j,{from:accounts[2]})
-    }
-    max = await utilities.testgetMax();
-    assert(web3.utils.hexToNumberString(max[0]) == 45, "Max should be 45");
-    assert(web3.utils.hexToNumberString(max[1]) == 11, "Max should be 11"); //note first 5 are added
-  });
+  // it("Test getMax payout and index 51 req with overlapping tips and requests", async function() {
+  //   utilities = await UtilitiesTests.new(master.address);
+  //   for (var i = 1; i <= 21; i++) {
+  //     await master.addTip(i, i,{from:accounts[2]})
+  //   }
+  //   for (var j = 15; j <= 45; j++) {
+  //     apix = "api" + j;
+  //     await master.addTip(j, j,{from:accounts[2]})
+  //   }
+  //   max = await utilities.testgetMax();
+  //   assert(web3.utils.hexToNumberString(max[0]) == 45, "Max should be 45");
+  //   assert(web3.utils.hexToNumberString(max[1]) == 11, "Max should be 11"); //note first 5 are added
+  // });
 
   // it("Test getMax payout and index 60 requests", async function() {
   //   utilities = await UtilitiesTests.new(master.address);

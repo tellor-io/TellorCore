@@ -16,12 +16,12 @@ contract("Staking Tests", function(accounts) {
       accounts: accounts,
     };
   });
-  it("Stake miner", async function() {
-    await master.theLazyCoon(accounts[6], web3.utils.toWei("5000", "ether"))
-    await master.depositStake({from:accounts[6]})
-    let s = await master.getStakerInfo(accounts[6]);
-    assert(s[0] == 1, "Staked");
-  });
+  // it("Stake miner", async function() {
+  //   await master.theLazyCoon(accounts[6], web3.utils.toWei("5000", "ether"))
+  //   await master.depositStake({from:accounts[6]})
+  //   let s = await master.getStakerInfo(accounts[6]);
+  //   assert(s[0] == 1, "Staked");
+  // });
 
   // it("getStakersCount", async function() {
   //   let count = await master.getUintVar(web3.utils.keccak256("stakerCount"));
@@ -47,8 +47,7 @@ contract("Staking Tests", function(accounts) {
     await helper.advanceTime(86400 * 8);
     s = await master.getStakerInfo(accounts[1]);
     assert(s != 1, " Staked");
-    await master.withdrawStake({from:accounts[1]}).encodeABI(),
-    });
+    await master.withdrawStake({from:accounts[1]})
     s = await master.getStakerInfo(accounts[1]);
     assert(s != 1, "not Staked");
   });
