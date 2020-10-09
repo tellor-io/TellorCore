@@ -18,7 +18,7 @@ contract("Staking Tests", function(accounts) {
   });
   it("Stake miner", async function() {
     await master.theLazyCoon(accounts[6], web3.utils.toWei("5000", "ether"))
-    await master.methods.depositStake({from:accounts[6]})
+    await master.depositStake({from:accounts[6]})
     let s = await master.getStakerInfo(accounts[6]);
     assert(s[0] == 1, "Staked");
   });
@@ -47,11 +47,7 @@ contract("Staking Tests", function(accounts) {
     await helper.advanceTime(86400 * 8);
     s = await master.getStakerInfo(accounts[1]);
     assert(s != 1, " Staked");
-    await web3.eth.sendTransaction({
-      to: master.address,
-      from: accounts[1],
-      gas: 7000000,
-      data: master2.methods.withdrawStake().encodeABI(),
+    await master.withdrawStake({from:accounts[1]}).encodeABI(),
     });
     s = await master.getStakerInfo(accounts[1]);
     assert(s != 1, "not Staked");
@@ -61,7 +57,7 @@ contract("Staking Tests", function(accounts) {
     await master.transfer(accounts[8], web3.utils.toWei("500"),{from:accounts[1]})
     var tokens = web3.utils.toWei("2", "ether");
     var tokens2 = web3.utils.toWei("30", "ether");
-    await master.methods.transfer(accounts[1], tokens,{from:accounts[2]})
+    await master.transfer(accounts[1], tokens,{from:accounts[2]})
     balance1 = await master.balanceOf(accounts[1])
     await master.approve(accounts[6], tokens2,{from:accounts[1]})
     await helper.expectThrow(
