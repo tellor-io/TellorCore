@@ -291,94 +291,80 @@ contract("v2 Tests", function(accounts) {
       );
     });
 
-    // it("Test multiple dispute to the same miner", async function() {
-    //   await master.theLazyCoon(accounts[0], web3.utils.toWei("5000", "ether"));
-    //   await master.theLazyCoon(accounts[2], web3.utils.toWei("5000", "ether"));
-    //   await master.theLazyCoon(accounts[4], web3.utils.toWei("5000", "ether"));
+    it("Test multiple dispute to the same miner", async function() {
+      for (j = 0; j < 5; j++) {
+        await master.theLazyCoon(
+          accounts[0],
+          web3.utils.toWei("5000", "ether")
+        );
+        await master.theLazyCoon(
+          accounts[1],
+          web3.utils.toWei("5000", "ether")
+        );
+        await master.theLazyCoon(
+          accounts[4],
+          web3.utils.toWei("5000", "ether")
+        );
+        await master.addTip(1, 1000);
+        await takeFifteen();
+        let res = await TestLib.mineBlock(env);
+        await startADispute(accounts[1], 1, 1);
+      }
 
-    //   resVars = [];
-    //   for (j = 0; j < 5; j++) {
-    //     await master.addTip(1, 1000);
-    //     vars = await master.getNewCurrentVariables();
-    //     for (var i = 0; i < 5; i++) {
-    //       res = await master.testSubmitMiningSolution("nonce", vars["1"], [
-    //         1200,
-    //         1300,
-    //         1400,
-    //         1500,
-    //         1600,
-    //       ]);
-    //     }
-    //     resVars[j] = web3.eth.abi.decodeParameters(
-    //       ["uint256[5]", "uint256", "uint256[5]", "uint256"],
-    //       res.logs["0"].data
-    //     );
-    //     await helper.advanceTime(1000);
-    //   }
-    //   balance1 = await master.balanceOf(accounts[1]);
-    //   dispBal1 = await master.balanceOf(accounts[2]);
-    //   orig_dispBal4 = await master.balanceOf(accounts[4]);
-    //   //1st dispute to miner
-    //   await master.beginDispute(1, resVars[0][1], 1);
+      await takeFifteen();
+      await TestLib.mineBlock(env);
+      let balance1 = await master.balanceOf(accounts[2]);
+      let dispBal1 = await master.balanceOf(accounts[1]);
+      orig_dispBal4 = await master.balanceOf(accounts[4]);
+      //dispute votes and tally
+      await master.vote(1, true, { from: accounts[3] });
+      await master.vote(2, true, { from: accounts[3] });
+      await master.vote(3, true, { from: accounts[3] });
 
-    //   count = await master.getUintVar(web3.utils.keccak256("disputeCount"));
-    //   await master.beginDispute(1, resVars[2][1], 1);
+      await helper.advanceTime(86400 * 22);
+      await master.tallyVotes(1);
+      await master.tallyVotes(2);
+      await master.tallyVotes(3);
+      await helper.advanceTime(86400 * 2);
+      await master.unlockDisputeFee(1, { from: accounts[0] });
+      await master.unlockDisputeFee(2, { from: accounts[0] });
+      await master.unlockDisputeFee(3, { from: accounts[0] });
 
-    //   count2 = await master.getUintVar(web3.utils.keccak256("disputeCount"));
+      dispInfo = await master.getAllDisputeVars(1);
+      assert(dispInfo[7][0] == 1);
+      assert(dispInfo[7][1] == resVars[0][1]);
+      assert(dispInfo[7][2] == 1200);
+      assert(dispInfo[2] == true, "Dispute Vote passed");
+      voted = await master.didVote(1, accounts[3]);
+      assert(voted == true, "account 3 voted");
+      voted = await master.didVote(1, accounts[5]);
+      assert(voted == false, "account 5 did not vote");
+      apid2valueF = await master.retrieveData(1, resVars[0][1]);
+      assert(
+        apid2valueF * 1 > 0,
+        "value should not be zero since the disputed miner index is not 2/official value this checks updateDisputeValue-internal fx  works"
+      );
 
-    //   //3rd dispute to same miner
-    //   await master.beginDispute(1, resVars[4][1], 1);
-
-    //   count2 = await master.getUintVar(web3.utils.keccak256("disputeCount"));
-    //   //dispute votes and tally
-    //   await master.vote(1, true, { from: accounts[3] });
-    //   await master.vote(2, true, { from: accounts[3] });
-    //   await master.vote(3, true, { from: accounts[3] });
-
-    //   await helper.advanceTime(86400 * 22);
-    //   await master.tallyVotes(1);
-    //   await master.tallyVotes(2);
-    //   await master.tallyVotes(3);
-    //   await helper.advanceTime(86400 * 2);
-    //   await master.unlockDisputeFee(1, { from: accounts[0] });
-    //   await master.unlockDisputeFee(2, { from: accounts[0] });
-    //   await master.unlockDisputeFee(3, { from: accounts[0] });
-
-    //   dispInfo = await master.getAllDisputeVars(1);
-    //   assert(dispInfo[7][0] == 1);
-    //   assert(dispInfo[7][1] == resVars[0][1]);
-    //   assert(dispInfo[7][2] == 1200);
-    //   assert(dispInfo[2] == true, "Dispute Vote passed");
-    //   voted = await master.didVote(1, accounts[3]);
-    //   assert(voted == true, "account 3 voted");
-    //   voted = await master.didVote(1, accounts[5]);
-    //   assert(voted == false, "account 5 did not vote");
-    //   apid2valueF = await master.retrieveData(1, resVars[0][1]);
-    //   assert(
-    //     apid2valueF * 1 > 0,
-    //     "value should not be zero since the disputed miner index is not 2/official value this checks updateDisputeValue-internal fx  works"
-    //   );
-
-    //   //checks balances after dispute 1
-    //   balance2 = await master.balanceOf(accounts[1]);
-    //   dispBal2 = await master.balanceOf(accounts[2]);
-    //   assert(
-    //     web3.utils.fromWei(balance1) - web3.utils.fromWei(balance2) > 499,
-    //     "reported miner's balance should change correctly"
-    //   );
-    //   assert(
-    //     web3.utils.fromWei(balance1) - web3.utils.fromWei(balance2) < 501,
-    //     "reported miner's balance should change correctly"
-    //   );
-    //   assert(
-    //     web3.utils.fromWei(dispBal2) - web3.utils.fromWei(dispBal1) == 500,
-    //     "disputing party's balance should change correctly"
-    //   );
-    //   s = await master.getStakerInfo(accounts[1]);
-    //   assert(s != 1, " Not staked");
-    //   dispBal4 = await master.balanceOf(accounts[4]);
-    //   assert(dispBal4 - orig_dispBal4 == 0, "a4 shouldn't change'");
-    // });
+      //checks balances after dispute 1
+      balance2 = await master.balanceOf(accounts[1]);
+      dispBal2 = await master.balanceOf(accounts[2]);
+      assert(
+        web3.utils.fromWei(balance1) - web3.utils.fromWei(balance2) > 499,
+        "reported miner's balance should change correctly"
+      );
+      assert(
+        web3.utils.fromWei(balance1) - web3.utils.fromWei(balance2) < 501,
+        "reported miner's balance should change correctly"
+      );
+      assert(
+        web3.utils.fromWei(dispBal2) - web3.utils.fromWei(dispBal1) == 500,
+        "disputing party's balance should change correctly"
+      );
+      s = await master.getStakerInfo(accounts[1]);
+      assert(s != 1, " Not staked");
+      dispBal4 = await master.balanceOf(accounts[4]);
+      assert(dispBal4 - orig_dispBal4 == 0, "a4 shouldn't change'");
+    });
 
     it("Test multiple dispute to official value/miner index 2", async function() {
       //   resVars = [];
@@ -401,6 +387,7 @@ contract("v2 Tests", function(accounts) {
         await startADispute(accounts[1]);
       }
 
+      await takeFifteen();
       await TestLib.mineBlock(env);
       let balance1 = await master.balanceOf(accounts[2]);
       let dispBal1 = await master.balanceOf(accounts[1]);

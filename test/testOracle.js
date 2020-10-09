@@ -48,13 +48,14 @@ contract("Mining Tests", function(accounts) {
   });
 
   it("getVariables", async function() {
+    await master.addTip(1, 20);
     let vars = await master.getNewCurrentVariables();
     assert(vars["1"].length == 5, "ids should be populated");
     assert(vars["2"] > 0, "difficulty should be correct");
     assert(vars["3"] > 0, "tip should be correct");
   });
   it("getTopRequestIDs", async function() {
-    vars = await master.methods.getTopRequestIDs();
+    vars = await master.getTopRequestIDs();
     for (var i = 0; i < 5; i++) {
       assert((vars[0] = i + 6));
     }
@@ -84,6 +85,7 @@ contract("Mining Tests", function(accounts) {
     let requestValues = [[], [], [], [], []];
     let minersByVal = { 0: {}, 1: {}, 2: {}, 3: {}, 4: {} };
 
+    let timestamps = [];
     for (var i = 0; i < 5; i++) {
       //Getting a random number
       let vals = [];
@@ -93,24 +95,30 @@ contract("Mining Tests", function(accounts) {
         requestValues[j].push(prices[rd]);
         minersByVal[j][accounts[i]] = prices[rd];
       }
-      res = await master.testSubmitMiningSolution(
-        "nonce",
-        [1, 2, 3, 4, 5],
-        vals,
-        { from: accounts[i] }
+      await master.testSubmitMiningSolution("nonce", [1, 2, 3, 4, 5], vals, {
+        from: accounts[i],
+      });
+      let count = await master.getNewValueCountbyRequestId(1);
+      let timestamp = await master.getTimestampbyRequestIDandIndex(
+        1,
+        count.toNumber() - 1
       );
+      timestamps.push(timestamp);
     }
-    console.log(res.logs);
-    console.log(res.logs["1"].data);
-    res = web3.eth.abi.decodeParameters(
-      ["uint256[5]", "uint256", "uint256[5]", "uint256"],
-      res.logs["0"].data
-    );
+    // console.log(res.logs);
+    // console.log(res.logs["1"].data);
+    // res = web3.eth.abi.decodeParameters(
+    //   ["uint256[5]", "uint256", "uint256[5]", "uint256"],
+    //   res.logs["0"].data
+    // );
 
     for (var i = 0; i < 5; i++) {
       let sortReq = requestValues[i].sort();
-      var values = await master.getSubmissionsByTimestamp(i + 1, res[1]);
-      var miners = await master.getMinersByRequestIdAndTimestamp(i + 1, res[1]);
+      var values = await master.getSubmissionsByTimestamp(i + 1, timestamps[i]);
+      var miners = await master.getMinersByRequestIdAndTimestamp(
+        i + 1,
+        timestamps[i]
+      );
       for (var j = 0; j < 5; j++) {
         assert(
           minersByVal[i.toString()][miners[j]] == values[j].toNumber(),
@@ -146,6 +154,8 @@ contract("Mining Tests", function(accounts) {
 
     await master.addTip(30, 1000, { from: accounts[2] });
 
+    await helper.advanceTime(60 * 60 * 16);
+    await TestLib.mineBlock(env);
     let data = await master.getNewVariablesOnDeck();
     assert(data[0].includes("30"), "ID on deck should be 30");
     console.log(data[0]);
@@ -155,7 +165,7 @@ contract("Mining Tests", function(accounts) {
 
     await master.addTip(31, 2000);
 
-    data = await master.methods.getNewVariablesOnDeck();
+    data = await master.getNewVariablesOnDeck();
     var x = 0;
     for (var i = 0; i < 5; i++) {
       if (data[0][i] == 30) {
@@ -181,9 +191,9 @@ contract("Mining Tests", function(accounts) {
     var oldDiff = vars[2];
     assert(vars[2] > 1, "difficulty should be greater than 1"); //difficulty not changing.....
     await helper.advanceTime(86400 * 20);
-    vars = await mastergetNewCurrentVariables();
+    vars = await master.getNewCurrentVariables();
     await helper.advanceTime(60 * 60 * 16);
-    await TestLib.mineBlock();
+    await TestLib.mineBlock(env);
 
     vars = await master.getNewCurrentVariables();
     var newDiff = vars[2];
@@ -205,6 +215,7 @@ contract("Mining Tests", function(accounts) {
     var oldDiff = vars[2];
     assert(vars[2] > 1, "difficulty should be greater than 1"); //difficulty not changing.....
     await helper.advanceTime(86400 * 20);
+    await TestLib.mineBlock(env);
     vars = await master.getNewCurrentVariables();
     await helper.advanceTime(60 * 60 * 16);
     await TestLib.mineBlock(env);
@@ -230,12 +241,16 @@ contract("Mining Tests", function(accounts) {
     vars = await master.getNewCurrentVariables();
     await TestLib.mineBlock(env);
     await helper.advanceTime(60 * 60 * 16);
-    res = web3.eth.abi.decodeParameters(
-      ["uint256[5]", "uint256", "uint256[5]", "uint256"],
-      res.logs["0"].data
+    // res = web3.eth.abi.decodeParameters(
+    //   ["uint256[5]", "uint256", "uint256[5]", "uint256"],
+    //   res.logs["0"].data
+    // );
+    let count = await master.getNewValueCountbyRequestId(1);
+    let timestamp = await master.getTimestampbyRequestIDandIndex(
+      1,
+      count.toNumber() - 1
     );
-    console.log(res);
-    data = await master.getMinedBlockNum(vars["1"][0], res[1]);
+    data = await master.getMinedBlockNum(1, timestamp);
     console.log("data1", data * 1);
     assert(data * 1 > 0, "Should be true if Data exist for that point in time");
     for (var i = 11; i <= 20; i++) {
@@ -301,7 +316,7 @@ contract("Mining Tests", function(accounts) {
     assert(data * 1 > 0, "Should be true if Data exist for that point in time");
     apiVars = await master.getRequestVars(52);
     apiIdforpayoutPoolIndex = await master.getRequestIdByRequestQIndex(50);
-    vars = await master.methods.getNewVariablesOnDeck();
+    vars = await master.getNewVariablesOnDeck();
     let apiOnQ = vars["0"];
     apiIdforpayoutPoolIndex2 = await master.getRequestIdByRequestQIndex(49);
     assert(apiIdforpayoutPoolIndex == 1, "position 1 should be booted");
