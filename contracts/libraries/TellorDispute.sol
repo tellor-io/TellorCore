@@ -111,9 +111,7 @@ library TellorDispute {
             _request.inDispute[_timestamp] = true;
             _request.finalValues[_timestamp] = 0;
         }
-        if (self.stakerDetails[_miner].currentStatus != 4){
-            self.stakerDetails[_miner].currentStatus = 3;
-        }
+        self.stakerDetails[_miner].currentStatus = 3;
         emit NewDispute(disputeId, _requestId, _timestamp, _miner);
     }
 

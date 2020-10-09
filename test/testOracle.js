@@ -1,3 +1,4 @@
+
 const Web3 = require("web3");
 const web3 = new Web3(
   new Web3.providers.WebsocketProvider("ws://localhost:8545")
@@ -13,9 +14,10 @@ var OldTellor = artifacts.require("./oldContracts/OldTellor.sol");
 var oldTellorABI = OldTellor.abi;
 var UtilitiesTests = artifacts.require("./UtilitiesTests.sol");
 
-var masterAbi = TellorMaster.abi;
-var api = "json(https://api.gdax.com/products/BTC-USD/ticker).price";
-var api2 = "json(https://api.gdax.com/products/ETH-USD/ticker).price";
+
+// var masterAbi = TellorMaster.abi;
+// var api = "json(https://api.gdax.com/products/BTC-USD/ticker).price";
+// var api2 = "json(https://api.gdax.com/products/ETH-USD/ticker).price";
 
 //Hardcoded adress because they need to be known when the TransitionCOntract is compiled
 const baseAdd = "0x6511D2957aa09350494f892Ce2881851f0bb26D3";
@@ -326,3 +328,4 @@ contract("Mining Tests", function(accounts) {
     assert(apiIdforpayoutPoolIndex2 == 3, "position 2 should be in same place");
   });
 });
+

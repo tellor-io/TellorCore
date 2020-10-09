@@ -1,20 +1,24 @@
-// const Web3 = require("web3");
-// const web3 = new Web3(
-//   new Web3.providers.WebsocketProvider("ws://localhost:8545")
-// );
-// const TellorMaster = artifacts.require("./TellorMaster.sol");
-// var OldTellor = artifacts.require("./oldContracts/OldTellor.sol");
 // var UtilitiesTests = artifacts.require("./UtilitiesTests.sol");
+// const Tellor = artifacts.require("./TellorTest.sol"); // globally injected artifacts helper
+// var masterAbi = Tellor.abi;
+// const TestLib = require("./helpers/testLib");
+// const helper = require("./helpers/test_helpers");
 
 // contract("Utilities Tests", function(accounts) {
 //   let oracle;
 //   let oldTellor;
 //   let utilities;
+//   let master;
+//   let env;
 
 //   beforeEach("Setup contract for each test", async function() {
-//     oldTellor = await OldTellor.new();
-//     oracle = await TellorMaster.new(oldTellor.address);
-//     utilities = await UtilitiesTests.new(oracle.address);
+//     //Could use the getV25(accounts, true), since you're upgrading in the first line of tests. I added full tips to getV25 in testLib already
+//     master = await TestLib.getV25Empty(accounts, true);
+//     env = {
+//       master: master,
+//       accounts: accounts,
+//     };
+//     utilities = await UtilitiesTests.new(master.address);
 //   });
 //   it("Test possible duplicates on top Requests", async function() {
 //     const testGetMax = async () => {
