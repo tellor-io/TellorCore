@@ -26,7 +26,7 @@ contract("Voting Tests", function(accounts) {
     await helper.advanceTime(86400 * 8);
     await master.tallyVotes(1,{from:accounts[5]})
     await helper.advanceTime(86400 * 2);
-    await master2.updateTellor(1)
+    await master.updateTellor(1)
     assert(
       (await master.getAddressVars(web3.utils.keccak256("tellorContract"))) ==
         oracleBase2.address
@@ -34,7 +34,7 @@ contract("Voting Tests", function(accounts) {
   });
   it("Test Failed Vote - New Tellor Storage Contract", async function() {
     let oracleBase2 = await Tellor.new();
-    await master2.theLazyCoon(accounts[2], web3.utils.toWei("5000", "ether"))
+    await master.theLazyCoon(accounts[2], web3.utils.toWei("5000", "ether"))
     await  master.proposeFork(oracleBase2.address,{from:accounts[2]})
     for (var i = 1; i < 5; i++) {
       await master.vote(1, false,{from:accounts[i]})
@@ -89,8 +89,8 @@ contract("Voting Tests", function(accounts) {
     await master.proposeFork(oracleBase2.address,{from:accounts[4]})
     //get the initial dispute variables--should be zeros
     await master.vote(1, false)
-    await master.vote(1, true,{accounts[1]})
-    await master.vote(1, true,{accounts[3]})
+    await master.vote(1, true,{from:accounts[1]})
+    await master.vote(1, true,{from:accounts[3]})
     await helper.advanceTime(86400 * 8);
     await master.tallyVotes(1)
     await helper.advanceTime(86400 * 2);
