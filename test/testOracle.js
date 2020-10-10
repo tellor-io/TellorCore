@@ -29,104 +29,106 @@ contract("Mining Tests", function(accounts) {
     };
   });
 
-  it("test utilities", async function() {
-    var myArr = [];
-    for (var i = 50; i >= 0; i--) {
-      myArr.push(i);
-    }
-    utilities = await UtilitiesTests.new(master.address);
-    top5N = await utilities.testgetMax5(myArr);
-    let q = await master.getRequestQ();
-    for (var i = 0; i < 5; i++) {
-      assert(top5N["_max"][i] == myArr[i + 1]);
-      assert(top5N["_index"][i] == i + 1);
-    }
-  });
+  // it("test utilities", async function() {
+  //   var myArr = [];
+  //   for (var i = 50; i >= 0; i--) {
+  //     myArr.push(i);
+  //   }
+  //   utilities = await UtilitiesTests.new(master.address);
+  //   top5N = await utilities.testgetMax5(myArr);
+  //   let q = await master.getRequestQ();
+  //   for (var i = 0; i < 5; i++) {
+  //     assert(top5N["_max"][i] == myArr[i + 1]);
+  //     assert(top5N["_index"][i] == i + 1);
+  //   }
+  // });
 
-  it("getVariables", async function() {
-    await master.addTip(1, 20);
-    let vars = await master.getNewCurrentVariables();
-    assert(vars["1"].length == 5, "ids should be populated");
-    assert(vars["2"] > 0, "difficulty should be correct");
-    assert(vars["3"] > 0, "tip should be correct");
-  });
-  it("getTopRequestIDs", async function() {
-    vars = await master.getTopRequestIDs();
-    for (var i = 0; i < 5; i++) {
-      assert((vars[0] = i + 6));
-    }
-  });
-  it("Test miner", async function() {
-    await TestLib.mineBlock(env);
-    vars = await master.getLastNewValueById(5);
-    assert(vars[0] > 0, "value should be positive");
-    assert(vars[1] == true, "value should be there");
-  });
-  it("Test Difficulty Adjustment", async function() {
-    await TestLib.mineBlock(env);
+  // it("getVariables", async function() {
+  //   await master.addTip(1, 20);
+  //   let vars = await master.getNewCurrentVariables();
+  //   assert(vars["1"].length == 5, "ids should be populated");
+  //   assert(vars["2"] > 0, "difficulty should be correct");
+  //   assert(vars["3"] > 0, "tip should be correct");
+  // });
+  // it("getTopRequestIDs", async function() {
+  //   vars = await master.getTopRequestIDs();
+  //   for (var i = 0; i < 5; i++) {
+  //     assert((vars[0] = i + 6));
+  //   }
+  // });
+  // it("Test miner", async function() {
+  //   await TestLib.mineBlock(env);
+  //   vars = await master.getLastNewValueById(5);
+  //   assert(vars[0] > 0, "value should be positive");
+  //   assert(vars[1] == true, "value should be there");
+  // });
+  // it("Test Difficulty Adjustment", async function() {
+  //   await TestLib.mineBlock(env);
 
-    let diff1 = await master.getNewCurrentVariables();
-    assert(diff1[2] > 1, "difficulty greater than 1"); //difficulty not changing.....
-    let vars = await master.getNewCurrentVariables();
-    await helper.advanceTime(60 * 60 * 16);
-    await TestLib.mineBlock(env);
-    vars = await master.getNewCurrentVariables();
-    assert(vars[2] > diff1[2], "difficulty should continue to move up");
-  });
-  it("Test Get MinersbyValue ", async function() {
-    //Here we're testing with randomized values. This way, we can be sure that
-    //both the values and the miners are being properly sorted
-    let res;
-    let prices = [1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900];
-    let requestValues = [[], [], [], [], []];
-    let minersByVal = { 0: {}, 1: {}, 2: {}, 3: {}, 4: {} };
+  //   let diff1 = await master.getNewCurrentVariables();
+  //   assert(diff1[2] > 1, "difficulty greater than 1"); //difficulty not changing.....
+  //   let vars = await master.getNewCurrentVariables();
+  //   await helper.advanceTime(60 * 60 * 16);
+  //   await TestLib.mineBlock(env);
+  //   vars = await master.getNewCurrentVariables();
+  //   assert(vars[2] > diff1[2], "difficulty should continue to move up");
+  // });
+  // it("Test Get MinersbyValue ", async function() {
+  //   //Here we're testing with randomized values. This way, we can be sure that
+  //   //both the values and the miners are being properly sorted
+  //   let res;
+  //   let prices = [1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900];
+  //   let requestValues = [[], [], [], [], []];
+  //   let minersByVal = { 0: {}, 1: {}, 2: {}, 3: {}, 4: {} };
 
-    let timestamps = [];
-    for (var i = 0; i < 5; i++) {
-      //Getting a random number
-      let vals = [];
-      for (var j = 0; j < 5; j++) {
-        let rd = Math.floor(Math.random() * (7 - 0));
-        vals.push(prices[rd]);
-        requestValues[j].push(prices[rd]);
-        minersByVal[j][accounts[i]] = prices[rd];
-      }
-      await master.testSubmitMiningSolution("nonce", [1, 2, 3, 4, 5], vals, {
-        from: accounts[i],
-      });
-      let count = await master.getNewValueCountbyRequestId(1);
-      let timestamp = await master.getTimestampbyRequestIDandIndex(
-        1,
-        count.toNumber() - 1
-      );
-      timestamps.push(timestamp);
-    }
-    // console.log(res.logs);
-    // console.log(res.logs["1"].data);
-    // res = web3.eth.abi.decodeParameters(
-    //   ["uint256[5]", "uint256", "uint256[5]", "uint256"],
-    //   res.logs["0"].data
-    // );
+  //   let timestamps = [];
+  //   for (var i = 0; i < 5; i++) {
+  //     //Getting a random number
+  //     let vals = [];
+  //     for (var j = 0; j < 5; j++) {
+  //       let rd = Math.floor(Math.random() * (7 - 0));
+  //       vals.push(prices[rd]);
+  //       requestValues[j].push(prices[rd]);
+  //       minersByVal[j][accounts[i]] = prices[rd];
+  //     }
+  //     await master.testSubmitMiningSolution("nonce", [1, 2, 3, 4, 5], vals, {
+  //       from: accounts[i],
+  //     });
+  //     let count = await master.getNewValueCountbyRequestId(1);
+  //     let timestamp = await master.getTimestampbyRequestIDandIndex(
+  //       1,
+  //       count.toNumber() - 1
+  //     );
+  //     timestamps.push(timestamp);
+  //   }
+  //   // console.log(res.logs);
+  //   // console.log(res.logs["1"].data);
+  //   // res = web3.eth.abi.decodeParameters(
+  //   //   ["uint256[5]", "uint256", "uint256[5]", "uint256"],
+  //   //   res.logs["0"].data
+  //   // );
 
-    for (var i = 0; i < 5; i++) {
-      let sortReq = requestValues[i].sort();
-      var values = await master.getSubmissionsByTimestamp(i + 1, timestamps[i]);
-      var miners = await master.getMinersByRequestIdAndTimestamp(
-        i + 1,
-        timestamps[i]
-      );
-      for (var j = 0; j < 5; j++) {
-        assert(
-          minersByVal[i.toString()][miners[j]] == values[j].toNumber(),
-          "wrong miner to value relationship"
-        );
-        assert(values[j].toNumber() == sortReq[j], "wrong value"); //Make sure that the medians are right
-      }
-    }
-  });
+  //   for (var i = 0; i < 5; i++) {
+  //     let sortReq = requestValues[i].sort();
+  //     var values = await master.getSubmissionsByTimestamp(i + 1, timestamps[i]);
+  //     var miners = await master.getMinersByRequestIdAndTimestamp(
+  //       i + 1,
+  //       timestamps[i]
+  //     );
+  //     for (var j = 0; j < 5; j++) {
+  //       assert(
+  //         minersByVal[i.toString()][miners[j]] == values[j].toNumber(),
+  //         "wrong miner to value relationship"
+  //       );
+  //       assert(values[j].toNumber() == sortReq[j], "wrong value"); //Make sure that the medians are right
+  //     }
+  //   }
+  // });
 
   it("Test dev Share", async function() {
+    await TestLib.mineBlock(env);
     let begbal = await master.balanceOf(accounts[0]);
+    await helper.advanceTime(60 * 5);
     for (var i = 1; i < 6; i++) {
       await master.testSubmitMiningSolution(
         "nonce",
@@ -150,8 +152,8 @@ contract("Mining Tests", function(accounts) {
 
     await master.addTip(30, 1000, { from: accounts[2] });
 
-    await helper.advanceTime(60 * 60 * 16);
-    await TestLib.mineBlock(env);
+    // await helper.advanceTime(60 * 60 * 16);
+    // await TestLib.mineBlock(env);
     let data = await master.getNewVariablesOnDeck();
     assert(data[0].includes("30"), "ID on deck should be 30");
     console.log(data[0]);

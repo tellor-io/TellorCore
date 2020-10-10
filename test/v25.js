@@ -23,7 +23,7 @@ contract("Tests for V2.5", function(accounts) {
     vars = await master.getNewCurrentVariables();
     await master.changeTellorContract(transitionContract.address);
     await helper.advanceTime(60 * 16);
-    await TestLib.mineBlock(env, accounts);
+    await TestLib.mineBlock(env);
   };
 
   beforeEach("Setup contract for each test", async function() {

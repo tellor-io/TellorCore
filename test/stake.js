@@ -15,26 +15,26 @@ contract("Staking Tests", function(accounts) {
       accounts: accounts,
     };
   });
-  it("Stake miner", async function() {
-    await master.theLazyCoon(accounts[6], web3.utils.toWei("5000", "ether"))
-    await master.depositStake({from:accounts[6]})
-    let s = await master.getStakerInfo(accounts[6]);
-    assert(s[0] == 1, "Staked");
-  });
+  // it("Stake miner", async function() {
+  //   await master.theLazyCoon(accounts[6], web3.utils.toWei("5000", "ether"))
+  //   await master.depositStake({from:accounts[6]})
+  //   let s = await master.getStakerInfo(accounts[6]);
+  //   assert(s[0] == 1, "Staked");
+  // });
 
-  it("getStakersCount", async function() {
-    let count = await master.getUintVar(web3.utils.keccak256("stakerCount"));
-    assert(web3.utils.hexToNumberString(count) == 6, "count is 6"); //added miner
-  });
-  it("getStakersInfo", async function() {
-    let info = await master.getStakerInfo(accounts[1]);
-    let stake = web3.utils.hexToNumberString(info["0"]);
-    let startDate = web3.utils.hexToNumberString(info["1"]);
-    let _date = new Date();
-    let d = (_date - (_date % 86400000)) / 1000;
-    assert(startDate >= d * 1, "startDate is today");
-    assert(stake * 1 == 1, "Should be 1 for staked address");
-  });
+  // it("getStakersCount", async function() {
+  //   let count = await master.getUintVar(web3.utils.keccak256("stakerCount"));
+  //   assert(web3.utils.hexToNumberString(count) == 6, "count is 6"); //added miner
+  // });
+  // it("getStakersInfo", async function() {
+  //   let info = await master.getStakerInfo(accounts[1]);
+  //   let stake = web3.utils.hexToNumberString(info["0"]);
+  //   let startDate = web3.utils.hexToNumberString(info["1"]);
+  //   let _date = new Date();
+  //   let d = (_date - (_date % 86400000)) / 1000;
+  //   assert(startDate >= d * 1, "startDate is today");
+  //   assert(stake * 1 == 1, "Should be 1 for staked address");
+  // });
 
   it("Staking, requestStakingWithdraw, withdraw stake", async function() {
     let withdrawreq = await master.requestStakingWithdraw({
