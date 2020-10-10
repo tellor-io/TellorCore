@@ -39,24 +39,24 @@ contract("v2 Tests", function(accounts) {
     await takeFifteen();
     await TestLib.mineBlock(env);
   });
-  //   it("Test zeroing out of currentTips", async function() {
-  //     await master.addTip(1, 100000000000);
-  //     await TestLib.mineBlock(env);
-  //     assert((await master.getUintVar(hash("currentTotalTips"))) == 0);
-  //   });
+    it("Test zeroing out of currentTips", async function() {
+      await master.addTip(1, 100000000000);
+      await TestLib.mineBlock(env);
+      assert((await master.getUintVar(hash("currentTotalTips"))) == 0);
+    });
 
-  //   it("Test lower difficulty target (5 min)", async function() {
-  //     assert((await master.getUintVar(hash("timeTarget"))) == 300);
-  //   });
+    it("Test lower difficulty target (5 min)", async function() {
+      assert((await master.getUintVar(hash("timeTarget"))) == 300);
+    });
 
-  //   it("Test no time limit on disputes", async function() {
-  //     await takeFifteen();
-  //     await TestLib.mineBlock(env);
-  //     await helper.advanceTime(86400 * 22);
-  //     await startADispute(accounts[1]);
-  //     let count = await master.getUintVar(hash("disputeCount"));
-  //     assert(count == 1);
-  //   });
+    it("Test no time limit on disputes", async function() {
+      await takeFifteen();
+      await TestLib.mineBlock(env);
+      await helper.advanceTime(86400 * 22);
+      await startADispute(accounts[1]);
+      let count = await master.getUintVar(hash("disputeCount"));
+      assert(count == 1);
+    });
 
   describe("testing disputes", async () => {
     let disputeId;

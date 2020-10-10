@@ -14,12 +14,6 @@ var OldTellor = artifacts.require("./oldContracts/OldTellor.sol");
 var oldTellorABI = OldTellor.abi;
 var UtilitiesTests = artifacts.require("./UtilitiesTests.sol");
 
-
-// var masterAbi = TellorMaster.abi;
-// var api = "json(https://api.gdax.com/products/BTC-USD/ticker).price";
-// var api2 = "json(https://api.gdax.com/products/ETH-USD/ticker).price";
-
-//Hardcoded adress because they need to be known when the TransitionCOntract is compiled
 const baseAdd = "0x6511D2957aa09350494f892Ce2881851f0bb26D3";
 const newAdd = "0x032Aa32e4069318b15e6462CE20926d4d821De90";
 

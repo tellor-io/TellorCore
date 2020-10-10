@@ -15,21 +15,21 @@ contract("Request and tip tests", function(accounts) {
       accounts: accounts,
     };
   });
-  // it("test utilities", async function() {
-  //   var myArr = [];
-  //   for (var i = 50; i >= 0; i--) {
-  //     myArr.push(i);
-  //   }
-  //   utilities = await UtilitiesTests.new(master.address);
-  //   let minT = await utilities.testgetMins(myArr);
-  //   assert(minT[0] == 0);
-  //   assert(minT[1] == 50, "index should be correct");
-  // });
-  // it("Add Tip", async function() {
-  //   res = await master.addTip(11, 20)
-  //   apiVars = await master.getRequestVars(11);
-  //   assert(apiVars[5] == 20, "value pool should be 20");
-  // });
+  it("test utilities", async function() {
+    var myArr = [];
+    for (var i = 50; i >= 0; i--) {
+      myArr.push(i);
+    }
+    utilities = await UtilitiesTests.new(master.address);
+    let minT = await utilities.testgetMins(myArr);
+    assert(minT[0] == 0);
+    assert(minT[1] == 50, "index should be correct");
+  });
+  it("Add Tip", async function() {
+    res = await master.addTip(11, 20)
+    apiVars = await master.getRequestVars(11);
+    assert(apiVars[5] == 20, "value pool should be 20");
+  });
   it("several request data", async function() {
     let req1 = await master.addTip(41, 100, { from: accounts[2] });
     req1 = await master.addTip(42, 100, { from: accounts[2] });

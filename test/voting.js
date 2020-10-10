@@ -34,6 +34,7 @@ contract("Voting Tests", function(accounts) {
   });
   it("Test Failed Vote - New Tellor Storage Contract", async function() {
     let oracleBase2 = await Tellor.new();
+     let oracleBase = await master.getAddressVars(web3.utils.keccak256("tellorContract"));
     await master.theLazyCoon(accounts[2], web3.utils.toWei("5000", "ether"))
     await  master.proposeFork(oracleBase2.address,{from:accounts[2]})
     for (var i = 1; i < 5; i++) {
@@ -43,12 +44,13 @@ contract("Voting Tests", function(accounts) {
     await master.tallyVotes(1,{from:accounts[5]})
     assert(
       (await master.getAddressVars(web3.utils.keccak256("tellorContract"))) ==
-        masterBase.address,
+        oracleBase.address,
       "vote should have failed"
     );
   });
   it("Test Failed Vote - New Tellor Storage Contract--vote fail by 10% quorum", async function() {
     let oracleBase2 = await Tellor.new();
+     let oracleBase = await master.getAddressVars(web3.utils.keccak256("tellorContract"));
     await master.theLazyCoon(accounts[4], web3.utils.toWei("2000", "ether"))
     await master.proposeFork(oracleBase2.address,{from:accounts[4]})
     vars = await master.getAllDisputeVars(1);
@@ -56,12 +58,13 @@ contract("Voting Tests", function(accounts) {
     await master.tallyVotes(1)
     assert(
       (await master.getAddressVars(web3.utils.keccak256("tellorContract"))) ==
-        master.address,
+        oracleBase,
       "vote should have failed"
     );
   });
   it("Test Failed Vote - New Tellor Storage Contract--vote fail to fail because 10% diff in quorum is not reached", async function() {
     let oracleBase2 = await Tellor.new();
+    let oracleBase = await master.getAddressVars(web3.utils.keccak256("tellorContract"));
     await master.theLazyCoon(accounts[4], web3.utils.toWei("4000", "ether"))
     initTotalSupply = await master.totalSupply();
     await master.proposeFork(oracleBase2.address,{from:accounts[4]})
@@ -72,9 +75,12 @@ contract("Voting Tests", function(accounts) {
     it = await web3.utils.fromWei(initTotalSupply, "ether");
     ts = await web3.utils.fromWei(newTotalSupply, "ether");
     await helper.advanceTime(86400 * 8);
+    console.log(await master.getAddressVars(web3.utils.keccak256("tellorContract")))
+    console.log(master.address)
+    console.log(oracleBase)
     assert(
       (await master.getAddressVars(web3.utils.keccak256("tellorContract"))) ==
-        master.address,
+        oracleBase
       "vote should have failed"
     );
   });

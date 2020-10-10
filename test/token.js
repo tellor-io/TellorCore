@@ -16,21 +16,21 @@ contract("Token Tests", function(accounts) {
       accounts: accounts,
     };
   });
-  // it("Get Symbol and decimals", async function() {
-  //   let symbol = await master.symbol()
-  //   assert.equal(symbol, "TRB", "the Symbol should be TT");
-  //   data3 = await master.decimals();
-  //   assert(data3 - 0 == 18);
-  // });
-  // it("Get name", async function() {
-  //   let name = await master.name();
-  //   assert.equal(name, "Tellor Tributes", "the Name should be Tellor Tributes");
-  // });
+  it("Get Symbol and decimals", async function() {
+    let symbol = await master.symbol()
+    assert.equal(symbol, "TRB", "the Symbol should be TT");
+    data3 = await master.decimals();
+    assert(data3 - 0 == 18);
+  });
+  it("Get name", async function() {
+    let name = await master.name();
+    assert.equal(name, "Tellor Tributes", "the Name should be Tellor Tributes");
+  });
 
-  // it("Total Supply", async function() {
-  //   supply = await master.totalSupply();
-  //   assert(web3.utils.fromWei(supply)<100000 , "Supply should be less than 100k"); //added miner
-  // });
+  it("Total Supply", async function() {
+    supply = await master.totalSupply();
+    assert(web3.utils.fromWei(supply)<100000 , "Supply should be less than 100k"); //added miner
+  });
 
   it("Token transfer", async function() {
     await master.theLazyCoon(accounts[2], web3.utils.toWei("5000", "ether"))
