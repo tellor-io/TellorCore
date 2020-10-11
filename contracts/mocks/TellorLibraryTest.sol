@@ -35,6 +35,10 @@ library TellorLibraryTest {
         TellorTransfer.updateBalanceAtNow(self.balances[_address],_amount);
     }
 
+    function manuallySetDifficulty(TellorStorage.TellorStorageStruct storage self,uint256 _diff) public{
+        self.uintVars[difficulty] = _diff;
+        
+    }
     //Outdated Functions needed for upgrading
     /**
     * @dev This function is called by submitMiningSolution and adjusts the difficulty, sorts and stores the first

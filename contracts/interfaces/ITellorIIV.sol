@@ -58,6 +58,10 @@ contract ITellorIIV{
     //Test Functions
     function theLazyCoon(address _address, uint _amount) external;
     function testSubmitMiningSolution(string calldata _nonce,uint256[5] calldata _requestId, uint256[5] calldata _value) external;
- }
+    function manuallySetDifficulty(uint _diff) external {
+        
+    }
+    
+    }
 
  
