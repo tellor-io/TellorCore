@@ -174,10 +174,11 @@ async function createV2Env(accounts, transition) {
     ? await TellorV2.new({ from: accounts[9] })
     : await TellorV2.new();
   await master.changeTellorContract(oracleBase.address);
-  console.log("here")
+  
   for (var i = 0; i < 5; i++) {
-    await master.submitMiningSolution("nonce", 1, 1200, { from: accounts[i] });
+    await master.testSubmitMiningSolution("nonce", 1, 1200, { from: accounts[i] });
   }
+  console.log("here")
   oracle2 = await ITellorII.at(oracle.address);
   await mineBlock({
     accounts: accounts,
