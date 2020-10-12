@@ -1,7 +1,9 @@
 pragma solidity ^0.5.0;
 
 contract ITellorII{
-    
+
+
+    event NewValue(uint256[5] _requestId, uint256 _time, uint256[5] _value, uint256 _totalTips, bytes32 indexed _currentChallenge);
     function changeDeity(address _newDeity) external;
     function changeTellorContract(address _tellorContract) external;
     function allowance(address _user, address _spender) external view returns (uint256);
