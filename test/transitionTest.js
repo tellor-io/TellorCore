@@ -10,11 +10,10 @@
 //   let master;
 //   let env;
 //   //Hardcoded adress because they need to be known when the TransitionCOntract is compiled
-//   const baseAdd = "0x6511D2957aa09350494f892Ce2881851f0bb26D3";
 //   const newAdd = "0x032Aa32e4069318b15e6462CE20926d4d821De90";
 
 //   beforeEach("Setup contract for each test", async function() {
-//     master = await TestLib.getV2(accounts, true);
+//     master = await TestLib.getV2Full(accounts, true);
 //     env = {
 //       master: master,
 //       accounts: accounts,
