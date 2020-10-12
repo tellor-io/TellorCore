@@ -86,7 +86,7 @@ def masterMiner():
                                                     execute_js('testSubmitterv2.js',arg_string);
                                                     miners_started += 1 
                                                     if(miners_started % 5 == 0):
-                                                                    time.sleep(20);
+                                                                    time.sleep(35);
                                                                     challenge,apiId,difficulty= getVariables(0);
                                                                     if(miners_started == 10):
                                                                         miners_started = 0;
