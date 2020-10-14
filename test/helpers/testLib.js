@@ -11,6 +11,7 @@ const TransitionContract = artifacts.require("./TellorTransition");
 async function mineBlock(env) {
   let vars = await env.master.getNewCurrentVariables();
   let miners = 0;
+  let m = []
   let res;
   for (var i = 0; i < env.accounts.length; i++) {
     let info = await env.master.getStakerInfo(env.accounts[i]);
@@ -31,7 +32,7 @@ async function mineBlock(env) {
         }
       );
       miners++;
-    } catch {
+    } catch (e){
       if (miners < 5 && i == env.accounts.length - 1) {
         assert.isTrue(false, "Couldn't mine a block");
       }
