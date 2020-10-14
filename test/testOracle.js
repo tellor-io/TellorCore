@@ -1,30 +1,21 @@
 
-// const Web3 = require("web3");
-// const web3 = new Web3(
-//   new Web3.providers.WebsocketProvider("ws://localhost:8545")
-// );
-// const TransitionContract = artifacts.require("./TellorTransition");
-// const helper = require("./helpers/test_helpers");
-// const TestLib = require("./helpers/testLib");
-// const TellorMaster = artifacts.require("./TellorMaster.sol");
+
+const helper = require("./helpers/test_helpers");
+const TestLib = require("./helpers/testLib");
 // const Tellor = artifacts.require("./TellorTest.sol"); // globally injected artifacts helper
-// var masterAbi = Tellor.abi;
-// var masterByte = Tellor.bytecode;
-// var OldTellor = artifacts.require("./oldContracts/OldTellor.sol");
-// var oldTellorABI = OldTellor.abi;
-// var UtilitiesTests = artifacts.require("./UtilitiesTests.sol");
 
-// contract("Mining Tests", function(accounts) {
-//   let master;
-//   let env;
 
-//   beforeEach("Setup contract for each test", async function() {
-//     master = await TestLib.getV25(accounts, true);
-//     env = {
-//       master: master,
-//       accounts: accounts,
-//     };
-//   });
+contract("Mining Tests", function(accounts) {
+  let master;
+  let env;
+
+  beforeEach("Setup contract for each test", async function() {
+    master = await TestLib.getV25(accounts, true);
+    env = {
+      master: master,
+      accounts: accounts,
+    };
+  });
 
 //   it("test utilities", async function() {
 //     var myArr = [];
@@ -185,109 +176,108 @@
 //     assert(newDiff*1+0 < oldDiff*1+0, "difficulty should be lower");
 //   });
 
-//   it("Test 50 requests, proper booting, and mining of 5", async function() {
-//     vars = await master.getNewCurrentVariables();
-//     await TestLib.mineBlock(env);
+  it("Test 50 requests, proper booting, and mining of 5", async function() {
+    vars = await master.getNewCurrentVariables();
+    await TestLib.mineBlock(env);
+    await helper.advanceTime(60 * 60 * 16);
+    for (var i = 1; i <= 10; i++) {
+      await master.addTip(i + 2, i);
+    }
+    await master.addTip(1, 11);
+    vars = await master.getNewCurrentVariables();
+    await TestLib.mineBlock(env);
+    await helper.advanceTime(60 * 60 * 16);
+    // res = web3.eth.abi.decodeParameters(
+    //   ["uint256[5]", "uint256", "uint256[5]", "uint256"],
+    //   res.logs["0"].data
+    // );
+    let count = await master.getNewValueCountbyRequestId(1);
+    let timestamp = await master.getTimestampbyRequestIDandIndex(
+      1,
+      count.toNumber() - 1
+    );
+    data = await master.getMinedBlockNum(1, timestamp);
+    console.log("data1", data * 1);
+    assert(data * 1 > 0, "Should be true if Data exist for that point in time");
+    for (var i = 11; i <= 20; i++) {
+      apix = "api" + i;
+      await master.addTip(i + 2, i, { from: accounts[2] });
+    }
+    await master.addTip(2, 21, { from: accounts[2] });
+    vars = await master.getNewCurrentVariables();
+    await helper.advanceTime(60 * 60 * 16);
+    let res = await TestLib.mineBlock(env);
+    count = await master.getNewValueCountbyRequestId(vars["1"][0]);
+    timestamp = await master.getTimestampbyRequestIDandIndex(
+      vars["1"][0],
+      count.toNumber() - 1
+    );
+    data = await master.getMinedBlockNum(vars["1"][0],timestamp);
+    console.log("data2", data * 1);
+    assert(data * 1 > 0, "Should be true if Data exist for that point in time");
+    for (var i = 21; i <= 30; i++) {
+      await master.addTip(i + 2, i, { from: accounts[2] });
+    }
+    await master.addTip(1, 31, { from: accounts[2] });
 
-//     await helper.advanceTime(60 * 60 * 16);
-//     for (var i = 1; i <= 10; i++) {
-//       await master.addTip(i + 2, i);
-//     }
-//     await master.addTip(1, 11);
+    await helper.advanceTime(60 * 60 * 16);
+    vars = await master.getNewCurrentVariables();
+    res = await TestLib.mineBlock(env);
+    await helper.advanceTime(60 * 60 * 16);
+    count = await master.getNewValueCountbyRequestId(2);
+    timestamp = await master.getTimestampbyRequestIDandIndex(
+      2,
+      count.toNumber() - 1
+    );
+    data = await master.getMinedBlockNum(2, timestamp);
+    console.log("data3", data * 1);
+    //assert(data*1 > 0, "Should be true if Data exist for that point in time");
+    for (var i = 31; i <= 40; i++) {
+      await master.addTip(i + 2, i, { from: accounts[2] });
+    }
+    await master.addTip(2, 41, { from: accounts[2] });
 
-//     vars = await master.getNewCurrentVariables();
-//     await TestLib.mineBlock(env);
-//     await helper.advanceTime(60 * 60 * 16);
-//     // res = web3.eth.abi.decodeParameters(
-//     //   ["uint256[5]", "uint256", "uint256[5]", "uint256"],
-//     //   res.logs["0"].data
-//     // );
-//     let count = await master.getNewValueCountbyRequestId(1);
-//     let timestamp = await master.getTimestampbyRequestIDandIndex(
-//       1,
-//       count.toNumber() - 1
-//     );
-//     data = await master.getMinedBlockNum(1, timestamp);
-//     console.log("data1", data * 1);
-//     assert(data * 1 > 0, "Should be true if Data exist for that point in time");
-//     for (var i = 11; i <= 20; i++) {
-//       apix = "api" + i;
-//       await master.addTip(i + 2, i, { from: accounts[2] });
-//     }
-//     await master.addTip(2, 21, { from: accounts[2] });
-//     vars = await master.getNewCurrentVariables();
-//     await helper.advanceTime(60 * 60 * 16);
-//     let res = await TestLib.mineBlock(env);
-//     count = await master.getNewValueCountbyRequestId(vars["1"][0]);
-//     timestamp = await master.getTimestampbyRequestIDandIndex(
-//       vars["1"][0],
-//       count.toNumber() - 1
-//     );
-//     data = await master.getMinedBlockNum(vars["1"][0],timestamp);
-//     console.log("data2", data * 1);
-//     assert(data * 1 > 0, "Should be true if Data exist for that point in time");
-//     for (var i = 21; i <= 30; i++) {
-//       await master.addTip(i + 2, i, { from: accounts[2] });
-//     }
-//     await master.addTip(1, 31, { from: accounts[2] });
-
-//     vars = await master.getNewCurrentVariables();
-//     res = await TestLib.mineBlock(env);
-//     await helper.advanceTime(60 * 60 * 16);
-//     count = await master.getNewValueCountbyRequestId(2);
-//     timestamp = await master.getTimestampbyRequestIDandIndex(
-//       2,
-//       count.toNumber() - 1
-//     );
-//     data = await master.getMinedBlockNum(2, timestamp);
-//     console.log("data3", data * 1);
-//     //assert(data*1 > 0, "Should be true if Data exist for that point in time");
-//     for (var i = 31; i <= 40; i++) {
-//       await master.addTip(i + 2, i, { from: accounts[2] });
-//     }
-//     await master.addTip(2, 41, { from: accounts[2] });
-
-//     vars = await master.getNewCurrentVariables();
-//     await helper.advanceTime(60 * 60 * 16);
-//     res = await TestLib.mineBlock(env);
-//     count = await master.getNewValueCountbyRequestId(1);
-//     timestamp = await master.getTimestampbyRequestIDandIndex(
-//       1,
-//       count.toNumber() - 1
-//     );
-//     data = await master.getMinedBlockNum(1, timestamp);
-//     console.log("data4", data * 1);
-//     assert(data > 0, "Should be true if Data exist for that point in time");
-//     for (var i = 41; i <= 55; i++) {
-//       apix = "api" + i;
-//       await master.addTip(i + 2, i, { from: accounts[2] });
-//     }
-//     await master.addTip(1, 56, { from: accounts[2] });
-//     await helper.advanceTime(60 * 60 * 16);
-//     vars = await master.getNewCurrentVariables();
-//     res = await TestLib.mineBlock(env);
-//     count = await master.getNewValueCountbyRequestId(2);
-//     timestamp = await master.getTimestampbyRequestIDandIndex(
-//       2,
-//       count.toNumber() - 1
-//     );
-//     data = await master.getMinedBlockNum(2, timestamp);
-//     console.log("data5", data * 1);
-//     assert(data * 1 > 0, "Should be true if Data exist for that point in time");
-//     apiVars = await master.getRequestVars(52);
-//     apiIdforpayoutPoolIndex = await master.getRequestIdByRequestQIndex(50);
-//     vars = await master.getNewVariablesOnDeck();
-//     let apiOnQ = vars["0"];
-//     apiIdforpayoutPoolIndex2 = await master.getRequestIdByRequestQIndex(49);
-//         for(var i = 0; i <= 4; i++){
-//       vars["1"][i] = vars["1"][i] *1 -0
-//       apiOnQ[i] = apiOnQ[i]*1-0
-//     }
-//     assert(apiIdforpayoutPoolIndex == 1, "position 1 should be booted");
-//     assert(vars["1"].includes(51), "API on Q payout should be 51");
-//     assert(apiOnQ.includes(51), "API on Q should be 51");
-//     assert(apiVars[5] == 51, "value at position 52 should have correct value");
-//     assert(apiIdforpayoutPoolIndex2 == 3, "position 2 should be in same place");
-//   });
-// });
+    vars = await master.getNewCurrentVariables();
+    await helper.advanceTime(60 * 60 * 16);
+    res = await TestLib.mineBlock(env);
+    count = await master.getNewValueCountbyRequestId(1);
+    timestamp = await master.getTimestampbyRequestIDandIndex(
+      1,
+      count.toNumber() - 1
+    );
+    data = await master.getMinedBlockNum(1, timestamp);
+    console.log("data4", data * 1);
+    assert(data > 0, "Should be true if Data exist for that point in time");
+    for (var i = 41; i <= 55; i++) {
+      apix = "api" + i;
+      await master.addTip(i + 2, i, { from: accounts[2] });
+    }
+    await master.addTip(1, 56, { from: accounts[2] });
+    await helper.advanceTime(60 * 60 * 16);
+    vars = await master.getNewCurrentVariables();
+    res = await TestLib.mineBlock(env);
+    count = await master.getNewValueCountbyRequestId(2);
+    timestamp = await master.getTimestampbyRequestIDandIndex(
+      2,
+      count.toNumber() - 1
+    );
+    data = await master.getMinedBlockNum(2, timestamp);
+    console.log("data5", data * 1);
+    assert(data * 1 > 0, "Should be true if Data exist for that point in time");
+    apiVars = await master.getRequestVars(52);
+    apiIdforpayoutPoolIndex = await master.getRequestIdByRequestQIndex(50);
+    vars = await master.getNewVariablesOnDeck();
+    let apiOnQ = vars["0"];
+    apiIdforpayoutPoolIndex2 = await master.getRequestIdByRequestQIndex(49);
+        for(var i = 0; i <= 4; i++){
+      vars["1"][i] = vars["1"][i] *1 -0
+      apiOnQ[i] = apiOnQ[i]*1-0
+    }
+    assert(apiIdforpayoutPoolIndex == 1, "position 1 should be booted");
+    assert(vars["1"].includes(51), "API on Q payout should be 51");
+    assert(apiOnQ.includes(51), "API on Q should be 51");
+    assert(apiVars[5] == 51, "value at position 52 should have correct value");
+    assert(apiIdforpayoutPoolIndex2 == 3, "position 2 should be in same place");
+  });
+});
 
