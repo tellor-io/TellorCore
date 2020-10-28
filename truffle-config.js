@@ -28,7 +28,7 @@ module.exports = {
     mainnet: {
       provider: () =>
         new HDWalletProvider(
-          "1476064c0c5a4c0fae1b6420808077d837e74c11f052bd36565f9cf076566ce5",
+          "",
           `https://mainnet.infura.io/v3/${accessToken}`
         ),
       network_id: 1,
