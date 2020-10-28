@@ -1,6 +1,25 @@
 pragma solidity ^0.5.16;
 
 import "./MockTellorLibrary.sol";
+import "tellorlegacy/contracts/oldContracts/OldTellor.sol";
+import "tellorlegacy/contracts/oldContracts/OldTellorMaster.sol";
+import "tellorlegacy/contracts/oldContracts/libraries/OldTellorStake.sol";
+import "tellorlegacy/contracts/oldContracts/libraries/OldTellorTransfer.sol";
+import "tellorlegacy/contracts/oldContracts/libraries/OldTellorDispute.sol";
+import "tellorlegacy/contracts/oldContracts/libraries/OldTellorLibrary.sol";
+import "tellorlegacy/contracts/oldContracts2/Old2Tellor.sol";
+import "tellorlegacy/contracts/oldContracts2/Old2TellorMaster.sol";
+import "tellorlegacy/contracts/oldContracts2/libraries/Old2TellorStake.sol";
+import "tellorlegacy/contracts/oldContracts2/libraries/Old2TellorTransfer.sol";
+import "tellorlegacy/contracts/oldContracts2/libraries/Old2TellorDispute.sol";
+import "tellorlegacy/contracts/oldContracts2/libraries/Old2TellorLibrary.sol";
+import "tellorlegacy/contracts/v2/v2Tellor.sol";
+import "tellorlegacy/contracts/v2/v2TellorMaster.sol";
+import "tellorlegacy/contracts/v2/libraries/v2TellorStake.sol";
+import "tellorlegacy/contracts/v2/libraries/v2TellorTransfer.sol";
+import "tellorlegacy/contracts/v2/libraries/v2TellorDispute.sol";
+import "tellorlegacy/contracts/v2/libraries/v2TellorLibrary.sol";
+
 
 /**
  * @title Tellor Oracle System

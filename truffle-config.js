@@ -23,17 +23,17 @@ module.exports = {
         ),
       network_id: 4,
       gas: 10000000,
-      gasPrice: 8000000000,
+      gasPrice: 80000000000,
     },
     mainnet: {
       provider: () =>
         new HDWalletProvider(
-          "3a10b4bc1258e8bfefb95b498fb8c0f0cd6964a811eabca87df5630bcacd7216",
+          "",
           `https://mainnet.infura.io/v3/${accessToken}`
         ),
       network_id: 1,
-      gas: 200000,
-      gasPrice: 8000000000,
+      gas: 10000000,
+      gasPrice: 85000000000,
     },
   },
   mocha: {
@@ -47,8 +47,10 @@ module.exports = {
 
   solc: {
     optimizer: {
-      enabled: false,
-      //runs: 5000,
+      enabled: true,
+      runs: 5000000,
     },
   },
+
+  plugins: ["solidity-coverage"],
 };

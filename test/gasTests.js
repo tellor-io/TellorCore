@@ -10,10 +10,6 @@
 //   let oracleBase;
 //   let oracle;
 //   let oracleRef;
-//   let master;
-//   let oldTellor;
-//   let oldTellorinst;
-//   let utilities;
 
 //   beforeEach("Setup contract for each test", async function() {
 //     oracle = await Tellor.new();

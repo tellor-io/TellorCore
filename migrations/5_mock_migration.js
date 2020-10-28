@@ -7,6 +7,7 @@ var RefTellorTransfer = artifacts.require("RefTellorTransfer.sol");
 var RefTellorStake = artifacts.require("RefTellorStake.sol");
 var RefTellorLibrary = artifacts.require("RefTellorLibrary.sol");
 var RefTellor = artifacts.require("RefTellor.sol");
+
 /****Uncomment the body to run this with Truffle migrate for truffle testing*/
 
 /**
@@ -17,17 +18,6 @@ var RefTellor = artifacts.require("RefTellor.sol");
  *truffle exec scripts/Migrate_1.js --network rinkeby
  *truffle exec scripts/Migrate_2.js --network rinkeby
  */
-// function sleep_s(secs) {
-//   secs = (+new Date) + secs * 1000;
-//   while ((+new Date) < secs);
-// }
-/****Uncomment the body below to run this with Truffle migrate for truffle testing*/
-// module.exports = function (deployer) {
-//     deployer.deploy(TellorLibrary).then(() => {
-//         deployer.deploy(Tellor);
-//     });
-//     deployer.link(TellorLibrary, Tellor);
-// };
 
 module.exports = async function(deployer) {
   await deployer.deploy(TellorTransfer);

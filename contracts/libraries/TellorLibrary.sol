@@ -84,13 +84,16 @@ library TellorLibrary {
         // If the difference between the timeTarget and how long it takes to solve the challenge this updates the challenge
         //difficulty up or donw by the difference between the target time and how long it took to solve the previous challenge
         //otherwise it sets it to 1
-        int256 _change = int256(SafeMath.min(1200, (now - self.uintVars[timeOfLastNewValue])));
+        uint timeDiff = now - self.uintVars[timeOfLastNewValue];
+        int256 _change = int256(SafeMath.min(1200, timeDiff));
         int256 _diff = int256(self.uintVars[difficulty]);
         _change = (_diff * (int256(self.uintVars[timeTarget]) - _change)) / 4000;
         if (_change == 0) {
                 _change = 1;
             }
         self.uintVars[difficulty]  = uint256(SafeMath.max(_diff + _change,1));
+
+
         //Sets time of value submission rounded to 1 minute
         bytes32 _currChallenge = self.currentChallenge;
         uint256 _timeOfLastNewValue = now - (now % 1 minutes);
@@ -135,25 +138,11 @@ library TellorLibrary {
         //add timeOfLastValue to the newValueTimestamps array
         self.newValueTimestamps.push(_timeOfLastNewValue);
 
-        uint _currReward = self.uintVars[currentReward];
-        //WARNING Reusing _timeOfLastNewValue to avoid stack too deep
-        _timeOfLastNewValue = _currReward; 
-        if (_currReward > 1e18) {
-            //These number represent the inflation adjustement that started in 03/2019
-            _currReward = _currReward - _currReward *  15306316590563/1e18; 
-            self.uintVars[devShare] = _currReward * 50/100;
-            _timeOfLastNewValue = _currReward;
-        } else {
-            _timeOfLastNewValue = 1e18;
-        }
-        self.uintVars[currentReward] = _timeOfLastNewValue;
-        _currReward = _timeOfLastNewValue;
-        uint _devShare = self.uintVars[devShare]; 
-        //update the total supply
-        self.uintVars[total_supply] +=  _devShare + _currReward*5 - (self.uintVars[currentTotalTips]);
-        TellorTransfer.doTransfer(self, address(this), self.addressVars[_owner],  _devShare);
+        address[5] memory miners = self.requestDetails[_requestId[0]].minersByValue[_timeOfLastNewValue];
+        //payMinersRewards
+        _payReward(self, timeDiff, miners);
+        
         self.uintVars[_tBlock] ++;
-        self.uintVars[currentTotalTips] = 0;
         uint256[5] memory _topId = TellorStake.getTopRequestIDs(self);
         for(uint i = 0; i< 5;i++){
             self.currentMiners[i].value = _topId[i];
@@ -172,149 +161,6 @@ library TellorLibrary {
         );
     }
 
-/**
-    * @dev This function is called by submitMiningSolution and adjusts the difficulty, sorts and stores the first
-    * 5 values received, pays the miners, the dev share and assigns a new challenge
-    * @param _nonce or solution for the PoW  for the requestId
-    * @param _requestId for the current request being mined
-    */
-    function newBlock(TellorStorage.TellorStorageStruct storage self, string memory _nonce, uint256 _requestId) public {
-        TellorStorage.Request storage _request = self.requestDetails[_requestId];
-
-        // If the difference between the timeTarget and how long it takes to solve the challenge this updates the challenge
-        //difficulty up or donw by the difference between the target time and how long it took to solve the prevous challenge
-        //otherwise it sets it to 1
-        int256 _change = int256(SafeMath.min(1200, (now - self.uintVars[timeOfLastNewValue])));
-       int256 _diff = int256(self.uintVars[difficulty]);
-        _change = (_diff * (int256(self.uintVars[timeTarget]) - _change)) / 4000;
-        
-        if (_change == 0) {
-                _change = 1;
-            }
-        self.uintVars[difficulty]  = uint256(SafeMath.max(_diff+ _change,1));
-        //Sets time of value submission rounded to 1 minute
-        uint256 _timeOfLastNewValue = now - (now % 1 minutes);
-        self.uintVars[timeOfLastNewValue] = _timeOfLastNewValue;
-
-        //The sorting algorithm that sorts the values of the first five values that come in
-        TellorStorage.Details[5] memory a = self.currentMiners;
-        uint256 i;
-        for (i = 1; i < 5; i++) {
-            uint256 temp = a[i].value;
-            address temp2 = a[i].miner;
-            uint256 j = i;
-            while (j > 0 && temp < a[j - 1].value) {
-                a[j].value = a[j - 1].value;
-                a[j].miner = a[j - 1].miner;
-                j--;
-            }
-            if (j < i) {
-                a[j].value = temp;
-                a[j].miner = temp2;
-            }
-        }
-
-        //Pay the miners 
-        //adjust by payout = payout * ratio 0.000030612633181126/1e18  
-        if(self.uintVars[currentReward] == 0){
-            self.uintVars[currentReward] = 5e18;
-        }
-        if (self.uintVars[currentReward] > 1e18) {
-        self.uintVars[currentReward] = self.uintVars[currentReward] - self.uintVars[currentReward] * 30612633181126/1e18; 
-        self.uintVars[devShare] = self.uintVars[currentReward] * 50/100;
-        } else {
-            self.uintVars[currentReward] = 1e18;
-        }
-        for (i = 0; i < 5; i++) {
-            TellorTransfer.doTransfer(self, address(this), a[i].miner, self.uintVars[currentReward]  + self.uintVars[currentTotalTips] / 5);
-        }
-        //update the total supply
-        self.uintVars[total_supply] +=  self.uintVars[devShare] + self.uintVars[currentReward]*5 ;
-        //pay the dev-share
-        TellorTransfer.doTransfer(self, address(this), self.addressVars[_owner],  self.uintVars[devShare]);
-        //Save the official(finalValue), timestamp of it, 5 miners and their submitted values for it, and its block number
-        _request.finalValues[_timeOfLastNewValue] = a[2].value;
-        _request.requestTimestamps.push(_timeOfLastNewValue);
-        //these are miners by timestamp
-        _request.minersByValue[_timeOfLastNewValue] = [a[0].miner, a[1].miner, a[2].miner, a[3].miner, a[4].miner];
-        _request.valuesByTimestamp[_timeOfLastNewValue] = [a[0].value, a[1].value, a[2].value, a[3].value, a[4].value];
-        _request.minedBlockNum[_timeOfLastNewValue] = block.number;
-        //map the timeOfLastValue to the requestId that was just mined
-        self.requestIdByTimestamp[_timeOfLastNewValue] = _requestId;
-        //add timeOfLastValue to the newValueTimestamps array
-        self.newValueTimestamps.push(_timeOfLastNewValue);
-        //re-start the count for the slot progress to zero before the new request mining starts
-        self.uintVars[slotProgress] = 0;
-
-
-        
-        if(self.uintVars[timeTarget] == 600){
-            self.uintVars[timeTarget] = 300;
-            self.uintVars[currentReward] = self.uintVars[currentReward]/2;
-            self.uintVars[_tBlock] = 1e18;
-            self.uintVars[difficulty] = SafeMath.max(1,self.uintVars[difficulty]/3);
-        }
-        for(i = 0; i< 5;i++){
-            self.currentMiners[i].value = i+1;
-            self.requestQ[self.requestDetails[i+1].apiUintVars[requestQPosition]] = 0;
-            self.uintVars[currentTotalTips] += self.requestDetails[i+1].apiUintVars[totalTip];
-        }
-        self.currentChallenge = keccak256(abi.encode(_nonce, self.currentChallenge, blockhash(block.number - 1))); // Save hash for next proof
-        emit NewChallenge(
-            self.currentChallenge,
-            [uint256(1),uint256(2),uint256(3),uint256(4),uint256(5)],
-            self.uintVars[difficulty],
-            self.uintVars[currentTotalTips]
-        );
-    }
-
-    /**
-    * @dev Proof of work is called by the miner when they submit the solution (proof of work and value)
-    * @param _nonce uint submitted by miner
-    * @param _requestId the apiId being mined
-    * @param _value of api query
-    */
-    function submitMiningSolution(TellorStorage.TellorStorageStruct storage self, string memory _nonce, uint256 _requestId, uint256 _value)
-        public
-    {
-
-        require (self.uintVars[timeTarget] == 600, "Contract has upgraded, call new function");
-        //require miner is staked
-        require(self.stakerDetails[msg.sender].currentStatus == 1, "Miner status is not staker");
-
-        //Check the miner is submitting the pow for the current request Id
-        require(_requestId == self.uintVars[currentRequestId], "RequestId is wrong");
-
-        //Saving the challenge information as unique by using the msg.sender
-        require(
-            uint256(
-                sha256(abi.encodePacked(ripemd160(abi.encodePacked(keccak256(abi.encodePacked(self.currentChallenge, msg.sender, _nonce))))))
-            ) %
-                self.uintVars[difficulty] ==
-                0,
-            "Incorrect nonce for current challenge"
-        );
-
-        //Make sure the miner does not submit a value more than once
-        require(self.minersByChallenge[self.currentChallenge][msg.sender] == false, "Miner already submitted the value");
-
-        //Save the miner and value received
-        self.currentMiners[self.uintVars[slotProgress]].value = _value;
-        self.currentMiners[self.uintVars[slotProgress]].miner = msg.sender;
-
-        //Add to the count how many values have been submitted, since only 5 are taken per request
-        self.uintVars[slotProgress]++;
-
-        //Update the miner status to true once they submit a value so they don't submit more than once
-        self.minersByChallenge[self.currentChallenge][msg.sender] = true;
-        if (self.uintVars[slotProgress] == 5) {
-            newBlock(self, _nonce, _requestId);
-        }
-    }
-
-
-
-
     /**
     * @dev Proof of work is called by the miner when they submit the solution (proof of work and value)
     * @param _nonce uint submitted by miner
@@ -324,7 +170,15 @@ library TellorLibrary {
     function submitMiningSolution(TellorStorage.TellorStorageStruct storage self, string calldata _nonce,uint256[5] calldata _requestId, uint256[5] calldata _value)
         external
     {
-        //Verifying Miner Eligibility
+        _verifyNonce(self, _nonce);
+        _submitMiningSolution(self, _nonce, _requestId, _value);
+    }
+
+
+    function _submitMiningSolution(TellorStorage.TellorStorageStruct storage self, string memory _nonce,uint256[5] memory _requestId, uint256[5] memory _value)
+        internal
+    {
+                //Verifying Miner Eligibility
         bytes32 _hashMsgSender = keccak256(abi.encode(msg.sender));
         require(self.stakerDetails[msg.sender].currentStatus == 1, "Miner status is not staker");
         require(now - self.uintVars[_hashMsgSender] > 15 minutes, "Miner can only win rewards once per 15 min");
@@ -339,13 +193,6 @@ library TellorLibrary {
         bytes32 _currChallenge = self.currentChallenge;
         uint256 _slotProgress = self.uintVars[slotProgress]; 
         //Saving the challenge information as unique by using the msg.sender
-        require(uint256(
-                sha256(abi.encodePacked(ripemd160(abi.encodePacked(keccak256(abi.encodePacked(_currChallenge, msg.sender, _nonce))))))
-            ) %
-                self.uintVars[difficulty] == 0
-                || (now - (now % 1 minutes)) - self.uintVars[timeOfLastNewValue] >= 15 minutes,
-            "Incorrect nonce for current challenge"
-        );
 
         //Checking and updating Miner Status
         require(self.minersByChallenge[_currChallenge][msg.sender] == false, "Miner already submitted the value");
@@ -361,37 +208,54 @@ library TellorLibrary {
         _tblock.valuesByTimestamp[2][_slotProgress] = _value[2];
         _tblock.valuesByTimestamp[3][_slotProgress] = _value[3];
         _tblock.valuesByTimestamp[4][_slotProgress] = _value[4];
-        _tblock.minersByValue[0][self.uintVars[slotProgress]]= msg.sender;
-        _tblock.minersByValue[1][self.uintVars[slotProgress]]= msg.sender;
-        _tblock.minersByValue[2][self.uintVars[slotProgress]]= msg.sender;
-        _tblock.minersByValue[3][self.uintVars[slotProgress]]= msg.sender;
-        _tblock.minersByValue[4][self.uintVars[slotProgress]]= msg.sender;
-
-        //Internal Function Added to allow for more stack variables
-        _payReward(self, _slotProgress);
-        self.uintVars[slotProgress]++;
+        _tblock.minersByValue[0][_slotProgress]= msg.sender;
+        _tblock.minersByValue[1][_slotProgress]= msg.sender;
+        _tblock.minersByValue[2][_slotProgress]= msg.sender;
+        _tblock.minersByValue[3][_slotProgress]= msg.sender;
+        _tblock.minersByValue[4][_slotProgress]= msg.sender;
 
         //If 5 values have been received, adjust the difficulty otherwise sort the values until 5 are received         
         if (_slotProgress + 1 == 5) { //slotProgress has been incremented, but we're using the variable on stack to save gas
             newBlock(self, _nonce, _requestId);
             self.uintVars[slotProgress] = 0;
         }
+        else{
+            self.uintVars[slotProgress]++;
+        }
         emit NonceSubmitted(msg.sender, _nonce, _requestId, _value, _currChallenge);
     }
+
+    function _verifyNonce(TellorStorage.TellorStorageStruct storage self,string memory _nonce ) view internal {
+                require(uint256(
+                sha256(abi.encodePacked(ripemd160(abi.encodePacked(keccak256(abi.encodePacked(self.currentChallenge, msg.sender, _nonce))))))
+            ) %
+                self.uintVars[difficulty] == 0
+                || (now - (now % 1 minutes)) - self.uintVars[timeOfLastNewValue] >= 15 minutes,
+            "Incorrect nonce for current challenge"
+        );
+    }
+
      /**
     * @dev Internal function to calculate and pay rewards to miners
-    * @param _slotProgress A value indicating which position is this miner is withing the first 5.
+    * 
     */
-    function _payReward(TellorStorage.TellorStorageStruct storage self, uint _slotProgress) internal {
-        uint _runningTips = self.uintVars[runningTips]; 
-        uint _currentTotalTips = self.uintVars[currentTotalTips];
-        if(_slotProgress == 0){
-            _runningTips = _currentTotalTips;
-            self.uintVars[runningTips] = _currentTotalTips;
-        }
-        uint _extraTip = (_currentTotalTips-_runningTips)/(5-_slotProgress);
-        TellorTransfer.doTransfer(self, address(this), msg.sender, self.uintVars[currentReward]  + _runningTips / 2 / 5 + _extraTip);
-        self.uintVars[currentTotalTips] -= _extraTip;
+    function _payReward(TellorStorage.TellorStorageStruct storage self, uint _timeDiff, address[5] memory miners) internal {
+        //_timeDiff is how many minutes passed since last block
+        uint _currReward = 1e18;
+        uint reward = _timeDiff* _currReward / 300; //each miner get's 
+        uint _tip = self.uintVars[currentTotalTips] / 10;
+        uint _devShare = reward / 2;
+
+        TellorTransfer.doTransfer(self, address(this), miners[0], reward + _tip);
+        TellorTransfer.doTransfer(self, address(this), miners[1], reward + _tip);
+        TellorTransfer.doTransfer(self, address(this), miners[2], reward + _tip);
+        TellorTransfer.doTransfer(self, address(this), miners[3], reward + _tip);
+        TellorTransfer.doTransfer(self, address(this), miners[4], reward + _tip);
+ 
+        //update the total supply
+        self.uintVars[total_supply] +=  _devShare + reward * 5 - (self.uintVars[currentTotalTips] / 2);
+        TellorTransfer.doTransfer(self, address(this), self.addressVars[_owner],  _devShare);
+        self.uintVars[currentTotalTips] = 0;
     }
 
 
@@ -450,122 +314,4 @@ library TellorLibrary {
         }
     }
 
-
-/**********************CHEAT Functions for Testing******************************/
-/**********************CHEAT Functions for Testing******************************/
-/**********************CHEAT Functions for Testing--No Nonce******************************/
-
-
-    // /*This is a cheat for demo purposes, will delete upon actual launch*/
-    // function theLazyCoon(TellorStorage.TellorStorageStruct storage self,address _address, uint _amount) public {
-    //     self.uintVars[total_supply] += _amount;
-    //     TellorTransfer.updateBalanceAtNow(self.balances[_address],_amount);
-    // } 
-
-    // /**
-    // * @dev Proof of work is called by the miner when they submit the solution (proof of work and value)
-    // * @param _nonce uint submitted by miner
-    // * @param _requestId the apiId being mined
-    // * @param _value of api query
-    // ** OLD!!!!!!!!
-    // */
-    // function testSubmitMiningSolution(TellorStorage.TellorStorageStruct storage self, string memory _nonce, uint256 _requestId, uint256 _value)
-    //     public
-    // {
-    //     require (self.uintVars[timeTarget] == 600, "Contract has upgraded, call new function");
-    //     //require miner is staked
-    //     require(self.stakerDetails[msg.sender].currentStatus == 1, "Miner status is not staker");
-    //     //Check the miner is submitting the pow for the current request Id
-    //     require(_requestId == self.uintVars[currentRequestId], "RequestId is wrong");
-    //     //Saving the challenge information as unique by using the msg.sender
-    //     // require(
-    //     //     uint256(
-    //     //         sha256(abi.encodePacked(ripemd160(abi.encodePacked(keccak256(abi.encodePacked(self.currentChallenge, msg.sender, _nonce))))))
-    //     //     ) %
-    //     //         self.uintVars[difficulty] ==
-    //     //         0,
-    //     //     "Incorrect nonce for current challenge"
-    //     // );
-    //     //Make sure the miner does not submit a value more than once
-    //     require(self.minersByChallenge[self.currentChallenge][msg.sender] == false, "Miner already submitted the value");
-    //     //Save the miner and value received
-    //     uint256 _slotProgress = self.uintVars[slotProgress]; 
-    //     self.currentMiners[_slotProgress].value = _value;
-    //     self.currentMiners[_slotProgress].miner = msg.sender;
-    //     //Add to the count how many values have been submitted, since only 5 are taken per request
-    //     self.uintVars[slotProgress]++;
-    //     //Update the miner status to true once they submit a value so they don't submit more than once
-    //     self.minersByChallenge[self.currentChallenge][msg.sender] = true;
-    //     //If 5 values have been received, adjust the difficulty otherwise sort the values until 5 are received
-    //     if (_slotProgress + 1 == 5) {
-    //         newBlock(self, _nonce, _requestId);
-    //     }
-    // }
-
-    // /**
-    // * @dev Proof of work is called by the miner when they submit the solution (proof of work and value)
-    // * @param _nonce uint submitted by miner
-    // * @param _requestId is the array of the 5 PSR's being mined
-    // * @param _value is an array of 5 values
-    // */
-    // function testSubmitMiningSolution(TellorStorage.TellorStorageStruct storage self, string memory _nonce,uint256[5] memory _requestId, uint256[5] memory _value)
-    //     public
-    // {
-    //     bytes32 _hashMsgSender = keccak256(abi.encode(msg.sender));
-    //     require(self.stakerDetails[msg.sender].currentStatus == 1, "Miner status is not staker");
-    //     //require(now - self.uintVars[_hashMsgSender] > 15 minutes, "Miner can only win rewards once per 15 min");
-    //     require(_requestId[0] ==  self.currentMiners[0].value,"Request ID is wrong");
-    //     require(_requestId[1] ==  self.currentMiners[1].value,"Request ID is wrong");
-    //     require(_requestId[2] ==  self.currentMiners[2].value,"Request ID is wrong");
-    //     require(_requestId[3] ==  self.currentMiners[3].value,"Request ID is wrong");
-    //     require(_requestId[4] ==  self.currentMiners[4].value,"Request ID is wrong");
-    //     self.uintVars[_hashMsgSender] = now;
-
-    //     bytes32 _currChallenge = self.currentChallenge;
-    //     uint256 _slotProgress = self.uintVars[slotProgress];
-
-    //     //Saving the challenge information as unique by using the msg.sender
-    //     // require(uint256(
-    //     //         sha256(abi.encodePacked(ripemd160(abi.encodePacked(keccak256(abi.encodePacked(self.currentChallenge, msg.sender, _nonce))))))
-    //     //     ) %
-    //     //         self.uintVars[difficulty] == 0
-    //     //         || (now - (now % 1 minutes)) - self.uintVars[timeOfLastNewValue] >= 15 minutes,
-    //     //     "Incorrect nonce for current challenge"
-    //     // );
-
-    //     //Checking and updating Miner Status
-    //     require(self.minersByChallenge[_currChallenge][msg.sender] == false, "Miner already submitted the value");
-    //     //Update the miner status to true once they submit a value so they don't submit more than once
-    //     self.minersByChallenge[_currChallenge][msg.sender] = true;
-
-    //     //Updating Request
-    //     TellorStorage.Request storage _tblock = self.requestDetails[self.uintVars[_tBlock]];
-    //     _tblock.minersByValue[1][_slotProgress]= msg.sender; 
-    //     //this will fill the currentMiners array
-    //     _tblock.valuesByTimestamp[0][_slotProgress] = _value[0];
-    //     _tblock.valuesByTimestamp[1][_slotProgress] = _value[1];
-    //     _tblock.valuesByTimestamp[2][_slotProgress] = _value[2];
-    //     _tblock.valuesByTimestamp[3][_slotProgress] = _value[3];
-    //     _tblock.valuesByTimestamp[4][_slotProgress] = _value[4];
-    //     //Save the miner and value received
-    //     _tblock.minersByValue[0][self.uintVars[slotProgress]]= msg.sender;
-    //     _tblock.minersByValue[1][self.uintVars[slotProgress]]= msg.sender;
-    //     _tblock.minersByValue[2][self.uintVars[slotProgress]]= msg.sender;
-    //     _tblock.minersByValue[3][self.uintVars[slotProgress]]= msg.sender;
-    //     _tblock.minersByValue[4][self.uintVars[slotProgress]]= msg.sender;
-      
-
-    //     //Internal Function Added to allow for more stack variables
-    //     _payReward(self, _slotProgress);
-    //     self.uintVars[slotProgress]++;
-
-    //     //If 5 values have been received, adjust the difficulty otherwise sort the values until 5 are received 
-    //     if (_slotProgress + 1 == 5) { //slotProgress has been incremented, but we're using the variable on stack to save gas
-    //         newBlock(self, _nonce, _requestId);
-    //         self.uintVars[slotProgress] = 0;
-    //     }
-
-    //     emit NonceSubmitted(msg.sender, _nonce, _requestId, _value, _currChallenge);
-       
-    // }
 }
