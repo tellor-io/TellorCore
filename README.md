@@ -22,10 +22,10 @@ Quick references are included below:
 
 * <b>Implement Tellor into your project</b>
 
-1. Use npm to istall the [usingTellor](https://github.com/tellor-io/usingtellor) repo.
+1. Use npm to install the [usingTellor](https://github.com/tellor-io/usingtellor) repo.
 
 ```bash
-npm install usingTellor
+npm install usingtellor
 ```
 
 2. Import UsingTellor.sol into your smart contract and ensure your contract inherits from it by adding "is UsingTellor".
