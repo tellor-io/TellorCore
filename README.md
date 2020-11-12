@@ -16,7 +16,7 @@ Ethereum smart contracts cannot access off-chain data. If your smart contract re
 
 <b>The Tellor oracle</b> is a decentralized oracle. It provides an option for contracts to securely interact with and obtain data from off-chain.
 
-For more indepth information about Tellor checkout our [documenation](https://tellor.readthedocs.io/en/latest/), [whitepaper](https://tellor.io/whitepaper/) and [FAQ](https://tellor.io/faq/) page. 
+For more indepth information about Tellor checkout our [documenation](https://github.com/tellor-io/TellorMiner), [whitepaper](https://tellor.io/whitepaper/) and [FAQ](https://tellor.io/faq/) page. 
 
 Quick references are included below: 
 
@@ -56,37 +56,21 @@ contract YourContract is UsingTellor{
 ```
 
 
-* <b>Miner [Documentation](https://tellor.readthedocs.io/en/latest/MinerSetup/)</b>
+* <b>Miner [Documentation](https://github.com/tellor-io/TellorMiner/)</b>
 
-* <b>General Tellor Developer's [Documentation](https://tellor.readthedocs.io/en/latest/DevDocumentation/)</b>
+* <b>General Tellor Developer's [Documentation](https://app.gitbook.com/@tellor-2/s/tellor-docs/dev-documentation/)</b>
 
-
-### Useful Links
-
-Metamask - www.metamask.io 
-<br>
-Truffle - http://truffleframework.com/
+## Maintainers <a name="maintainers"> </a> 
+This repository is maintained by the [Tellor team](https://github.com/orgs/tellor-io/people)
 
 
-#### Maintainers <a name="maintainers"> </a> 
-[@themandalore](https://github.com/themandalore)
-<br>
-[@brendaloya](https://github.com/brendaloya) 
-
-
-#### How to Contribute<a name="how2contribute"> </a>  
+## How to Contribute<a name="how2contribute"> </a>  
 Join our Discord or Telegram:
 [<img src="./public/telegram.png" width="24" height="24">](https://t.me/tellor)
 [<img src="./public/discord.png" width="24" height="24">](https://discord.gg/zFcM3G)
 
 Check out our issues log here on Github or contribute to our future plans to build a better miner and more examples of data secured by Tellor. 
 
-
-#### Contributors<a name="contributors"> </a>
-
-This repository is maintained by the Tellor team - [www.tellor.io](https://www.tellor.io)
-
-
-#### Copyright
+## Copyright
 
 Tellor Inc. 2019
