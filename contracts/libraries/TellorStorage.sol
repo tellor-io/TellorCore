@@ -99,10 +99,10 @@ library TellorStorage {
         // keccak256("miningReward");//Mining Reward in PoWo tokens given to all miners per value
         // keccak256("timeTarget"); //The time between blocks (mined Oracle values)
         // keccak256("_tblock"); //
-        // keccak256("runningTips"); // VAriable to track running tips
+        // keccak256("runningTips"); // Variable to track running tips
         // keccak256("currentReward"); // The current reward
         // keccak256("devShare"); // The amount directed towards th devShare
-        // keccak256("currentTotalTips"); //
+
         //This is a boolean that tells you if a given challenge has been completed by a given miner
         mapping(bytes32 => mapping(address => bool)) minersByChallenge;
         mapping(uint256 => uint256) requestIdByTimestamp; //minedTimestamp to apiId
