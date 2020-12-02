@@ -1,6 +1,23 @@
 pragma solidity ^0.5.0;
 
 contract ITellorIIV{
+
+    event NewTellorAddress(address _newTellor);
+    event NewDispute(uint256 indexed _disputeId, uint256 indexed _requestId, uint256 _timestamp, address _miner);
+    event Voted(uint256 indexed _disputeID, bool _position, address indexed _voter, uint256 indexed _voteWeight);
+    event DisputeVoteTallied(uint256 indexed _disputeID, int256 _result, address indexed _reportedMiner, address _reportingParty, bool _active);
+    event TipAdded(address indexed _sender, uint256 indexed _requestId, uint256 _tip, uint256 _totalTips);
+    event NewChallenge(bytes32 indexed _currentChallenge,uint256[5] _currentRequestId,uint256 _difficulty,uint256 _totalTips);
+    event NewValue(uint256[5] _requestId, uint256 _time, uint256[5] _value, uint256 _totalTips, bytes32 indexed _currentChallenge);
+    event NonceSubmitted(address indexed _miner, string _nonce, uint256[5] _requestId, uint256[5] _value, bytes32 indexed _currentChallenge);
+    event OwnershipTransferred(address indexed _previousOwner, address indexed _newOwner);
+    event OwnershipProposed(address indexed _previousOwner, address indexed _newOwner);
+    event NewStake(address indexed _sender); //Emits upon new staker
+    event StakeWithdrawn(address indexed _sender); //Emits when a staker is now no longer staked
+    event StakeWithdrawRequested(address indexed _sender); //Emits when a staker begins the 7 day withdraw period
+    event Approval(address indexed _owner, address indexed _spender, uint256 _value); //ERC20 Approval event
+    event Transfer(address indexed _from, address indexed _to, uint256 _value); //ERC20 Transfer Event
+
     function changeDeity(address _newDeity) external;
     function changeTellorContract(address _tellorContract) external;
     function allowance(address _user, address _spender) external view returns (uint256);
