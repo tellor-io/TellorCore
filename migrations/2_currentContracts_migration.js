@@ -50,6 +50,8 @@ const v2TellorGettersLibrary = artifacts.require(
 // };
 
 module.exports = async function(deployer) {
+  console.log("MIGRATIONS 2");
+  
   // deploy transfer
   await deployer.deploy(TellorTransfer);
   // sleep_s(30);

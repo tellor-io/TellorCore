@@ -17,6 +17,7 @@ var TellorLibraryTest = artifacts.require("TellorLibraryTest.sol");
  **/
 
 module.exports = async function(deployer) {
+  console.log("MIGRATIONS 6");
   // deploy transfer
   await deployer.deploy(TellorTransfer);
   // sleep_s(30);

@@ -36,6 +36,7 @@ var Old2TellorLibrary = artifacts.require(
 /****Uncomment the body below to run this with Truffle migrate for truffle testing*/
 
 module.exports = async function(deployer) {
+  console.log("MIGRATIONS 4");
   // //Old2 DEPS
   // await deployer.deploy(Old2TellorTransfer);
 

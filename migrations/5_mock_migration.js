@@ -20,6 +20,7 @@ var RefTellor = artifacts.require("RefTellor.sol");
  */
 
 module.exports = async function(deployer) {
+  console.log("MIGRATIONS 5");
   await deployer.deploy(TellorTransfer);
   await deployer.link(TellorTransfer, TellorStake);
   await deployer.deploy(TellorStake);
