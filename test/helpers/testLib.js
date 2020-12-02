@@ -55,7 +55,9 @@ async function createV25Env(accounts, transition = false) {
   const newAdd = "0x032Aa32e4069318b15e6462CE20926d4d821De90";
 
   oldTellor = await OldTellor.new();
+  console.log("here");
   oracle = await TellorMaster.new(oldTellor.address);
+  console.log("up");
   master = await ITellorI.at(oracle.address);
   for (var i = 0; i < accounts.length; i++) {
     //print tokens
