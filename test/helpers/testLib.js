@@ -33,9 +33,7 @@ async function mineBlock(env) {
       );
       miners++;
     } catch (e){
-      if (miners < 5) {
-        assert.isTrue(false, "Couldn't mine a block");
-      }
+      assert.isTrue(false, "miner of index" + i + " coudln't mine a block. Reason: " + e)
     }
     if (miners == 5) {
       break;
@@ -94,8 +92,6 @@ async function createV25Env(accounts, transition = false) {
   });
   vars = await oracle2.getNewCurrentVariables();
   let oracle3 = await ITellorIIV.at(oracle2.address);
-  
-  vars = await oracle3.getNewCurrentVariables();
   return oracle3;
 }
 
