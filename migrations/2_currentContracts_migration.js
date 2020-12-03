@@ -82,11 +82,11 @@ module.exports = async function(deployer) {
   //sleep_s(60);
 
   // deploy getters lib
-  //await deployer.deploy(TellorGettersLibrary);
+  await deployer.deploy(TellorGettersLibrary);
   //sleep_s(30);
 
   //****************************for Tests only*********************************/
-  //OLD DEPS
+  // //OLD DEPS
   await deployer.deploy(OldTellorTransfer);
 
   await deployer.link(OldTellorTransfer, OldTellorDispute);

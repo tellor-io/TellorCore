@@ -67,10 +67,9 @@ async function createV25Env(accounts, transition = false) {
     await master.requestData(apix, x, 1000, 52 - i);
   }
 
-  oracleBase = transition
-    ? await TellorV2.new({ from: accounts[9] })
-    : await TellorV2.new();
-  await master.changeTellorContract(oracleBase.address);
+  oracleBase = await TellorV2.new({ from: accounts[9] })
+  let base = await TellorV2.at(baseAdd)
+  await master.changeTellorContract(base.address);
 
   for (var i = 0; i < 5; i++) {
     await master.submitMiningSolution("nonce", 1, 1200, { from: accounts[i] });
@@ -78,22 +77,25 @@ async function createV25Env(accounts, transition = false) {
 
   oracle2 = await ITellorII.at(oracle.address);
 
-  let newTellor = transition
-    ? await Tellor.new({ from: accounts[9] })
-    : await Tellor.new();
+  
+  let newTellorFirst = await Tellor.new({from: accounts[9]})
+  let newTellor = await Tellor.at(newAdd);
+
 
   transitionContract = await TransitionContract.new();
-  newTellor = await Tellor.at(newAdd);
 
   vars = await oracle2.getNewCurrentVariables();
   await oracle2.changeTellorContract(transitionContract.address);
 
-  // await helper.advanceTime(60 * 16);
-  // await mineBlock({
-  //   master: oracle2,
-  //   accounts: accounts,
-  // });
-  let oracle3 = ITellorIIV.at(oracle2.address);
+  await helper.advanceTime(60 * 16);
+  await mineBlock({
+    master: oracle2,
+    accounts: accounts,
+  });
+  vars = await oracle2.getNewCurrentVariables();
+  let oracle3 = await ITellorIIV.at(oracle2.address);
+  
+  vars = await oracle3.getNewCurrentVariables();
   return oracle3;
 }
 

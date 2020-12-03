@@ -8,6 +8,7 @@ const mnemonic =
 
 // ganache-cli -m "nick lucian brenda kevin sam fiscal patch fly damp ocean produce wish" -l 10000000 --allowUnlimitedContractSize
 module.exports = {
+  quiet: true,
   networks: {
     development: {
       host: "localhost",
