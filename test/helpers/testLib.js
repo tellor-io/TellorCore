@@ -13,15 +13,15 @@ async function mineBlock(env) {
   let miners = 0;
   let m = []
   let res;
-  for (var i = 0; i < env.accounts.length; i++) {
-    let info = await env.master.getStakerInfo(env.accounts[i]);
-    if (i > 5 && info["0"].toString() != "1") {
-      try {
-        await env.master.depositStake({ from: env.accounts[i] });
-      } catch {
-        continue;
-      }
-    }
+  for (var i = 0; i < 5; i++) {
+    // let info = await env.master.getStakerInfo(env.accounts[i]);
+    // if (i > 5 && info["0"].toString() != "1") {
+    //   try {
+    //     await env.master.depositStake({ from: env.accounts[i] });
+    //   } catch {
+    //     continue;
+    //   }
+    // }
     try {
       res = await env.master.submitMiningSolution(
         "nonce",
@@ -33,7 +33,7 @@ async function mineBlock(env) {
       );
       miners++;
     } catch (e){
-      if (miners < 5 && i == env.accounts.length - 1) {
+      if (miners < 5) {
         assert.isTrue(false, "Couldn't mine a block");
       }
     }

@@ -48,7 +48,7 @@ start_ganache() {
   if [ "$SOLIDITY_COVERAGE" = true ]; then
     npx ganache-cli-coverage --emitFreeLogs true --allowUnlimitedContractSize true --gasLimit 0xfffffffffffff --port "$ganache_port" "${accounts[@]}" > /dev/null &
   else
-    npx ganache-cli --gasLimit 0xfffffffffff --allowUnlimitedContractSize true --port "$ganache_port" -m 'nick lucian brenda kevin sam fiscal patch fly damp ocean produce wish' -a 20 > /dev/null &
+    npx ganache-cli --gasLimit 0xfffffffffff -q --allowUnlimitedContractSize true --port "$ganache_port" -m 'nick lucian brenda kevin sam fiscal patch fly damp ocean produce wish' -a 20 > /dev/null &
   fi
 
   ganache_pid=$!
@@ -57,7 +57,6 @@ start_ganache() {
   echo "Waiting for ganache to launch on port "$ganache_port"..."
 
   while ! ganache_running; do
-    echo "not running"
     sleep 0.1 # wait for 1/10 of the second before check again
   done
 
