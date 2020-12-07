@@ -83,5 +83,5 @@ npx truffle version
 if [ "$SOLIDITY_COVERAGE" = true ]; then
   npx solidity-coverage
 else
-  npx truffle test "$@"
+  npx truffle test "$@" --network development
 fi
