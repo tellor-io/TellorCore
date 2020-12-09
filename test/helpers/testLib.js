@@ -7,6 +7,97 @@ const OldTellor = artifacts.require("./oldContracts/OldTellor.sol");
 const TellorV2 = artifacts.require("./v2/v2Tellor.sol");
 const TellorMaster = artifacts.require("./TellorMaster.sol");
 const TransitionContract = artifacts.require("./TellorTransition");
+const TellorTransfer = artifacts.require("./libraries/TellorTransfer.sol");
+const TellorDispute = artifacts.require("./libraries/TellorDispute.sol");
+const TellorStake = artifacts.require("./libraries/TellorStake.sol");
+const TellorLibraryTest = artifacts.require("./libraries/TellorLibraryTest.sol");
+const TellorLibrary = artifacts.require("./libraries/TellorLibrary.sol");
+
+const OldTellorStake = artifacts.require(
+  "tellorlegacy/contracts/oldContracts/libraries/OldTellorStake"
+);
+const OldTellorTransfer = artifacts.require(
+  "tellorlegacy/contracts/oldContracts/libraries/OldTellorTransfer"
+);
+const OldTellorDispute = artifacts.require(
+  "tellorlegacy/contracts/oldContracts/libraries/OldTellorDispute"
+);
+
+const OldTellorLibrary = artifacts.require(
+  "tellorlegacy/contracts/oldContracts/libraries/OldTellorLibrary"
+);
+
+const OldTellorGettersLibrary = artifacts.require(
+  "tellorlegacy/contracts/oldContracts/libraries/OldTellorGettersLibrary"
+);
+
+const V2TellorStake = artifacts.require("v2/libraries/v2TellorStake");
+const V2TellorTransfer = artifacts.require("v2/libraries/v2TellorTransfer");
+const V2TellorDispute = artifacts.require("v2/libraries/v2TellorDispute");
+const V2TellorLibrary = artifacts.require("v2/libraries/v2TellorLibrary");
+
+const prepareTellorTest = async() => {
+   const ttransfer = await TellorTransfer.new();
+
+  await TellorDispute.link(ttransfer);
+  const tdispute = await TellorDispute.new()
+
+  await TellorStake.link(tdispute);
+  await TellorStake.link(ttransfer);
+  const tstake = await TellorStake.new();
+
+  await TellorLibrary.link(ttransfer);
+  const tlib = await TellorLibrary.new();
+
+  await TellorLibraryTest.link(ttransfer);
+  const tlibtest = await TellorLibraryTest.new();
+
+  await Tellor.link(ttransfer);
+  await Tellor.link(tdispute);
+  await Tellor.link(tstake);
+  await Tellor.link(tlib)
+  await Tellor.link(tlibtest)
+}
+
+const prepareTellorV2 = async() => {
+  const v2ttransfer = await V2TellorTransfer.new();
+
+  await V2TellorDispute.link(v2ttransfer);
+  const v2tdispute = await V2TellorDispute.new()
+
+  await V2TellorStake.link(v2tdispute);
+  await V2TellorStake.link(v2ttransfer);
+  const v2tstake = await V2TellorStake.new();
+
+  await V2TellorLibrary.link(v2ttransfer);
+  const v2tlib = await V2TellorLibrary.new();
+
+  await TellorV2.link(v2ttransfer);
+  await TellorV2.link(v2tdispute);
+  await TellorV2.link(v2tstake);
+  await TellorV2.link(v2tlib)
+}
+
+const prepareOldTellor = async() => {
+  const oldttransfer = await OldTellorTransfer.new();
+
+  await OldTellorDispute.link(oldttransfer);
+  const oldtdispute = await OldTellorDispute.new()
+
+  await OldTellorStake.link(oldttransfer);
+  await OldTellorStake.link(oldtdispute);
+  const oldtstake = await OldTellorStake.new();
+
+  await OldTellorLibrary.link(oldttransfer);
+  const oldtlib = await OldTellorLibrary.new();
+
+  await OldTellor.link(oldttransfer);
+  await OldTellor.link(oldtdispute);
+  await OldTellor.link(oldtstake);
+  await OldTellor.link(oldtlib)
+  await TellorMaster.link(oldttransfer);
+  await TellorMaster.link(oldtstake);
+}
 
 async function mineBlock(env) {
   let vars = await env.master.getNewCurrentVariables();
@@ -51,6 +142,9 @@ async function createV25Env(accounts, transition = false) {
   var api = "json(https://api.gdax.com/products/BTC-USD/ticker).price";
   const baseAdd = "0x6511D2957aa09350494f892Ce2881851f0bb26D3";
   const newAdd = "0x032Aa32e4069318b15e6462CE20926d4d821De90";
+  await prepareOldTellor()
+  await prepareTellorV2()
+  await prepareTellorTest()
 
   oldTellor = await OldTellor.new();
   oracle = await TellorMaster.new(oldTellor.address);
@@ -104,6 +198,9 @@ async function createV25EnvEmpty(accounts, transition = false) {
   var api = "json(https://api.gdax.com/products/BTC-USD/ticker).price";
   const baseAdd = "0x6511D2957aa09350494f892Ce2881851f0bb26D3";
   const newAdd = "0x032Aa32e4069318b15e6462CE20926d4d821De90";
+  oldTellor = await OldTellor.new();
+  oracle = await TellorMaster.new(oldTellor.address);
+  master = await ITellorI.at(oracle.address);
 
   oldTellor = await OldTellor.new();
   oracle = await TellorMaster.new(oldTellor.address);
@@ -155,6 +252,9 @@ async function createV2Env(accounts, transition) {
   let master;
   let oldTellor;
   var api = "json(https://api.gdax.com/products/BTC-USD/ticker).price";
+  oldTellor = await OldTellor.new();
+  oracle = await TellorMaster.new(oldTellor.address);
+  master = await ITellorI.at(oracle.address);
 
   oldTellor = await OldTellor.new();
   oracle = await TellorMaster.new(oldTellor.address);
@@ -192,6 +292,9 @@ async function createV2EnvFull(accounts, transition) {
   let master;
   let oldTellor;
   var api = "json(https://api.gdax.com/products/BTC-USD/ticker).price";
+  oldTellor = await OldTellor.new();
+  oracle = await TellorMaster.new(oldTellor.address);
+  master = await ITellorI.at(oracle.address);
 
   oldTellor = await OldTellor.new();
   oracle = await TellorMaster.new(oldTellor.address);
