@@ -10,8 +10,8 @@ contract TellorTransition {
 
     TellorStorage.TellorStorageStruct tellor;
 
-    address public constant newTellor = 0xF7914ebf0f021Adaf95114B068502d0C7D107bc9;
-    address public constant currentTellor = 0x8041ebDae1358d79CC1c2813B61b7f8DA3323d38;
+    address public constant newTellor = 0x032Aa32e4069318b15e6462CE20926d4d821De90;
+    address public constant currentTellor = 0x6511D2957aa09350494f892Ce2881851f0bb26D3;
 
     /**
     * @dev Function to be executed before the first transaction to new version is called. After performing
