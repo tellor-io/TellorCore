@@ -81,18 +81,6 @@ library TellorLibrary {
     */
     function newBlock(TellorStorage.TellorStorageStruct storage self, string memory _nonce, uint256[5] memory _requestId) public {
         TellorStorage.Request storage _tblock = self.requestDetails[self.uintVars[_tBlock]];
-        // If the difference between the timeTarget and how long it takes to solve the challenge this updates the challenge
-        //difficulty up or donw by the difference between the target time and how long it took to solve the previous challenge
-        //otherwise it sets it to 1
-        uint timeDiff = now - self.uintVars[timeOfLastNewValue];
-        int256 _change = int256(SafeMath.min(1200, timeDiff));
-        int256 _diff = int256(self.uintVars[difficulty]);
-        _change = (_diff * (int256(self.uintVars[timeTarget]) - _change)) / 4000;
-        if (_change == 0) {
-                _change = 1;
-            }
-        self.uintVars[difficulty]  = uint256(SafeMath.max(_diff + _change,1));
-
 
         //Sets time of value submission rounded to 1 minute
         bytes32 _currChallenge = self.currentChallenge;
@@ -140,7 +128,7 @@ library TellorLibrary {
 
         address[5] memory miners = self.requestDetails[_requestId[0]].minersByValue[_timeOfLastNewValue];
         //payMinersRewards
-        _payReward(self, timeDiff, miners);
+        _payReward(self, miners);
         
         self.uintVars[_tBlock] ++;
         uint256[5] memory _topId = TellorStake.getTopRequestIDs(self);
@@ -161,6 +149,20 @@ library TellorLibrary {
         );
     }
 
+    function adjustDifficulty(TellorStorage.TellorStorageStruct storage self) internal {
+        // If the difference between the timeTarget and how long it takes to solve the challenge this updates the challenge
+        //difficulty up or donw by the difference between the target time and how long it took to solve the previous challenge
+        //otherwise it sets it to 1
+        uint timeDiff = now - self.uintVars[timeOfLastNewValue];
+        int256 _change = int256(SafeMath.min(1200, timeDiff));
+        int256 _diff = int256(self.uintVars[difficulty]);
+        _change = (_diff * (int256(self.uintVars[timeTarget]) - _change)) / 4000;
+        if (_change == 0) {
+                _change = 1;
+            }
+        self.uintVars[difficulty]  = uint256(SafeMath.max(_diff + _change,1));
+    }
+
     /**
     * @dev Proof of work is called by the miner when they submit the solution (proof of work and value)
     * @param _nonce uint submitted by miner
@@ -170,7 +172,9 @@ library TellorLibrary {
     function submitMiningSolution(TellorStorage.TellorStorageStruct storage self, string calldata _nonce,uint256[5] calldata _requestId, uint256[5] calldata _value)
         external
     {
-        _verifyNonce(self, _nonce);
+        if(self.uintVars[slotProgress] != 4) {
+            _verifyNonce(self, _nonce);
+        } 
         _submitMiningSolution(self, _nonce, _requestId, _value);
     }
 
@@ -201,7 +205,7 @@ library TellorLibrary {
 
         //Updating Request
         TellorStorage.Request storage _tblock = self.requestDetails[self.uintVars[_tBlock]];
-        _tblock.minersByValue[1][_slotProgress]= msg.sender; 
+        
         //Assigng directly is cheaper than using a for loop
         _tblock.valuesByTimestamp[0][_slotProgress] = _value[0];
         _tblock.valuesByTimestamp[1][_slotProgress] = _value[1];
@@ -214,11 +218,16 @@ library TellorLibrary {
         _tblock.minersByValue[3][_slotProgress]= msg.sender;
         _tblock.minersByValue[4][_slotProgress]= msg.sender;
 
-        //If 5 values have been received, adjust the difficulty otherwise sort the values until 5 are received         
+
+
+       if(_slotProgress + 1 == 4) {
+           adjustDifficulty(self);
+       }
+       
         if (_slotProgress + 1 == 5) { //slotProgress has been incremented, but we're using the variable on stack to save gas
             newBlock(self, _nonce, _requestId);
             self.uintVars[slotProgress] = 0;
-        }
+        } 
         else{
             self.uintVars[slotProgress]++;
         }
@@ -239,8 +248,10 @@ library TellorLibrary {
     * @dev Internal function to calculate and pay rewards to miners
     * 
     */
-    function _payReward(TellorStorage.TellorStorageStruct storage self, uint _timeDiff, address[5] memory miners) internal {
+    function _payReward(TellorStorage.TellorStorageStruct storage self, address[5] memory miners) internal {
         //_timeDiff is how many minutes passed since last block
+        uint _timeDiff = now - self.uintVars[timeOfLastNewValue];
+
         uint _currReward = 1e18;
         uint reward = _timeDiff* _currReward / 300; //each miner get's 
         uint _tip = self.uintVars[currentTotalTips] / 10;
