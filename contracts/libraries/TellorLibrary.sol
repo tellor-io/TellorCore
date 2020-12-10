@@ -46,7 +46,7 @@ library TellorLibrary {
     //Emits upon a successful Mine, indicates the blocktime at point of the mine and the value mined
     event NewValue(uint256[5] _requestId, uint256 _time, uint256[5] _value, uint256 _totalTips, bytes32 indexed _currentChallenge);
     //Emits upon each mine (5 total) and shows the miner, nonce, and value submitted
-    event NonceSubmitted(address indexed _miner, string _nonce, uint256[5] _requestId, uint256[5] _value, bytes32 indexed _currentChallenge);
+    event NonceSubmitted(address indexed _miner, string _nonce, uint256[5] _requestId, uint256[5] _value, bytes32 indexed _currentChallenge, uint256 _slot);
     event OwnershipTransferred(address indexed _previousOwner, address indexed _newOwner);
     event OwnershipProposed(address indexed _previousOwner, address indexed _newOwner);
 
@@ -118,7 +118,7 @@ library TellorLibrary {
                 _requestId,
                 _timeOfLastNewValue,
                 a,
-                self.uintVars[runningTips],
+                self.uintVars[currentTotalTips],
                 _currChallenge
             );
         //map the timeOfLastValue to the requestId that was just mined
@@ -231,7 +231,7 @@ library TellorLibrary {
         else{
             self.uintVars[slotProgress]++;
         }
-        emit NonceSubmitted(msg.sender, _nonce, _requestId, _value, _currChallenge);
+        emit NonceSubmitted(msg.sender, _nonce, _requestId, _value, _currChallenge,_slotProgress);
     }
 
     function _verifyNonce(TellorStorage.TellorStorageStruct storage self,string memory _nonce ) view internal {
