@@ -270,26 +270,26 @@ library TellorLibrary {
     }
 
 
-    /**
-    * @dev Allows the current owner to propose transfer control of the contract to a
-    * newOwner and the ownership is pending until the new owner calls the claimOwnership
-    * function
-    * @param _pendingOwner The address to transfer ownership to.
-    */
-    function proposeOwnership(TellorStorage.TellorStorageStruct storage self, address payable _pendingOwner) public {
-        require(msg.sender == self.addressVars[_owner], "Sender is not owner");
-        emit OwnershipProposed(self.addressVars[_owner], _pendingOwner);
-        self.addressVars[pending_owner] = _pendingOwner;
-    }
+    // /**
+    // * @dev Allows the current owner to propose transfer control of the contract to a
+    // * newOwner and the ownership is pending until the new owner calls the claimOwnership
+    // * function
+    // * @param _pendingOwner The address to transfer ownership to.
+    // */
+    // function proposeOwnership(TellorStorage.TellorStorageStruct storage self, address payable _pendingOwner) public {
+    //     require(msg.sender == self.addressVars[_owner], "Sender is not owner");
+    //     emit OwnershipProposed(self.addressVars[_owner], _pendingOwner);
+    //     self.addressVars[pending_owner] = _pendingOwner;
+    // }
 
-    /**
-    * @dev Allows the new owner to claim control of the contract
-    */
-    function claimOwnership(TellorStorage.TellorStorageStruct storage self) public {
-        require(msg.sender == self.addressVars[pending_owner], "Sender is not pending owner");
-        emit OwnershipTransferred(self.addressVars[_owner], self.addressVars[pending_owner]);
-        self.addressVars[_owner] = self.addressVars[pending_owner];
-    }
+    // /**
+    // * @dev Allows the new owner to claim control of the contract
+    // */
+    // function claimOwnership(TellorStorage.TellorStorageStruct storage self) public {
+    //     require(msg.sender == self.addressVars[pending_owner], "Sender is not pending owner");
+    //     emit OwnershipTransferred(self.addressVars[_owner], self.addressVars[pending_owner]);
+    //     self.addressVars[_owner] = self.addressVars[pending_owner];
+    // }
 
     /**
     * @dev This function updates APIonQ and the requestQ when requestData or addTip are ran
