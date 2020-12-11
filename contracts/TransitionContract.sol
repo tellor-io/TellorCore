@@ -19,9 +19,7 @@ contract TellorTransition {
     */
     function _transition() internal {
         //Perfomr all necessary steps for the transition
-        tellor.uintVars[keccak256("currentReward")] = 1e18;
-        tellor.uintVars[keccak256("stakeAmount")] = 500e18;
-        tellor.uintVars[keccak256("disputeFee")] = 500e18;
+        tellor.uintVars[keccak256("timeTarget")] = 240;
 
         //After, change the "tellorAddress" to the new version
         tellor.addressVars[keccak256("tellorContract")] = newTellor;
