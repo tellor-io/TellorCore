@@ -5,6 +5,13 @@ const Tellor = artifacts.require("TellorTest");
 const hash = web3.utils.keccak256;
 const BN = web3.utils.BN;
 
+contract("Before All", (accounts) => {
+  it("runs it", async() => {
+    await TestLib.prepare()
+  })
+})
+
+
 contract("v2 Tests", function(accounts) {
   let master;
   let env;
@@ -31,7 +38,7 @@ contract("v2 Tests", function(accounts) {
   };
 
   beforeEach("Setup contract for each test", async function() {
-    master = await TestLib.getV25Empty(accounts, true);
+    master = await TestLib.getV25(accounts, true);
     env = {
       master: master,
       accounts: accounts,

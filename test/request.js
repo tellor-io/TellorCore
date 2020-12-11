@@ -5,11 +5,6 @@ const TestLib = require("./helpers/testLib");
 const helper = require("./helpers/test_helpers");
 const BN = web3.utils.BN
 
-contract("Before All", (accounts) => {
-  it("runs it", async() => {
-    await TestLib.prepare()
-  })
-})
 
 
 contract("Request and tip tests", function(accounts) {
