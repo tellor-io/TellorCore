@@ -25,49 +25,52 @@ contract("Request and tip tests", function(accounts) {
     assert(minT[0] == 0);
     assert(minT[1] == 50, "index should be correct");
   });
-  it("Add Tip", async function() {
-    apiVars = await master.getRequestVars(11);
-    console.log(apiVars[5]);
-    res = await master.addTip(11, 20)
-    apiVars = await master.getRequestVars(11);
-    console.log(apiVars[5]);
-    assert(apiVars[5] == 20, "value pool should be 20");
-  });
-  // it("several request data", async function() {
-  //   let req1 = await master.addTip(41, 100, { from: accounts[2] });
-  //   req1 = await master.addTip(42, 100, { from: accounts[2] });
-  //   req1 = await master.addTip(43, 100, { from: accounts[2] });
-  //   req1 = await master.addTip(44, 100, { from: accounts[2] });
-  //   req1 = await master.addTip(31, 20, { from: accounts[2] });
-  //   data = await master.getNewVariablesOnDeck();
-  //   let ids = data["0"].map((i) => i.toString());
-  //   let tips = data["1"].map((i) => i.toString());
-
-  //   assert(ids.includes("41"), "ID on deck should be 41");
-  //   assert(ids.includes("31"), "ID on deck should be 31");
-  //   assert(tips.includes("20"), "Tip should be over 20");
-  //   req1 = await master.addTip(32, 40, { from: accounts[2] });
-  //   data = await master.getNewVariablesOnDeck();
-  //   ids = data["0"].map((i) => i.toString());
-  //   tips = data["1"].map((i) => i.toString());
-  //   assert(ids.includes("42"), "ID on deck should be 41");
-  //   assert(ids.includes("32"), "ID on deck should be 30");
-  //   assert(tips.includes("40"), "Tip should be 30");
-  //   master.addTip(33, 150, { from: accounts[2] });
-  //   data = await master.getNewVariablesOnDeck();
-  //   ids = data["0"].map((i) => i.toString());
-  //   tips = data["1"].map((i) => i.toString());
-  //   assert(ids.includes("43"), "ID on deck should be 43");
-  //   assert(ids.includes("33"), "ID on deck should be 33");
-  //   assert(tips.includes("150"), "Tip should be 50");
-  //   req1 = await master.addTip(34, 160, { from: accounts[2] });
-  //   data = await master.getNewVariablesOnDeck();
-  //   ids = data["0"].map((i) => i.toString());
-  //   tips = data["1"].map((i) => i.toString());
-  //   assert(ids.includes("44"), "ID on deck should be 44");
-  //   assert(ids.includes("34"), "ID on deck should be 34");
-  //   assert(tips.includes("160"), "Tip should be 60");
+  // it("Add Tip", async function() {
+  //   let vars = await master.getRequestVars(11) 
+  //   let initialTip = vars[5] 
+  //   apiVars = await master.getRequestVars(11);
+  //   res = await master.addTip(11, 20)
+  //   apiVars = await master.getRequestVars(11);
+  //   assert(apiVars[5].toNumber() == initialTip.toNumber() + 20, "value pool should be 20");
   // });
+  it("several request data", async function() {
+    let req1 = await master.addTip(41, 500, { from: accounts[2] });
+    req1 = await master.addTip(42, 500, { from: accounts[2] });
+    req1 = await master.addTip(43, 500, { from: accounts[2] });
+    req1 = await master.addTip(44, 500, { from: accounts[2] });
+    req1 = await master.addTip(31, 400, { from: accounts[2] });
+    data = await master.getNewVariablesOnDeck();
+    let ids = data["0"].map((i) => i.toString());
+    let tips = data["1"].map((i) => i.toString());
+
+    console.log(ids);
+    console.log(tips);
+
+    assert(ids.includes("41"), "ID on deck should be 41");
+    assert(ids.includes("31"), "ID on deck should be 31");
+    assert(tips.includes("422"), "Tip should be over 110");
+    req1 = await master.addTip(32, 410, { from: accounts[2] });
+    data = await master.getNewVariablesOnDeck();
+    ids = data["0"].map((i) => i.toString());
+    tips = data["1"].map((i) => i.toString());
+    assert(ids.includes("42"), "ID on deck should be 41");
+    assert(ids.includes("32"), "ID on deck should be 30");
+    assert(tips.includes("110"), "Tip should be 110");
+    master.addTip(33, 150, { from: accounts[2] });
+    data = await master.getNewVariablesOnDeck();
+    ids = data["0"].map((i) => i.toString());
+    tips = data["1"].map((i) => i.toString());
+    assert(ids.includes("43"), "ID on deck should be 43");
+    assert(ids.includes("33"), "ID on deck should be 33");
+    assert(tips.includes("150"), "Tip should be 150");
+    req1 = await master.addTip(34, 160, { from: accounts[2] });
+    data = await master.getNewVariablesOnDeck();
+    ids = data["0"].map((i) => i.toString());
+    tips = data["1"].map((i) => i.toString());
+    assert(ids.includes("44"), "ID on deck should be 44");
+    assert(ids.includes("34"), "ID on deck should be 34");
+    assert(tips.includes("160"), "Tip should be 60");
+  });
   // it("Request data and change on queue with another request", async function() {
   //   balance1 = await master.balanceOf(accounts[2], { from: accounts[1] });
   //   let pay = web3.utils.toWei("20", "ether");

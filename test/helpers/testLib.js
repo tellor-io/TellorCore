@@ -226,4 +226,6 @@ module.exports = {
   getV25: createV25Env,
   getV2Full: createV2EnvFull,
   getV25Empty: createV25EnvEmpty,
+  //This supposed to return the most updated enviroment. Version agnostic tests should always use this.
+  getEnv: createV25Env,
 };
