@@ -1,5 +1,15 @@
 const TestLib = require("./helpers/testLib");
 const helper = require("./helpers/test_helpers");
+// const prepare = require("./helpers/prepareEnv");
+const { contract } = require("hardhat");
+
+
+contract("Before All", (accounts) => {
+  it("runs it", async() => {
+    await TestLib.prepare()
+  })
+})
+
 
 contract("DidMine test", function(accounts) {
   let master;

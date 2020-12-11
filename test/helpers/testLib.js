@@ -36,6 +36,7 @@ const V2TellorTransfer = artifacts.require("v2/libraries/v2TellorTransfer");
 const V2TellorDispute = artifacts.require("v2/libraries/v2TellorDispute");
 const V2TellorLibrary = artifacts.require("v2/libraries/v2TellorLibrary");
 
+
 const prepareTellorTest = async() => {
    const ttransfer = await TellorTransfer.new();
 
@@ -99,6 +100,12 @@ const prepareOldTellor = async() => {
   await TellorMaster.link(oldtstake);
 }
 
+async function prepareEnv() {
+  await prepareOldTellor()
+  await prepareTellorV2()
+  await prepareTellorTest()
+}
+
 async function mineBlock(env) {
   let vars = await env.master.getNewCurrentVariables();
   let miners = 0;
@@ -142,9 +149,6 @@ async function createV25Env(accounts, transition = false) {
   var api = "json(https://api.gdax.com/products/BTC-USD/ticker).price";
   const baseAdd = "0x6511D2957aa09350494f892Ce2881851f0bb26D3";
   const newAdd = "0x032Aa32e4069318b15e6462CE20926d4d821De90";
-  await prepareOldTellor()
-  await prepareTellorV2()
-  await prepareTellorTest()
 
   oldTellor = await OldTellor.new();
   oracle = await TellorMaster.new(oldTellor.address);
@@ -324,6 +328,7 @@ async function createV2EnvFull(accounts, transition) {
 }
 
 module.exports = {
+  prepare: prepareEnv,
   mineBlock: mineBlock,
   getV2: createV2Env,
   getV25: createV25Env,

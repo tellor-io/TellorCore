@@ -1,6 +1,38 @@
 {
   "_format": "hh-sol-cache-2",
   "files": {
+    "/home/jgcarv/Dev/Tellor/TellorCore/contracts/mocks/RefTellor.sol": {
+      "lastModificationDate": 1607435045630,
+      "contentHash": "ee6622953be1a007e2b65b054302a11c",
+      "sourceName": "contracts/mocks/RefTellor.sol",
+      "solcConfig": {
+        "version": "0.5.16",
+        "settings": {
+          "optimizer": {
+            "enabled": false,
+            "runs": 200
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "0.5.16"
+      ],
+      "artifacts": []
+    },
     "/home/jgcarv/Dev/Tellor/TellorCore/contracts/interfaces/ADOInterface.sol": {
       "lastModificationDate": 1597077335289,
       "contentHash": "3b3c8a5f5d38abadb516c2c2460a57f9",
@@ -104,7 +136,7 @@
       ]
     },
     "/home/jgcarv/Dev/Tellor/TellorCore/contracts/interfaces/ITellorIIV.sol": {
-      "lastModificationDate": 1607371484291,
+      "lastModificationDate": 1607536539063,
       "contentHash": "cf350821845ae71af13e32ef572d64c6",
       "sourceName": "contracts/interfaces/ITellorIIV.sol",
       "solcConfig": {
@@ -284,7 +316,7 @@
       ]
     },
     "/home/jgcarv/Dev/Tellor/TellorCore/contracts/libraries/TellorDispute.sol": {
-      "lastModificationDate": 1606407948328,
+      "lastModificationDate": 1607632231168,
       "contentHash": "28cd12edf4d21ad282c5f4d903da2887",
       "sourceName": "contracts/libraries/TellorDispute.sol",
       "solcConfig": {
@@ -360,7 +392,7 @@
       ]
     },
     "/home/jgcarv/Dev/Tellor/TellorCore/contracts/libraries/TellorLibrary.sol": {
-      "lastModificationDate": 1606407948328,
+      "lastModificationDate": 1607632231168,
       "contentHash": "5e9aa48336b4b204b2686f5e04f5263e",
       "sourceName": "contracts/libraries/TellorLibrary.sol",
       "solcConfig": {
@@ -474,8 +506,8 @@
       ]
     },
     "/home/jgcarv/Dev/Tellor/TellorCore/contracts/mocks/TellorTest.sol": {
-      "lastModificationDate": 1606407948332,
-      "contentHash": "b0b21e0048b230d2ea12dbc10a3d4f5d",
+      "lastModificationDate": 1607636702702,
+      "contentHash": "7804a19a58c7865b0e8171e487d037fd",
       "sourceName": "contracts/mocks/TellorTest.sol",
       "solcConfig": {
         "version": "0.5.16",
@@ -517,8 +549,8 @@
       ]
     },
     "/home/jgcarv/Dev/Tellor/TellorCore/contracts/mocks/TellorLibraryTest.sol": {
-      "lastModificationDate": 1606407948332,
-      "contentHash": "9d57cb4f91fc09e4966a24a31f2a523a",
+      "lastModificationDate": 1607636661234,
+      "contentHash": "85fc0a91fe56be6c127925b6fae608a8",
       "sourceName": "contracts/mocks/TellorLibraryTest.sol",
       "solcConfig": {
         "version": "0.5.16",
@@ -1995,7 +2027,7 @@
       ]
     },
     "/home/jgcarv/Dev/Tellor/TellorCore/contracts/TransitionContract.sol": {
-      "lastModificationDate": 1607371484291,
+      "lastModificationDate": 1607536539063,
       "contentHash": "62f83560a68a9575c67c3446f163dae6",
       "sourceName": "contracts/TransitionContract.sol",
       "solcConfig": {
@@ -2063,38 +2095,6 @@
       "artifacts": [
         "Migrations"
       ]
-    },
-    "/home/jgcarv/Dev/Tellor/TellorCore/contracts/mocks/RefTellor.sol": {
-      "lastModificationDate": 1607435045630,
-      "contentHash": "ee6622953be1a007e2b65b054302a11c",
-      "sourceName": "contracts/mocks/RefTellor.sol",
-      "solcConfig": {
-        "version": "0.5.16",
-        "settings": {
-          "optimizer": {
-            "enabled": false,
-            "runs": 200
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [],
-      "versionPragmas": [
-        "0.5.16"
-      ],
-      "artifacts": []
     },
     "/home/jgcarv/Dev/Tellor/TellorCore/contracts/mocks/RefTellorLibrary.sol": {
       "lastModificationDate": 1599767278991,
