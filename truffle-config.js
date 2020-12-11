@@ -40,7 +40,7 @@ module.exports = {
   mocha: {
     enableTimeouts: false,
     before_timeout: 210000, // Here is 2min but can be whatever timeout is suitable for you.
-    //reporter: "eth-gas-reporter",
+    reporter: "eth-gas-reporter",
     reporterOptions: {
       currency: "USD",
     },
