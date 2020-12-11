@@ -3,7 +3,7 @@
 /node_modules
 /build
 /artifacts
-/cache
+cache
 .env
 coverage.json
 **.DS_Store
