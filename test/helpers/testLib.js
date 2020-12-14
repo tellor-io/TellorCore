@@ -96,6 +96,7 @@ const prepareOldTellor = async() => {
   await OldTellor.link(oldtdispute);
   await OldTellor.link(oldtstake);
   await OldTellor.link(oldtlib)
+
   await TellorMaster.link(oldttransfer);
   await TellorMaster.link(oldtstake);
 }
@@ -150,7 +151,7 @@ async function createV25Env(accounts, transition = false) {
   const baseAdd = "0x6511D2957aa09350494f892Ce2881851f0bb26D3";
   const newAdd = "0x032Aa32e4069318b15e6462CE20926d4d821De90";
 
-  oldTellor = await OldTellor.new();
+  oldTellor = await OldTellor.new()
   oracle = await TellorMaster.new(oldTellor.address);
   master = await ITellorI.at(oracle.address);
   for (var i = 0; i < accounts.length; i++) {

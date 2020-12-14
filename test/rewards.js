@@ -8,9 +8,22 @@ contract("Reward Tests", function(accounts) {
   let master;
   let env;
 
+    before("Setting up enviroment", async() => {
+    console.log("Before all");
+    try {
+      await TestLib.prepare()
+    } catch (error) {
+      if (!error.message.includes("has already been linked")) {
+        throw error;
+      }
+    }
+    console.log("end of before");
+  })
+
+
   beforeEach("Setup contract for each test", async function() {
     //Could use the getV25(accounts, true), since you're upgrading in the first line of tests. I added full tips to getV25 in testLib already
-    master = await TestLib.getV25(accounts, true);
+    master = await TestLib.getEnv(accounts, true);
     env = {
       master: master,
       accounts: accounts,

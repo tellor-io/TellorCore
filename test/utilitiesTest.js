@@ -4,6 +4,14 @@ var masterAbi = Tellor.abi;
 const TestLib = require("./helpers/testLib");
 const helper = require("./helpers/test_helpers");
 
+
+// contract("Before All", (accounts) => {
+//   it("runs it", async() => {
+//     await TestLib.prepare()
+//   })
+// })
+
+
 contract("Utilities Tests", function(accounts) {
   let oracle;
   let oldTellor;
@@ -62,7 +70,6 @@ contract("Utilities Tests", function(accounts) {
       await master.addTip(j, j, { from: accounts[2] });
     }
     max = await utilities.testgetMax();
-    console.log(max);
     assert(web3.utils.hexToNumberString(max[0]) == 45, "Max should be 45");
     assert(web3.utils.hexToNumberString(max[1]) == 11, "Max should be 11"); //note first 5 are added
   });
