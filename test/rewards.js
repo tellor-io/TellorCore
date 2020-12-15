@@ -50,4 +50,30 @@ contract("Reward Tests", function(accounts) {
     assert(web3.utils.fromWei(balAfter) - web3.utils.fromWei(balBef) >= 7.9)
     assert(web3.utils.fromWei(balAfter) - web3.utils.fromWei(balBef) <= 8.1)
   });
+
+    it("Test allow tip of current mined ID", async function() {
+    vars = await master.getNewCurrentVariables();
+    await master.addTip(1, 10000);
+    await takeFifteen()
+    await testLib.mineBlock(env)
+    vars2 = await master.getNewCurrentVariables();
+    assert(vars2[3] > 10000, "tip should be big");
+  });
+
+  it("Test zeroing out of currentTips", async function() {
+    let tip = await master.getUintVar(hash("currentTotalTips"))
+    await master.addTip(1, 100000000000);
+    //Weirdly we need two blocks here
+    await takeFifteen();
+    await TestLib.mineBlock(env);
+    await takeFifteen();
+    await TestLib.mineBlock(env);
+    let tip1 =  await master.getRequestUintVars(1, hash("totalTip"))
+    assert(tip1.toString() == "0", "tip for request one should be zeroed");
+  });
+
+  it("Test lower difficulty target (5 min)", async function() {
+    assert((await master.getUintVar(hash("timeTarget"))) == 300);
+  });
+
 });

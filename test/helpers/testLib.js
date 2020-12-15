@@ -111,34 +111,38 @@ async function mineBlock(env) {
   let vars = await env.master.getNewCurrentVariables();
   let miners = 0;
   let m = []
-  let res;
+  const values = [1200, 1300, 1400, 1500, 1600]
+  let submitted = {}
+  
   for (var i = 0; i < 5; i++) {
-    // let info = await env.master.getStakerInfo(env.accounts[i]);
-    // if (i > 5 && info["0"].toString() != "1") {
-    //   try {
-    //     await env.master.depositStake({ from: env.accounts[i] });
-    //   } catch {
-    //     continue;
-    //   }
-    // }
+    submitted[vars["1"][i].toString()] = values[i]
     try {
       res = await env.master.submitMiningSolution(
         "nonce",
         vars["1"],
-        [1200, 1300, 1400, 1500, 1600],
+        values,
         {
           from: env.accounts[i],
         }
       );
+      m.push(env.accounts[i]);
+      
       miners++;
     } catch (e){
-      assert.isTrue(false, "miner of index" + i + " coudln't mine a block. Reason: " + e)
+      assert.isTrue(false, "miner of index " + i + " coudln't mine a block. Reason: " + e)
     }
     if (miners == 5) {
       break;
     }
   }
-  return res;
+
+  return {
+    miners: m,
+    values: values,
+    submitted: submitted,
+    requests: vars["1"]
+
+  };
 }
 
 async function createV25Env(accounts, transition = false) {
