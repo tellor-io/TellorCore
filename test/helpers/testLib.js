@@ -111,16 +111,23 @@ async function mineBlock(env) {
   let vars = await env.master.getNewCurrentVariables();
   let miners = 0;
   let m = []
-  const values = [1200, 1300, 1400, 1500, 1600]
+  const values = [1, 1, 1, 1, 1]
+  const finalVals = [];
   let submitted = {}
-  
   for (var i = 0; i < 5; i++) {
-    submitted[vars["1"][i].toString()] = values[i]
+    submitted[vars["1"][i].toString()] = []
+  }
+    for (var i = 0; i < 5; i++) {
+    let minerVals =  values.map(value => {return (i + 1) * 1100})
+    for(var j = 0; j < 5; j++){
+      submitted[vars["1"][j].toString()].push(minerVals[j])
+    }
+    finalVals.push(minerVals)
     try {
       res = await env.master.submitMiningSolution(
         "nonce",
         vars["1"],
-        values,
+        minerVals,
         {
           from: env.accounts[i],
         }
@@ -138,7 +145,7 @@ async function mineBlock(env) {
 
   return {
     miners: m,
-    values: values,
+    values: finalVals,
     submitted: submitted,
     requests: vars["1"]
 
