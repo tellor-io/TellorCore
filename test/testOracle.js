@@ -10,7 +10,6 @@ contract("Test Oracle", function(accounts) {
   let env = {};
 
     before("Setting up enviroment", async() => {
-    console.log("Before all");
     try {
       await TestLib.prepare()
     } catch (error) {
@@ -18,7 +17,6 @@ contract("Test Oracle", function(accounts) {
         throw error;
       }
     }
-    console.log("end of before");
   })
 
 

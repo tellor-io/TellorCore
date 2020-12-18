@@ -8,7 +8,6 @@ contract("Staking Tests", function(accounts) {
   let env;
 
     before("Setting up enviroment", async() => {
-    console.log("Before all");
     try {
       await TestLib.prepare()
     } catch (error) {
@@ -16,7 +15,6 @@ contract("Staking Tests", function(accounts) {
         throw error;
       }
     }
-    console.log("end of before");
   })
 
 

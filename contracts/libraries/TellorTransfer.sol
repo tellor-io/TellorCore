@@ -2,7 +2,7 @@ pragma solidity ^0.5.16;
 
 import "./SafeMath.sol";
 import "./TellorStorage.sol";
-
+import "hardhat/console.sol";
 /**
 * @title Tellor Transfer
 * @dev Contains the methods related to transfers and ERC20. Tellor.sol and TellorGetters.sol
@@ -77,6 +77,7 @@ library TellorTransfer {
     * @param _amount to transfer
     */
     function doTransfer(TellorStorage.TellorStorageStruct storage self, address _from, address _to, uint256 _amount) public {
+        console.log("amount", _amount);
         require(_amount != 0, "Tried to send non-positive amount");
         require(_to != address(0), "Receiver is 0 address");
         require(allowedToTrade(self, _from, _amount), "Should have sufficient balance to trade");

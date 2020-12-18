@@ -4,9 +4,12 @@ const Tellor = artifacts.require("./TellorTest.sol");
 contract("Further tests", function(accounts) {
   let master;
   let env;
+  
+  const takeFifteen = async () => {
+    await helper.advanceTime(60 * 18);
+  };
 
     before("Setting up enviroment", async() => {
-    console.log("Before all");
     try {
       await TestLib.prepare()
     } catch (error) {
@@ -14,7 +17,6 @@ contract("Further tests", function(accounts) {
         throw error;
       }
     }
-    console.log("end of before");
   })
 
 
@@ -25,36 +27,6 @@ contract("Further tests", function(accounts) {
       master: master,
       accounts: accounts,
     };
-  });
-
-  it("transferOwnership", async function() {
-    let checkowner = await master.getAddressVars(
-      web3.utils.keccak256("_owner")
-    );
-    assert(checkowner == accounts[0], "initial owner acct 0");
-    await master.proposeOwnership(accounts[2])
-    let pendingOwner = await master.getAddressVars(
-      web3.utils.keccak256("pending_owner")
-    );
-    assert(pendingOwner == accounts[2], "pending owner acct 2");
-    checkowner = await master.getAddressVars(web3.utils.keccak256("_owner"));
-    assert(checkowner == accounts[0], "initial owner acct 0");
-    await master.claimOwnership({from:accounts[2]})
-    checkowner = await master.getAddressVars(web3.utils.keccak256("_owner"));
-    assert(checkowner == accounts[2], "new owner acct 2");
-  });
-  it("Test Deity Functions", async function() {
-    let owner = await master.getAddressVars(web3.utils.keccak256("_deity"));
-    assert(owner == accounts[0]);
-    await master.changeDeity(accounts[1])
-    owner = await master.getAddressVars(web3.utils.keccak256("_deity"));
-    assert(owner == accounts[1]);
-    let newOracle = await Tellor.new();
-    master.changeTellorContract(newOracle.address,{from:accounts[1]})
-    assert(
-      (await master.getAddressVars(web3.utils.keccak256("tellorContract"))) ==
-        newOracle.address
-    );
   });
   it("Get Symbol and decimals", async function() {
     let symbol = await master.symbol()
@@ -72,14 +44,15 @@ contract("Further tests", function(accounts) {
     assert(web3.utils.fromWei(supply) > 0, "Supply should not be 0"); //added miner
     assert(web3.utils.fromWei(supply) < 200000, "Supply should be less than 100k"); //added miner
   });
+
   it("Test Changing Dispute Fee", async function() {
     await  master.theLazyCoon(accounts[6], web3.utils.toWei("5000", "ether"))
     await master.theLazyCoon(accounts[7], web3.utils.toWei("5000", "ether"))
     var disputeFee1 = await master.getUintVar(
       web3.utils.keccak256("disputeFee")
     );
-    newOracle = await Tellor.new();
-    await master.changeTellorContract(newOracle.address)
+    // newOracle = await Tellor.new();
+    // await master.changeTellorContract(newOracle.address)
     await master.depositStake({from:accounts[6]})
     await  master.depositStake({from:accounts[7]})
     assert(
@@ -102,6 +75,8 @@ contract("Further tests", function(accounts) {
     initTotalSupply = await master.totalSupply();
     await takeFifteen();
     await TestLib.mineBlock(env);
+      await takeFifteen();
+    await TestLib.mineBlock(env);
     new_balances = [];
     for (var i = 0; i < 6; i++) {
       new_balances[i] = await master.balanceOf(accounts[i]);
@@ -117,10 +92,6 @@ contract("Further tests", function(accounts) {
     assert(changes[2] <= web3.utils.toWei("105.72", "ether"));
     assert(changes[3] <= web3.utils.toWei("105.72", "ether"));
     assert(changes[4] <= web3.utils.toWei("105.72", "ether"));
-    console.log(initTotalSupply.toString());
-    console.log(newTotalSupply.toString());
-    console.log(initTotalSupply.sub(newTotalSupply).toString());
-    console.log(web3.utils.toWei("479", "ether"));
     assert(
       initTotalSupply - newTotalSupply > web3.utils.toWei("479", "ether"),
       "total supply should drop significatntly"
@@ -147,13 +118,5 @@ contract("Further tests", function(accounts) {
     // vars = await master.getLastNewValue();
     assert(vars[0] > 0);
   });
-  it("Test Proper zeroing of Payout Test", async function() {
-    vars = await master.getNewCurrentVariables();
-    await takeFifteen();
-    await TestLib.mineBlock(env);
-    vars = await master.getRequestVars(vars["1"][0]);
-    assert(vars["5"] == 0, "api payout should be zero");
-    vars = await master.getUintVar(web3.utils.keccak256("currentTotalTips"));
-    assert(vars == 0, "api payout should be zero");
-  });
+
 });

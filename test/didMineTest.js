@@ -7,7 +7,6 @@ describe("DidMine test", function(accounts) {
   let env;
 
   before("Setting up enviroment", async() => {
-    console.log("Before all");
     try {
       await TestLib.prepare()
     } catch (error) {
@@ -15,7 +14,6 @@ describe("DidMine test", function(accounts) {
         throw error;
       }
     }
-    console.log("end of before");
   })
 
 

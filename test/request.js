@@ -12,7 +12,6 @@ contract("Request and tip tests", function(accounts) {
   let env;
 
     before("Setting up enviroment", async() => {
-    console.log("Before all");
     try {
       await TestLib.prepare()
     } catch (error) {
@@ -20,7 +19,6 @@ contract("Request and tip tests", function(accounts) {
         throw error;
       }
     }
-    console.log("end of before");
   })
 
 

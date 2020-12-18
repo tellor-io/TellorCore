@@ -8,7 +8,7 @@ import "./TellorTransfer.sol";
 import "./TellorDispute.sol";
 import "./TellorStake.sol";
 import "./TellorGettersLibrary.sol";
-
+import "hardhat/console.sol";
 /**
  * @title Tellor Oracle System Library
  * @dev Contains the functions' logic for the Tellor contract where miners can submit the proof of work
@@ -85,6 +85,11 @@ library TellorLibrary {
         //Sets time of value submission rounded to 1 minute
         bytes32 _currChallenge = self.currentChallenge;
         uint256 _timeOfLastNewValue = now - (now % 1 minutes);
+        // console.log("nw", now);
+        // console.log("nm", (now % 1 minutes));
+        // console.log("av", _timeOfLastNewValue);
+        // console.log("bv", self.uintVars[timeOfLastNewValue]);
+        // console.log("dv", _timeOfLastNewValue - self.uintVars[timeOfLastNewValue]);
         self.uintVars[timeOfLastNewValue] = _timeOfLastNewValue;
         uint[5] memory a; 
         for (uint k = 0; k < 5; k++) {
@@ -252,10 +257,15 @@ library TellorLibrary {
         //_timeDiff is how many minutes passed since last block
         uint _timeDiff = now - self.uintVars[timeOfLastNewValue];
 
+
+        // console.log("now", now);
+        // console.log("sto", self.uintVars[timeOfLastNewValue]);
+        // console.log("time", _timeDiff);
         uint _currReward = 1e18;
         uint reward = _timeDiff* _currReward / 300; //each miner get's 
         uint _tip = self.uintVars[currentTotalTips] / 10;
         uint _devShare = reward / 2;
+        // console.log("Reward", reward, "tip", _tip);
 
         TellorTransfer.doTransfer(self, address(this), miners[0], reward + _tip);
         TellorTransfer.doTransfer(self, address(this), miners[1], reward + _tip);
