@@ -84,12 +84,8 @@ library TellorLibrary {
 
         //Sets time of value submission rounded to 1 minute
         bytes32 _currChallenge = self.currentChallenge;
-        uint256 _timeOfLastNewValue = now - (now % 1 minutes);
-        // console.log("nw", now);
-        // console.log("nm", (now % 1 minutes));
-        // console.log("av", _timeOfLastNewValue);
-        // console.log("bv", self.uintVars[timeOfLastNewValue]);
-        // console.log("dv", _timeOfLastNewValue - self.uintVars[timeOfLastNewValue]);
+        uint256 _previousTime = self.uintVars[timeOfLastNewValue];
+        uint256 _timeOfLastNewValue = block.timestamp;
         self.uintVars[timeOfLastNewValue] = _timeOfLastNewValue;
         uint[5] memory a; 
         for (uint k = 0; k < 5; k++) {
@@ -133,7 +129,7 @@ library TellorLibrary {
 
         address[5] memory miners = self.requestDetails[_requestId[0]].minersByValue[_timeOfLastNewValue];
         //payMinersRewards
-        _payReward(self, miners);
+        _payReward(self, miners, _previousTime);
         
         self.uintVars[_tBlock] ++;
         uint256[5] memory _topId = TellorStake.getTopRequestIDs(self);
@@ -253,9 +249,9 @@ library TellorLibrary {
     * @dev Internal function to calculate and pay rewards to miners
     * 
     */
-    function _payReward(TellorStorage.TellorStorageStruct storage self, address[5] memory miners) internal {
+    function _payReward(TellorStorage.TellorStorageStruct storage self, address[5] memory miners, uint256 _previousTime) internal {
         //_timeDiff is how many minutes passed since last block
-        uint _timeDiff = now - self.uintVars[timeOfLastNewValue];
+        uint _timeDiff = block.timestamp - _previousTime;
 
 
         // console.log("now", now);
