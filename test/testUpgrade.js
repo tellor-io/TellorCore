@@ -760,34 +760,4 @@
 //     diff2 = await oracle.getCurrentVariables();
 //     assert(diff2[2] < diff1[2] / 2, "difficulty should drop");
 //   });
-
-//   it("transferOwnership", async function() {
-//     let checkowner = await master.getAddressVars(
-//       web3.utils.keccak256("_owner")
-//     );
-//     assert(checkowner == accounts[0], "initial owner acct 0");
-//     await master.proposeOwnership(accounts[2])
-//     let pendingOwner = await master.getAddressVars(
-//       web3.utils.keccak256("pending_owner")
-//     );
-//     assert(pendingOwner == accounts[2], "pending owner acct 2");
-//     checkowner = await master.getAddressVars(web3.utils.keccak256("_owner"));
-//     assert(checkowner == accounts[0], "initial owner acct 0");
-//     await master.claimOwnership({from:accounts[2]})
-//     checkowner = await master.getAddressVars(web3.utils.keccak256("_owner"));
-//     assert(checkowner == accounts[2], "new owner acct 2");
-//   });
-//   it("Test Deity Functions", async function() {
-//     let owner = await master.getAddressVars(web3.utils.keccak256("_deity"));
-//     assert(owner == accounts[0]);
-//     await master.changeDeity(accounts[1])
-//     owner = await master.getAddressVars(web3.utils.keccak256("_deity"));
-//     assert(owner == accounts[1]);
-//     let newOracle = await Tellor.new();
-//     master.changeTellorContract(newOracle.address,{from:accounts[1]})
-//     assert(
-//       (await master.getAddressVars(web3.utils.keccak256("tellorContract"))) ==
-//         newOracle.address
-//     );
-//   });
 // });

@@ -1,5 +1,5 @@
-// const helper = require("../helpers/test_helpers");
-// const TestLib = require("../helpers/testLib");
+// const helper = require("./helpers/test_helpers");
+// const TestLib = require("./helpers/testLib");
 // const Tellor = artifacts.require("./TellorTest.sol"); // globally injected artifacts helper
 // const TransitionContract = artifacts.require("./TellorTransition");
 

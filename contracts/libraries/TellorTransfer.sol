@@ -2,6 +2,7 @@ pragma solidity ^0.5.16;
 
 import "./SafeMath.sol";
 import "./TellorStorage.sol";
+
 /**
 * @title Tellor Transfer
 * @dev Contains the methods related to transfers and ERC20. Tellor.sol and TellorGetters.sol

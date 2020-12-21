@@ -9,19 +9,8 @@ contract("Test Oracle", function(accounts) {
   let master = {};
   let env = {};
 
-    before("Setting up enviroment", async() => {
-    try {
-      await TestLib.prepare()
-    } catch (error) {
-      if (!error.message.includes("has already been linked")) {
-        throw error;
-      }
-    }
-  })
-
-
   beforeEach("Setup contract for each test", async function() {
-    master = await TestLib.getEnv(accounts, true);
+    master = await TestLib.getV25(accounts, true);
     env.master = master
     env.accounts= accounts
   });

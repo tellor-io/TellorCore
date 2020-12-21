@@ -5,11 +5,6 @@ advanceTimeAndBlock = async (time) => {
     return Promise.resolve(web3.eth.getBlock('latest'));
 }
 
-  const takeFifteen = async () => {
-    await advanceTime(60 * 18);
-  };
-
-
 advanceTime = (time) => {
     return new Promise((resolve, reject) => {
         web3.currentProvider.send({
@@ -75,7 +70,7 @@ module.exports = {
     advanceTime,
     advanceBlock,
     advanceTimeAndBlock,
-    takeFifteen,
+
     expectThrow
 }
 

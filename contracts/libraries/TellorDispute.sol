@@ -192,6 +192,7 @@ library TellorDispute {
     */
     function proposeFork(TellorStorage.TellorStorageStruct storage self, address _propNewTellorAddress) public {
         bytes32 _hash = keccak256(abi.encode(_propNewTellorAddress));
+        TellorTransfer.doTransfer(self, msg.sender, address(this), 100e18); //This is the fork fee (just 100 tokens flat, no refunds)
         self.uintVars[keccak256("disputeCount")]++;
         uint256 disputeId = self.uintVars[keccak256("disputeCount")];
         if(self.disputeIdByDisputeHash[_hash] != 0){
@@ -222,7 +223,6 @@ library TellorDispute {
             disputeVotePassed: false,
             tally: 0
         });
-        TellorTransfer.doTransfer(self, msg.sender, address(this), 100e18 * 2**(dispRounds-1)); //This is the fork fee (just 100 tokens flat, no refunds)
         self.disputesById[disputeId].disputeUintVars[keccak256("blockNumber")] = block.number;
         self.disputesById[disputeId].disputeUintVars[keccak256("minExecutionDate")] = now + 7 days;
     }
