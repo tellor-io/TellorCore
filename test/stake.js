@@ -7,9 +7,19 @@ contract("Staking Tests", function(accounts) {
   let master;
   let env;
 
+    before("Setting up enviroment", async() => {
+    try {
+      await TestLib.prepare()
+    } catch (error) {
+      if (!error.message.includes("has already been linked")) {
+        throw error;
+      }
+    }
+  })
+
+
   beforeEach("Setup contract for each test", async function() {
-    //Could use the getV25(accounts, true), since you're upgrading in the first line of tests. I added full tips to getV25 in testLib already
-    master = await TestLib.getV25Empty(accounts, true);
+    master = await TestLib.getEnv(accounts, true);
     env = {
       master: master,
       accounts: accounts,
@@ -42,7 +52,6 @@ contract("Staking Tests", function(accounts) {
     });
     await helper.advanceTime(86400 * 8);
     s = await master.getStakerInfo(accounts[1]);
-    console.log(s)
     assert(s['0'] *1-0 == 2, " Should be 2");
     await master.withdrawStake({ from: accounts[1] });
     s = await master.getStakerInfo(accounts[1]);
