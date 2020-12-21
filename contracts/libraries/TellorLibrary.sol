@@ -8,7 +8,7 @@ import "./TellorTransfer.sol";
 import "./TellorDispute.sol";
 import "./TellorStake.sol";
 import "./TellorGettersLibrary.sol";
-import "hardhat/console.sol";
+
 /**
  * @title Tellor Oracle System Library
  * @dev Contains the functions' logic for the Tellor contract where miners can submit the proof of work
@@ -252,16 +252,10 @@ library TellorLibrary {
     function _payReward(TellorStorage.TellorStorageStruct storage self, address[5] memory miners, uint256 _previousTime) internal {
         //_timeDiff is how many minutes passed since last block
         uint _timeDiff = block.timestamp - _previousTime;
-
-
-        // console.log("now", now);
-        // console.log("sto", self.uintVars[timeOfLastNewValue]);
-        // console.log("time", _timeDiff);
         uint _currReward = 1e18;
         uint reward = _timeDiff* _currReward / 300; //each miner get's 
         uint _tip = self.uintVars[currentTotalTips] / 10;
         uint _devShare = reward / 2;
-        // console.log("Reward", reward, "tip", _tip);
 
         TellorTransfer.doTransfer(self, address(this), miners[0], reward + _tip);
         TellorTransfer.doTransfer(self, address(this), miners[1], reward + _tip);
@@ -274,28 +268,6 @@ library TellorLibrary {
         TellorTransfer.doTransfer(self, address(this), self.addressVars[_owner],  _devShare);
         self.uintVars[currentTotalTips] = 0;
     }
-
-    //This can probably be removed
-    // /**
-    // * @dev Allows the current owner to propose transfer control of the contract to a
-    // * newOwner and the ownership is pending until the new owner calls the claimOwnership
-    // * function
-    // * @param _pendingOwner The address to transfer ownership to.
-    // */
-    // function proposeOwnership(TellorStorage.TellorStorageStruct storage self, address payable _pendingOwner) public {
-    //     require(msg.sender == self.addressVars[_owner], "Sender is not owner");
-    //     emit OwnershipProposed(self.addressVars[_owner], _pendingOwner);
-    //     self.addressVars[pending_owner] = _pendingOwner;
-    // }
-
-    // /**
-    // * @dev Allows the new owner to claim control of the contract
-    // */
-    // function claimOwnership(TellorStorage.TellorStorageStruct storage self) public {
-    //     require(msg.sender == self.addressVars[pending_owner], "Sender is not pending owner");
-    //     emit OwnershipTransferred(self.addressVars[_owner], self.addressVars[pending_owner]);
-    //     self.addressVars[_owner] = self.addressVars[pending_owner];
-    // }
 
     /**
     * @dev This function updates APIonQ and the requestQ when requestData or addTip are ran

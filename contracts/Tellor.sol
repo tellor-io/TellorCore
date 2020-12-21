@@ -84,24 +84,6 @@ contract Tellor {
         tellor.submitMiningSolution(_nonce,_requestId, _value);
     }
 
-
-    // /**
-    // * @dev Allows the current owner to propose transfer control of the contract to a
-    // * newOwner and the ownership is pending until the new owner calls the claimOwnership
-    // * function
-    // * @param _pendingOwner The address to transfer ownership to.
-    // */
-    // function proposeOwnership(address payable _pendingOwner) external {
-    //     tellor.proposeOwnership(_pendingOwner);
-    // }
-
-    // /**
-    // * @dev Allows the new owner to claim control of the contract
-    // */
-    // function claimOwnership() external {
-    //     tellor.claimOwnership();
-    // }
-
     /**
     * @dev This function allows miners to deposit their stake.
     */
