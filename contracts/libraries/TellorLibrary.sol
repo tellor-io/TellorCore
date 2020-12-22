@@ -74,7 +74,7 @@ library TellorLibrary {
     }
 
    /**
-    * @dev This function is called by submitMiningSolution and adjusts the difficulty, sorts and stores the first
+    * @dev This function is calleed by submitMiningSolution and adjusts the difficulty, sorts and stores the first
     * 5 values received, pays the miners, the dev share and assigns a new challenge
     * @param _nonce or solution for the PoW  for the requestId
     * @param _requestId for the current request being mined

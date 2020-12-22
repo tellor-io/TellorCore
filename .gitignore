@@ -7,3 +7,4 @@ cache
 .env
 coverage.json
 **.DS_Store
+.vscode
