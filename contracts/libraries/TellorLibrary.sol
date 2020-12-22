@@ -43,7 +43,7 @@ library TellorLibrary {
         uint256 _difficulty,
         uint256 _totalTips
     );
-    //Emits upon a successful Mine, indicates the blocktime at point of the mine and the value mined
+    //Emits upon a successful Mine, indicates the blockTime at point of the mine and the value mined
     event NewValue(uint256[5] _requestId, uint256 _time, uint256[5] _value, uint256 _totalTips, bytes32 indexed _currentChallenge);
     //Emits upon each mine (5 total) and shows the miner, nonce, and value submitted
     event NonceSubmitted(address indexed _miner, string _nonce, uint256[5] _requestId, uint256[5] _value, bytes32 indexed _currentChallenge, uint256 _slot);
@@ -74,7 +74,7 @@ library TellorLibrary {
     }
 
    /**
-    * @dev This function is calleed by submitMiningSolution and adjusts the difficulty, sorts and stores the first
+    * @dev This function is called by submitMiningSolution and adjusts the difficulty, sorts and stores the first
     * 5 values received, pays the miners, the dev share and assigns a new challenge
     * @param _nonce or solution for the PoW  for the requestId
     * @param _requestId for the current request being mined
@@ -152,7 +152,7 @@ library TellorLibrary {
 
     function adjustDifficulty(TellorStorage.TellorStorageStruct storage self) internal {
         // If the difference between the timeTarget and how long it takes to solve the challenge this updates the challenge
-        //difficulty up or donw by the difference between the target time and how long it took to solve the previous challenge
+        //difficulty up or down by the difference between the target time and how long it took to solve the previous challenge
         //otherwise it sets it to 1
         uint timeDiff = now - self.uintVars[timeOfLastNewValue];
         int256 _change = int256(SafeMath.min(1200, timeDiff));
@@ -207,7 +207,7 @@ library TellorLibrary {
         //Updating Request
         TellorStorage.Request storage _tblock = self.requestDetails[self.uintVars[_tBlock]];
         
-        //Assigng directly is cheaper than using a for loop
+        //Assigning directly is cheaper than using a for loop
         _tblock.valuesByTimestamp[0][_slotProgress] = _value[0];
         _tblock.valuesByTimestamp[1][_slotProgress] = _value[1];
         _tblock.valuesByTimestamp[2][_slotProgress] = _value[2];
@@ -253,7 +253,7 @@ library TellorLibrary {
         //_timeDiff is how many minutes passed since last block
         uint _timeDiff = block.timestamp - _previousTime;
         uint _currReward = 1e18;
-        uint reward = _timeDiff* _currReward / 300; //each miner get's 
+        uint reward = _timeDiff* _currReward / 300;
         uint _tip = self.uintVars[currentTotalTips] / 10;
         uint _devShare = reward / 2;
 
@@ -289,14 +289,14 @@ library TellorLibrary {
                 (_min, _index) = Utilities.getMin(self.requestQ);
                 //we have to zero out the oldOne
                 //if the _payout is greater than the current minimum payout in the requestQ[51] or if the minimum is zero
-                //then add it to the requestQ array aand map its index information to the requestId and the apiUintvars
+                //then add it to the requestQ array and map its index information to the requestId and the apiUintVars
                 if (_request.apiUintVars[totalTip] > _min || _min == 0) {
                     self.requestQ[_index] = _request.apiUintVars[totalTip];
                     self.requestDetails[self.requestIdByRequestQIndex[_index]].apiUintVars[requestQPosition] = 0;
                     self.requestIdByRequestQIndex[_index] = _requestId;
                     _request.apiUintVars[requestQPosition] = _index;
                 }
-                // else if the requestid is part of the requestQ[51] then update the tip for it
+                // else if the requestId is part of the requestQ[51] then update the tip for it
             } else{
                 self.requestQ[_request.apiUintVars[requestQPosition]] += _tip;
             }

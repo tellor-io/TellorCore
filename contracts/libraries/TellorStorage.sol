@@ -18,7 +18,7 @@ library TellorStorage {
         bool executed; //is the dispute settled
         bool disputeVotePassed; //did the vote pass?
         bool isPropFork; //true for fork proposal NEW
-        address reportedMiner; //miner who alledgedly submitted the 'bad value' will get disputeFee if dispute vote fails
+        address reportedMiner; //miner who submitted the 'bad value' will get disputeFee if dispute vote fails
         address reportingParty; //miner reporting the 'bad value'-pay disputeFee will get reportedMiner's stake if dispute vote passes
         address proposedForkAddress; //new fork address (if fork proposal)
         mapping(bytes32 => uint256) disputeUintVars;
@@ -26,7 +26,7 @@ library TellorStorage {
         //e.g. TellorStorageStruct.DisputeById[disputeID].disputeUintVars[keccak256("requestId")]
         //These are the variables saved in this mapping:
         // uint keccak256("requestId");//apiID of disputed value
-        // uint keccak256("timestamp");//timestamp of distputed value
+        // uint keccak256("timestamp");//timestamp of disputed value
         // uint keccak256("value"); //the value being disputed
         // uint keccak256("minExecutionDate");//7 days from when dispute initialized
         // uint keccak256("numberOfVotes");//the number of parties who have voted on the measure
@@ -50,7 +50,7 @@ library TellorStorage {
     struct Request {
         string queryString; //id to string api
         string dataSymbol; //short name for api request
-        bytes32 queryHash; //hash of api string and granularity e.g. keccak256(abi.encodePacked(_sapi,_granularity))
+        bytes32 queryHash; //hash of api string and granularity e.g. keccak256(abi.encodePacked(_api,_granularity))
         uint256[] requestTimestamps; //array of all newValueTimestamps requested
         mapping(bytes32 => uint256) apiUintVars;
         //Each of the variables below is saved in the mapping apiUintVars for each api request
@@ -88,7 +88,7 @@ library TellorStorage {
         // keccak256("disputeFee");//cost to dispute a mined value
         // keccak256("disputeCount");//totalHistoricalDisputes
         // keccak256("total_supply"); //total_supply of the token in circulation
-        // keccak256("stakeAmount");//stakeAmount for miners (we can cut gas if we just hardcode it in...or should it be variable?)
+        // keccak256("stakeAmount");//stakeAmount for miners (we can cut gas if we just hardcoded it in...or should it be variable?)
         // keccak256("stakerCount"); //number of parties currently staked
         // keccak256("timeOfLastNewValue"); // time of last challenge solved
         // keccak256("difficulty"); // Difficulty of current block
