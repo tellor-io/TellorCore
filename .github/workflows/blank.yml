@@ -19,16 +19,16 @@ jobs:
   coverage:
       runs-on: ubuntu-latest
 
-        steps:
-          - uses: actions/checkout@v2
-          - name: Use Node.js
-            uses: actions/setup-node@v1
-            with:
-              node-version: "14.x"
-          - run: npm install
-          - run: npx hardhat coverage
-        
-          - name: Coveralls
-          uses: coverallsapp/github-action@v1.1.2
+      steps:
+        - uses: actions/checkout@v2
+        - name: Use Node.js
+          uses: actions/setup-node@v1
           with:
-              github-token: ${{ secrets.COVERALLS }}
+            node-version: "14.x"
+        - run: npm install
+        - run: npx hardhat coverage
+      
+        - name: Coveralls
+        uses: coverallsapp/github-action@v1.1.2
+        with:
+            github-token: ${{ secrets.COVERALLS }}
