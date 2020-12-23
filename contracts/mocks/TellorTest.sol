@@ -10,6 +10,8 @@ import "../libraries/TellorStake.sol";
 import "../libraries/TellorLibrary.sol";
 import "./TellorLibraryTest.sol";
 
+import "hardhat/console.sol";
+
 /**
  * @title Tellor Oracle System
  * @dev Oracle contract where miners can submit the proof of work along with the value.
@@ -28,9 +30,9 @@ contract TellorTest is Tellor {
         tellor._submitMiningSolution(_nonce,_requestId, _value);
     }
 
-    // function submitMiningSolution(string calldata _nonce,uint256 _requestId, uint256 _value) external {
-    //     tellor.submitMiningSolution(_nonce,_requestId, _value);
-    // }
+    function submitMiningSolution(string calldata _nonce,uint256 _requestId, uint256 _value) external {
+        tellor.submitMiningSolution(_nonce,_requestId, _value);
+    }
 
     function manuallySetDifficulty(uint256 _diff) external{
         tellor.manuallySetDifficulty(_diff);

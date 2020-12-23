@@ -2,7 +2,7 @@ pragma solidity ^0.5.16;
 import "./TellorStorage.sol";
 import "./TellorTransfer.sol";
 
-
+import "hardhat/console.sol";
 /**
 * @title Tellor Dispute
 * @dev Contains the methods related to disputes. Tellor.sol references this library for function's logic.
@@ -18,7 +18,7 @@ library TellorDispute {
     event Voted(uint256 indexed _disputeID, bool _position, address indexed _voter, uint256 indexed _voteWeight);
     //emitted upon dispute tally
     event DisputeVoteTallied(uint256 indexed _disputeID, int256 _result, address indexed _reportedMiner, address _reportingParty, bool _active);
-    event NewTellorAddress(address _newTellor); //emmited when a proposed fork is voted true
+    event NewTellorAddress(address _newTellor); //emitted when a proposed fork is voted true
 
     /*Functions*/
 
@@ -123,13 +123,13 @@ library TellorDispute {
     function vote(TellorStorage.TellorStorageStruct storage self, uint256 _disputeId, bool _supportsDispute) public {
         TellorStorage.Dispute storage disp = self.disputesById[_disputeId];
 
-        //Get the voteWeight or the balance of the user at the time/blockNumber the disupte began
+        //Get the voteWeight or the balance of the user at the time/blockNumber the dispute began
         uint256 voteWeight = TellorTransfer.balanceOfAt(self, msg.sender, disp.disputeUintVars[keccak256("blockNumber")]);
 
         //Require that the msg.sender has not voted
         require(disp.voted[msg.sender] != true, "Sender has already voted");
 
-        //Requre that the user had a balance >0 at time/blockNumber the disupte began
+        //Require that the user had a balance >0 at time/blockNumber the dispute began
         require(voteWeight != 0, "User balance is 0");
 
         //ensures miners that are under dispute cannot vote
@@ -173,7 +173,7 @@ library TellorDispute {
         if (disp.isPropFork == false) {
                 //Ensure the time for voting has elapsed
                     TellorStorage.StakeInfo storage stakes = self.stakerDetails[disp.reportedMiner];
-                    //If the vote for disputing a value is succesful(disp.tally >0) then unstake the reported
+                    //If the vote for disputing a value is successful(disp.tally >0) then unstake the reported
                     // miner and transfer the stakeAmount and dispute fee to the reporting party
                     if(stakes.currentStatus == 3){
                         stakes.currentStatus = 4;
@@ -192,7 +192,6 @@ library TellorDispute {
     */
     function proposeFork(TellorStorage.TellorStorageStruct storage self, address _propNewTellorAddress) public {
         bytes32 _hash = keccak256(abi.encode(_propNewTellorAddress));
-        TellorTransfer.doTransfer(self, msg.sender, address(this), 100e18); //This is the fork fee (just 100 tokens flat, no refunds)
         self.uintVars[keccak256("disputeCount")]++;
         uint256 disputeId = self.uintVars[keccak256("disputeCount")];
         if(self.disputeIdByDisputeHash[_hash] != 0){
@@ -223,6 +222,9 @@ library TellorDispute {
             disputeVotePassed: false,
             tally: 0
         });
+        console.log("DISP", dispRounds);
+        console.log("FEE", 100e18 * 2**(dispRounds-1));
+        TellorTransfer.doTransfer(self, msg.sender, address(this), 100e18 * 2**(dispRounds-1));
         self.disputesById[disputeId].disputeUintVars[keccak256("blockNumber")] = block.number;
         self.disputesById[disputeId].disputeUintVars[keccak256("minExecutionDate")] = now + 7 days;
     }
@@ -314,7 +316,7 @@ library TellorDispute {
     }
 
     /**
-    * @dev This function upates the minimun dispute fee as a function of the amount
+    * @dev This function updates the minimum dispute fee as a function of the amount
     * of staked miners
     */
     function updateMinDisputeFee(TellorStorage.TellorStorageStruct storage self) public {

@@ -22,7 +22,6 @@ contract("Difficulty tests", function(accounts) {
   });
 
   beforeEach("Setup contract for each test", async function() {
-    //Could use the getV25(accounts, true), since you're upgrading in the first line of tests. I added full tips to getV25 in testLib already
     master = await TestLib.getEnv(accounts, true);
     env = {
       master: master,
@@ -40,7 +39,8 @@ contract("Difficulty tests", function(accounts) {
     await helper.advanceTime(60 * 60 * 16);
     await TestLib.mineBlock(env);
     vars = await master.getNewCurrentVariables();
-    assert(vars[2] > diff1[2], "difficulty should continue to move up");
+    console.log(vars[2].toString(), diff1[2].toString());
+    assert(vars[2] < diff1[2], "difficulty should continue to move down");
   });
 
   it("Test time travel in data -- really long time since last Poof and proper difficulty adjustment", async function() {
@@ -61,56 +61,129 @@ contract("Difficulty tests", function(accounts) {
     assert(
       (await master.getUintVar(web3.utils.keccak256("timeTarget"))) ==
         timeTarget
-    );
+    ),
+      "difficulty should be 240";
   });
 
-  it("Difficulty increase based on the 4th slot", async () => {
-    //mine a block
-    let block = await testLib.mineBlock({
-      master: master,
-      accounts: accounts.slice(20, 5),
+  describe("Difficulty on 4th slot", async () => {
+    beforeEach(async () => {
+      //Stake accounts 20...40
+      for (var i = 20; i < accounts.length; i++) {
+        await master.theLazyCoon(
+          accounts[i],
+          web3.utils.toWei("7000", "ether")
+        );
+        let info = await env.master.getStakerInfo(accounts[i]);
+        if (info["0"].toString() != "1") {
+          await env.master.depositStake({ from: accounts[i] });
+        }
+      }
     });
-    let currentDiff = await getDiff();
 
-    await helpers.takeFifteen();
+    it("Difficulty decrease based on the 4th slot", async () => {
+      await helper.takeFifteen();
+      await TestLib.mineBlock(env);
 
-    // Mine 4 slots:
-    let vars = await env.master.getNewCurrentVariables();
-    const values = [1000, 1000, 1000, 1000, 1000];
-    for (var i = 0; i < 4; i++) {
-      res = await master.testSubmitMiningSolution("nonce", vars["1"], values, {
-        from: accounts[i + 25],
-      });
-    }
+      let currentDiff = await getDiff();
 
-    let afterDiff = await getDiff();
+      await helper.takeFifteen();
 
-    console.log(currentDiff, afterDiff);
-    //make assertion here
-  });
+      // Mine 4 slots:
+      let vars = await env.master.getNewCurrentVariables();
+      const values = [1000, 1000, 1000, 1000, 1000];
+      for (var i = 0; i < 4; i++) {
+        res = await master.testSubmitMiningSolution(
+          "nonce",
+          vars["1"],
+          values,
+          {
+            from: accounts[i + 25],
+          }
+        );
+      }
 
-  it("Difficulty decrease based on the 4th slot", async () => {
-    //mine a block
-    let block = await testLib.mineBlock({
-      master: master,
-      accounts: accounts.slice(20, 5),
+      let afterDiff = await getDiff();
+
+      assert(currentDiff > afterDiff, "Difficulty should have decreased");
     });
-    let currentDiff = await getDiff();
 
-    //move only 1 minute
-    await helpers.advanceTime(60);
+    it("Difficulty increase based on the 4th slot", async () => {
+      await helper.takeFifteen();
+      await TestLib.mineBlock(env);
 
-    // Mine 4 slots:
-    let vars = await env.master.getNewCurrentVariables();
-    const values = [1000, 1000, 1000, 1000, 1000];
-    for (var i = 0; i < 4; i++) {
-      res = await master.testSubmitMiningSolution("nonce", vars["1"], values, {
-        from: accounts[i + 25],
+      let currentDiff = await getDiff();
+
+      //move only 1 minute
+      await helper.advanceTime(60);
+
+      // Mine 4 slots:
+      let vars = await env.master.getNewCurrentVariables();
+      const values = [1000, 1000, 1000, 1000, 1000];
+      for (var i = 0; i < 4; i++) {
+        res = await master.testSubmitMiningSolution(
+          "nonce",
+          vars["1"],
+          values,
+          {
+            from: accounts[i + 25],
+          }
+        );
+      }
+
+      let afterDiff = await getDiff();
+      console.log(currentDiff, afterDiff);
+      assert(currentDiff < afterDiff, "Difficulty should have increase");
+    });
+
+    it("Zero difficulty on the 5th slot", async () => {
+      // Increasing the diff
+      await TestLib.mineBlock({
+        master: master,
+        accounts: accounts.slice(30, 35),
       });
-    }
+      await master.manuallySetDifficulty(100);
 
-    let afterDiff = await getDiff();
+      await helper.advanceTime(61);
 
-    console.log(currentDiff, afterDiff);
+      let vars = await env.master.getNewCurrentVariables();
+      const values = [1000, 1000, 1000, 1000, 1000];
+
+      //Try mine first slot with incorrect nonce
+      await helper.expectThrow(
+        master.submitMiningSolution("nonce", vars["1"], values, {
+          from: accounts[20],
+        })
+      );
+
+      // Mine 4 slots bypassing the nonce:
+      for (var i = 0; i < 4; i++) {
+        res = await master.testSubmitMiningSolution(
+          "nonceer",
+          vars["1"],
+          values,
+          {
+            from: accounts[i + 25],
+          }
+        );
+      }
+
+      //Mine the 5th with any nonce
+      await master.submitMiningSolution("nonce", vars["1"], values, {
+        from: accounts[20],
+      });
+
+      let requestId = vars["1"][0];
+      let count = await master.getNewValueCountbyRequestId(requestId);
+      let timestamp = await master.getTimestampbyRequestIDandIndex(
+        requestId,
+        count.toNumber() - 1
+      );
+
+      let miners = await master.getMinersByRequestIdAndTimestamp(
+        requestId,
+        timestamp
+      );
+      assert(miners.indexOf(accounts[20]) != -1, "miner should have mined");
+    });
   });
 });

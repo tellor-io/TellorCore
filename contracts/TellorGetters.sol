@@ -33,7 +33,7 @@ contract TellorGetters {
     * @dev This function returns whether or not a given user is allowed to trade a given amount
     * @param _user address
     * @param _amount uint of amount
-    * @return true if the user is alloed to trade the amount specified
+    * @return true if the user is allowed to trade the amount specified
     */
     function allowedToTrade(address _user, uint256 _amount) external view returns (bool) {
         return tellor.allowedToTrade(_user, _amount);
@@ -121,7 +121,7 @@ contract TellorGetters {
 
     /**
     * @dev Getter function for variables for the requestId being currently mined(currentRequestId)
-    * @return current challenge, curretnRequestId, level of difficulty, api/query string, and granularity(number of decimals requested), total tip for the request
+    * @return current challenge, currentRequestId, level of difficulty, api/query string, and granularity(number of decimals requested), total tip for the request
     */
     function getCurrentVariables() external view returns (bytes32, uint256, uint256, string memory, uint256, uint256) {
         return tellor.getCurrentVariables();
@@ -137,7 +137,7 @@ contract TellorGetters {
     }
 
     /**
-    * @dev Checks for uint variables in the disputeUintVars mapping based on the disuputeId
+    * @dev Checks for uint variables in the disputeUintVars mapping based on the disputeId
     * @param _disputeId is the dispute id;
     * @param _data the variable to pull from the mapping. _data = keccak256("variable_name") where variable_name is
     * the variables/strings used to save the data in the mapping. The variables names are
@@ -150,7 +150,7 @@ contract TellorGetters {
 
     /**
     * @dev Gets the a value for the latest timestamp available
-    * @return value for timestamp of last proof of work submited
+    * @return value for timestamp of last proof of work submitted
     * @return true if the is a timestamp for the lastNewValue
     */
     function getLastNewValue() external view returns (uint256, bool) {
@@ -160,7 +160,7 @@ contract TellorGetters {
     /**
     * @dev Gets the a value for the latest timestamp available
     * @param _requestId being requested
-    * @return value for timestamp of last proof of work submited and if true if it exist or 0 and false if it doesn't
+    * @return value for timestamp of last proof of work submitted and if true if it exist or 0 and false if it doesn't
     */
     function getLastNewValueById(uint256 _requestId) external view returns (uint256, bool) {
         return tellor.getLastNewValueById(_requestId);
@@ -187,7 +187,7 @@ contract TellorGetters {
     }
 
     /**
-    * @dev Counts the number of values that have been submited for the request
+    * @dev Counts the number of values that have been submitted for the request
     * if called for the currentRequest being mined it can tell you how many miners have submitted a value for that
     * request so far
     * @param _requestId the requestId to look up
@@ -200,7 +200,7 @@ contract TellorGetters {
     /**
     * @dev Getter function for the specified requestQ index
     * @param _index to look up in the requestQ array
-    * @return uint of reqeuestId
+    * @return uint of requestId
     */
     function getRequestIdByRequestQIndex(uint256 _index) external view returns (uint256) {
         return tellor.getRequestIdByRequestQIndex(_index);
@@ -209,7 +209,7 @@ contract TellorGetters {
     /**
     * @dev Getter function for requestId based on timestamp
     * @param _timestamp to check requestId
-    * @return uint of reqeuestId
+    * @return uint of requestId
     */
     function getRequestIdByTimestamp(uint256 _timestamp) external view returns (uint256) {
         return tellor.getRequestIdByTimestamp(_timestamp);
@@ -226,14 +226,14 @@ contract TellorGetters {
 
     /**
     * @dev Getter function for the requestQ array
-    * @return the requestQ arrray
+    * @return the requestQ array
     */
     function getRequestQ() public view returns (uint256[51] memory) {
         return tellor.getRequestQ();
     }
 
     /**
-    * @dev Allowes access to the uint variables saved in the apiUintVars under the requestDetails struct
+    * @dev Allows access to the uint variables saved in the apiUintVars under the requestDetails struct
     * for the requestId specified
     * @param _requestId to look up
     * @param _data the variable to pull from the mapping. _data = keccak256("variable_name") where variable_name is
@@ -260,7 +260,7 @@ contract TellorGetters {
     }
 
     /**
-    * @dev This function allows users to retireve all information about a staker
+    * @dev This function allows users to retrieve all information about a staker
     * @param _staker address of staker inquiring about
     * @return uint current state of staker
     * @return uint startDate of staking
@@ -272,8 +272,8 @@ contract TellorGetters {
     /**
     * @dev Gets the 5 miners who mined the value for the specified requestId/_timestamp
     * @param _requestId to look up
-    * @param _timestamp is the timestampt to look up miners for
-    * @return address[5] array of 5 addresses ofminers that mined the requestId
+    * @param _timestamp is the timestamp to look up miners for
+    * @return address[5] array of 5 addresses of miners that mined the requestId
     */
     function getSubmissionsByTimestamp(uint256 _requestId, uint256 _timestamp) external view returns (uint256[5] memory) {
         return tellor.getSubmissionsByTimestamp(_requestId, _timestamp);
@@ -305,7 +305,7 @@ contract TellorGetters {
 
     /**
     * @dev Getter function for next requestId on queue/request with highest payout at time the function is called
-    * @return onDeck/info on request with highest payout-- RequestId, Totaltips, and API query string
+    * @return onDeck/info on request with highest payout-- RequestId, TotalTips, and API query string
     */
     function getVariablesOnDeck() external view returns (uint256, uint256, string memory) {
         return tellor.getVariablesOnDeck();
@@ -322,9 +322,9 @@ contract TellorGetters {
     }
 
     /**
-    * @dev Retreive value from oracle based on timestamp
+    * @dev Retrieve value from oracle based on timestamp
     * @param _requestId being requested
-    * @param _timestamp to retreive data/value from
+    * @param _timestamp to retrieve data/value from
     * @return value for timestamp submitted
     */
     function retrieveData(uint256 _requestId, uint256 _timestamp) external view returns (uint256) {
