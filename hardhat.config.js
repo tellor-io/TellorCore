@@ -11,8 +11,8 @@ module.exports = {
       accounts: {
         mnemonic:
           "nick lucian brenda kevin sam fiscal patch fly damp ocean produce wish",
-        count: 40,
       },
+      count: 40,
     },
   },
 };

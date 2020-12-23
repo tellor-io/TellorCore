@@ -7,12 +7,12 @@ import "./Utilities.sol";
 /**
 * @title Tellor Getters Library
 * @dev This is the getter library for all variables in the Tellor Tributes system. TellorGetters references this
-* library for the getters logic
+* libary for the getters logic
 */
 library TellorGettersLibrary {
     using SafeMath for uint256;
 
-    event NewTellorAddress(address _newTellor); //emitted when a proposed fork is voted true
+    event NewTellorAddress(address _newTellor); //emmited when a proposed fork is voted true
 
     /*Functions*/
 
@@ -124,7 +124,7 @@ library TellorGettersLibrary {
 
     /**
     * @dev Getter function for variables for the requestId being currently mined(currentRequestId)
-    * @return current challenge, currentRequestId, level of difficulty, api/query string, and granularity(number of decimals requested), total tip for the request
+    * @return current challenge, curretnRequestId, level of difficulty, api/query string, and granularity(number of decimals requested), total tip for the request
     */
     function getCurrentVariables(TellorStorage.TellorStorageStruct storage self)
         internal
@@ -151,7 +151,7 @@ library TellorGettersLibrary {
     }
 
     /**
-    * @dev Checks for uint variables in the disputeUintVars mapping based on the disputeId
+    * @dev Checks for uint variables in the disputeUintVars mapping based on the disuputeId
     * @param _disputeId is the dispute id;
     * @param _data the variable to pull from the mapping. _data = keccak256("variable_name") where variable_name is
     * the variables/strings used to save the data in the mapping. The variables names are
@@ -168,7 +168,7 @@ library TellorGettersLibrary {
 
     /**
     * @dev Gets the a value for the latest timestamp available
-    * @return value for timestamp of last proof of work submitted
+    * @return value for timestamp of last proof of work submited
     * @return true if the is a timestamp for the lastNewValue
     */
     function getLastNewValue(TellorStorage.TellorStorageStruct storage self) internal view returns (uint256, bool) {
@@ -185,7 +185,7 @@ library TellorGettersLibrary {
     /**
     * @dev Gets the a value for the latest timestamp available
     * @param _requestId being requested
-    * @return value for timestamp of last proof of work submitted and if true if it exist or 0 and false if it doesn't
+    * @return value for timestamp of last proof of work submited and if true if it exist or 0 and false if it doesn't
     */
     function getLastNewValueById(TellorStorage.TellorStorageStruct storage self, uint256 _requestId) internal view returns (uint256, bool) {
         TellorStorage.Request storage _request = self.requestDetails[_requestId];
@@ -225,7 +225,7 @@ library TellorGettersLibrary {
     }
 
     /**
-    * @dev Counts the number of values that have been submitted for the request
+    * @dev Counts the number of values that have been submited for the request
     * if called for the currentRequest being mined it can tell you how many miners have submitted a value for that
     * request so far
     * @param _requestId the requestId to look up
@@ -238,7 +238,7 @@ library TellorGettersLibrary {
     /**
     * @dev Getter function for the specified requestQ index
     * @param _index to look up in the requestQ array
-    * @return uint of requestId
+    * @return uint of reqeuestId
     */
     function getRequestIdByRequestQIndex(TellorStorage.TellorStorageStruct storage self, uint256 _index) internal view returns (uint256) {
         require(_index <= 50, "RequestQ index is above 50");
@@ -248,14 +248,14 @@ library TellorGettersLibrary {
     /**
     * @dev Getter function for requestId based on timestamp
     * @param _timestamp to check requestId
-    * @return uint of requestId
+    * @return uint of reqeuestId
     */
     function getRequestIdByTimestamp(TellorStorage.TellorStorageStruct storage self, uint256 _timestamp) internal view returns (uint256) {
         return self.requestIdByTimestamp[_timestamp];
     }
 
     /**
-    * @dev Getter function for requestId based on the queryHash
+    * @dev Getter function for requestId based on the qeuaryHash
     * @param _queryHash hash(of string api and granularity) to check if a request already exists
     * @return uint requestId
     */
@@ -265,14 +265,14 @@ library TellorGettersLibrary {
 
     /**
     * @dev Getter function for the requestQ array
-    * @return the requestQ array
+    * @return the requestQ arrray
     */
     function getRequestQ(TellorStorage.TellorStorageStruct storage self) internal view returns (uint256[51] memory) {
         return self.requestQ;
     }
 
     /**
-    * @dev Allows access to the uint variables saved in the apiUintVars under the requestDetails struct
+    * @dev Allowes access to the uint variables saved in the apiUintVars under the requestDetails struct
     * for the requestId specified
     * @param _requestId to look up
     * @param _data the variable to pull from the mapping. _data = keccak256("variable_name") where variable_name is
@@ -315,7 +315,7 @@ library TellorGettersLibrary {
     }
 
     /**
-    * @dev This function allows users to retrieve all information about a staker
+    * @dev This function allows users to retireve all information about a staker
     * @param _staker address of staker inquiring about
     * @return uint current state of staker
     * @return uint startDate of staking
@@ -327,8 +327,8 @@ library TellorGettersLibrary {
     /**
     * @dev Gets the 5 miners who mined the value for the specified requestId/_timestamp
     * @param _requestId to look up
-    * @param _timestamp is the timestamp to look up miners for
-    * @return address[5] array of 5 addresses of miners that mined the requestId
+    * @param _timestamp is the timestampt to look up miners for
+    * @return address[5] array of 5 addresses ofminers that mined the requestId
     */
     function getSubmissionsByTimestamp(TellorStorage.TellorStorageStruct storage self, uint256 _requestId, uint256 _timestamp)
         internal
@@ -367,7 +367,7 @@ library TellorGettersLibrary {
 
     /**
     * @dev Getter function for next requestId on queue/request with highest payout at time the function is called
-    * @return onDeck/info on request with highest payout-- RequestId, TotalTips, and API query string
+    * @return onDeck/info on request with highest payout-- RequestId, Totaltips, and API query string
     */
     function getVariablesOnDeck(TellorStorage.TellorStorageStruct storage self) internal view returns (uint256, uint256, string memory) {
         uint256 newRequestId = getTopRequestID(self);
@@ -391,7 +391,7 @@ library TellorGettersLibrary {
 
     /**
     * @dev Gets the 5 miners who mined the value for the specified requestId/_timestamp
-    * @param _requestId to lookup
+    * @param _requestId to looku p
     * @param _timestamp is the timestamp to look up miners for
     * @return bool true if requestId/timestamp is under dispute
     */
@@ -400,9 +400,9 @@ library TellorGettersLibrary {
     }
 
     /**
-    * @dev Retrieve value from oracle based on requestId/timestamp
+    * @dev Retreive value from oracle based on requestId/timestamp
     * @param _requestId being requested
-    * @param _timestamp to retrieve data/value from
+    * @param _timestamp to retreive data/value from
     * @return uint value for requestId/timestamp submitted
     */
     function retrieveData(TellorStorage.TellorStorageStruct storage self, uint256 _requestId, uint256 _timestamp)

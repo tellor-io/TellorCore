@@ -48,14 +48,14 @@ contract("Dispute Tests", function(accounts) {
     };
   });
 
-  // it("Test no time limit on disputes", async function() {
-  //   await takeFifteen();
-  //   await TestLib.mineBlock(env);
-  //   await helper.advanceTime(86400 * 22);
-  //   await startADispute(accounts[1]);
-  //   let count = await master.getUintVar(hash("disputeCount"));
-  //   assert(count == 1);
-  // });
+  it("Test no time limit on disputes", async function() {
+    await takeFifteen();
+    await TestLib.mineBlock(env);
+    await helper.advanceTime(86400 * 22);
+    await startADispute(accounts[1]);
+    let count = await master.getUintVar(hash("disputeCount"));
+    assert(count == 1);
+  });
 
   describe("testing disputes", async () => {
     let disputeId;
@@ -463,26 +463,6 @@ contract("Dispute Tests", function(accounts) {
     await helper.advanceTime(86400 * 8);
     await helper.expectThrow(master.updateTellor(2));
     assert((await master.getAddressVars(hash("tellorContract"))) != add);
-  });
-
-  it("Test proposed fork fee increase", async function() {
-    let add = "0x0BB7087eE6F9D4Cf664F863EDf2b70293b29D71d";
-    let baseFee = new BN(web3.utils.toWei("100", "ether"));
-
-    for (var i = 1; i < 5; i++) {
-      let initBal = await master.balanceOf(master.address);
-      await master.proposeFork(add, {
-        from: accounts[1],
-      });
-      let secBal = await master.balanceOf(master.address);
-      let pot = new BN("2").pow(new BN(i - 1));
-      assert(
-        secBal.sub(initBal).eq(baseFee.mul(pot)),
-        "fee incorrectly calculated"
-      );
-      //await 7 days
-      await helper.advanceTime(60 * 60 * 24 * 7);
-    }
   });
 
   it("Test multiple dispute rounds, assure increasing per dispute round", async function() {
