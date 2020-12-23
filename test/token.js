@@ -38,7 +38,7 @@ contract("Token Tests", function(accounts) {
   it("Total Supply", async function() {
     supply = await master.totalSupply();
     assert(
-      web3.utils.fromWei(supply) < 200000,
+      web3.utils.fromWei(supply) < 500000,
       "Supply should be less than 100k"
     ); //added miner
   });
