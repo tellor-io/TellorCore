@@ -52,10 +52,12 @@ contract("Difficulty tests", function(accounts) {
     assert(newDiff * 1 + 0 < oldDiff * 1 + 0, "difficulty should be lower");
   });
 
-  it("Test lower difficulty target (5 min)", async function() {
+  it("Test lower difficulty target (4 min)", async function() {
     assert(
       (await master.getUintVar(web3.utils.keccak256("timeTarget"))) ==
         timeTarget
     );
   });
+
+  it("Difficulty adjustment based on the 4th slot", async () => {});
 });
