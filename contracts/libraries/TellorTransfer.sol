@@ -2,6 +2,7 @@ pragma solidity ^0.5.16;
 
 import "./SafeMath.sol";
 import "./TellorStorage.sol";
+
 /**
 * @title Tellor Transfer
 * @dev Contains the methods related to transfers and ERC20. Tellor.sol and TellorGetters.sol
@@ -50,7 +51,7 @@ library TellorTransfer {
     * @dev This function approves a _spender an _amount of tokens to use
     * @param _spender address
     * @param _amount amount the spender is being approved for
-    * @return true if spender approved successfully
+    * @return true if spender appproved successfully
     */
     function approve(TellorStorage.TellorStorageStruct storage self, address _spender, uint256 _amount) public returns (bool) {
         require(_spender != address(0), "Spender is 0-address");
@@ -72,7 +73,7 @@ library TellorTransfer {
     /**
     * @dev Completes POWO transfers by updating the balances on the current block number
     * @param _from address to transfer from
-    * @param _to address to transfer to
+    * @param _to addres to transfer to
     * @param _amount to transfer
     */
     function doTransfer(TellorStorage.TellorStorageStruct storage self, address _from, address _to, uint256 _amount) public {
