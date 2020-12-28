@@ -300,10 +300,10 @@ async function createV25Env(accounts, transition = false) {
 
   oracle2 = await ITellorII.at(oracle.address);
 
-  let newTellorFirst = await Tellor.new({ from: accounts[9] });
-  let newTellor = await Tellor.at(newAdd);
+  let newTellorFirst = await v25TellorTest.new({ from: accounts[9] });
+  let newTellor = await v25TellorTest.at(newAdd);
 
-  transitionContract = await TransitionContract.new();
+  transitionContract = await v25TransitionContract.new();
   vars = await oracle2.getNewCurrentVariables();
   await oracle2.changeTellorContract(transitionContract.address);
 
@@ -452,6 +452,16 @@ async function createV2EnvFull(accounts, transition) {
   return oracle2;
 }
 
+const getNewTellor = async (env) => {
+  let t = await Tellor.new({ from: env.accounts[9] });
+  return t;
+};
+
+const getNewTransition = async (env) => {
+  let t = await TransitionContract.new();
+  return t;
+};
+
 module.exports = {
   prepare: prepareEnv,
   mineBlock: mineBlock,
@@ -459,6 +469,8 @@ module.exports = {
   getV25: createV25Env,
   getV2Full: createV2EnvFull,
   getV25Empty: createV25EnvEmpty,
+  getNewTellor: getNewTellor,
+  getNewTransition: getNewTransition,
   //This supposed to return the most updated enviroment. Version agnostic tests should always use this.
   getEnv: createV26Env,
 };

@@ -45,41 +45,43 @@ contract("Further tests", function(accounts) {
     );
   });
 
-  //  it("Test token fee burning", async function() {
-  //   await master.theLazyCoon(accounts[1], web3.utils.toWei("2000", "ether"));
+  it("Test token fee burning", async function() {
+    await master.theLazyCoon(accounts[1], web3.utils.toWei("2000", "ether"));
 
-  //   await master.addTip(1, web3.utils.toWei("1000", "ether"));
-  //   vars = await master.getNewCurrentVariables();
-  //   assert(vars[3] >= web3.utils.toWei("1000", "ether"), "tip should be big");
-  //   balances = [];
-  //   for (var i = 0; i < 6; i++) {
-  //     balances[i] = await master.balanceOf(accounts[i]);
-  //   }
-  //   initTotalSupply = await master.totalSupply();
-  //   await takeFifteen();
-  //   await TestLib.mineBlock(env);
-  //     await takeFifteen();
-  //   await TestLib.mineBlock(env);
-  //   new_balances = [];
-  //   for (var i = 0; i < 6; i++) {
-  //     new_balances[i] = await master.balanceOf(accounts[i]);
-  //   }
-  //   changes = [];
-  //   for (var i = 0; i < 6; i++) {
-  //     changes[i] = new_balances[i] - balances[i];
-  //   }
-  //   newTotalSupply = await master.totalSupply();
+    await master.addTip(1, web3.utils.toWei("1000", "ether"));
+    vars = await master.getNewCurrentVariables();
+    assert(vars[3] >= web3.utils.toWei("1000", "ether"), "tip should be big");
+    balances = [];
+    for (var i = 0; i < 6; i++) {
+      balances[i] = await master.balanceOf(accounts[i]);
+    }
+    initTotalSupply = await master.totalSupply();
+    await takeFifteen();
+    await TestLib.mineBlock(env);
+    await takeFifteen();
+    await TestLib.mineBlock(env);
+    new_balances = [];
+    for (var i = 0; i < 6; i++) {
+      new_balances[i] = await master.balanceOf(accounts[i]);
+    }
+    changes = [];
+    for (var i = 0; i < 6; i++) {
+      changes[i] = new_balances[i] - balances[i];
+    }
+    newTotalSupply = await master.totalSupply();
 
-  //   assert(changes[0] <= web3.utils.toWei("107.58", "ether"));
-  //   assert(changes[1] <= web3.utils.toWei("105.72", "ether"));
-  //   assert(changes[2] <= web3.utils.toWei("105.72", "ether"));
-  //   assert(changes[3] <= web3.utils.toWei("105.72", "ether"));
-  //   assert(changes[4] <= web3.utils.toWei("105.72", "ether"));
-  //   assert(
-  //     initTotalSupply - newTotalSupply > web3.utils.toWei("479", "ether"),
-  //     "total supply should drop significatntly"
-  //   );
-  // });
+    assert(changes[0] <= web3.utils.toWei("110.86", "ether"));
+    assert(changes[1] <= web3.utils.toWei("107.24", "ether"));
+    assert(changes[2] <= web3.utils.toWei("107.24", "ether"));
+    assert(changes[3] <= web3.utils.toWei("107.24", "ether"));
+    assert(changes[4] <= web3.utils.toWei("107.24", "ether"));
+
+    let diff = initTotalSupply.sub(newTotalSupply);
+    assert(
+      diff > web3.utils.toWei("459", "ether"),
+      "total supply should drop significantly"
+    );
+  });
 
   it("Test add tip on very far out API id (or on a tblock id?)", async function() {
     await helper.expectThrow(master.addTip(web3.utils.toWei("1"), 1));

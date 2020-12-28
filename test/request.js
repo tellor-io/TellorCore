@@ -118,37 +118,45 @@ contract("Request and tip tests", function(accounts) {
     );
   });
 
-  // it("Test 51 request and lowest is kicked out", async function() {
-  //   let previousTips = []
-  //   for (var i = 0; i <= 56; i++) {
-  //     let tip = await master.getRequestVars(i);
-  //     previousTips.push(tip[5])
-  //   }
+  it("Test 51 request and lowest is kicked out", async function() {
+    let previousTips = [];
+    for (var i = 0; i <= 56; i++) {
+      let tip = await master.getRequestVars(i);
+      previousTips.push(tip[5]);
+    }
 
-  //   await master.theLazyCoon(accounts[2], web3.utils.toWei("1000", "ether"));
-  //   for (var i = 1; i <= 56; i++) {
-  //     await master.addTip(i, i, { from: accounts[2] });
-  //   }
+    await master.theLazyCoon(accounts[2], web3.utils.toWei("1000", "ether"));
+    for (var i = 1; i <= 56; i++) {
+      await master.addTip(i, i, {
+        from: accounts[2],
+      });
+    }
 
-  //   let payoutPool = await master.getRequestQ();
-  //   for (var i = 6; i <= 41; i++) {
-  //     assert(payoutPool[i].toNumber() == previousTips[i].toNumber() + i, "should be equal");
-  //   }
-  //   apiVars = await master.getRequestVars(47);
-  //   apiIdforpayoutPoolIndex = await master.getRequestIdByRequestQIndex(50);
-  //   vars = await master.getNewVariablesOnDeck();
-  //   let apiOnQ = vars[0];
-  //   let apiPayout = vars[1];
-  //   for(var i = 0; i <= 4; i++){
-  //     apiPayout[i] = apiPayout[i] *1 -0
-  //     apiOnQ[i] = apiOnQ[i]*1-0
-  //   }
+    let payoutPool = await master.getRequestQ();
+    for (var i = 11; i <= 36; i++) {
+      assert(
+        payoutPool[i].toNumber() == previousTips[i].toNumber() + i,
+        "should be equal"
+      );
+    }
+    apiVars = await master.getRequestVars(47);
+    apiIdforpayoutPoolIndex = await master.getRequestIdByRequestQIndex(50);
+    vars = await master.getNewVariablesOnDeck();
+    let apiOnQ = vars[0];
+    let apiPayout = vars[1];
+    for (var i = 0; i <= 4; i++) {
+      apiPayout[i] = apiPayout[i] * 1 - 0;
+      apiOnQ[i] = apiOnQ[i] * 1 - 0;
+    }
 
-  //   assert(apiIdforpayoutPoolIndex.toString() == "56", "position 1 should be booted");
-  //   assert(apiPayout.includes(56), "API on Q payout should be 56");
-  //   assert(apiOnQ.includes(56), "API on Q should be 56");
-  //   assert(apiVars[4] == 5, "position 1 should have correct value");
-  // });
+    assert(
+      apiIdforpayoutPoolIndex.toString() == "56",
+      "position 1 should be booted"
+    );
+    assert(apiPayout.includes(56), "API on Q payout should be 56");
+    assert(apiOnQ.includes(56), "API on Q should be 56");
+    assert(apiVars[4] == 5, "position 1 should have correct value");
+  });
 
   it("Test Throw on wrong apiId", async function() {
     vars = await master.getNewCurrentVariables();

@@ -36,58 +36,30 @@ contract("Reward Tests", function(accounts) {
   });
 
   ////Adjust this test when fixing the smart contracts
-  //   it("Rewards are proportional to time passed", async () => {
-  // //  zeroing tips
-  //   for(var i = 0; i < 10; i++){
-  //     await helper.takeFifteen();
-  //     await TestLib.mineBlock(env)
-  //   }
+  it("Rewards are proportional to time passed", async () => {
+    //  zeroing tips
+    for (var i = 0; i < 10; i++) {
+      await helper.takeFifteen();
+      await TestLib.mineBlock(env);
+    }
 
-  //   //Add tip and mine 2 blocks to clear tips
-  //     await master.addTip(52, 1);
-  //     await helper.advanceTime(60 * 16);
-  //     await TestLib.mineBlock(env);
-  //     await helper.advanceTime(60 * 16);
-  //     let tx = await TestLib.mineBlock(env);
-  //     console.log("");
-  //     console.log("EEEE");
-  //     console.log("");
-  //     // for (var i = 0; i < 60; i++){
-  //     //   let va = await master.getRequestVars(i)
-  //     //   console.log(va["5"].toString());
-  //     // }
-  //     // console.log(tx);
-  //     // let prevTime = tx.timestamp
-  //     // let prevBal = new web3.utils.BN("0")
-  //     for(var j = 0; j < 30; j++){
-  //       // let sup = await master.totalSupply()
-  //       // let balBef = await master.balanceOf(accounts[2]);
-  //       await helper.advanceTime(60 * 40);
-  //       await TestLib.mineBlock(env);
-  //       // let balAfter = await master.balanceOf(accounts[2]);
-  //       // // let supa = await master.totalSupply()
-  //       // // console.log((tx.timestamp - prevTime) / 60 );
-  //       // prevTime = tx.timestamp
-  //       // console.log(web3.utils.fromWei(balAfter.sub(balBef).toString()));
-  //       // console.log(web3.utils.fromWei(balAfter.sub(prevBal).toString()));
-  //       // balAfter = prevBal
-  //       // console.log("suply", supa.sub(sup).toString());
-  //     }
+    //Add tip and mine 2 blocks to clear tips
+    await master.addTip(52, 1);
+    await helper.advanceTime(60 * 16);
+    await TestLib.mineBlock(env);
+    await helper.advanceTime(60 * 16);
+    let tx = await TestLib.mineBlock(env);
 
-  // let balBef = await master.balanceOf(accounts[1]);
-  // console.log(web3.utils.fromWei(balBef.toString()))
-  // await helper.advanceTime(60 * 15);
-  // await TestLib.mineBlock(env);
-  // let balAfter = await master.balanceOf(accounts[1]);
-  // console.log(web3.utils.fromWei(balAfter.toString()))
-  // console.log(balBef.toString());
-  // console.log(balAfter.toString());
-  // console.log(balAfter.sub(balBef).toString());
-  // console.log(web3.utils.fromWei(balAfter) - web3.utils.fromWei(balBef));
+    let balBef = await master.balanceOf(accounts[1]);
+    // console.log(web3.utils.fromWei(balBef.toString()));
+    await helper.advanceTime(60 * 15);
+    await TestLib.mineBlock(env);
+    let balAfter = await master.balanceOf(accounts[1]);
 
-  // assert(web3.utils.fromWei(balAfter) - web3.utils.fromWei(balBef) >= 7.9)
-  // assert(web3.utils.fromWei(balAfter) - web3.utils.fromWei(balBef) <= 8.1)
-  //});
+    //15 min passed, should have 3 TRBs as reward, 1 per each 5 min
+    assert(web3.utils.fromWei(balAfter) - web3.utils.fromWei(balBef) >= 3.0);
+    assert(web3.utils.fromWei(balAfter) - web3.utils.fromWei(balBef) <= 3.1);
+  });
 
   it("Test allow tip of current mined ID", async function() {
     vars = await master.getNewCurrentVariables();
