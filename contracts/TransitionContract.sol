@@ -10,7 +10,7 @@ contract TellorTransition {
 
     TellorStorage.TellorStorageStruct tellor;
 
-    address public constant newTellor = 0x032Aa32e4069318b15e6462CE20926d4d821De90;
+    address public constant newTellor = 0x41c4e9D14712560A6707C365dB1c3251E5eD7f78;
     address public constant currentTellor = 0x6511D2957aa09350494f892Ce2881851f0bb26D3;
 
     /**
@@ -19,9 +19,7 @@ contract TellorTransition {
     */
     function _transition() internal {
         //Perfomr all necessary steps for the transition
-        tellor.uintVars[keccak256("currentReward")] = 1e18;
-        tellor.uintVars[keccak256("stakeAmount")] = 500e18;
-        tellor.uintVars[keccak256("disputeFee")] = 500e18;
+        tellor.uintVars[keccak256("timeTarget")] = 240;
 
         //After, change the "tellorAddress" to the new version
         tellor.addressVars[keccak256("tellorContract")] = newTellor;

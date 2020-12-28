@@ -1,6 +1,3 @@
 module.exports = {
-  providerOptions: {
-    mnemonic:
-      "nick lucian brenda kevin sam fiscal patch fly damp ocean produce wish",
-  },
+  skipFiles: ["Migrations.sol", "interfaces", "mocks/testImporter.sol"],
 };
