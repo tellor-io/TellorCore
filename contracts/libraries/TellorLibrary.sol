@@ -17,16 +17,16 @@ import "./TellorGettersLibrary.sol";
 library TellorLibrary {
     using SafeMath for uint256;
 
+    // bytes32 public constant devShare = 0x8fe9ded8d7c08f720cf0340699024f83522ea66b2bbfb8f557851cb9ee63b54c; //keccak256("devShare")
+    // bytes32 public constant runningTips = 0xdb21f0c4accc4f2f5f1045353763a9ffe7091ceaf0fcceb5831858d96cf84631; //keccak256("runningTips")
+    // bytes32 public constant currentReward = 0x9b6853911475b07474368644a0d922ee13bc76a15cd3e97d3e334326424a47d4; //keccak256("currentReward")
     bytes32 public constant requestCount = 0x05de9147d05477c0a5dc675aeea733157f5092f82add148cf39d579cafe3dc98; //keccak256("requestCount")
     bytes32 public constant totalTip = 0x2a9e355a92978430eca9c1aa3a9ba590094bac282594bccf82de16b83046e2c3; //keccak256("totalTip")
     bytes32 public constant _tBlock = 0x969ea04b74d02bb4d9e6e8e57236e1b9ca31627139ae9f0e465249932e824502; //keccak256("_tBlock")
     bytes32 public constant timeOfLastNewValue = 0x97e6eb29f6a85471f7cc9b57f9e4c3deaf398cfc9798673160d7798baf0b13a4; //keccak256("timeOfLastNewValue")
     bytes32 public constant difficulty = 0xb12aff7664b16cb99339be399b863feecd64d14817be7e1f042f97e3f358e64e; //keccak256("difficulty")
     bytes32 public constant timeTarget = 0xad16221efc80aaf1b7e69bd3ecb61ba5ffa539adf129c3b4ffff769c9b5bbc33; //keccak256("timeTarget")
-    bytes32 public constant runningTips = 0xdb21f0c4accc4f2f5f1045353763a9ffe7091ceaf0fcceb5831858d96cf84631; //keccak256("runningTips")
-    bytes32 public constant currentReward = 0x9b6853911475b07474368644a0d922ee13bc76a15cd3e97d3e334326424a47d4; //keccak256("currentReward")
     bytes32 public constant total_supply = 0xb1557182e4359a1f0c6301278e8f5b35a776ab58d39892581e357578fb287836; //keccak256("total_supply")
-    bytes32 public constant devShare = 0x8fe9ded8d7c08f720cf0340699024f83522ea66b2bbfb8f557851cb9ee63b54c; //keccak256("devShare")
     bytes32 public constant _owner =  0x9dbc393ddc18fd27b1d9b1b129059925688d2f2d5818a5ec3ebb750b7c286ea6; //keccak256("_owner")
     bytes32 public constant requestQPosition = 0x1e344bd070f05f1c5b3f0b1266f4f20d837a0a8190a3a2da8b0375eac2ba86ea; //keccak256("requestQPosition")
     bytes32 public constant currentTotalTips = 0xd26d9834adf5a73309c4974bf654850bb699df8505e70d4cfde365c417b19dfc; //keccak256("currentTotalTips")
@@ -43,12 +43,10 @@ library TellorLibrary {
         uint256 _difficulty,
         uint256 _totalTips
     );
-    //Emits upon a successful Mine, indicates the blocktime at point of the mine and the value mined
+    //Emits upon a successful Mine, indicates the blockTime at point of the mine and the value mined
     event NewValue(uint256[5] _requestId, uint256 _time, uint256[5] _value, uint256 _totalTips, bytes32 indexed _currentChallenge);
     //Emits upon each mine (5 total) and shows the miner, nonce, and value submitted
-    event NonceSubmitted(address indexed _miner, string _nonce, uint256[5] _requestId, uint256[5] _value, bytes32 indexed _currentChallenge);
-    event OwnershipTransferred(address indexed _previousOwner, address indexed _newOwner);
-    event OwnershipProposed(address indexed _previousOwner, address indexed _newOwner);
+    event NonceSubmitted(address indexed _miner, string _nonce, uint256[5] _requestId, uint256[5] _value, bytes32 indexed _currentChallenge, uint256 _slot);
 
     /*Functions*/
     /**
@@ -81,22 +79,11 @@ library TellorLibrary {
     */
     function newBlock(TellorStorage.TellorStorageStruct storage self, string memory _nonce, uint256[5] memory _requestId) public {
         TellorStorage.Request storage _tblock = self.requestDetails[self.uintVars[_tBlock]];
-        // If the difference between the timeTarget and how long it takes to solve the challenge this updates the challenge
-        //difficulty up or donw by the difference between the target time and how long it took to solve the previous challenge
-        //otherwise it sets it to 1
-        uint timeDiff = now - self.uintVars[timeOfLastNewValue];
-        int256 _change = int256(SafeMath.min(1200, timeDiff));
-        int256 _diff = int256(self.uintVars[difficulty]);
-        _change = (_diff * (int256(self.uintVars[timeTarget]) - _change)) / 4000;
-        if (_change == 0) {
-                _change = 1;
-            }
-        self.uintVars[difficulty]  = uint256(SafeMath.max(_diff + _change,1));
-
 
         //Sets time of value submission rounded to 1 minute
         bytes32 _currChallenge = self.currentChallenge;
-        uint256 _timeOfLastNewValue = now - (now % 1 minutes);
+        uint256 _previousTime = self.uintVars[timeOfLastNewValue];
+        uint256 _timeOfLastNewValue = block.timestamp;
         self.uintVars[timeOfLastNewValue] = _timeOfLastNewValue;
         uint[5] memory a; 
         for (uint k = 0; k < 5; k++) {
@@ -130,7 +117,7 @@ library TellorLibrary {
                 _requestId,
                 _timeOfLastNewValue,
                 a,
-                self.uintVars[runningTips],
+                self.uintVars[currentTotalTips],
                 _currChallenge
             );
         //map the timeOfLastValue to the requestId that was just mined
@@ -140,7 +127,7 @@ library TellorLibrary {
 
         address[5] memory miners = self.requestDetails[_requestId[0]].minersByValue[_timeOfLastNewValue];
         //payMinersRewards
-        _payReward(self, timeDiff, miners);
+        _payReward(self, miners, _previousTime);
         
         self.uintVars[_tBlock] ++;
         uint256[5] memory _topId = TellorStake.getTopRequestIDs(self);
@@ -161,6 +148,20 @@ library TellorLibrary {
         );
     }
 
+    function adjustDifficulty(TellorStorage.TellorStorageStruct storage self) internal {
+        // If the difference between the timeTarget and how long it takes to solve the challenge this updates the challenge
+        //difficulty up or down by the difference between the target time and how long it took to solve the previous challenge
+        //otherwise it sets it to 1
+        uint timeDiff = now - self.uintVars[timeOfLastNewValue];
+        int256 _change = int256(SafeMath.min(1200, timeDiff));
+        int256 _diff = int256(self.uintVars[difficulty]);
+        _change = (_diff * (int256(self.uintVars[timeTarget]) - _change)) / 1000;
+        if (_change == 0) {
+                _change = 1;
+            }
+        self.uintVars[difficulty]  = uint256(SafeMath.max(_diff + _change,1));
+    }
+
     /**
     * @dev Proof of work is called by the miner when they submit the solution (proof of work and value)
     * @param _nonce uint submitted by miner
@@ -170,7 +171,9 @@ library TellorLibrary {
     function submitMiningSolution(TellorStorage.TellorStorageStruct storage self, string calldata _nonce,uint256[5] calldata _requestId, uint256[5] calldata _value)
         external
     {
-        _verifyNonce(self, _nonce);
+        if(self.uintVars[slotProgress] != 4) {
+            _verifyNonce(self, _nonce);
+        } 
         _submitMiningSolution(self, _nonce, _requestId, _value);
     }
 
@@ -201,8 +204,8 @@ library TellorLibrary {
 
         //Updating Request
         TellorStorage.Request storage _tblock = self.requestDetails[self.uintVars[_tBlock]];
-        _tblock.minersByValue[1][_slotProgress]= msg.sender; 
-        //Assigng directly is cheaper than using a for loop
+        
+        //Assigning directly is cheaper than using a for loop
         _tblock.valuesByTimestamp[0][_slotProgress] = _value[0];
         _tblock.valuesByTimestamp[1][_slotProgress] = _value[1];
         _tblock.valuesByTimestamp[2][_slotProgress] = _value[2];
@@ -214,15 +217,20 @@ library TellorLibrary {
         _tblock.minersByValue[3][_slotProgress]= msg.sender;
         _tblock.minersByValue[4][_slotProgress]= msg.sender;
 
-        //If 5 values have been received, adjust the difficulty otherwise sort the values until 5 are received         
+
+
+       if(_slotProgress + 1 == 4) {
+           adjustDifficulty(self);
+       }
+       
         if (_slotProgress + 1 == 5) { //slotProgress has been incremented, but we're using the variable on stack to save gas
             newBlock(self, _nonce, _requestId);
             self.uintVars[slotProgress] = 0;
-        }
+        } 
         else{
             self.uintVars[slotProgress]++;
         }
-        emit NonceSubmitted(msg.sender, _nonce, _requestId, _value, _currChallenge);
+        emit NonceSubmitted(msg.sender, _nonce, _requestId, _value, _currChallenge,_slotProgress);
     }
 
     function _verifyNonce(TellorStorage.TellorStorageStruct storage self,string memory _nonce ) view internal {
@@ -239,10 +247,11 @@ library TellorLibrary {
     * @dev Internal function to calculate and pay rewards to miners
     * 
     */
-    function _payReward(TellorStorage.TellorStorageStruct storage self, uint _timeDiff, address[5] memory miners) internal {
+    function _payReward(TellorStorage.TellorStorageStruct storage self, address[5] memory miners, uint256 _previousTime) internal {
         //_timeDiff is how many minutes passed since last block
+        uint _timeDiff = block.timestamp - _previousTime;
         uint _currReward = 1e18;
-        uint reward = _timeDiff* _currReward / 300; //each miner get's 
+        uint reward = _timeDiff* _currReward / 300;
         uint _tip = self.uintVars[currentTotalTips] / 10;
         uint _devShare = reward / 2;
 
@@ -256,28 +265,6 @@ library TellorLibrary {
         self.uintVars[total_supply] +=  _devShare + reward * 5 - (self.uintVars[currentTotalTips] / 2);
         TellorTransfer.doTransfer(self, address(this), self.addressVars[_owner],  _devShare);
         self.uintVars[currentTotalTips] = 0;
-    }
-
-
-    /**
-    * @dev Allows the current owner to propose transfer control of the contract to a
-    * newOwner and the ownership is pending until the new owner calls the claimOwnership
-    * function
-    * @param _pendingOwner The address to transfer ownership to.
-    */
-    function proposeOwnership(TellorStorage.TellorStorageStruct storage self, address payable _pendingOwner) public {
-        require(msg.sender == self.addressVars[_owner], "Sender is not owner");
-        emit OwnershipProposed(self.addressVars[_owner], _pendingOwner);
-        self.addressVars[pending_owner] = _pendingOwner;
-    }
-
-    /**
-    * @dev Allows the new owner to claim control of the contract
-    */
-    function claimOwnership(TellorStorage.TellorStorageStruct storage self) public {
-        require(msg.sender == self.addressVars[pending_owner], "Sender is not pending owner");
-        emit OwnershipTransferred(self.addressVars[_owner], self.addressVars[pending_owner]);
-        self.addressVars[_owner] = self.addressVars[pending_owner];
     }
 
     /**
@@ -300,14 +287,14 @@ library TellorLibrary {
                 (_min, _index) = Utilities.getMin(self.requestQ);
                 //we have to zero out the oldOne
                 //if the _payout is greater than the current minimum payout in the requestQ[51] or if the minimum is zero
-                //then add it to the requestQ array aand map its index information to the requestId and the apiUintvars
+                //then add it to the requestQ array and map its index information to the requestId and the apiUintVars
                 if (_request.apiUintVars[totalTip] > _min || _min == 0) {
                     self.requestQ[_index] = _request.apiUintVars[totalTip];
                     self.requestDetails[self.requestIdByRequestQIndex[_index]].apiUintVars[requestQPosition] = 0;
                     self.requestIdByRequestQIndex[_index] = _requestId;
                     _request.apiUintVars[requestQPosition] = _index;
                 }
-                // else if the requestid is part of the requestQ[51] then update the tip for it
+                // else if the requestId is part of the requestQ[51] then update the tip for it
             } else{
                 self.requestQ[_request.apiUintVars[requestQPosition]] += _tip;
             }

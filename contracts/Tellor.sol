@@ -84,24 +84,6 @@ contract Tellor {
         tellor.submitMiningSolution(_nonce,_requestId, _value);
     }
 
-
-    /**
-    * @dev Allows the current owner to propose transfer control of the contract to a
-    * newOwner and the ownership is pending until the new owner calls the claimOwnership
-    * function
-    * @param _pendingOwner The address to transfer ownership to.
-    */
-    function proposeOwnership(address payable _pendingOwner) external {
-        tellor.proposeOwnership(_pendingOwner);
-    }
-
-    /**
-    * @dev Allows the new owner to claim control of the contract
-    */
-    function claimOwnership() external {
-        tellor.claimOwnership();
-    }
-
     /**
     * @dev This function allows miners to deposit their stake.
     */
@@ -129,7 +111,7 @@ contract Tellor {
     * @dev This function approves a _spender an _amount of tokens to use
     * @param _spender address
     * @param _amount amount the spender is being approved for
-    * @return true if spender appproved successfully
+    * @return true if spender approved successfully
     */
     function approve(address _spender, uint256 _amount) external returns (bool) {
         return tellor.approve(_spender, _amount);
@@ -182,7 +164,7 @@ contract Tellor {
     * @dev Getter for the current variables that include the 5 requests Id's
     * @return the challenge, 5 requestsId, difficulty and tip
     */
-    function getNewCurrentVariables() external view returns(bytes32 _challenge,uint[5] memory _requestIds,uint256 _difficutly, uint256 _tip){
+    function getNewCurrentVariables() external view returns(bytes32 _challenge,uint[5] memory _requestIds,uint256 _difficulty, uint256 _tip){
         return tellor.getNewCurrentVariables();
     }
 
@@ -218,19 +200,4 @@ contract Tellor {
      function unlockDisputeFee (uint _disputeId) external{
         return tellor.unlockDisputeFee(_disputeId);
     }
-
-    /*******************TEST Functions NOT INCLUDED ON PRODUCTION/MAINNET/RINKEBY******/
-    // /*This is a cheat for demo purposes, will delete upon actual launch*/
-    // function theLazyCoon(address _address, uint _amount) external {
-    //     tellor.theLazyCoon(_address,_amount);
-    // }
-
-    // // function testSubmitMiningSolution(string calldata _nonce, uint256 _requestId, uint256 _value) external {
-    // //     tellor.testSubmitMiningSolution(_nonce, _requestId, _value);
-    // // }
-
-    // function testSubmitMiningSolution(string calldata _nonce,uint256[5] calldata _requestId, uint256[5] calldata _value) external {
-    //     tellor.testSubmitMiningSolution(_nonce,_requestId, _value);
-    // }
-    /***************END TEST Functions NOT INCLUDED ON PRODUCTION/MAINNET/RINKEBY******/
  }

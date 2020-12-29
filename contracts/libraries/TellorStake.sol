@@ -6,7 +6,7 @@ import "./TellorTransfer.sol";
 import "./TellorDispute.sol";
 import "./Utilities.sol";
 /**
-* itle Tellor Stake
+* title Tellor Stake
 * @dev Contains the methods related to miners staking and unstaking. Tellor.sol
 * references this library for function's logic.
 */
@@ -65,14 +65,14 @@ library TellorStake {
     }
 
     /**
-    * @dev This function is used by the init function to succesfully stake the initial 5 miners.
+    * @dev This function is used by the init function to successfully stake the initial 5 miners.
     * The function updates their status/state and status start date so they are locked it so they can't withdraw
     * and updates the number of stakers in the system.
     */
     function newStake(TellorStorage.TellorStorageStruct storage self, address staker) internal {
         require(TellorTransfer.balanceOf(self, staker) >= self.uintVars[keccak256("stakeAmount")], "Balance is lower than stake amount");
-        //Ensure they can only stake if they are not currrently staked or if their stake time frame has ended
-        //and they are currently locked for witdhraw
+        //Ensure they can only stake if they are not currently staked or if their stake time frame has ended
+        //and they are currently locked for withdraw
         require(self.stakerDetails[staker].currentStatus == 0 || self.stakerDetails[staker].currentStatus == 2, "Miner is in the wrong state");
         self.uintVars[keccak256("stakerCount")] += 1;
         self.stakerDetails[staker] = TellorStorage.StakeInfo({
@@ -84,7 +84,7 @@ library TellorStake {
 
     /**
     * @dev Getter function for the requestId being mined 
-    * @return variables for the current minin event: Challenge, 5 RequestId, difficulty and Totaltips
+    * @return variables for the current mining event: Challenge, 5 RequestId, difficulty and TotalTips
     */
     function getNewCurrentVariables(TellorStorage.TellorStorageStruct storage self) internal view returns(bytes32 _challenge,uint[5] memory _requestIds,uint256 _difficulty, uint256 _tip){
         for(uint i=0;i<5;i++){
@@ -95,7 +95,7 @@ library TellorStake {
 
     /**
     * @dev Getter function for next requestId on queue/request with highest payout at time the function is called
-    * @return onDeck/info on top 5 requests(highest payout)-- RequestId, Totaltips
+    * @return onDeck/info on top 5 requests(highest payout)-- RequestId, TotalTips
     */
     function getNewVariablesOnDeck(TellorStorage.TellorStorageStruct storage self) internal view returns (uint256[5] memory idsOnDeck, uint256[5] memory tipsOnDeck) {
         idsOnDeck = getTopRequestIDs(self);
