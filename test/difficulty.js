@@ -40,7 +40,6 @@ contract("Difficulty tests", function(accounts) {
     await helper.advanceTime(60 * 60 * 16);
     await TestLib.mineBlock(env);
     vars = await master.getNewCurrentVariables();
-    console.log(vars[2].toString(), diff1[2].toString());
     assert(vars[2] < diff1[2], "difficulty should continue to move down");
   });
 
@@ -104,7 +103,6 @@ contract("Difficulty tests", function(accounts) {
       }
 
       let afterDiff = await getDiff();
-      console.log(currentDiff,afterDiff)
       assert(currentDiff > afterDiff, "Difficulty should have decreased");
     });
 
@@ -132,7 +130,6 @@ contract("Difficulty tests", function(accounts) {
       }
 
       let afterDiff = await getDiff();
-      console.log(currentDiff, afterDiff);
       assert(currentDiff < afterDiff, "Difficulty should have increase");
     });
 
