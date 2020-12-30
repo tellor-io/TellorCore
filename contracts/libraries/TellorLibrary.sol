@@ -155,7 +155,7 @@ library TellorLibrary {
         uint timeDiff = now - self.uintVars[timeOfLastNewValue];
         int256 _change = int256(SafeMath.min(1200, timeDiff));
         int256 _diff = int256(self.uintVars[difficulty]);
-        _change = (_diff * (int256(self.uintVars[timeTarget]) - _change)) / 1000;
+        _change = (_diff * (int256(self.uintVars[timeTarget]) - _change)) /4000;
         if (_change == 0) {
                 _change = 1;
             }
