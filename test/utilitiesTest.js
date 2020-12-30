@@ -220,14 +220,9 @@ contract("Utilities Tests", function(accounts) {
     });
 
     let queue = [0];
-    sampledArray = [0]
     let ref = [[0, 0]];
     for (var i = 1; i < 90; i++) {
-      let x = 0
-      while(sampledArray.includes(x)) {
-        x = Math.floor(Math.random() * 998) + 1;
-      } 
-      sampledArray.push(x)
+      let x = i + 1;
       await master.addTip(i, x);
       if (ids.indexOf(i) == -1) {
         queue.push(x);
@@ -236,21 +231,16 @@ contract("Utilities Tests", function(accounts) {
       }
     }
 
-    sampledArray = [0]
+
     for (var i = 1; i < 90; i = i + 5) {
-      let x = 0
-      while(sampledArray.includes(x)) {
-        x = Math.floor(Math.random() * 998) + 1;
-      } 
-      sampledArray.push(x)
+      let x = i + 1;
       await master.addTip(i, x);
       queue[i] = queue[i] + x;
     }
 
     let svals = queue.sort((a, b) => a - b);
-    let q = svals.slice(-50);
+    let q = svals.slice(-51);
     //await printRequestQ();
-
     min = await utilities.testgetMin();
     assert(min[0].toString() == q[0], "Min value should be correct");
   });

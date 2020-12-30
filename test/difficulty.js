@@ -139,7 +139,7 @@ contract("Difficulty tests", function(accounts) {
         master: master,
         accounts: accounts.slice(30, 35),
       });
-      await master.manuallySetDifficulty(100);
+      await master.manuallySetDifficulty(1000);
 
       await helper.advanceTime(61);
 
