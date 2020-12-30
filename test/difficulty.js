@@ -31,6 +31,7 @@ contract("Difficulty tests", function(accounts) {
 
   it("Test Difficulty Adjustment", async function() {
     await helper.advanceTime(60 * 60 * 16);
+    await master.manuallySetDifficulty(100000000000);
     await TestLib.mineBlock(env);
 
     let diff1 = await master.getNewCurrentVariables();
@@ -83,7 +84,7 @@ contract("Difficulty tests", function(accounts) {
     it("Difficulty decrease based on the 4th slot", async () => {
       await helper.takeFifteen();
       await TestLib.mineBlock(env);
-
+      await master.manuallySetDifficulty(1000);
       let currentDiff = await getDiff();
 
       await helper.takeFifteen();
@@ -103,14 +104,14 @@ contract("Difficulty tests", function(accounts) {
       }
 
       let afterDiff = await getDiff();
-
+      console.log(currentDiff,afterDiff)
       assert(currentDiff > afterDiff, "Difficulty should have decreased");
     });
 
     it("Difficulty increase based on the 4th slot", async () => {
       await helper.takeFifteen();
       await TestLib.mineBlock(env);
-
+      await master.manuallySetDifficulty(1000);
       let currentDiff = await getDiff();
 
       //move only 1 minute

@@ -222,7 +222,7 @@ library TellorDispute {
             disputeVotePassed: false,
             tally: 0
         });
-        TellorTransfer.doTransfer(self, msg.sender, address(this), 100e18 * 2**(dispRounds-1)); //This is the fork fee (just 100 tokens flat, no refunds)
+        TellorTransfer.doTransfer(self, msg.sender, address(this), 100e18 * 2**(dispRounds-1)); //This is the fork fee (just 100 tokens flat, no refunds.  Goes up quickly to dispute a bad vote)
         self.disputesById[disputeId].disputeUintVars[keccak256("blockNumber")] = block.number;
         self.disputesById[disputeId].disputeUintVars[keccak256("minExecutionDate")] = now + 7 days;
     }
