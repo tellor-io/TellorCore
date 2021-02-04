@@ -8,8 +8,6 @@ import "./TellorDispute.sol";
 import "./TellorStake.sol";
 import "./TellorGettersLibrary.sol";
 
-import "hardhat/console.sol";
-
 /**
  * @title Tellor Oracle System Library
  * @dev Contains the functions' logic for the Tellor contract where miners can submit the proof of work
@@ -130,6 +128,7 @@ library TellorLibrary {
         uint256 _timeOfLastNewValue = block.timestamp;
         self.uintVars[timeOfLastNewValue] = _timeOfLastNewValue;
         uint256[5] memory a;
+        uint256[5] memory b;
         for (uint256 k = 0; k < 5; k++) {
             for (uint256 i = 1; i < 5; i++) {
                 uint256 temp = _tblock.valuesByTimestamp[k][i];
@@ -154,6 +153,7 @@ library TellorLibrary {
             //Save the official(finalValue), timestamp of it, 5 miners and their submitted values for it, and its block number
             a = _tblock.valuesByTimestamp[k];
             _request.finalValues[_timeOfLastNewValue] = a[2];
+            b[k] = a[2];
             _request.minersByValue[_timeOfLastNewValue] = _tblock.minersByValue[
                 k
             ];
@@ -168,7 +168,7 @@ library TellorLibrary {
         emit NewValue(
             _requestId,
             _timeOfLastNewValue,
-            a,
+            b,
             self.uintVars[currentTotalTips],
             _currChallenge
         );
@@ -335,11 +335,6 @@ library TellorLibrary {
         TellorStorage.TellorStorageStruct storage self,
         string memory _nonce
     ) internal view {
-        // console.log(now - (now % 1 minutes));
-        // console.log(self.uintVars[timeOfLastNewValue]);
-        console.log(
-            (now - (now % 1 minutes)) - self.uintVars[timeOfLastNewValue]
-        );
         require(
             uint256(
                 sha256(
@@ -360,8 +355,7 @@ library TellorLibrary {
             ) %
                 self.uintVars[difficulty] ==
                 0 ||
-                (now - (now % 1 minutes)) - self.uintVars[timeOfLastNewValue] >=
-                15 minutes,
+                now - self.uintVars[timeOfLastNewValue] >= 15 minutes,
             "Incorrect nonce for current challenge"
         );
     }

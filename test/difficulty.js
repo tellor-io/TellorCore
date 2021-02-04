@@ -29,41 +29,41 @@ contract("Difficulty tests", function(accounts) {
     };
   });
 
-  // it("Test Difficulty Adjustment", async function() {
-  //   await helper.advanceTime(60 * 60 * 16);
-  //   await master.manuallySetDifficulty(100000000000);
-  //   await TestLib.mineBlock(env);
+  it("Test Difficulty Adjustment", async function() {
+    await helper.advanceTime(60 * 60 * 16);
+    await master.manuallySetDifficulty(100000000000);
+    await TestLib.mineBlock(env);
 
-  //   let diff1 = await master.getNewCurrentVariables();
-  //   assert(diff1[2] > 1, "difficulty greater than 1"); //difficulty not changing.....
-  //   let vars = await master.getNewCurrentVariables();
-  //   await helper.advanceTime(60 * 60 * 16);
-  //   await TestLib.mineBlock(env);
-  //   vars = await master.getNewCurrentVariables();
-  //   assert(vars[2] < diff1[2], "difficulty should continue to move down");
-  // });
+    let diff1 = await master.getNewCurrentVariables();
+    assert(diff1[2] > 1, "difficulty greater than 1"); //difficulty not changing.....
+    let vars = await master.getNewCurrentVariables();
+    await helper.advanceTime(60 * 60 * 16);
+    await TestLib.mineBlock(env);
+    vars = await master.getNewCurrentVariables();
+    assert(vars[2] < diff1[2], "difficulty should continue to move down");
+  });
 
-  // it("Test time travel in data -- really long time since last Poof and proper difficulty adjustment", async function() {
-  //   await helper.advanceTime(60 * 60 * 16);
-  //   await TestLib.mineBlock(env);
-  //   await master.manuallySetDifficulty(1000);
-  //   vars = await master.getNewCurrentVariables();
-  //   var oldDiff = vars[2];
-  //   assert(vars[2] > 1, "difficulty should be greater than 1"); //difficulty not changing.....
-  //   await helper.advanceTime(86400 * 20);
-  //   await TestLib.mineBlock(env);
-  //   vars = await master.getNewCurrentVariables();
-  //   var newDiff = vars[2];
-  //   assert(newDiff * 1 + 0 < oldDiff * 1 + 0, "difficulty should be lower");
-  // });
+  it("Test time travel in data -- really long time since last Poof and proper difficulty adjustment", async function() {
+    await helper.advanceTime(60 * 60 * 16);
+    await TestLib.mineBlock(env);
+    await master.manuallySetDifficulty(1000);
+    vars = await master.getNewCurrentVariables();
+    var oldDiff = vars[2];
+    assert(vars[2] > 1, "difficulty should be greater than 1"); //difficulty not changing.....
+    await helper.advanceTime(86400 * 20);
+    await TestLib.mineBlock(env);
+    vars = await master.getNewCurrentVariables();
+    var newDiff = vars[2];
+    assert(newDiff * 1 + 0 < oldDiff * 1 + 0, "difficulty should be lower");
+  });
 
-  // it("Test lower difficulty target (4 min)", async function() {
-  //   assert(
-  //     (await master.getUintVar(web3.utils.keccak256("timeTarget"))) ==
-  //       timeTarget
-  //   ),
-  //     "difficulty should be 240";
-  // });
+  it("Test lower difficulty target (4 min)", async function() {
+    assert(
+      (await master.getUintVar(web3.utils.keccak256("timeTarget"))) ==
+        timeTarget
+    ),
+      "difficulty should be 240";
+  });
 
   describe("Difficulty on 4th slot", async () => {
     beforeEach(async () => {
@@ -80,73 +80,19 @@ contract("Difficulty tests", function(accounts) {
       }
     });
 
-    // it("Difficulty decrease based on the 4th slot", async () => {
-    //   await helper.takeFifteen();
-    //   await TestLib.mineBlock(env);
-    //   await master.manuallySetDifficulty(1000);
-    //   let currentDiff = await getDiff();
-
-    //   await helper.takeFifteen();
-
-    //   // Mine 4 slots:
-    //   let vars = await env.master.getNewCurrentVariables();
-    //   const values = [1000, 1000, 1000, 1000, 1000];
-    //   for (var i = 0; i < 4; i++) {
-    //     res = await master.testSubmitMiningSolution(
-    //       "nonce",
-    //       vars["1"],
-    //       values,
-    //       {
-    //         from: accounts[i + 25],
-    //       }
-    //     );
-    //   }
-
-    //   let afterDiff = await getDiff();
-    //   assert(currentDiff > afterDiff, "Difficulty should have decreased");
-    // });
-
-    // it("Difficulty increase based on the 4th slot", async () => {
-    //   await helper.takeFifteen();
-    //   await TestLib.mineBlock(env);
-    //   await master.manuallySetDifficulty(1000);
-    //   let currentDiff = await getDiff();
-
-    //   //move only 1 minute
-    //   await helper.advanceTime(60);
-
-    //   // Mine 4 slots:
-    //   let vars = await env.master.getNewCurrentVariables();
-    //   const values = [1000, 1000, 1000, 1000, 1000];
-    //   for (var i = 0; i < 4; i++) {
-    //     res = await master.testSubmitMiningSolution(
-    //       "nonce",
-    //       vars["1"],
-    //       values,
-    //       {
-    //         from: accounts[i + 25],
-    //       }
-    //     );
-    //   }
-
-    //   let afterDiff = await getDiff();
-    //   assert(currentDiff < afterDiff, "Difficulty should have increase");
-    // });
-
-     it("Test nonce bypass", async () => {
+    it("Difficulty decrease based on the 4th slot", async () => {
       await helper.takeFifteen();
       await TestLib.mineBlock(env);
       await master.manuallySetDifficulty(1000);
       let currentDiff = await getDiff();
 
-      //move only 1 minute
-      await helper.advanceTime(46)
+      await helper.takeFifteen();
 
       // Mine 4 slots:
       let vars = await env.master.getNewCurrentVariables();
       const values = [1000, 1000, 1000, 1000, 1000];
-      for (var i = 0; i < 5; i++) {
-        res = await master.submitMiningSolution(
+      for (var i = 0; i < 4; i++) {
+        res = await master.testSubmitMiningSolution(
           "nonce",
           vars["1"],
           values,
@@ -155,57 +101,102 @@ contract("Difficulty tests", function(accounts) {
           }
         );
       }
+
+      let afterDiff = await getDiff();
+      assert(currentDiff > afterDiff, "Difficulty should have decreased");
     });
 
-    // it("Zero difficulty on the 5th slot", async () => {
-    //   // Increasing the diff
-    //   await TestLib.mineBlock({
-    //     master: master,
-    //     accounts: accounts.slice(30, 35),
-    //   });
-    //   await master.manuallySetDifficulty(1000);
+    it("Difficulty increase based on the 4th slot", async () => {
+      await helper.takeFifteen();
+      await TestLib.mineBlock(env);
+      await master.manuallySetDifficulty(1000);
+      let currentDiff = await getDiff();
 
-    //   await helper.advanceTime(61);
+      //move only 1 minute
+      await helper.advanceTime(60);
 
-    //   let vars = await env.master.getNewCurrentVariables();
-    //   const values = [1000, 1000, 1000, 1000, 1000];
+      // Mine 4 slots:
+      let vars = await env.master.getNewCurrentVariables();
+      const values = [1000, 1000, 1000, 1000, 1000];
+      for (var i = 0; i < 4; i++) {
+        res = await master.testSubmitMiningSolution(
+          "nonce",
+          vars["1"],
+          values,
+          {
+            from: accounts[i + 25],
+          }
+        );
+      }
 
-    //   //Try mine first slot with incorrect nonce
-    //   await helper.expectThrow(
-    //     master.submitMiningSolution("nonce", vars["1"], values, {
-    //       from: accounts[20],
-    //     })
-    //   );
+      let afterDiff = await getDiff();
+      assert(currentDiff < afterDiff, "Difficulty should have increase");
+    });
 
-    //   // Mine 4 slots bypassing the nonce:
-    //   for (var i = 0; i < 4; i++) {
-    //     res = await master.testSubmitMiningSolution(
-    //       "nonceer",
-    //       vars["1"],
-    //       values,
-    //       {
-    //         from: accounts[i + 25],
-    //       }
-    //     );
-    //   }
+     it("Test nonce bypass", async () => {
+      await helper.takeFifteen();
+      await TestLib.mineBlock(env);
+      await master.manuallySetDifficulty(1000);
+      let currentDiff = await getDiff();
 
-    //   //Mine the 5th with any nonce
-    //   await master.submitMiningSolution("nonce", vars["1"], values, {
-    //     from: accounts[20],
-    //   });
+      let vars = await env.master.getNewCurrentVariables();
+      const values = [1000, 1000, 1000, 1000, 1000];
+      await helper.expectThrow(
+        master.submitMiningSolution("nonce", vars["1"], values, {
+          from: accounts[26],
+        })
+      );
+    });
 
-    //   let requestId = vars["1"][0];
-    //   let count = await master.getNewValueCountbyRequestId(requestId);
-    //   let timestamp = await master.getTimestampbyRequestIDandIndex(
-    //     requestId,
-    //     count.toNumber() - 1
-    //   );
+    it("Zero difficulty on the 5th slot", async () => {
+      // Increasing the diff
+      await TestLib.mineBlock({
+        master: master,
+        accounts: accounts.slice(30, 35),
+      });
+      await master.manuallySetDifficulty(1000);
 
-    //   let miners = await master.getMinersByRequestIdAndTimestamp(
-    //     requestId,
-    //     timestamp
-    //   );
-    //   assert(miners.indexOf(accounts[20]) != -1, "miner should have mined");
-    // });
+      await helper.advanceTime(61);
+
+      let vars = await env.master.getNewCurrentVariables();
+      const values = [1000, 1000, 1000, 1000, 1000];
+
+      //Try mine first slot with incorrect nonce
+      await helper.expectThrow(
+        master.submitMiningSolution("nonce", vars["1"], values, {
+          from: accounts[20],
+        })
+      );
+
+      // Mine 4 slots bypassing the nonce:
+      for (var i = 0; i < 4; i++) {
+        res = await master.testSubmitMiningSolution(
+          "nonceer",
+          vars["1"],
+          values,
+          {
+            from: accounts[i + 25],
+          }
+        );
+      }
+
+      //Mine the 5th with any nonce
+      await master.submitMiningSolution("nonce", vars["1"], values, {
+        from: accounts[20],
+      });
+
+      let requestId = vars["1"][0];
+      let count = await master.getNewValueCountbyRequestId(requestId);
+      let timestamp = await master.getTimestampbyRequestIDandIndex(
+        requestId,
+        count.toNumber() - 1
+      );
+
+      let miners = await master.getMinersByRequestIdAndTimestamp(
+        requestId,
+        timestamp
+      );
+      assert(miners.indexOf(accounts[20]) != -1, "miner should have mined");
+    });
   });
 });
